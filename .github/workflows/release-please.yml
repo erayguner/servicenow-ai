@@ -1,0 +1,77 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run Release Please
+        uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          # Optional: Customize the release process
+          # token: ${{ secrets.GITHUB_TOKEN }}  # Default, can use PAT if needed
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # Optional: Upload release artifacts (Terraform modules as archives)
+      - name: Checkout code
+        if: ${{ steps.release.outputs.releases_created }}
+        uses: actions/checkout@v4
+
+      - name: Package Terraform Modules
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          mkdir -p release-artifacts
+
+          # Package each Terraform module
+          for module in terraform/modules/*/; do
+            module_name=$(basename "$module")
+            tar -czf "release-artifacts/${module_name}-${{ steps.release.outputs.tag_name }}.tar.gz" -C terraform/modules "$module_name"
+          done
+
+          # Package full infrastructure
+          tar -czf "release-artifacts/servicenow-ai-infrastructure-${{ steps.release.outputs.tag_name }}.tar.gz" \
+            --exclude='.terraform' \
+            --exclude='*.tfstate*' \
+            --exclude='.git' \
+            terraform/ k8s/
+
+      - name: Upload Release Artifacts
+        if: ${{ steps.release.outputs.releases_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Upload all packaged modules to the release
+          for artifact in release-artifacts/*.tar.gz; do
+            gh release upload ${{ steps.release.outputs.tag_name }} "$artifact"
+          done
+
+      # Optional: Post-release actions
+      - name: Notify Release
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          echo "::notice::🎉 Release ${{ steps.release.outputs.tag_name }} created successfully!"
+          echo "::notice::📦 Release URL: ${{ steps.release.outputs.html_url }}"
+
+          # Add Slack/Teams notification here if needed
+          # curl -X POST -H 'Content-type: application/json' \
+          #   --data '{"text":"New release: ${{ steps.release.outputs.tag_name }}"}' \
+          #   ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # Optional: Trigger deployment workflow after release
+      - name: Trigger Deployment
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          echo "::notice::Release created, you can now trigger deployment workflow"
+          # gh workflow run deploy.yml -f version=${{ steps.release.outputs.tag_name }}

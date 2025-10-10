@@ -1,0 +1,84 @@
+# Pod Security Standards for Production Namespace
+# Enforces restricted security profile
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    # Enforce Pod Security Standards (PSS)
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+
+    # Istio injection
+    istio-injection: enabled
+
+---
+# Example: Secure Pod Configuration Template
+apiVersion: v1
+kind: Pod
+metadata:
+  name: conversation-manager
+  namespace: production
+  labels:
+    app: conversation-manager
+spec:
+  serviceAccountName: conversation-manager-sa
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+
+  containers:
+  - name: app
+    image: gcr.io/PROJECT_ID/conversation-manager:v1.0.0
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1000
+      capabilities:
+        drop:
+        - ALL
+
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+    - name: cache
+      mountPath: /app/cache
+
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+  volumes:
+  - name: tmp
+    emptyDir: {}
+  - name: cache
+    emptyDir: {}

@@ -1,0 +1,107 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "servicenow-ai-infrastructure",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false,
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "terraform/environments/prod/variables.tf",
+          "glob": false
+        },
+        {
+          "type": "generic",
+          "path": "terraform/environments/staging/variables.tf",
+          "glob": false
+        },
+        {
+          "type": "generic",
+          "path": "terraform/environments/dev/variables.tf",
+          "glob": false
+        }
+      ]
+    },
+    "terraform/modules/gke": {
+      "release-type": "terraform-module",
+      "package-name": "gke-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/vpc": {
+      "release-type": "terraform-module",
+      "package-name": "vpc-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/cloudsql": {
+      "release-type": "terraform-module",
+      "package-name": "cloudsql-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/kms": {
+      "release-type": "terraform-module",
+      "package-name": "kms-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/workload_identity": {
+      "release-type": "terraform-module",
+      "package-name": "workload-identity-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    }
+  },
+  "release-search-depth": 500,
+  "commit-search-depth": 500,
+  "pull-request-title-pattern": "chore: release${component} ${version}",
+  "changelog-sections": [
+    {
+      "type": "feat",
+      "section": "Features",
+      "hidden": false
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes",
+      "hidden": false
+    },
+    {
+      "type": "perf",
+      "section": "Performance Improvements",
+      "hidden": false
+    },
+    {
+      "type": "refactor",
+      "section": "Code Refactoring",
+      "hidden": false
+    },
+    {
+      "type": "docs",
+      "section": "Documentation",
+      "hidden": false
+    },
+    {
+      "type": "chore",
+      "section": "Miscellaneous",
+      "hidden": true
+    },
+    {
+      "type": "test",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "build",
+      "section": "Build System",
+      "hidden": true
+    },
+    {
+      "type": "ci",
+      "section": "Continuous Integration",
+      "hidden": true
+    }
+  ]
+}
