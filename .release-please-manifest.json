@@ -1,5 +1,5 @@
 {
-  ".": "0.1.0",
+  ".": "0.1.1",
   "terraform/modules/gke": "1.0.0",
   "terraform/modules/vpc": "1.0.0",
   "terraform/modules/cloudsql": "1.0.0",
