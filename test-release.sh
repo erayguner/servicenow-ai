@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # 1. Verify files exist
 echo "📋 Step 1: Verifying configuration files..."
-if [ -f ".release-please-config.json" ] && [ -f ".release-please-manifest.json" ] && [ -f ".github/workflows/release-please.yml" ]; then
+if [ -f ".github/.release-please-config.json" ] && [ -f ".github/.release-please-manifest.json" ] && [ -f ".github/workflows/release-please.yml" ]; then
     echo -e "${GREEN}✅ All configuration files present${NC}"
 else
     echo -e "${RED}❌ Missing configuration files${NC}"
@@ -39,7 +39,7 @@ fi
 # 3. Show current versions
 echo ""
 echo "📊 Step 3: Current versions..."
-cat .release-please-manifest.json
+cat .github/.release-please-manifest.json
 
 # 4. Create test file
 echo ""

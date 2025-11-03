@@ -18,7 +18,7 @@ FAIL=0
 
 # Test 1: Config file exists
 echo -n "1. Checking .release-please-config.json... "
-if [ -f ".release-please-config.json" ]; then
+if [ -f ".github/.release-please-config.json" ]; then
     echo -e "${GREEN}✅ PASS${NC}"
     ((PASS++))
 else
@@ -28,7 +28,7 @@ fi
 
 # Test 2: Manifest file exists
 echo -n "2. Checking .release-please-manifest.json... "
-if [ -f ".release-please-manifest.json" ]; then
+if [ -f ".github/.release-please-manifest.json" ]; then
     echo -e "${GREEN}✅ PASS${NC}"
     ((PASS++))
 else
@@ -69,7 +69,7 @@ fi
 # Test 6: Config JSON is valid
 echo -n "6. Validating config JSON syntax... "
 if command -v jq &> /dev/null; then
-    if jq empty .release-please-config.json 2>/dev/null; then
+    if jq empty .github/.release-please-config.json 2>/dev/null; then
         echo -e "${GREEN}✅ PASS${NC}"
         ((PASS++))
     else
@@ -83,7 +83,7 @@ fi
 # Test 7: Manifest JSON is valid
 echo -n "7. Validating manifest JSON syntax... "
 if command -v jq &> /dev/null; then
-    if jq empty .release-please-manifest.json 2>/dev/null; then
+    if jq empty .github/.release-please-manifest.json 2>/dev/null; then
         echo -e "${GREEN}✅ PASS${NC}"
         ((PASS++))
     else
@@ -97,7 +97,7 @@ fi
 # Test 8: Check package configuration
 echo -n "8. Checking package configuration... "
 if command -v jq &> /dev/null; then
-    PACKAGE_COUNT=$(jq '.packages | length' .release-please-config.json 2>/dev/null)
+    PACKAGE_COUNT=$(jq '.packages | length' .github/.release-please-config.json 2>/dev/null)
     if [ "$PACKAGE_COUNT" -ge 1 ]; then
         echo -e "${GREEN}✅ PASS ($PACKAGE_COUNT packages)${NC}"
         ((PASS++))
@@ -136,14 +136,14 @@ echo ""
 echo -e "${BLUE}📦 Package Configuration:${NC}"
 echo ""
 if command -v jq &> /dev/null; then
-    jq -r '.packages | to_entries[] | "  • \(.key): \(.value."package-name" // "unnamed") (type: \(.value."release-type"))"' .release-please-config.json 2>/dev/null
+    jq -r '.packages | to_entries[] | "  • \(.key): \(.value."package-name" // "unnamed") (type: \(.value."release-type"))"' .github/.release-please-config.json 2>/dev/null
 fi
 
 echo ""
 echo -e "${BLUE}📋 Current Versions:${NC}"
 echo ""
 if command -v jq &> /dev/null; then
-    jq -r 'to_entries[] | "  • \(.key): v\(.value)"' .release-please-manifest.json 2>/dev/null
+    jq -r 'to_entries[] | "  • \(.key): v\(.value)"' .github/.release-please-manifest.json 2>/dev/null
 fi
 
 echo ""
