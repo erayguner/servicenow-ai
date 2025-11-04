@@ -35,6 +35,7 @@ module "gke" {
   region                  = var.region
   network                 = module.vpc.network_self_link
   subnetwork              = values(module.vpc.subnet_self_links)[0]
+  subnetwork_name         = "staging-core-us-central1"
   cluster_name            = "staging-ai-agent-gke"
   master_ipv4_cidr_block  = var.gke_master_cidr
   authorized_master_cidrs = []

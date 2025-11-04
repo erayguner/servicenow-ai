@@ -60,10 +60,8 @@ resource "google_container_cluster" "primary" {
   }
 
   maintenance_policy {
-    recurring_window {
-      start_time = "2025-01-01T05:00:00Z"
-      end_time   = "2025-01-01T09:00:00Z"
-      recurrence = "FREQ=WEEKLY;BYDAY=SA,SU"
+    daily_maintenance_window {
+      start_time = "05:00"
     }
   }
 }
@@ -87,8 +85,8 @@ resource "google_container_node_pool" "general" {
     ]
     labels       = merge(var.labels, { pool = "general" })
     tags         = concat(var.tags, ["general-pool"])
-    disk_size_gb = 100
-    disk_type    = "pd-ssd"
+    disk_size_gb = 50
+    disk_type    = "pd-standard"  # Use standard disk instead of SSD
   }
 }
 
@@ -116,8 +114,8 @@ resource "google_container_node_pool" "ai_inference" {
       value  = "ai-inference"
       effect = "NO_SCHEDULE"
     }
-    disk_size_gb = 200
-    disk_type    = "pd-ssd"
+    disk_size_gb = 50
+    disk_type    = "pd-ssd"  # Keep SSD for AI workloads
   }
 }
 
@@ -140,8 +138,8 @@ resource "google_container_node_pool" "vector" {
     ]
     labels       = merge(var.labels, { pool = "vector-db" })
     tags         = concat(var.tags, ["vector-db"])
-    disk_size_gb = 200
-    disk_type    = "pd-ssd"
+    disk_size_gb = 50
+    disk_type    = "pd-ssd"  # Keep SSD for vector DB
   }
 }
 

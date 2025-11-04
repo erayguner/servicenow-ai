@@ -414,3 +414,4 @@ local.config.json
 # macOS extended attributes
 .Spotlight-V100/
 .fseventsd/
+!/.github/

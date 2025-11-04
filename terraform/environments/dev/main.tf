@@ -32,9 +32,10 @@ module "vpc" {
 module "gke" {
   source                  = "../../modules/gke"
   project_id              = var.project_id
-  region                  = var.region
+  region                  = "europe-west2-a"  # Use single zone instead of region for dev
   network                 = module.vpc.network_self_link
   subnetwork              = values(module.vpc.subnet_self_links)[0]
+  subnetwork_name         = "dev-core-us-central1"
   cluster_name            = "dev-ai-agent-gke"
   master_ipv4_cidr_block  = var.gke_master_cidr
   authorized_master_cidrs = []
@@ -49,11 +50,11 @@ module "storage" {
   project_id = var.project_id
   location   = var.region
   buckets = [
-    { name = "knowledge-documents-dev", kms_key = module.kms.key_ids["storage"] },
-    { name = "document-chunks-dev", kms_key = module.kms.key_ids["storage"] },
-    { name = "user-uploads-dev", kms_key = module.kms.key_ids["storage"], lifecycle_rules = [{ action = { type = "Delete" }, condition = { age = 14 } }] },
-    { name = "backup-dev", kms_key = module.kms.key_ids["storage"] },
-    { name = "audit-logs-archive-dev", kms_key = module.kms.key_ids["storage"] }
+    { name = "${var.project_id}-knowledge-documents-dev", kms_key = module.kms.key_ids["storage"] },
+    { name = "${var.project_id}-document-chunks-dev", kms_key = module.kms.key_ids["storage"] },
+    { name = "${var.project_id}-user-uploads-dev", kms_key = module.kms.key_ids["storage"], lifecycle_rules = [{ action = { type = "Delete" }, condition = { age = 14 } }] },
+    { name = "${var.project_id}-backup-dev", kms_key = module.kms.key_ids["storage"] },
+    { name = "${var.project_id}-audit-logs-archive-dev", kms_key = module.kms.key_ids["storage"] }
   ]
 }
 
@@ -79,13 +80,17 @@ module "redis" {
 }
 
 module "cloudsql" {
-  source        = "../../modules/cloudsql"
-  project_id    = var.project_id
-  region        = var.region
-  instance_name = "dev-postgres"
-  kms_key       = module.kms.key_ids["cloudsql"]
-  databases     = ["users", "audit_logs", "knowledge_metadata", "action_logs"]
-  users         = []
+  source          = "../../modules/cloudsql"
+  project_id      = var.project_id
+  region          = var.region
+  instance_name   = "dev-postgres"
+  kms_key         = module.kms.key_ids["cloudsql"]
+  private_network = module.vpc.network_self_link
+  disk_size       = 50  # Reduce from 100GB to 50GB for dev
+  databases       = ["users", "audit_logs", "knowledge_metadata", "action_logs"]
+  users           = []
+
+  depends_on = [module.vpc]
 }
 
 module "firestore" {
@@ -108,10 +113,12 @@ module "secrets" {
   ]
 }
 
-module "budget" {
-  source          = "../../shared/billing_budget"
-  billing_account = var.billing_account
-  project_id      = var.project_id
-  amount_monthly  = 2000
-  thresholds      = [0.5, 0.8, 1.0]
-}
+# Billing budget - comment out due to quota project authentication issues
+# Create manually in GCP Console: Billing > Budgets & Alerts
+# module "budget" {
+#   source          = "../../shared/billing_budget"
+#   billing_account = var.billing_account
+#   project_id      = var.project_id
+#   amount_monthly  = 20
+#   thresholds      = [0.5, 0.8, 1.0]
+# }

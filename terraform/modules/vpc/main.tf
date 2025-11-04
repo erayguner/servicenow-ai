@@ -62,6 +62,22 @@ resource "google_compute_router_nat" "nat" {
   }
 }
 
+# Private Service Connection for Cloud SQL
+resource "google_compute_global_address" "private_ip_address" {
+  name          = "${var.network_name}-private-ip"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.vpc.id
+  project       = var.project_id
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+  network                 = google_compute_network.vpc.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+}
+
 # Default firewall: deny-all, then explicit allows are expected per service
 resource "google_compute_firewall" "deny_all_egress" {
   count    = var.create_fw_default_deny ? 1 : 0

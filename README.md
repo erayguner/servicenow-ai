@@ -25,8 +25,9 @@ This repository contains the complete infrastructure-as-code setup for deploying
 
 **Compute & Orchestration**
 - GKE (Google Kubernetes Engine) - Private cluster with Workload Identity
-- 4 specialized node pools (general, AI workloads, vector search, batch processing)
-- Autopilot mode support with cost optimization
+- 3 specialized node pools (general, AI workloads, vector search)
+- Zonal cluster for dev (cost-optimized), Regional for staging/prod (HA)
+- Autoscaling enabled on all pools
 
 **Networking**
 - VPC with private subnets and Cloud NAT
@@ -150,6 +151,8 @@ This repository contains the complete infrastructure-as-code setup for deploying
 
 ## Quick Start
 
+> **📖 For complete end-to-end deployment, see [DEPLOYMENT_RUNBOOK.md](terraform/environments/dev/DEPLOYMENT_RUNBOOK.md)**
+
 ### 1. Clone Repository
 
 ```bash
@@ -160,11 +163,20 @@ cd servicenow-ai
 ### 2. Configure GCP Credentials
 
 ```bash
-# Authenticate
-gcloud auth application-default login
+# Authenticate with quota project
+gcloud auth application-default login --project=YOUR_PROJECT_ID
 
 # Set project
 gcloud config set project YOUR_PROJECT_ID
+
+# Enable required APIs
+gcloud services enable compute.googleapis.com \
+  container.googleapis.com \
+  sqladmin.googleapis.com \
+  cloudkms.googleapis.com \
+  secretmanager.googleapis.com \
+  servicenetworking.googleapis.com \
+  redis.googleapis.com
 ```
 
 ### 3. Initialize Terraform
@@ -177,42 +189,64 @@ cat > terraform.tfvars <<EOF
 project_id      = "your-project-id"
 region          = "europe-west2"
 billing_account = "XXXXXX-XXXXXX-XXXXXX"
-github_org      = "your-github-org"
-github_repo     = "servicenow-ai"
+gke_master_cidr = "172.16.0.0/28"
 EOF
 
-# Initialize
+# Initialize and create backend
 terraform init
 
-# Plan
-terraform plan -var-file=terraform.tfvars
+# Plan and review changes
+terraform plan
 
-# Apply
-terraform apply -var-file=terraform.tfvars
+# Apply infrastructure
+terraform apply
 ```
+
+**Important Notes:**
+- **Dev environment uses ZONAL cluster** (europe-west2-a) to stay within SSD quota limits
+- **Staging/Prod use REGIONAL clusters** (europe-west2) for high availability
+- Initial deployment takes ~15-20 minutes
+- See [DEPLOYMENT_SUMMARY.md](terraform/environments/dev/DEPLOYMENT_SUMMARY.md) for detailed resource list
 
 ### 4. Configure Kubernetes
 
 ```bash
-# Get GKE credentials
+# Get GKE credentials (zonal for dev)
 gcloud container clusters get-credentials dev-ai-agent-gke \
-  --region europe-west2 \
+  --location europe-west2-a \
   --project YOUR_PROJECT_ID
 
-# Update ServiceAccount annotations
-sed -i 's/PROJECT_ID/your-project-id/g' ../../k8s/service-accounts/all-service-accounts.yaml
+# Verify cluster access
+kubectl cluster-info
+kubectl get nodes
 
-# Apply Kubernetes resources
+# Deploy Kubernetes resources
 kubectl apply -f ../../k8s/service-accounts/
 kubectl apply -f ../../k8s/network-policies/
 kubectl apply -f ../../k8s/pod-security/
 ```
 
-### 5. Verify Deployment
+### 5. Populate Secrets
 
 ```bash
-# Check Terraform outputs
-terraform output
+# Add API keys to Secret Manager
+echo -n "your-openai-key" | gcloud secrets versions add openai-api-key \
+  --data-file=- --project=YOUR_PROJECT_ID
+
+echo -n "your-anthropic-key" | gcloud secrets versions add anthropic-api-key \
+  --data-file=- --project=YOUR_PROJECT_ID
+
+# Repeat for other secrets (slack, servicenow, etc.)
+```
+
+### 6. Verify Deployment
+
+```bash
+# Check all GCP resources
+gcloud container clusters list
+gcloud sql instances list
+gcloud storage buckets list
+gcloud pubsub topics list
 
 # Verify Kubernetes resources
 kubectl get serviceaccounts -n production

@@ -23,7 +23,7 @@ variable "availability_type" {
 }
 variable "deletion_protection" {
   type    = bool
-  default = true
+  default = false
 }
 variable "kms_key" { type = string }
 variable "databases" {
