@@ -4,19 +4,7 @@ resource "google_secret_manager_secret" "secrets" {
   secret_id = each.value.name
 
   replication {
-    dynamic "user_managed" {
-      for_each = each.value.replication.automatic ? [] : [1]
-      content {
-        dynamic "replicas" {
-          for_each = toset(try(each.value.replication.locations, []))
-          content { location = replicas.value }
-        }
-      }
-    }
-    dynamic "automatic" {
-      for_each = each.value.replication.automatic ? [1] : []
-      content {}
-    }
+    auto {}
   }
 
   labels = try(each.value.labels, {})

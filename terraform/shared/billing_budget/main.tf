@@ -1,4 +1,4 @@
-resource "google_billing_budget_budget" "monthly" {
+resource "google_billing_budget" "monthly" {
   billing_account = var.billing_account
   display_name    = "${var.project_id}-monthly-budget"
 
@@ -9,8 +9,8 @@ resource "google_billing_budget_budget" "monthly" {
   amount {
     specified_amount {
       currency_code = "USD"
-      units         = floor(var.amount_monthly)
-      nanos         = (var.amount_monthly - floor(var.amount_monthly)) * 1e9
+      units         = tostring(floor(var.amount_monthly))
+      nanos         = floor((var.amount_monthly - floor(var.amount_monthly)) * 1e9)
     }
   }
 

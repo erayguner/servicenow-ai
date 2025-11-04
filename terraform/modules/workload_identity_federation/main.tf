@@ -110,7 +110,7 @@ output "github_workflow_example" {
     - id: auth
       uses: google-github-actions/auth@v1
       with:
-        workload_identity_provider: '${output.workload_identity_provider.value}'
+        workload_identity_provider: 'projects/${var.project_number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_pool.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github_provider.workload_identity_pool_provider_id}'
         service_account: '${google_service_account.github_actions.email}'
   EOT
 }

@@ -52,6 +52,54 @@
       "package-name": "workload-identity-module",
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": true
+    },
+    "terraform/modules/addons": {
+      "release-type": "terraform-module",
+      "package-name": "addons-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/firestore": {
+      "release-type": "terraform-module",
+      "package-name": "firestore-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/pubsub": {
+      "release-type": "terraform-module",
+      "package-name": "pubsub-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/redis": {
+      "release-type": "terraform-module",
+      "package-name": "redis-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/secret_manager": {
+      "release-type": "terraform-module",
+      "package-name": "secret-manager-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/storage": {
+      "release-type": "terraform-module",
+      "package-name": "storage-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/vertex_ai": {
+      "release-type": "terraform-module",
+      "package-name": "vertex-ai-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
+    },
+    "terraform/modules/workload_identity_federation": {
+      "release-type": "terraform-module",
+      "package-name": "workload-identity-federation-module",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true
     }
   },
   "release-search-depth": 500,
@@ -81,6 +129,11 @@
     {
       "type": "docs",
       "section": "Documentation",
+      "hidden": false
+    },
+    {
+      "type": "security",
+      "section": "Security",
       "hidden": false
     },
     {
