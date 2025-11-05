@@ -7,8 +7,10 @@ run "plan_kms" {
     location     = "europe-west2"
     keyring_name = "test-kr"
     keys = {
-      storage = "7776000s"
-      pubsub  = "7776000s"
+      storage  = "7776000s"
+      pubsub   = "7776000s"
+      cloudsql = "7776000s"
+      secrets  = "7776000s"
     }
   }
 
@@ -18,7 +20,7 @@ run "plan_kms" {
   }
 
   assert {
-    condition     = length(resource.google_kms_crypto_key.keys) >= 2
-    error_message = "Expected at least 2 KMS keys"
+    condition     = length(resource.google_kms_crypto_key.keys) >= 4
+    error_message = "Expected at least 4 KMS keys"
   }
 }
