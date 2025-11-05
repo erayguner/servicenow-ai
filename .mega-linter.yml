@@ -23,4 +23,3 @@ PYTHON_MYPY_ARGUMENTS: '--ignore-missing-imports'
 # Report configuration
 PRINT_ALPACA: false
 SHOW_SPINNER: true
-

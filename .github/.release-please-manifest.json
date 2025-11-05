@@ -1,16 +1,16 @@
 {
   ".": "0.1.0",
-  "terraform/modules/gke": "1.0.0",
-  "terraform/modules/vpc": "1.0.0",
-  "terraform/modules/cloudsql": "1.0.0",
-  "terraform/modules/kms": "1.0.0",
-  "terraform/modules/workload_identity": "1.0.0",
   "terraform/modules/addons": "1.0.0",
+  "terraform/modules/cloudsql": "1.0.0",
   "terraform/modules/firestore": "1.0.0",
+  "terraform/modules/gke": "1.0.0",
+  "terraform/modules/kms": "1.0.0",
   "terraform/modules/pubsub": "1.0.0",
   "terraform/modules/redis": "1.0.0",
   "terraform/modules/secret_manager": "1.0.0",
   "terraform/modules/storage": "1.0.0",
   "terraform/modules/vertex_ai": "1.0.0",
+  "terraform/modules/vpc": "1.0.0",
+  "terraform/modules/workload_identity": "1.0.0",
   "terraform/modules/workload_identity_federation": "1.0.0"
 }

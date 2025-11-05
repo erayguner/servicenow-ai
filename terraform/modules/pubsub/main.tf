@@ -7,4 +7,3 @@ resource "google_pubsub_topic" "topics" {
 }
 
 output "topic_names" { value = [for t in google_pubsub_topic.topics : t.name] }
-

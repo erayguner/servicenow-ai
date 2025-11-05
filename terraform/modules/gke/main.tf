@@ -142,5 +142,3 @@ resource "google_container_node_pool" "vector" {
     disk_type    = "pd-ssd" # Keep SSD for vector DB
   }
 }
-
-

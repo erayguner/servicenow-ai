@@ -21,7 +21,7 @@ run "plan_addons" {
   }
 
   assert {
-    condition     = resource.kubernetes_ingress_v1.internal_ui_ingress.metadata[0].annotations["networking.gke.io/security-policy"] == "prod-gke-waf"
+    condition     = resource.kubernetes_ingress_v1.internal_ui_ingress[0].metadata[0].annotations["networking.gke.io/security-policy"] == "prod-gke-waf"
     error_message = "Ingress must carry Cloud Armor policy annotation"
   }
 }

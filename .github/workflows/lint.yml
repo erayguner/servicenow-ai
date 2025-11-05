@@ -160,8 +160,8 @@ jobs:
 
       - name: Summary
         run: |
-          echo "Lint summary:" 
-          echo "YAML: ${{ steps.detect.outputs.yaml }}" 
-          echo "Kubernetes: ${{ steps.detect.outputs.k8s }}" 
-          echo "Terraform: ${{ steps.detect.outputs.terraform }}" 
+          echo "Lint summary:"
+          echo "YAML: ${{ steps.detect.outputs.yaml }}"
+          echo "Kubernetes: ${{ steps.detect.outputs.k8s }}"
+          echo "Terraform: ${{ steps.detect.outputs.terraform }}"
           echo "Python: ${{ steps.detect.outputs.python }}"

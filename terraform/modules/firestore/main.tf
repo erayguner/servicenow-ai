@@ -9,4 +9,3 @@ resource "google_firestore_database" "db" {
 }
 
 output "firestore_id" { value = google_firestore_database.db.id }
-

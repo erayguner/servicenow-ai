@@ -37,4 +37,3 @@ resource "google_vertex_ai_index_endpoint" "kb_endpoint" {
 
 output "index_id" { value = google_vertex_ai_index.kb_index.id }
 output "endpoint_id" { value = google_vertex_ai_index_endpoint.kb_endpoint.id }
-

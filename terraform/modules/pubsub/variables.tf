@@ -6,4 +6,3 @@ variable "topics" {
     kms_key                    = optional(string)
   }))
 }
-

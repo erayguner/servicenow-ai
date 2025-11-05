@@ -102,19 +102,19 @@ jobs:
         set -euo pipefail
         # Create namespace if it doesn't exist
         kubectl create namespace production --dry-run=client -o yaml | kubectl apply -f -
-        
+
         # Apply service accounts (Workload Identity)
         kubectl apply -f k8s/service-accounts/
-        
+
         # Apply network policies
         kubectl apply -f k8s/network-policies/
-        
+
         # Apply pod security standards
         kubectl apply -f k8s/pod-security/
-        
+
         # Deploy applications
         kubectl apply -f k8s/deployments/
-        
+
         # Update image tag only if image was built (skip if build skipped)
         if kubectl get deployment conversation-manager -n production >/dev/null 2>&1; then
           kubectl set image deployment/conversation-manager \

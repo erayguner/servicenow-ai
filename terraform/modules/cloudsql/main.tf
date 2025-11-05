@@ -51,5 +51,3 @@ resource "google_sql_user" "users" {
   instance = google_sql_database_instance.pg.name
   password = try(each.value.password, null)
 }
-
-

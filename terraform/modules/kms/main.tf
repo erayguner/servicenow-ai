@@ -41,4 +41,3 @@ resource "google_kms_crypto_key_iam_member" "cloudsql_key_encrypter" {
 data "google_project" "project" {
   project_id = var.project_id
 }
-

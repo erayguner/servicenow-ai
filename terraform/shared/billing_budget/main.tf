@@ -26,4 +26,3 @@ resource "google_billing_budget" "monthly" {
     }
   }
 }
-
