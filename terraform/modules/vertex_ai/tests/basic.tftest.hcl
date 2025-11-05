@@ -10,7 +10,12 @@ run "plan_vertex" {
   }
 
   assert {
-    condition     = resource.google_beta_vertex_ai_index.kb_index.display_name == "test-kb-index"
+    condition     = resource.google_vertex_ai_index.kb_index.display_name == "test-kb-index"
     error_message = "Vertex AI Index display name mismatch"
+  }
+
+  assert {
+    condition     = resource.google_vertex_ai_index_endpoint.kb_endpoint.display_name == "test-kb-index-endpoint"
+    error_message = "Vertex AI Index Endpoint display name mismatch"
   }
 }
