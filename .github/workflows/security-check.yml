@@ -123,6 +123,6 @@ jobs:
         echo ""
         echo "📚 Documentation:"
         echo "  - Workload Identity Guide: docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md"
-        echo "  - Security Implementation: SECURITY_IMPLEMENTATION_SUMMARY.md"
+        echo "  - Security Enhancements Summary: SECURITY_ENHANCEMENTS_SUMMARY.md"
         echo ""
         echo "Need help? Contact the security team."
