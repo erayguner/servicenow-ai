@@ -13,10 +13,13 @@ repos:
 
   # Python linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.0
+    # Ruff version.
+    rev: v0.14.3
     hooks:
-      - id: ruff
+      # Run the linter.
+      - id: ruff-check
         args: [--fix]
+      # Run the formatter.
       - id: ruff-format
 
   # Basic security
@@ -32,3 +35,10 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
+
+  # Kubernetes linting
+  - repo: https://github.com/stackrox/kube-linter
+    rev: v0.6.8
+    hooks:
+      - id: kube-linter-system
+        args: ['--config', '.kube-linter.yaml']

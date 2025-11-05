@@ -27,12 +27,16 @@ pre-commit-terraform: ## Run only Terraform pre-commit hooks
 
 pre-commit-python: ## Run only Python pre-commit hooks
 	@echo "🐍 Running Python hooks..."
-	pre-commit run ruff --all-files
+	pre-commit run ruff-check --all-files
 	pre-commit run ruff-format --all-files
 
 pre-commit-secrets: ## Run only secrets detection
 	@echo "🔐 Scanning for secrets..."
 	pre-commit run detect-secrets --all-files
+
+pre-commit-k8s: ## Run only Kubernetes linting
+	@echo "☸️  Running Kubernetes linting..."
+	pre-commit run kube-linter-system --all-files
 
 pre-commit-fix: ## Run hooks that auto-fix issues
 	@echo "🔧 Running auto-fix hooks..."
