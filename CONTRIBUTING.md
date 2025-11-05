@@ -26,17 +26,19 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 ### Prerequisites
 
-- Terraform >= 1.0
+- Terraform >= 1.11.0
 - Google Cloud SDK
 - kubectl
-- Docker
+- pre-commit
+- Python 3.11+ (for Ruff linting)
+- Docker (optional)
 - GitHub CLI (optional)
 
 ### Setup
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/YOUR_ORG/servicenow-ai.git
+   git clone https://github.com/erayguner/servicenow-ai.git
    cd servicenow-ai
    ```
 
@@ -50,9 +52,23 @@ This project adheres to a code of conduct. By participating, you are expected to
 
    # Install kubectl
    brew install kubectl
+
+   # Install pre-commit
+   brew install pre-commit
    ```
 
-3. **Configure GCP credentials**:
+3. **Install pre-commit hooks**:
+   ```bash
+   # Install git hooks
+   pre-commit install
+
+   # Test hooks (optional)
+   pre-commit run --all-files
+   ```
+
+   > See [PRE_COMMIT_QUICKSTART.md](PRE_COMMIT_QUICKSTART.md) for details
+
+4. **Configure GCP credentials**:
    ```bash
    gcloud auth application-default login
    gcloud config set project YOUR_PROJECT_ID
@@ -166,14 +182,20 @@ git checkout -b fix/bug-description
 ### 3. Test Your Changes
 
 ```bash
-# Validate Terraform
-terraform validate
+# Run pre-commit checks (runs automatically on commit)
+make pre-commit
 
-# Run tests
-terraform test
+# Or run specific checks
+make pre-commit-terraform  # Terraform fmt + validate
+make pre-commit-python     # Ruff linting
+make pre-commit-secrets    # Secret scanning
+make pre-commit-k8s        # KubeLinter
 
-# Format code
-terraform fmt -recursive
+# Run Terraform tests
+make terraform-test
+
+# Full CI simulation
+make ci
 ```
 
 ### 4. Commit Your Changes
@@ -182,9 +204,15 @@ terraform fmt -recursive
 # Stage changes
 git add .
 
-# Commit with conventional format
+# Commit with conventional format (pre-commit runs automatically)
+git commit -m "feat(module-name): add new feature"
+
+# If pre-commit modifies files, stage and commit again
+git add -u
 git commit -m "feat(module-name): add new feature"
 ```
+
+> **Note**: Pre-commit hooks will run automatically and may auto-fix issues. If files are modified, you'll need to stage and commit again.
 
 ### 5. Push and Create PR
 
@@ -202,11 +230,14 @@ gh pr create --title "feat: add new feature" --body "Description of changes"
 ### PR Requirements
 
 1. ✅ **Conventional Commit** title format
-2. ✅ **Tests passing** - All Terraform tests must pass
-3. ✅ **Code formatted** - Run `terraform fmt`
-4. ✅ **Documentation updated** - Update README if needed
-5. ✅ **No merge conflicts** - Rebase on latest main
-6. ✅ **Review approved** - At least one approval required
+2. ✅ **Pre-commit checks passing** - All hooks must pass
+3. ✅ **Tests passing** - All Terraform tests must pass
+4. ✅ **Code formatted** - Terraform fmt, Ruff format
+5. ✅ **Security scan clean** - No secrets detected
+6. ✅ **Kubernetes lint** - KubeLinter passing
+7. ✅ **Documentation updated** - Update README if needed
+8. ✅ **No merge conflicts** - Rebase on latest main
+9. ✅ **Review approved** - At least one approval required
 
 ### PR Title Format
 
@@ -231,8 +262,11 @@ Brief description of changes
 - [ ] Documentation update
 
 ## Testing
+- [ ] Pre-commit checks pass (`make pre-commit`)
 - [ ] Terraform validate passes
 - [ ] Terraform test passes
+- [ ] KubeLinter passes (if K8s changes)
+- [ ] No secrets detected
 - [ ] Manual testing completed
 
 ## Checklist
@@ -272,22 +306,40 @@ run "plan_example" {
 ### Running Tests
 
 ```bash
-# Validate all modules
-terraform validate
+# Run all pre-commit checks
+make pre-commit
+
+# Run all tests
+make terraform-test
 
 # Test specific module
 cd terraform/modules/gke
 terraform test
 
-# Test all modules
-for module in terraform/modules/*/; do
-  echo "Testing $module"
-  (cd "$module" && terraform test)
-done
+# Validate all modules
+make terraform-validate
 
-# Format check
-terraform fmt -check -recursive
+# Full CI simulation
+make ci
+
+# Quick checks (no terraform validate)
+make quick-check
 ```
+
+### Pre-commit Checks
+
+Pre-commit runs the following automatically:
+- **trailing-whitespace** - Remove trailing spaces
+- **end-of-file-fixer** - Ensure files end with newline
+- **check-yaml** - Validate YAML syntax
+- **check-json** - Validate JSON syntax
+- **pretty-format-json** - Format JSON files
+- **ruff-check** - Python linting with auto-fix
+- **ruff-format** - Python code formatting
+- **detect-secrets** - Scan for credentials
+- **terraform_fmt** - Format Terraform files
+- **terraform_validate** - Validate Terraform syntax
+- **kube-linter-system** - Kubernetes manifest validation
 
 ---
 
@@ -393,8 +445,8 @@ The `main` branch is protected with:
 ## Getting Help
 
 - 📖 Read the [Documentation](./README.md)
-- 🐛 Open an [Issue](https://github.com/YOUR_ORG/servicenow-ai/issues)
-- 💬 Start a [Discussion](https://github.com/YOUR_ORG/servicenow-ai/discussions)
+- 🐛 Open an [Issue](https://github.com/erayguner/servicenow-ai/issues)
+- 💬 Start a [Discussion](https://github.com/erayguner/servicenow-ai/discussions)
 - 📧 Contact maintainers
 
 ---
@@ -410,17 +462,20 @@ By contributing, you agree that your contributions will be licensed under the sa
 ### Common Commands
 
 ```bash
-# Conventional commit
+# Setup pre-commit
+pre-commit install
+
+# Run all checks
+make pre-commit
+
+# Conventional commit (pre-commit runs automatically)
 git commit -m "feat(gke): add new node pool configuration"
 
 # Run tests
-terraform test
+make terraform-test
 
-# Format code
-terraform fmt -recursive
-
-# Validate
-terraform validate
+# Full CI simulation
+make ci
 
 # Create PR
 gh pr create --title "feat: description" --body "Details"
