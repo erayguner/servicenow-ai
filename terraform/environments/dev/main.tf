@@ -32,7 +32,7 @@ module "vpc" {
 module "gke" {
   source                  = "../../modules/gke"
   project_id              = var.project_id
-  region                  = "europe-west2-a"  # Use single zone instead of region for dev
+  region                  = "europe-west2-a" # Use single zone instead of region for dev
   network                 = module.vpc.network_self_link
   subnetwork              = values(module.vpc.subnet_self_links)[0]
   subnetwork_name         = "dev-core-us-central1"
@@ -86,7 +86,7 @@ module "cloudsql" {
   instance_name   = "dev-postgres"
   kms_key         = module.kms.key_ids["cloudsql"]
   private_network = module.vpc.network_self_link
-  disk_size       = 50  # Reduce from 100GB to 50GB for dev
+  disk_size       = 50 # Reduce from 100GB to 50GB for dev
   databases       = ["users", "audit_logs", "knowledge_metadata", "action_logs"]
   users           = []
 

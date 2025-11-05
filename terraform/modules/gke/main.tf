@@ -86,7 +86,7 @@ resource "google_container_node_pool" "general" {
     labels       = merge(var.labels, { pool = "general" })
     tags         = concat(var.tags, ["general-pool"])
     disk_size_gb = 50
-    disk_type    = "pd-standard"  # Use standard disk instead of SSD
+    disk_type    = "pd-standard" # Use standard disk instead of SSD
   }
 }
 
@@ -115,7 +115,7 @@ resource "google_container_node_pool" "ai_inference" {
       effect = "NO_SCHEDULE"
     }
     disk_size_gb = 50
-    disk_type    = "pd-ssd"  # Keep SSD for AI workloads
+    disk_type    = "pd-ssd" # Keep SSD for AI workloads
   }
 }
 
@@ -139,7 +139,7 @@ resource "google_container_node_pool" "vector" {
     labels       = merge(var.labels, { pool = "vector-db" })
     tags         = concat(var.tags, ["vector-db"])
     disk_size_gb = 50
-    disk_type    = "pd-ssd"  # Keep SSD for vector DB
+    disk_type    = "pd-ssd" # Keep SSD for vector DB
   }
 }
 
