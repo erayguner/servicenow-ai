@@ -1,0 +1,253 @@
+name: Terraform CI (Optimized)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'terraform/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'terraform/**'
+  workflow_dispatch:
+
+env:
+  TERRAFORM_VERSION: 1.11.0
+
+jobs:
+  # Single job for all module validation
+  terraform-validate-all:
+    name: Validate All Modules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Validate all modules
+        run: |
+          echo "🔍 Validating all Terraform modules..."
+
+          FAILED_MODULES=()
+          PASSED_MODULES=()
+
+          # Find all module directories (those containing *.tf files)
+          for module_dir in terraform/modules/*/; do
+            module_name=$(basename "$module_dir")
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "📦 Module: $module_name"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+            cd "$module_dir"
+
+            # Initialize
+            if terraform init -backend=false > /dev/null 2>&1; then
+              echo "  ✅ Init successful"
+            else
+              echo "  ❌ Init failed"
+              FAILED_MODULES+=("$module_name (init)")
+              cd "$GITHUB_WORKSPACE"
+              continue
+            fi
+
+            # Validate
+            if terraform validate > /dev/null 2>&1; then
+              echo "  ✅ Validate successful"
+            else
+              echo "  ❌ Validate failed"
+              FAILED_MODULES+=("$module_name (validate)")
+              cd "$GITHUB_WORKSPACE"
+              continue
+            fi
+
+            # Format check
+            if terraform fmt -check -recursive > /dev/null 2>&1; then
+              echo "  ✅ Format check passed"
+            else
+              echo "  ⚠️  Format check failed (run 'terraform fmt')"
+              FAILED_MODULES+=("$module_name (fmt)")
+            fi
+
+            PASSED_MODULES+=("$module_name")
+            cd "$GITHUB_WORKSPACE"
+          done
+
+          # Summary
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📊 VALIDATION SUMMARY"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Passed: ${#PASSED_MODULES[@]}"
+          echo "❌ Failed: ${#FAILED_MODULES[@]}"
+
+          if [ ${#FAILED_MODULES[@]} -gt 0 ]; then
+            echo ""
+            echo "Failed modules:"
+            printf '  - %s\n' "${FAILED_MODULES[@]}"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All modules validated successfully!"
+
+  # Single job for all module tests
+  terraform-test-all:
+    name: Test All Modules
+    runs-on: ubuntu-latest
+    needs: terraform-validate-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Test all modules
+        run: |
+          echo "🧪 Testing all Terraform modules..."
+
+          FAILED_MODULES=()
+          PASSED_MODULES=()
+          SKIPPED_MODULES=()
+
+          # Find all module directories with test files
+          for module_dir in terraform/modules/*/; do
+            module_name=$(basename "$module_dir")
+
+            # Check if tests directory exists
+            if [ ! -d "${module_dir}tests" ]; then
+              SKIPPED_MODULES+=("$module_name (no tests)")
+              continue
+            fi
+
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🧪 Testing: $module_name"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+            cd "$module_dir"
+
+            # Initialize if needed
+            if [ ! -d ".terraform" ]; then
+              echo "  Initializing..."
+              terraform init -backend=false > /dev/null 2>&1
+            fi
+
+            # Run tests
+            if terraform test; then
+              echo "  ✅ Tests passed"
+              PASSED_MODULES+=("$module_name")
+            else
+              echo "  ❌ Tests failed"
+              FAILED_MODULES+=("$module_name")
+            fi
+
+            cd "$GITHUB_WORKSPACE"
+          done
+
+          # Summary
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📊 TEST SUMMARY"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Passed:  ${#PASSED_MODULES[@]}"
+          echo "❌ Failed:  ${#FAILED_MODULES[@]}"
+          echo "⏭️  Skipped: ${#SKIPPED_MODULES[@]}"
+
+          if [ ${#PASSED_MODULES[@]} -gt 0 ]; then
+            echo ""
+            echo "Passed modules:"
+            printf '  ✅ %s\n' "${PASSED_MODULES[@]}"
+          fi
+
+          if [ ${#SKIPPED_MODULES[@]} -gt 0 ]; then
+            echo ""
+            echo "Skipped modules:"
+            printf '  ⏭️  %s\n' "${SKIPPED_MODULES[@]}"
+          fi
+
+          if [ ${#FAILED_MODULES[@]} -gt 0 ]; then
+            echo ""
+            echo "Failed modules:"
+            printf '  ❌ %s\n' "${FAILED_MODULES[@]}"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All tests passed!"
+
+  # Environment validation (optional - validates actual env configs)
+  terraform-validate-environments:
+    name: Validate Environments
+    runs-on: ubuntu-latest
+    needs: terraform-validate-all
+    strategy:
+      matrix:
+        env: [dev, staging, prod]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Check if environment exists
+        id: check_env
+        run: |
+          if [ -d "terraform/environments/${{ matrix.env }}" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Terraform Init
+        if: steps.check_env.outputs.exists == 'true'
+        working-directory: terraform/environments/${{ matrix.env }}
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        if: steps.check_env.outputs.exists == 'true'
+        working-directory: terraform/environments/${{ matrix.env }}
+        run: terraform validate
+
+      - name: Terraform Format Check
+        if: steps.check_env.outputs.exists == 'true'
+        working-directory: terraform/environments/${{ matrix.env }}
+        run: terraform fmt -check
+
+  # Summary job
+  terraform-ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [terraform-validate-all, terraform-test-all, terraform-validate-environments]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# Terraform CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Module Validation | ${{ needs.terraform-validate-all.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Module Tests | ${{ needs.terraform-test-all.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment Validation | ${{ needs.terraform-validate-environments.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.terraform-validate-all.result }}" == "success" ] && \
+             [ "${{ needs.terraform-test-all.result }}" == "success" ] && \
+             [ "${{ needs.terraform-validate-environments.result }}" == "success" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All Terraform checks passed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Some Terraform checks failed. Please review the logs.**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
