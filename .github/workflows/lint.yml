@@ -1,0 +1,140 @@
+name: Lint and Validate
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  yaml:
+    name: YAML Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install yamllint
+        run: python -m pip install --upgrade pip yamllint
+
+      - name: Run yamllint
+        if: ${{ hashFiles('**/*.yml', '**/*.yaml') != '' }}
+        run: yamllint -c .yamllint.yaml .
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Prettier (YAML)
+        if: ${{ hashFiles('**/*.yml', '**/*.yaml') != '' }}
+        run: npx prettier --check "**/*.{yml,yaml}"
+
+  kubernetes:
+    name: Kubernetes Manifests
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('k8s/**/*.yaml', 'k8s/**/*.yml') != '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: kube-linter
+        uses: stackrox/kube-linter-action@v1.0.7
+        with:
+          manifests: k8s
+
+      - name: Install kubeconform
+        run: |
+          curl -sSL -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
+          tar -xzf kubeconform.tar.gz kubeconform
+          mkdir -p "$HOME/bin"
+          mv kubeconform "$HOME/bin/"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: kubeconform schema validation
+        run: kubeconform -strict -summary k8s
+
+
+  terraform:
+    name: Terraform Static Analysis
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('terraform/**/*.tf') != '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.7.5
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive
+
+      - name: Set up TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.51.1
+
+      - name: Initialize TFLint plugins
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint --recursive
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.5
+        with:
+          working-directory: terraform
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform
+
+  python:
+    name: Python Static Analysis
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('**/*.py') != '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install linters
+        run: python -m pip install --upgrade pip black ruff mypy
+
+      - name: Black (formatting)
+        run: black --check .
+
+      - name: Ruff (lint)
+        run: ruff check .
+
+      - name: Mypy (type checking)
+        run: mypy --ignore-missing-imports .
+
+  actionlint:
+    name: GitHub Actions Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: actionlint
+        uses: rhysd/actionlint@v1
