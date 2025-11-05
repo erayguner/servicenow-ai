@@ -70,8 +70,12 @@ jobs:
         echo "🔍 Scanning for base64-encoded keys in secrets..."
 
         # Look for potential base64-encoded JSON keys in YAML/JSON files
-        if git grep -E '"private_key"|"client_email"' -- '*.yaml' '*.yml' '*.json' 2>/dev/null; then
+        # Exclude .github directory to avoid false positives from workflow files
+        POTENTIAL_KEYS=$(git grep -E '"private_key"|"client_email"' -- '*.yaml' '*.yml' '*.json' 2>/dev/null | grep -v '^\.github/' || true)
+
+        if [ -n "$POTENTIAL_KEYS" ]; then
           echo "❌ ERROR: Potential service account key found in config files!"
+          echo "$POTENTIAL_KEYS"
           echo "Keys should never be stored in configuration files."
           exit 1
         fi
