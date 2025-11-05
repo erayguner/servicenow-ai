@@ -1,6 +1,14 @@
 # ServiceNow AI Infrastructure
 
-[![Lint](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/lint.yml) [![Tests](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/parallel-tests.yml/badge.svg?branch=main)](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/parallel-tests.yml) [![Security](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/security-check.yml/badge.svg?branch=main)](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/security-check.yml) [![Deploy](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/deploy.yml) [![Release](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/release-please.yml/badge.svg?branch=main)](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/release-please.yml) ![Terraform](https://img.shields.io/badge/Terraform-1.11.x-844FBA?logo=terraform) ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33%2B-326CE5?logo=kubernetes) [![MegaLinter](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/YOUR_ORG/servicenow-ai/actions/workflows/lint.yml)
+[![Lint](https://github.com/erayguner/servicenow-ai/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/erayguner/servicenow-ai/actions/workflows/lint.yml)
+[![Tests](https://github.com/erayguner/servicenow-ai/actions/workflows/parallel-tests.yml/badge.svg?branch=main)](https://github.com/erayguner/servicenow-ai/actions/workflows/parallel-tests.yml)
+[![Security](https://github.com/erayguner/servicenow-ai/actions/workflows/security-check.yml/badge.svg?branch=main)](https://github.com/erayguner/servicenow-ai/actions/workflows/security-check.yml)
+[![Deploy](https://github.com/erayguner/servicenow-ai/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/erayguner/servicenow-ai/actions/workflows/deploy.yml)
+[![Release](https://github.com/erayguner/servicenow-ai/actions/workflows/release-please.yml/badge.svg?branch=main)](https://github.com/erayguner/servicenow-ai/actions/workflows/release-please.yml)
+![Terraform](https://img.shields.io/badge/Terraform-1.11.0-844FBA?logo=terraform&logoColor=white)
+![GCP Provider](https://img.shields.io/badge/GCP%20Provider-7.10.0-4285F4?logo=googlecloud&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33+-326CE5?logo=kubernetes&logoColor=white)
+![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)
 
 Production-ready Google Cloud Platform infrastructure for a ServiceNow AI Agent system using Terraform and Kubernetes.
 
@@ -158,7 +166,7 @@ This repository contains the complete infrastructure-as-code setup for deploying
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_ORG/servicenow-ai.git
+git clone https://github.com/erayguner/servicenow-ai.git
 cd servicenow-ai
 ```
 
@@ -279,7 +287,7 @@ billing_account = "XXXXXX-XXXXXX-XXXXXX"
 gke_master_cidr = "172.16.0.0/28"
 
 # GitHub Integration (for Workload Identity Federation)
-github_org  = "your-github-org"
+github_org  = "erayguner"
 github_repo = "servicenow-ai"
 ```
 
@@ -585,7 +593,7 @@ We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) 
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_ORG/servicenow-ai.git
+git clone https://github.com/erayguner/servicenow-ai.git
 cd servicenow-ai
 
 # Install pre-commit hooks
@@ -666,7 +674,7 @@ kubectl port-forward POD_NAME LOCAL_PORT:POD_PORT -n NAMESPACE
 
 - Read the [documentation](docs/)
 - Check [troubleshooting guide](docs/TROUBLESHOOTING.md)
-- Open an [issue](https://github.com/YOUR_ORG/servicenow-ai/issues)
+- Open an [issue](https://github.com/erayguner/servicenow-ai/issues)
 - Contact the team
 
 ---
@@ -741,9 +749,9 @@ This project is proprietary and confidential.
 
 ## Contact
 
-- Project Lead: [name@example.com](mailto:name@example.com)
-- Team: [team@example.com](mailto:team@example.com)
-- Issues: [GitHub Issues](https://github.com/YOUR_ORG/servicenow-ai/issues)
+- Project Lead: [@erayguner](https://github.com/erayguner)
+- Repository: [github.com/erayguner/servicenow-ai](https://github.com/erayguner/servicenow-ai)
+- Issues: [GitHub Issues](https://github.com/erayguner/servicenow-ai/issues)
 
 ---
 
