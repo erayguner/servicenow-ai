@@ -33,14 +33,13 @@ jobs:
         if: ${{ hashFiles('**/*.yml', '**/*.yaml') != '' }}
         run: yamllint -c .yamllint.yaml .
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Install Prettier (YAML)
+        if: ${{ hashFiles('**/*.yml', '**/*.yaml') != '' }}
+        run: npm install --global prettier@3
 
       - name: Prettier (YAML)
         if: ${{ hashFiles('**/*.yml', '**/*.yaml') != '' }}
-        run: npx prettier --check "**/*.{yml,yaml}"
+        run: prettier --check "**/*.{yml,yaml}"
 
   kubernetes:
     name: Kubernetes Manifests
