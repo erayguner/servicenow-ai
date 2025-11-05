@@ -121,7 +121,7 @@ jobs:
 
       - name: Run tfsec
         if: ${{ steps.detect.outputs.terraform == 'true' }}
-        uses: aquasecurity/tfsec-action@v1.0.5
+        uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working-directory: terraform
 
