@@ -156,7 +156,7 @@ jobs:
 
       # ---------------- GitHub Actions ----------------
       - name: actionlint
-        uses: rhysd/actionlint@v1
+        uses: rhysd/actionlint@v1.7.8
 
       - name: Summary
         run: |
