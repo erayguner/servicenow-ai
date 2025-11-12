@@ -10,13 +10,22 @@
   <file_conventions>
     - encoding: UTF-8
     - line_endings: LF
-    - indent: 2 spaces (HCL/YAML)
-    - extension: .tf for Terraform, .tfvars for variables
-    - structure: environments/ for env configs, modules/ for reusable components
+    - indent: 2 spaces (HCL/YAML), 4 spaces (Python)
+    - extension: .tf for Terraform, .tfvars for variables, .yaml for Kubernetes
+    - structure: environments/ for env configs, modules/ for reusable components, k8s/ for Kubernetes manifests
   </file_conventions>
+  <project_context>
+    - domain: AI-powered ServiceNow agent infrastructure
+    - cloud_platform: Google Cloud Platform (GCP)
+    - orchestration: Google Kubernetes Engine (GKE) with Workload Identity
+    - databases: Cloud SQL (PostgreSQL 14), Firestore, Redis
+    - ai_stack: KServe, vLLM, Vertex AI, hybrid LLM routing
+    - security: Zero-trust architecture, CMEK encryption, no service account keys
+    - microservices: 10 services (conversation-manager, llm-gateway, knowledge-base, ticket-monitor, action-executor, notification-service, internal-web-ui, api-gateway, analytics-service, document-ingestion)
+  </project_context>
 </ai_meta>
 
-This project provides Infrastructure as Code (IaC) for Google Cloud Platform using Terraform. It implements secure, scalable, and maintainable cloud infrastructure with modular design, automated deployment pipelines, and comprehensive testing strategies.
+This project provides production-ready Infrastructure as Code (IaC) for a ServiceNow AI Agent system on Google Cloud Platform. It implements secure, scalable, and maintainable cloud infrastructure using Terraform and Kubernetes, with modular design, automated deployment pipelines, comprehensive testing strategies, and hybrid LLM serving capabilities.
 
 ## Agent Communication Guidelines
 
@@ -122,6 +131,111 @@ module-name/
   - Tags, labels, and metadata where project conventions apply
 
   This rule ensures consistency across the codebase, improves discoverability for international contributors, and enables reliable tooling (linters, analyzers, and cloud provider interfaces). Use English even when writing examples or naming conventions; if localized strings are required for end-user facing resources, keep the canonical infrastructure code in English and add separate localized metadata.
+
+## ServiceNow AI Agent Architecture
+
+### System Overview
+This project deploys a production-ready AI agent system that integrates with ServiceNow for automated ticket management, intelligent responses, and workflow automation. The architecture emphasizes security, scalability, and cost-effectiveness through hybrid LLM routing.
+
+### Microservices Architecture
+The system consists of 10 specialized microservices, each with dedicated Workload Identity:
+
+1. **conversation-manager** - Orchestrates conversation flow, maintains context, manages dialogue state
+2. **llm-gateway** - LLM API integration, rate limiting, request routing, response caching
+3. **knowledge-base** - Vector search, document retrieval, RAG pipeline, embeddings management
+4. **ticket-monitor** - ServiceNow ticket monitoring, webhook handling, event processing
+5. **action-executor** - Execute actions in ServiceNow (create/update tickets, trigger workflows)
+6. **notification-service** - Multi-channel notifications (Slack, email, Teams), alert management
+7. **internal-web-ui** - Administrative dashboard, monitoring, configuration management
+8. **api-gateway** - External API endpoint, authentication, request validation, rate limiting
+9. **analytics-service** - Usage analytics, reporting, metrics aggregation, cost tracking
+10. **document-ingestion** - Document processing pipeline, text extraction, chunking, embedding generation
+
+### Kubernetes Architecture
+- **Namespace Strategy:** Separate namespaces for dev, staging, production
+- **Node Pools:**
+  - General pool (2-10 nodes): API services, web UI, monitoring
+  - AI pool (1-5 nodes): LLM inference, embedding generation
+  - Vector pool (1-5 nodes): Vector search, similarity matching
+- **Workload Identity:** Each service has its own Kubernetes ServiceAccount linked to GCP service account
+- **Network Policies:** Default-deny with explicit allow rules between services
+- **Pod Security:** Restricted profile (non-root, read-only filesystem, no privilege escalation)
+
+### LLM Serving Strategy (Hybrid Routing)
+The system uses intelligent routing to optimize cost and performance:
+
+#### Self-hosted (KServe + vLLM)
+- **Models:** Mistral-7B, CodeLlama-13B
+- **Infrastructure:** GPU-enabled nodes, disaggregated serving
+- **Cost:** ~$0.01 per 1M tokens
+- **Use Cases:** Simple queries, code generation, summarization
+- **Performance:** 50% faster for queries under 50K tokens
+
+#### Cloud-based LLMs
+- **Vertex AI Gemini:** 1M token context window for long documents
+- **OpenAI GPT-4:** Complex reasoning, creative tasks
+- **Anthropic Claude:** Long-form analysis, safety-critical responses
+- **Cost:** $0.50-$15 per 1M tokens
+- **Use Cases:** Complex reasoning, very long context, specialized tasks
+
+#### Routing Logic
+```python
+# Automatic model selection based on request characteristics
+if token_count < 50000 and complexity == "simple":
+    route_to = "self-hosted-mistral"  # 70% of queries
+elif token_count > 100000:
+    route_to = "vertex-ai-gemini"     # Long context
+elif requires_reasoning:
+    route_to = "claude-opus"          # Complex analysis
+else:
+    route_to = "gpt-4-turbo"          # Default fallback
+```
+
+### Zero-Trust Security Model
+- **No Service Account Keys:** All authentication via Workload Identity
+- **Default-Deny Network:** VPC firewall rules and Kubernetes NetworkPolicies
+- **CMEK Encryption:** Customer-managed keys for all data at rest (90-day rotation)
+- **Private GKE Cluster:** No public endpoints, authorized networks for kubectl
+- **mTLS:** Service-to-service encryption (future: Istio service mesh)
+- **Binary Authorization:** Container image verification before deployment
+- **Secret Management:** All secrets in GCP Secret Manager, accessed via Workload Identity
+
+### Data Flow Example
+```
+1. ServiceNow Webhook → ticket-monitor
+2. ticket-monitor → Pub/Sub topic "new-tickets"
+3. conversation-manager subscribes → processes ticket
+4. conversation-manager → knowledge-base (vector search)
+5. knowledge-base → Vertex AI Matching Engine
+6. conversation-manager → llm-gateway (generate response)
+7. llm-gateway → hybrid-router → selects model
+8. hybrid-router → vLLM or Vertex AI (inference)
+9. conversation-manager → action-executor (update ticket)
+10. action-executor → ServiceNow API
+11. notification-service → Slack (notify team)
+```
+
+### Key Design Patterns
+- **Event-Driven:** Pub/Sub for asynchronous communication
+- **CQRS:** Separate read (Firestore) and write (Cloud SQL) paths
+- **Circuit Breaker:** LLM gateway implements retry and fallback logic
+- **Caching:** Redis for session state, response caching, rate limit tracking
+- **Observability:** Cloud Logging, Cloud Monitoring, structured logs with trace IDs
+
+### Module Relationships
+```
+vpc → gke, cloudsql, redis
+kms → storage, cloudsql, secret_manager
+gke → workload_identity (per-service)
+workload_identity_federation → GitHub Actions CI/CD
+vertex_ai → knowledge-base service
+pubsub → event routing between services
+```
+
+### Environment-Specific Configurations
+- **Dev:** Zonal GKE (europe-west2-a), minimal node pools, relaxed security for testing
+- **Staging:** Regional GKE (europe-west2), production-like config, reduced capacity
+- **Prod:** Regional GKE (europe-west2), full HA, all security features, monitoring/alerting
 
 ### Commit Message Standard
 - **Conventional Commits (REQUIRED):** This project uses the Conventional Commits specification for commit messages. Commit messages must follow the format:
@@ -319,7 +433,7 @@ locals {
 
 resource "google_compute_instance" "app_server" {
   name = "${var.project_id}-${var.environment}-vm-app"
-  
+
   labels = merge(
     local.common_labels,
     {
@@ -329,6 +443,377 @@ resource "google_compute_instance" "app_server" {
   )
 }
 ```
+
+## Kubernetes Best Practices
+
+### Manifest Organization
+```
+k8s/
+├── deployments/          # Deployment manifests for microservices
+├── service-accounts/     # ServiceAccounts with Workload Identity annotations
+├── network-policies/     # NetworkPolicy resources for zero-trust networking
+├── pod-security/         # Pod Security Standards enforcement
+├── services/             # Service definitions
+├── ingress/              # Ingress resources
+└── llm-serving/          # KServe InferenceService and LLM configs
+    ├── kserve-runtime.yaml
+    ├── foundational-models.yaml
+    └── hybrid-routing.yaml
+```
+
+### Workload Identity Pattern
+Every microservice MUST use Workload Identity for GCP authentication:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: conversation-manager-sa
+  namespace: production
+  annotations:
+    # Link to GCP service account
+    iam.gke.io/gcp-service-account: conversation-manager@PROJECT_ID.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-manager
+  namespace: production
+spec:
+  template:
+    spec:
+      # Use the ServiceAccount
+      serviceAccountName: conversation-manager-sa
+      containers:
+      - name: conversation-manager
+        image: gcr.io/PROJECT_ID/conversation-manager:latest
+        # No need for service account keys!
+```
+
+**Terraform side:**
+```hcl
+# Create GCP service account
+module "conversation_manager_wi" {
+  source = "../../modules/workload_identity"
+
+  project_id         = var.project_id
+  service_account_id = "conversation-manager"
+  roles = [
+    "roles/cloudsql.client",
+    "roles/secretmanager.secretAccessor",
+    "roles/pubsub.publisher"
+  ]
+  k8s_namespace      = "production"
+  k8s_service_account = "conversation-manager-sa"
+}
+```
+
+### Network Policy Pattern
+ALWAYS implement default-deny network policies:
+
+```yaml
+# Default deny all traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+# Allow specific traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: conversation-manager-policy
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: conversation-manager
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: api-gateway
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  # Allow DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow Cloud SQL
+  - to:
+    - podSelector:
+        matchLabels:
+          app: cloud-sql-proxy
+    ports:
+    - protocol: TCP
+      port: 5432
+  # Allow llm-gateway
+  - to:
+    - podSelector:
+        matchLabels:
+          app: llm-gateway
+    ports:
+    - protocol: TCP
+      port: 8080
+```
+
+### Pod Security Standards
+All pods MUST follow the restricted profile:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-manager
+spec:
+  template:
+    spec:
+      # Required: Run as non-root
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: conversation-manager
+        securityContext:
+          # Required: No privilege escalation
+          allowPrivilegeEscalation: false
+          # Required: Read-only root filesystem
+          readOnlyRootFilesystem: true
+          # Required: Drop all capabilities
+          capabilities:
+            drop:
+            - ALL
+        # Required: Resource limits
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        # Use emptyDir for temporary writes
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+```
+
+### Service Naming Convention
+```yaml
+# Pattern: {service-name}-{type}
+# Examples:
+apiVersion: v1
+kind: Service
+metadata:
+  name: conversation-manager-svc
+  namespace: production
+  labels:
+    app: conversation-manager
+    environment: production
+    managed-by: terraform
+---
+# Internal service (ClusterIP)
+spec:
+  type: ClusterIP
+  selector:
+    app: conversation-manager
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+```
+
+### ConfigMap and Secret Management
+```yaml
+# ConfigMap for non-sensitive config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conversation-manager-config
+  namespace: production
+data:
+  LOG_LEVEL: "info"
+  MAX_CONTEXT_LENGTH: "8192"
+  CACHE_TTL: "3600"
+---
+# NEVER put secrets in ConfigMaps!
+# Use Secret Manager + Workload Identity instead
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+      - name: conversation-manager
+        env:
+        # Config from ConfigMap
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: conversation-manager-config
+              key: LOG_LEVEL
+        # Secrets from GCP Secret Manager (via app code)
+        # App uses Workload Identity to access secrets
+        - name: GCP_PROJECT_ID
+          value: "my-project"
+```
+
+### Health Checks
+ALWAYS implement proper health checks:
+
+```yaml
+spec:
+  containers:
+  - name: conversation-manager
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+    startupProbe:
+      httpGet:
+        path: /startup
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 30
+```
+
+### KServe InferenceService Pattern
+For LLM serving with KServe and vLLM:
+
+```yaml
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: mistral-7b
+  namespace: production
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    containers:
+    - name: vllm
+      image: vllm/vllm-openai:latest
+      command:
+      - python3
+      - -m
+      - vllm.entrypoints.openai.api_server
+      args:
+      - --model=mistralai/Mistral-7B-Instruct-v0.2
+      - --dtype=auto
+      - --max-model-len=8192
+      - --tensor-parallel-size=1
+      resources:
+        requests:
+          nvidia.com/gpu: 1
+          memory: "16Gi"
+        limits:
+          nvidia.com/gpu: 1
+          memory: "16Gi"
+      env:
+      - name: HUGGING_FACE_HUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: hf-token
+            key: token
+    nodeSelector:
+      cloud.google.com/gke-nodepool: ai-pool
+    tolerations:
+    - key: "nvidia.com/gpu"
+      operator: "Exists"
+      effect: "NoSchedule"
+```
+
+### HorizontalPodAutoscaler
+Implement autoscaling for production workloads:
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: conversation-manager-hpa
+  namespace: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: conversation-manager
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+      - type: Pods
+        value: 2
+        periodSeconds: 30
+      selectPolicy: Max
+```
+
+### Kubernetes Validation
+- **KubeLinter:** Run `kube-linter lint k8s/` before committing
+- **Pre-commit:** KubeLinter runs automatically via pre-commit hooks
+- **Required Checks:**
+  - No privileged containers
+  - Resource limits defined
+  - Non-root user
+  - Read-only root filesystem
+  - Health checks present
+  - No latest image tags in production
 
 ## Architecture Patterns
 
