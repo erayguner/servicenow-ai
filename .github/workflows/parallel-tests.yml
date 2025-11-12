@@ -88,10 +88,10 @@ jobs:
       modules-with-tests: ${{ steps.find-modules.outputs.modules_with_tests }}
       module-count: ${{ steps.find-modules.outputs.count }}
     steps:
-      - name: Checkout code
+    - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Find modules with tests
+    - name: Find modules with tests
         id: find-modules
         run: |
           MODULES_WITH_TESTS=()
@@ -113,15 +113,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, discover-terraform-modules]
     steps:
-      - name: Checkout code
+    - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+    - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.0
 
-      - name: Cache Terraform plugins
+    - name: Cache Terraform plugins
         uses: actions/cache@v4
         with:
           path: ~/.terraform.d/plugin-cache
@@ -129,7 +129,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-terraform-
 
-      - name: Validate all modules
+    - name: Validate all modules
         run: |
           echo "🔍 Validating all Terraform modules..."
           FAILED=0
@@ -173,23 +173,23 @@ jobs:
       matrix:
         module: ${{ fromJson(needs.discover-terraform-modules.outputs.modules-with-tests) }}
     steps:
-      - name: Checkout code
+    - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+    - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.0
 
-      - name: Terraform Init
+    - name: Terraform Init
         working-directory: terraform/modules/${{ matrix.module }}
         run: terraform init -backend=false
 
-      - name: Terraform Test
+    - name: Terraform Test
         working-directory: terraform/modules/${{ matrix.module }}
         run: terraform test
 
-      - name: Upload test results
+    - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -266,14 +266,14 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - conversation-manager
-          - llm-gateway
-          - knowledge-base
-          - ticket-monitor
-          - action-executor
-          - notification-service
-          - api-gateway
-          - analytics-service
+        - conversation-manager
+        - llm-gateway
+        - knowledge-base
+        - ticket-monitor
+        - action-executor
+        - notification-service
+        - api-gateway
+        - analytics-service
 
     services:
       postgres:
@@ -287,7 +287,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5432
+        - 5432:5432
 
       redis:
         image: redis:7
@@ -297,7 +297,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 6379:6379
+        - 6379:6379
 
     steps:
     - name: Download workspace
@@ -369,9 +369,9 @@ jobs:
           kind: Cluster
           apiVersion: kind.x-k8s.io/v1alpha4
           nodes:
-          - role: control-plane
-          - role: worker
-          - role: worker
+        - role: control-plane
+        - role: worker
+        - role: worker
 
     - name: Create isolated namespace
       run: |
@@ -448,11 +448,11 @@ jobs:
       fail-fast: false
       matrix:
         category:
-          - authentication
-          - authorization
-          - data-protection
-          - network-security
-          - secrets-management
+        - authentication
+        - authorization
+        - data-protection
+        - network-security
+        - secrets-management
 
     steps:
     - name: Download workspace
@@ -490,10 +490,10 @@ jobs:
       fail-fast: false
       matrix:
         endpoint:
-          - api-gateway
-          - llm-gateway
-          - knowledge-base
-          - conversation-manager
+        - api-gateway
+        - llm-gateway
+        - knowledge-base
+        - conversation-manager
 
     steps:
     - name: Download workspace

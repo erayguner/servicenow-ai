@@ -10,7 +10,7 @@ MEGALINTER_FLAVOR: mega-linter-runner
 DISABLE:
   - COPYPASTE            # Enable later if needed
   - SPELL                # Avoid early noise; can enable later
-  - MARKDOWN_MARKDOWN_LINK_CHECK # Network-dependent
+  - MARKDOWN_MARKDOWN_LINK_CHECK  # Network-dependent
 # Exclusions for performance / noise
 FILE_FILTER_REGEX_EXCLUDE: '(tmp/|\.terraform/|node_modules/|venv/|__pycache__/|\.git/)'
 # Terraform settings

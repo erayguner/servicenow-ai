@@ -23,137 +23,137 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # Authenticate to GCP using Workload Identity Federation (no keys!)
-    - id: auth
-      name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+      # Authenticate to GCP using Workload Identity Federation (no keys!)
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
-    # Set up Cloud SDK
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
+      # Set up Cloud SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
 
-    # Configure Docker to use gcloud as credential helper
-    - name: Configure Docker for Artifact Registry
-      shell: bash
-      run: |
-        set -euo pipefail
-        gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+      # Configure Docker to use gcloud as credential helper
+      - name: Configure Docker for Artifact Registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
 
-    # Build and push container images
-    - name: Build and Push Container Images
-      shell: bash
-      run: |
-        set -euo pipefail
-        # Guard: skip build if service directory (monorepo services/) not present yet
-        if [ -f services/conversation-manager/Dockerfile ]; then
-          echo "Building conversation-manager image..."
-          docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }} \
-            -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:latest \
-            -f services/conversation-manager/Dockerfile \
-            .
-          docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }}
-          docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:latest
-        else
-          echo "::warning::services/conversation-manager/Dockerfile not found. Skipping image build (infrastructure-only change?)."
-        fi
-        # Additional service builds can follow same guarded pattern.
+      # Build and push container images
+      - name: Build and Push Container Images
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Guard: skip build if service directory (monorepo services/) not present yet
+          if [ -f services/conversation-manager/Dockerfile ]; then
+            echo "Building conversation-manager image..."
+            docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }} \
+              -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:latest \
+              -f services/conversation-manager/Dockerfile \
+              .
+            docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }}
+            docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:latest
+          else
+            echo "::warning::services/conversation-manager/Dockerfile not found. Skipping image build (infrastructure-only change?)."
+          fi
+          # Additional service builds can follow same guarded pattern.
 
-    # Sign container images for Binary Authorization
-    - name: Sign Container Images
-      shell: bash
-      run: |
-        set -euo pipefail
-        # Only attempt signing if the attestor exists (supports forks / partial setups)
-        echo "Checking for Binary Authorization attestor..."
-        if gcloud beta container binauthz attestors describe projects/${{ env.PROJECT_ID }}/attestors/prod-container-attestor >/dev/null 2>&1; then
-          echo "Attestor found. Creating attestation..."
-          gcloud beta container binauthz attestations sign-and-create \
-            --artifact-url=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }} \
-            --attestor=projects/${{ env.PROJECT_ID }}/attestors/prod-container-attestor \
-            --attestor-project=${{ env.PROJECT_ID }} \
-            --keyversion-project=${{ env.PROJECT_ID }} \
-            --keyversion-location=europe-west2 \
-            --keyversion-keyring=prod-keyring \
-            --keyversion-key=attestor-key \
-            --keyversion=1
-        else
-          echo "::warning::Binary Authorization attestor not found. Skipping signing step."
-        fi
+      # Sign container images for Binary Authorization
+      - name: Sign Container Images
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Only attempt signing if the attestor exists (supports forks / partial setups)
+          echo "Checking for Binary Authorization attestor..."
+          if gcloud beta container binauthz attestors describe projects/${{ env.PROJECT_ID }}/attestors/prod-container-attestor >/dev/null 2>&1; then
+            echo "Attestor found. Creating attestation..."
+            gcloud beta container binauthz attestations sign-and-create \
+              --artifact-url=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }} \
+              --attestor=projects/${{ env.PROJECT_ID }}/attestors/prod-container-attestor \
+              --attestor-project=${{ env.PROJECT_ID }} \
+              --keyversion-project=${{ env.PROJECT_ID }} \
+              --keyversion-location=europe-west2 \
+              --keyversion-keyring=prod-keyring \
+              --keyversion-key=attestor-key \
+              --keyversion=1
+          else
+            echo "::warning::Binary Authorization attestor not found. Skipping signing step."
+          fi
 
-    # Get GKE credentials
-    - name: Get GKE credentials
-      shell: bash
-      run: |
-        set -euo pipefail
-        gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
-          --region ${{ env.GKE_REGION }} \
-          --project ${{ env.PROJECT_ID }}
+      # Get GKE credentials
+      - name: Get GKE credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
+            --region ${{ env.GKE_REGION }} \
+            --project ${{ env.PROJECT_ID }}
 
-    # Deploy Kubernetes resources
-    - name: Deploy to GKE
-      shell: bash
-      run: |
-        set -euo pipefail
-        # Create namespace if it doesn't exist
-        kubectl create namespace production --dry-run=client -o yaml | kubectl apply -f -
+      # Deploy Kubernetes resources
+      - name: Deploy to GKE
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Create namespace if it doesn't exist
+          kubectl create namespace production --dry-run=client -o yaml | kubectl apply -f -
 
-        # Apply service accounts (Workload Identity)
-        kubectl apply -f k8s/service-accounts/
+          # Apply service accounts (Workload Identity)
+          kubectl apply -f k8s/service-accounts/
 
-        # Apply network policies
-        kubectl apply -f k8s/network-policies/
+          # Apply network policies
+          kubectl apply -f k8s/network-policies/
 
-        # Apply pod security standards
-        kubectl apply -f k8s/pod-security/
+          # Apply pod security standards
+          kubectl apply -f k8s/pod-security/
 
-        # Deploy applications
-        kubectl apply -f k8s/deployments/
+          # Deploy applications
+          kubectl apply -f k8s/deployments/
 
-        # Update image tag only if image was built (skip if build skipped)
-        if kubectl get deployment conversation-manager -n production >/dev/null 2>&1; then
-          kubectl set image deployment/conversation-manager \
-            conversation-manager=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }} \
-            -n production || echo "::warning::Failed to update image for conversation-manager"
-          kubectl rollout status deployment/conversation-manager -n production --timeout=5m || {
-            echo "::error::Rollout failed for conversation-manager"; exit 1; }
-        else
-          echo "::warning::conversation-manager deployment not found. Skipping image update."
-        fi
+          # Update image tag only if image was built (skip if build skipped)
+          if kubectl get deployment conversation-manager -n production >/dev/null 2>&1; then
+            kubectl set image deployment/conversation-manager \
+              conversation-manager=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }} \
+              -n production || echo "::warning::Failed to update image for conversation-manager"
+            kubectl rollout status deployment/conversation-manager -n production --timeout=5m || {
+              echo "::error::Rollout failed for conversation-manager"; exit 1; }
+          else
+            echo "::warning::conversation-manager deployment not found. Skipping image update."
+          fi
 
-    # Verify deployment
-    - name: Verify Deployment
-      shell: bash
-      run: |
-        set -euo pipefail
-        kubectl get pods -n production || true
-        kubectl get services -n production || true
+      # Verify deployment
+      - name: Verify Deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          kubectl get pods -n production || true
+          kubectl get services -n production || true
 
-    # Run smoke tests
-    - name: Run Smoke Tests
-      shell: bash
-      run: |
-        set -euo pipefail
-        echo "Running smoke tests (placeholder)..."
-        # TODO: Implement actual health checks (e.g., kubectl exec / curl service endpoints)
+      # Run smoke tests
+      - name: Run Smoke Tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Running smoke tests (placeholder)..."
+          # TODO: Implement actual health checks (e.g., kubectl exec / curl service endpoints)
 
-    # Notify on success
-    - name: Notify Success
-      if: success()
-      shell: bash
-      run: |
-        set -euo pipefail
-        echo "Deployment successful!"
+      # Notify on success
+      - name: Notify Success
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Deployment successful!"
 
-    # Notify on failure
-    - name: Notify Failure
-      if: failure()
-      shell: bash
-      run: |
-        set -euo pipefail
-        echo "Deployment failed!"
+      # Notify on failure
+      - name: Notify Failure
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Deployment failed!"
