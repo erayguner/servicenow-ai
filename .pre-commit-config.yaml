@@ -1,3 +1,4 @@
+---
 repos:
   # Basic file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -6,10 +7,10 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-        args: ['--allow-multiple-documents']
+        args: [--allow-multiple-documents]
       - id: check-json
       - id: pretty-format-json
-        args: ['--autofix']
+        args: [--autofix]
 
   # Python linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -27,7 +28,7 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
+        args: [--baseline, .secrets.baseline]
 
   # Terraform basics
   - repo: https://github.com/antonbabenko/pre-commit-terraform
@@ -41,4 +42,4 @@ repos:
     rev: v0.6.8
     hooks:
       - id: kube-linter-system
-        args: ['--config', '.kube-linter.yaml']
+        args: [--config, .kube-linter.yaml]

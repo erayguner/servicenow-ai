@@ -1,5 +1,3 @@
-# Default Deny All NetworkPolicy
-# Apply to all production namespaces for zero-trust networking
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -8,9 +6,7 @@ metadata:
   namespace: production
 spec:
   podSelector: {}
-  policyTypes:
-  - Ingress
-
+  policyTypes: [Ingress]
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -19,19 +15,18 @@ metadata:
   namespace: production
 spec:
   podSelector: {}
-  policyTypes:
-  - Egress
+  policyTypes: [Egress]
   egress:
   # Allow DNS
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

@@ -1,132 +1,117 @@
+---
 name: Security Check - No Service Account Keys
-
 on:
   pull_request:
     branches: [main, develop]
   push:
     branches: [main, develop]
-
 jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Full history for better scanning
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better scanning
+      - name: Check for Service Account Keys
+        run: |
+          echo "🔍 Scanning for service account keys..."
 
-    - name: Check for Service Account Keys
-      run: |
-        echo "🔍 Scanning for service account keys..."
-
-        # Check Terraform for service account key resources
-        if grep -r "google_service_account_key" terraform/ 2>/dev/null; then
-          echo "❌ ERROR: google_service_account_key resource found in Terraform!"
-          echo "Service account keys are not allowed. Use Workload Identity instead."
-          echo "See docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md"
-          exit 1
-        fi
-
-        echo "✅ No google_service_account_key resources found"
-
-    - name: Check for Credential Files
-      run: |
-        echo "🔍 Scanning for credential files..."
-
-        # Check for common credential file patterns
-        CRED_FILES=$(find . -type f \( \
-          -name "*credentials*.json" -o \
-          -name "*-key.json" -o \
-          -name "service-account-*.json" -o \
-          -name "gcp-*.json" \
-        \) ! -path "*/node_modules/*" ! -path "*/.git/*" 2>/dev/null || true)
-
-        if [ -n "$CRED_FILES" ]; then
-          echo "❌ ERROR: Credential files found!"
-          echo "$CRED_FILES"
-          echo "Credential files are not allowed in the repository."
-          exit 1
-        fi
-
-        echo "✅ No credential files found"
-
-    - name: Check for Hardcoded Credentials
-      run: |
-        echo "🔍 Scanning for hardcoded credentials..."
-
-        # Check for GOOGLE_APPLICATION_CREDENTIALS references
-        if git grep -i "GOOGLE_APPLICATION_CREDENTIALS" -- ':!.github/workflows/security-check.yml' 2>/dev/null; then
-          echo "⚠️  WARNING: GOOGLE_APPLICATION_CREDENTIALS found"
-          echo "This should only be used in local development, never in production."
-          exit 1
-        fi
-
-        echo "✅ No hardcoded credential references found"
-
-    - name: Check for Base64 Encoded Keys
-      run: |
-        echo "🔍 Scanning for base64-encoded keys in secrets..."
-
-        # Look for potential base64-encoded JSON keys in YAML/JSON files
-        # Exclude .github directory to avoid false positives from workflow files
-        POTENTIAL_KEYS=$(git grep -E '"private_key"|"client_email"' -- '*.yaml' '*.yml' '*.json' 2>/dev/null | grep -v '^\.github/' || true)
-
-        if [ -n "$POTENTIAL_KEYS" ]; then
-          echo "❌ ERROR: Potential service account key found in config files!"
-          echo "$POTENTIAL_KEYS"
-          echo "Keys should never be stored in configuration files."
-          exit 1
-        fi
-
-        echo "✅ No base64-encoded keys found"
-
-    - name: Verify Workload Identity Usage
-      run: |
-        echo "🔍 Verifying Workload Identity configuration..."
-
-        # Check that GitHub Actions uses Workload Identity Federation
-        if ! grep -q "google-github-actions/auth@v1" .github/workflows/deploy.yml 2>/dev/null; then
-          echo "⚠️  WARNING: GitHub Actions may not be using Workload Identity Federation"
-        else
-          echo "✅ GitHub Actions uses Workload Identity Federation"
-        fi
-
-        # Check that Kubernetes ServiceAccounts have WI annotations
-        if [ -d "k8s/service-accounts" ]; then
-          if ! grep -q "iam.gke.io/gcp-service-account" k8s/service-accounts/*.yaml 2>/dev/null; then
-            echo "⚠️  WARNING: Kubernetes ServiceAccounts may be missing Workload Identity annotations"
-          else
-            echo "✅ Kubernetes ServiceAccounts have Workload Identity annotations"
+          # Check Terraform for service account key resources
+          if grep -r "google_service_account_key" terraform/ 2>/dev/null; then
+            echo "❌ ERROR: google_service_account_key resource found in Terraform!"
+            echo "Service account keys are not allowed. Use Workload Identity instead."
+            echo "See docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md"
+            exit 1
           fi
-        fi
+          echo "✅ No google_service_account_key resources found"
+      - name: Check for Credential Files
+        run: |
+          echo "🔍 Scanning for credential files..."
 
-    - name: Security Scan Summary
-      if: success()
-      run: |
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "✅ Security Scan: PASSED"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
-        echo "✅ No service account keys detected"
-        echo "✅ No credential files found"
-        echo "✅ No hardcoded credentials"
-        echo "✅ Workload Identity properly configured"
-        echo ""
-        echo "🎉 Repository follows security best practices!"
+          # Check for common credential file patterns
+          CRED_FILES=$(find . -type f \( \
+            -name "*credentials*.json" -o \
+            -name "*-key.json" -o \
+            -name "service-account-*.json" -o \
+            -name "gcp-*.json" \
+          \) ! -path "*/node_modules/*" ! -path "*/.git/*" 2>/dev/null || true)
+          if [ -n "$CRED_FILES" ]; then
+            echo "❌ ERROR: Credential files found!"
+            echo "$CRED_FILES"
+            echo "Credential files are not allowed in the repository."
+            exit 1
+          fi
+          echo "✅ No credential files found"
+      - name: Check for Hardcoded Credentials
+        run: |
+          echo "🔍 Scanning for hardcoded credentials..."
 
-    - name: Security Scan Failed
-      if: failure()
-      run: |
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "❌ Security Scan: FAILED"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
-        echo "Security violations detected. Please review the errors above."
-        echo ""
-        echo "📚 Documentation:"
-        echo "  - Workload Identity Guide: docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md"
-        echo "  - Security Enhancements Summary: SECURITY_ENHANCEMENTS_SUMMARY.md"
-        echo ""
-        echo "Need help? Contact the security team."
+          # Check for GOOGLE_APPLICATION_CREDENTIALS references
+          if git grep -i "GOOGLE_APPLICATION_CREDENTIALS" -- ':!.github/workflows/security-check.yml' 2>/dev/null; then
+            echo "⚠️  WARNING: GOOGLE_APPLICATION_CREDENTIALS found"
+            echo "This should only be used in local development, never in production."
+            exit 1
+          fi
+          echo "✅ No hardcoded credential references found"
+      - name: Check for Base64 Encoded Keys
+        run: |
+          echo "🔍 Scanning for base64-encoded keys in secrets..."
+
+          # Look for potential base64-encoded JSON keys in YAML/JSON files
+          # Exclude .github directory to avoid false positives from workflow files
+          POTENTIAL_KEYS=$(git grep -E '"private_key"|"client_email"' -- '*.yaml' '*.yml' '*.json' 2>/dev/null | grep -v '^\.github/' || true)
+          if [ -n "$POTENTIAL_KEYS" ]; then
+            echo "❌ ERROR: Potential service account key found in config files!"
+            echo "$POTENTIAL_KEYS"
+            echo "Keys should never be stored in configuration files."
+            exit 1
+          fi
+          echo "✅ No base64-encoded keys found"
+      - name: Verify Workload Identity Usage
+        run: |
+          echo "🔍 Verifying Workload Identity configuration..."
+
+          # Check that GitHub Actions uses Workload Identity Federation
+          if ! grep -q "google-github-actions/auth@v1" .github/workflows/deploy.yml 2>/dev/null; then
+            echo "⚠️  WARNING: GitHub Actions may not be using Workload Identity Federation"
+          else
+            echo "✅ GitHub Actions uses Workload Identity Federation"
+          fi
+
+          # Check that Kubernetes ServiceAccounts have WI annotations
+          if [ -d "k8s/service-accounts" ]; then
+            if ! grep -q "iam.gke.io/gcp-service-account" k8s/service-accounts/*.yaml 2>/dev/null; then
+              echo "⚠️  WARNING: Kubernetes ServiceAccounts may be missing Workload Identity annotations"
+            else
+              echo "✅ Kubernetes ServiceAccounts have Workload Identity annotations"
+            fi
+          fi
+      - name: Security Scan Summary
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Security Scan: PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "✅ No service account keys detected"
+          echo "✅ No credential files found"
+          echo "✅ No hardcoded credentials"
+          echo "✅ Workload Identity properly configured"
+          echo ""
+          echo "🎉 Repository follows security best practices!"
+      - name: Security Scan Failed
+        if: failure()
+        run: |-
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ Security Scan: FAILED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Security violations detected. Please review the errors above."
+          echo ""
+          echo "📚 Documentation:"
+          echo "  - Workload Identity Guide: docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md"
+          echo "  - Security Enhancements Summary: SECURITY_ENHANCEMENTS_SUMMARY.md"
+          echo ""
+          echo "Need help? Contact the security team."

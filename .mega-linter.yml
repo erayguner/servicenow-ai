@@ -1,3 +1,4 @@
+---
 # MegaLinter configuration
 # Option D: Replace custom lint jobs with MegaLinter
 # Disable duplicate or undesired linters (adjust as repo evolves)
@@ -8,18 +9,18 @@ MEGALINTER_FLAVOR: mega-linter-runner
 # Validate all codebase only on push to main (handled by workflow env VALIDATE_ALL_CODEBASE)
 # Enable core linters; disable ones not needed or too noisy initially
 DISABLE:
-  - COPYPASTE            # Enable later if needed
-  - SPELL                # Avoid early noise; can enable later
+  - COPYPASTE  # Enable later if needed
+  - SPELL  # Avoid early noise; can enable later
   - MARKDOWN_MARKDOWN_LINK_CHECK  # Network-dependent
 # Exclusions for performance / noise
-FILE_FILTER_REGEX_EXCLUDE: '(tmp/|\.terraform/|node_modules/|venv/|__pycache__/|\.git/)'
+FILE_FILTER_REGEX_EXCLUDE: (tmp/|\.terraform/|node_modules/|venv/|__pycache__/|\.git/)
 # Terraform settings
 TERRAFORM_DEFAULT_BRANCH: main
 TERRAFORM_ROOT_DIRS: terraform
 # Kubernetes manifests (YAML lint covers basic structure)
 # Python settings
 PYTHON_PYLINT_ARGUMENTS: ''
-PYTHON_MYPY_ARGUMENTS: '--ignore-missing-imports'
+PYTHON_MYPY_ARGUMENTS: --ignore-missing-imports
 # Report configuration
 PRINT_ALPACA: false
 SHOW_SPINNER: true

@@ -1,50 +1,47 @@
+---
 checks:
   # Exclude checks that are too strict for pre-commit
   # but keep them enabled in CI for full validation
   doNotAutoAddDefaults: false
   exclude:
     # Allow missing service accounts (might not exist yet)
-    - "non-existent-service-account"
+    - non-existent-service-account
     # Allow port mismatches in example files
-    - "liveness-port"
-    - "readiness-port"
+    - liveness-port
+    - readiness-port
     # Allow missing labels/annotations (optional metadata)
-    - "required-annotation-email"
-    - "required-label-owner"
+    - required-annotation-email
+    - required-label-owner
 
   # Keep important security checks
   include:
-    - "dangling-service"
-    - "deprecated-service-account-field"
-    - "docker-sock"
-    - "drop-net-raw-capability"
-    - "env-var-secret"
-    - "host-ipc"
-    - "host-network"
-    - "host-pid"
-    - "mismatching-selector"
-    - "no-anti-affinity"
-    - "no-extensions-v1beta"
-    - "no-liveness-probe"
-    - "no-read-only-root-fs"
-    - "no-readiness-probe"
-    - "no-rolling-update-strategy"
-    - "privilege-escalation-container"
-    - "privileged-container"
-    - "privileged-ports"
-    - "required-annotation-email"
-    - "required-label-owner"
-    - "run-as-non-root"
-    - "sensitive-host-mounts"
-    - "ssh-port"
-    - "unsafe-proc-mount"
-    - "unsafe-sysctls"
-    - "unset-cpu-requirements"
-    - "unset-memory-requirements"
-    - "writable-host-mount"
-
+    - dangling-service
+    - deprecated-service-account-field
+    - docker-sock
+    - drop-net-raw-capability
+    - env-var-secret
+    - host-ipc
+    - host-network
+    - host-pid
+    - mismatching-selector
+    - no-anti-affinity
+    - no-extensions-v1beta
+    - no-liveness-probe
+    - no-read-only-root-fs
+    - no-readiness-probe
+    - no-rolling-update-strategy
+    - privilege-escalation-container
+    - privileged-container
+    - privileged-ports
+    - required-annotation-email
+    - required-label-owner
+    - run-as-non-root
+    - sensitive-host-mounts
+    - ssh-port
+    - unsafe-proc-mount
+    - unsafe-sysctls
+    - unset-cpu-requirements
+    - unset-memory-requirements
+    - writable-host-mount
 # Ignore example/template files
-ignorePaths:
-  - "k8s/examples/"
-  - "k8s/templates/"
-  - "**/test/**"
+ignorePaths: [k8s/examples/, k8s/templates/, '**/test/**']
