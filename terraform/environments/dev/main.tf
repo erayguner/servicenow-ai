@@ -43,6 +43,7 @@ module "gke" {
   ai_pool_size            = { min = 0, max = 1 }
   vector_pool_size        = { min = 0, max = 1 }
   labels                  = { env = "dev", app = "ai-agent" }
+  environment             = "dev"
 }
 
 module "storage" {

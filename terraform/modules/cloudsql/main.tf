@@ -20,7 +20,9 @@ resource "google_sql_database_instance" "pg" {
     ip_configuration {
       ipv4_enabled    = false
       private_network = var.private_network
-      ssl_mode        = "ENCRYPTED_ONLY"
+      # Explicitly require SSL for all incoming connections (CKV_GCP_6 compliance)
+      # Note: For PostgreSQL with private IP + ENCRYPTED_ONLY this enforces TLS.
+      ssl_mode = "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"
     }
 
     database_flags {

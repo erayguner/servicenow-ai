@@ -44,6 +44,7 @@ module "gke" {
   ai_pool_size            = { min = 2, max = 10 }
   vector_pool_size        = { min = 2, max = 10 }
   labels                  = { env = "prod", app = "ai-agent" }
+  environment             = "prod"
 }
 
 module "storage" {
@@ -142,6 +143,24 @@ module "vertex_ai" {
 resource "google_compute_security_policy" "gke_waf" {
   name        = "prod-gke-waf"
   description = "Example Cloud Armor policy with rate limiting"
+
+  # Added comprehensive Log4Shell protection rule (higher priority)
+  rule {
+    priority = 50
+    action   = "deny(403)"
+    match {
+      expr {
+        expression = <<-EOT
+          (has(request.headers['user-agent']) && request.headers['user-agent'].matches('(?i).*\\$\\{jndi:.*'))
+          || (has(request.headers['referer']) && request.headers['referer'].matches('(?i).*\\$\\{jndi:.*'))
+          || request.path.matches('(?i).*\\$\\{jndi:.*')
+          || request.query.matches('(?i).*\\$\\{jndi:.*')
+          || (has(request.headers['x-forwarded-for']) && request.headers['x-forwarded-for'].matches('(?i).*\\$\\{jndi:.*'))
+        EOT
+      }
+    }
+    description = "Block Log4j/Log4Shell JNDI exploitation attempts (CVE-2021-44228)"
+  }
 
   rule {
     priority = 200

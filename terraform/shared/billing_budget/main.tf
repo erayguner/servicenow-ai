@@ -15,10 +15,6 @@ resource "google_billing_budget" "monthly" {
     }
   }
 
-  threshold_rules {
-    threshold_percent = 0.0
-  }
-
   dynamic "threshold_rules" {
     for_each = var.thresholds
     content {

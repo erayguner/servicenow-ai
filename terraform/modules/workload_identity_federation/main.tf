@@ -43,13 +43,17 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "attribute.repository_owner" = "assertion.repository_owner"
     "attribute.ref"              = "assertion.ref"
     "attribute.aud"              = "assertion.aud"
+    "attribute.subject"          = "assertion.sub"
   }
 
-  # Tighten security: validate audience and restrict to specific repo/branches
+  # Tighten security: validate audience, subject pattern, repo owner, repo name, and limit allowed refs
   attribute_condition = join(" && ", [
     "assertion.repository_owner == '${var.github_org}'",
     "assertion.repository == '${var.github_org}/${var.github_repo}'",
-    "(assertion.ref.startsWith('refs/heads/main') || assertion.ref.startsWith('refs/heads/master') || assertion.ref.startsWith('refs/tags/'))"
+    "(assertion.ref.startsWith('refs/heads/main') || assertion.ref.startsWith('refs/heads/master') || assertion.ref.startsWith('refs/tags/'))",
+    "assertion.aud == 'sts.googleapis.com'",
+    # subject format: repo:{org}/{repo}:ref:refs/heads/main (or master/tags)
+    "assertion.sub.matches('repo:${var.github_org}/${var.github_repo}:ref:refs/(heads/(main|master)|tags/.*)')"
   ])
 
   oidc {
@@ -71,10 +75,10 @@ resource "google_service_account" "github_actions" {
 # service account level using google_service_account_iam_member
 resource "google_project_iam_member" "github_actions_permissions" {
   for_each = toset([
-    "roles/container.developer",     # Deploy to GKE
-    "roles/artifactregistry.writer", # Push container images
-    "roles/storage.objectAdmin",     # Manage GCS (for state, artifacts)
-    "roles/logging.logWriter",       # Write logs
+    "roles/container.developer",
+    "roles/artifactregistry.writer",
+    "roles/storage.objectAdmin",
+    "roles/logging.logWriter",
   ])
 
   project = var.project_id
@@ -88,8 +92,7 @@ resource "google_service_account_iam_binding" "github_actions_workload_identity"
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    # Allow entire repository
-    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_org}/${var.github_repo}",
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_org}/${var.github_repo}"
   ]
 }
 
