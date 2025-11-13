@@ -10,10 +10,10 @@ resource "google_kms_crypto_key" "keys" {
   key_ring                   = google_kms_key_ring.ring.id
   rotation_period            = each.value
   purpose                    = "ENCRYPT_DECRYPT"
-  destroy_scheduled_duration = "86400s" # 24 hours deletion protection
+  destroy_scheduled_duration = "2592000s" # 30 days deletion protection
 
   lifecycle {
-    prevent_destroy = false # Protect encryption keys from accidental deletion
+    prevent_destroy = true # Protect encryption keys from accidental deletion
   }
 }
 

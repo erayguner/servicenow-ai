@@ -42,10 +42,15 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "attribute.repository"       = "assertion.repository"
     "attribute.repository_owner" = "assertion.repository_owner"
     "attribute.ref"              = "assertion.ref"
+    "attribute.aud"              = "assertion.aud"
   }
 
-  # Only allow tokens from your GitHub organization
-  attribute_condition = "assertion.repository_owner == '${var.github_org}'"
+  # Tighten security: validate audience and restrict to specific repo/branches
+  attribute_condition = join(" && ", [
+    "assertion.repository_owner == '${var.github_org}'",
+    "assertion.repository == '${var.github_org}/${var.github_repo}'",
+    "(assertion.ref.startsWith('refs/heads/main') || assertion.ref.startsWith('refs/heads/master') || assertion.ref.startsWith('refs/tags/'))"
+  ])
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
@@ -61,12 +66,14 @@ resource "google_service_account" "github_actions" {
 }
 
 # Grant permissions needed for CI/CD
+# Note: roles/iam.serviceAccountUser removed from project level for security.
+# If service account impersonation is needed, grant it at the specific
+# service account level using google_service_account_iam_member
 resource "google_project_iam_member" "github_actions_permissions" {
   for_each = toset([
     "roles/container.developer",     # Deploy to GKE
     "roles/artifactregistry.writer", # Push container images
     "roles/storage.objectAdmin",     # Manage GCS (for state, artifacts)
-    "roles/iam.serviceAccountUser",  # Impersonate service accounts
     "roles/logging.logWriter",       # Write logs
   ])
 

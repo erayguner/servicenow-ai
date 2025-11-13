@@ -144,6 +144,24 @@ resource "google_compute_security_policy" "gke_waf" {
   description = "Example Cloud Armor policy with rate limiting"
 
   rule {
+    priority = 200
+    action   = "deny(403)"
+    match {
+      expr {
+        expression = <<-EOT
+          has(request.headers['user-agent']) && request.headers['user-agent'].contains('jndi:')
+          || has(request.headers['referer']) && request.headers['referer'].contains('jndi:')
+          || request.path.contains('jndi:')
+          || request.query.contains('jndi:')
+          || request.path.contains('${jndi')
+          || request.query.contains('${jndi')
+        EOT
+      }
+    }
+    description = "Block Log4j/Log4Shell JNDI exploitation attempts (CVE-2021-44228)"
+  }
+
+  rule {
     priority = 1000
     action   = "rate_based_ban"
     match {

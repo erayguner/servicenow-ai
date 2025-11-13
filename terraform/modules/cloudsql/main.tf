@@ -63,6 +63,16 @@ resource "google_sql_database_instance" "pg" {
       value = "error"
     }
 
+    database_flags {
+      name  = "log_min_error_statement"
+      value = "error"
+    }
+
+    database_flags {
+      name  = "log_duration"
+      value = "on"
+    }
+
     maintenance_window {
       day  = 7
       hour = 5
