@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write  # Required for Workload Identity Federation
+  id-token: write # Required for Workload Identity Federation
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}

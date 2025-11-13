@@ -44,4 +44,4 @@ checks:
     - unset-memory-requirements
     - writable-host-mount
 # Ignore example/template files
-ignorePaths: [k8s/examples/, k8s/templates/, '**/test/**']
+ignorePaths: [k8s/examples/, k8s/templates/, "**/test/**"]

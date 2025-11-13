@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better scanning
+          fetch-depth: 0 # Full history for better scanning
       - name: Check for Service Account Keys
         run: |
           echo "🔍 Scanning for service account keys..."
