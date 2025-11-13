@@ -46,15 +46,9 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "attribute.subject"          = "assertion.sub"
   }
 
-  # Tighten security: validate audience, subject pattern, repo owner, repo name, and limit allowed refs
-  attribute_condition = join(" && ", [
-    "assertion.repository_owner == '${var.github_org}'",
-    "assertion.repository == '${var.github_org}/${var.github_repo}'",
-    "(assertion.ref.startsWith('refs/heads/main') || assertion.ref.startsWith('refs/heads/master') || assertion.ref.startsWith('refs/tags/'))",
-    "assertion.aud == 'sts.googleapis.com'",
-    # subject format: repo:{org}/{repo}:ref:refs/heads/main (or master/tags)
-    "assertion.sub.matches('repo:${var.github_org}/${var.github_repo}:ref:refs/(heads/(main|master)|tags/.*)')"
-  ])
+  # Tighten security: validate subject pattern, repo, and refs
+  # Note: Using assertion.sub check to satisfy CKV_GCP_125 while maintaining security
+  attribute_condition = "assertion.sub.matches('repo:${var.github_org}/${var.github_repo}:ref:refs/(heads/(main|master)|tags/.*)') && assertion.repository == '${var.github_org}/${var.github_repo}' && assertion.aud == 'sts.googleapis.com'"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"

@@ -144,22 +144,17 @@ resource "google_compute_security_policy" "gke_waf" {
   name        = "prod-gke-waf"
   description = "Example Cloud Armor policy with rate limiting"
 
-  # Added comprehensive Log4Shell protection rule (higher priority)
+  # GCP preconfigured rule for Log4Shell protection (CVE-2021-44228)
   rule {
     priority = 50
     action   = "deny(403)"
+    preview  = false
     match {
       expr {
-        expression = <<-EOT
-          (has(request.headers['user-agent']) && request.headers['user-agent'].matches('(?i).*\\$\\{jndi:.*'))
-          || (has(request.headers['referer']) && request.headers['referer'].matches('(?i).*\\$\\{jndi:.*'))
-          || request.path.matches('(?i).*\\$\\{jndi:.*')
-          || request.query.matches('(?i).*\\$\\{jndi:.*')
-          || (has(request.headers['x-forwarded-for']) && request.headers['x-forwarded-for'].matches('(?i).*\\$\\{jndi:.*'))
-        EOT
+        expression = "evaluatePreconfiguredWaf('cve-canary')"
       }
     }
-    description = "Block Log4j/Log4Shell JNDI exploitation attempts (CVE-2021-44228)"
+    description = "Block Log4j/Log4Shell exploitation attempts using GCP preconfigured WAF rule (CVE-2021-44228)"
   }
 
   rule {

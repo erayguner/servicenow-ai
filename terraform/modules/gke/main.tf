@@ -40,6 +40,13 @@ resource "google_container_cluster" "primary" {
 
   enable_shielded_nodes = true
 
+  # Default node configuration for the cluster (applied to initial node pool)
+  node_config {
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+  }
+
   master_auth {
     client_certificate_config {
       issue_client_certificate = false
