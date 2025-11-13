@@ -4,7 +4,7 @@ resource "google_storage_bucket" "buckets" {
   project                     = var.project_id
   location                    = var.location
   force_destroy               = coalesce(each.value.force_destroy, false)
-  uniform_bucket_level_access = coalesce(each.value.uniform_access, true)
+  uniform_bucket_level_access = true # Always enforce uniform bucket-level access for security
   public_access_prevention    = "enforced"
 
   encryption {
