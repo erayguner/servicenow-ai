@@ -863,6 +863,8 @@ print(response.json()['choices'][0]['message']['content'])
 | **LLM Serving** | ✅ Production Ready | Hybrid routing (self-hosted + cloud) |
 | **Documentation** | ✅ Complete | 20+ comprehensive guides |
 | **Testing** | ✅ Passing | 100% module coverage |
+| **YAML Linting** | ✅ All Valid | 13 files + 6 workflows + 3 markdown blocks |
+| **UK AI Playbook** | ✅ 95% Compliant | Target: 100% by Q4 2025 |
 
 ### Technology Stack
 
