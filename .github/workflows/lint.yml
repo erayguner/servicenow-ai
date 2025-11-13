@@ -19,27 +19,39 @@ jobs:
         run: |
           set -euo pipefail
           # Initialize outputs as false
-          echo "yaml=false" >> "$GITHUB_OUTPUT"
-          echo "k8s=false" >> "$GITHUB_OUTPUT"
-          echo "terraform=false" >> "$GITHUB_OUTPUT"
-          echo "python=false" >> "$GITHUB_OUTPUT"
+          {
+            echo "yaml=false"
+            echo "k8s=false"
+            echo "terraform=false"
+            echo "python=false"
+          } >> "$GITHUB_OUTPUT"
+
+          has_yaml=false
+          has_k8s=false
+          has_terraform=false
+          has_python=false
+
           if find . -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null | grep -q .; then
             echo "yaml=true" >> "$GITHUB_OUTPUT"
+            has_yaml=true
           fi
           if [ -d k8s ] && find k8s -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null | grep -q .; then
             echo "k8s=true" >> "$GITHUB_OUTPUT"
+            has_k8s=true
           fi
           if [ -d terraform ] && find terraform -type f -name '*.tf' 2>/dev/null | grep -q .; then
             echo "terraform=true" >> "$GITHUB_OUTPUT"
+            has_terraform=true
           fi
           if find . -type f -name '*.py' 2>/dev/null | grep -q .; then
             echo "python=true" >> "$GITHUB_OUTPUT"
+            has_python=true
           fi
           echo "Detected categories:"
-          echo "  YAML:      ${{ steps.detect.outputs.yaml }}"
-          echo "  Kubernetes:${{ steps.detect.outputs.k8s }}"
-          echo "  Terraform: ${{ steps.detect.outputs.terraform }}"
-          echo "  Python:    ${{ steps.detect.outputs.python }}"
+          echo "  YAML:      $has_yaml"
+          echo "  Kubernetes:$has_k8s"
+          echo "  Terraform: $has_terraform"
+          echo "  Python:    $has_python"
 
       # ---------------- YAML ----------------
       - name: Set up Python (for yamllint)

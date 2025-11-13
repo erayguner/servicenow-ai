@@ -180,9 +180,9 @@ jobs:
         id: check_env
         run: |
           if [ -d "terraform/environments/${{ matrix.env }}" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Terraform Init
         if: steps.check_env.outputs.exists == 'true'
@@ -209,20 +209,27 @@ jobs:
     steps:
       - name: Generate summary
         run: |-
-          echo "# Terraform CI Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Module Validation | ${{ needs.terraform-validate-all.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Module Tests | ${{ needs.terraform-test-all.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Environment Validation | ${{ needs.terraform-validate-environments.result }} |" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "# Terraform CI Summary"
+            echo ""
+            echo "| Job | Status |"
+            echo "|-----|--------|"
+            echo "| Module Validation | ${{ needs.terraform-validate-all.result }} |"
+            echo "| Module Tests | ${{ needs.terraform-test-all.result }} |"
+            echo "| Environment Validation | ${{ needs.terraform-validate-environments.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
           if [ "${{ needs.terraform-validate-all.result }}" == "success" ] && \
              [ "${{ needs.terraform-test-all.result }}" == "success" ] && \
              [ "${{ needs.terraform-validate-environments.result }}" == "success" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ **All Terraform checks passed!**" >> $GITHUB_STEP_SUMMARY
+            {
+              echo ""
+              echo "✅ **All Terraform checks passed!**"
+            } >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "❌ **Some Terraform checks failed. Please review the logs.**" >> $GITHUB_STEP_SUMMARY
+            {
+              echo ""
+              echo "❌ **Some Terraform checks failed. Please review the logs.**"
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi

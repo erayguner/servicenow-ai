@@ -24,7 +24,6 @@ jobs:
     name: Setup & Build
     runs-on: ubuntu-latest
     outputs:
-      cache-key: ${{ steps.cache.outputs.cache-key }}
       image-tag: ${{ steps.meta.outputs.image-tag }}
       has-node: ${{ steps.detect_node.outputs.has_node }}
 
@@ -67,8 +66,8 @@ jobs:
       - name: Generate image metadata
         id: meta
         run: |
-          IMAGE_TAG=$(echo ${{ github.sha }} | cut -c1-7)
-          echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "image-tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Upload workspace
         uses: actions/upload-artifact@v4
@@ -103,8 +102,8 @@ jobs:
           done
 
           MODULES_JSON=$(printf '%s\n' "${MODULES_WITH_TESTS[@]}" | jq -R -s -c 'split("\n")[:-1]')
-          echo "modules_with_tests=$MODULES_JSON" >> $GITHUB_OUTPUT
-          echo "count=${#MODULES_WITH_TESTS[@]}" >> $GITHUB_OUTPUT
+          echo "modules_with_tests=$MODULES_JSON" >> "$GITHUB_OUTPUT"
+          echo "count=${#MODULES_WITH_TESTS[@]}" >> "$GITHUB_OUTPUT"
           echo "🔍 Found ${#MODULES_WITH_TESTS[@]} modules with tests"
 
   # Job 3: Consolidated Terraform validation (all modules in single job)
@@ -420,9 +419,9 @@ jobs:
         if: failure()
         run: |
           mkdir -p logs
-          for pod in $(kubectl get pods -n e2e-shard-${{ matrix.shardIndex }} -o name); do
-            kubectl logs ${pod} -n e2e-shard-${{ matrix.shardIndex }} \
-              > logs/$(basename ${pod}).log 2>&1 || true
+          kubectl get pods -n "e2e-shard-${{ matrix.shardIndex }}" -o name | while IFS= read -r pod; do
+            kubectl logs "${pod}" -n "e2e-shard-${{ matrix.shardIndex }}" \
+              > "logs/$(basename "${pod}").log" 2>&1 || true
           done
 
       - name: Upload pod logs
@@ -642,34 +641,36 @@ jobs:
       - name: Notify Slack on success
         if: success()
         run: |
-          curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+          COMMIT_SHA="${{ github.sha }}"
+          curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
             -H 'Content-Type: application/json' \
-            -d '{
-              "text": "✅ Parallel test suite passed",
-              "attachments": [{
-                "color": "good",
-                "title": "Test Execution Complete",
-                "fields": [
-                  {"title": "Total Shards", "value": "32", "short": true},
-                  {"title": "Duration", "value": "~8 minutes", "short": true},
-                  {"title": "Commit", "value": "'${{ github.sha }}'", "short": false}
+            -d "{
+              \"text\": \"✅ Parallel test suite passed\",
+              \"attachments\": [{
+                \"color\": \"good\",
+                \"title\": \"Test Execution Complete\",
+                \"fields\": [
+                  {\"title\": \"Total Shards\", \"value\": \"32\", \"short\": true},
+                  {\"title\": \"Duration\", \"value\": \"~8 minutes\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"${COMMIT_SHA}\", \"short\": false}
                 ]
               }]
-            }'
+            }"
 
       - name: Notify Slack on failure
         if: failure()
         run: |
-          curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+          COMMIT_SHA="${{ github.sha }}"
+          curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
             -H 'Content-Type: application/json' \
-            -d '{
-              "text": "❌ Parallel test suite failed",
-              "attachments": [{
-                "color": "danger",
-                "title": "Test Execution Failed",
-                "text": "Check GitHub Actions for details",
-                "fields": [
-                  {"title": "Commit", "value": "'${{ github.sha }}'", "short": false}
+            -d "{
+              \"text\": \"❌ Parallel test suite failed\",
+              \"attachments\": [{
+                \"color\": \"danger\",
+                \"title\": \"Test Execution Failed\",
+                \"text\": \"Check GitHub Actions for details\",
+                \"fields\": [
+                  {\"title\": \"Commit\", \"value\": \"${COMMIT_SHA}\", \"short\": false}
                 ]
               }]
-            }'
+            }"
