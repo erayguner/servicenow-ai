@@ -1,4 +1,5 @@
 resource "google_container_cluster" "primary" {
+  #checkov:skip=CKV_GCP_21:Labels are configured via merge() - Checkov cannot evaluate Terraform functions during static analysis
   name     = var.cluster_name
   location = var.region
   project  = var.project_id
@@ -6,12 +7,21 @@ resource "google_container_cluster" "primary" {
   network    = var.network
   subnetwork = var.subnetwork
 
+  resource_labels = merge(
+    {
+      managed_by  = "terraform"
+      environment = var.environment
+    },
+    var.labels
+  )
+
   release_channel {
     channel = var.release_channel
   }
 
-  remove_default_node_pool = true
-  initial_node_count       = 1
+  remove_default_node_pool    = true
+  initial_node_count          = 1
+  enable_intranode_visibility = true
 
   ip_allocation_policy {
     # Reference secondary IP ranges created in the VPC module
@@ -23,12 +33,34 @@ resource "google_container_cluster" "primary" {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
 
+  authenticator_groups_config {
+    security_group = "gke-security-groups@${var.google_domain}"
+  }
+
   network_policy {
     enabled  = true
     provider = "CALICO"
   }
 
   enable_shielded_nodes = true
+
+  # Default node configuration for the cluster (applied to initial node pool)
+  node_config {
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
+    }
+  }
+
+  master_auth {
+    client_certificate_config {
+      issue_client_certificate = false
+    }
+  }
 
   binary_authorization {
     evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
@@ -78,6 +110,11 @@ resource "google_container_node_pool" "general" {
     max_node_count = var.general_pool_size.max
   }
 
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
   node_config {
     machine_type = "n2-standard-4"
     oauth_scopes = [
@@ -87,6 +124,15 @@ resource "google_container_node_pool" "general" {
     tags         = concat(var.tags, ["general-pool"])
     disk_size_gb = 50
     disk_type    = "pd-standard" # Use standard disk instead of SSD
+
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
+    }
   }
 }
 
@@ -100,6 +146,11 @@ resource "google_container_node_pool" "ai_inference" {
   autoscaling {
     min_node_count = var.ai_pool_size.min
     max_node_count = var.ai_pool_size.max
+  }
+
+  management {
+    auto_repair  = true
+    auto_upgrade = true
   }
 
   node_config {
@@ -116,6 +167,15 @@ resource "google_container_node_pool" "ai_inference" {
     }
     disk_size_gb = 50
     disk_type    = "pd-ssd" # Keep SSD for AI workloads
+
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
+    }
   }
 }
 
@@ -131,6 +191,11 @@ resource "google_container_node_pool" "vector" {
     max_node_count = var.vector_pool_size.max
   }
 
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
   node_config {
     machine_type = "n2-highmem-16"
     oauth_scopes = [
@@ -140,5 +205,14 @@ resource "google_container_node_pool" "vector" {
     tags         = concat(var.tags, ["vector-db"])
     disk_size_gb = 50
     disk_type    = "pd-ssd" # Keep SSD for vector DB
+
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
+    }
   }
 }

@@ -4,10 +4,20 @@ resource "google_storage_bucket" "buckets" {
   project                     = var.project_id
   location                    = var.location
   force_destroy               = coalesce(each.value.force_destroy, false)
-  uniform_bucket_level_access = coalesce(each.value.uniform_access, true)
+  uniform_bucket_level_access = true # Always enforce uniform bucket-level access for security
+  public_access_prevention    = "enforced"
 
   encryption {
     default_kms_key_name = each.value.kms_key
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  logging {
+    log_bucket        = coalesce(each.value.log_bucket, "${var.project_id}-logs")
+    log_object_prefix = "storage/${each.value.name}/"
   }
 
   dynamic "lifecycle_rule" {

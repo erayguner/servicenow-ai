@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    google-beta = {
-      source  = "hashicorp/google-beta"
-      version = "~> 7.10"
-    }
-  }
-}
-
 resource "google_vertex_ai_index" "kb_index" {
   provider     = google-beta
   project      = var.project_id

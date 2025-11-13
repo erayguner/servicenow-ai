@@ -1,18 +1,11 @@
 name: Lint and Validate
-
 on:
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   push:
-    branches:
-      - main
-      - develop
-
+    branches: [main, develop]
 permissions:
   contents: read
-
 jobs:
   lint:
     name: Lint and Validate
@@ -20,56 +13,61 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Detect file categories
         id: detect
         shell: bash
         run: |
           set -euo pipefail
           # Initialize outputs as false
-          echo "yaml=false" >> "$GITHUB_OUTPUT"
-          echo "k8s=false" >> "$GITHUB_OUTPUT"
-          echo "terraform=false" >> "$GITHUB_OUTPUT"
-          echo "python=false" >> "$GITHUB_OUTPUT"
+          {
+            echo "yaml=false"
+            echo "k8s=false"
+            echo "terraform=false"
+            echo "python=false"
+          } >> "$GITHUB_OUTPUT"
+
+          has_yaml=false
+          has_k8s=false
+          has_terraform=false
+          has_python=false
 
           if find . -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null | grep -q .; then
             echo "yaml=true" >> "$GITHUB_OUTPUT"
+            has_yaml=true
           fi
           if [ -d k8s ] && find k8s -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null | grep -q .; then
             echo "k8s=true" >> "$GITHUB_OUTPUT"
+            has_k8s=true
           fi
           if [ -d terraform ] && find terraform -type f -name '*.tf' 2>/dev/null | grep -q .; then
             echo "terraform=true" >> "$GITHUB_OUTPUT"
+            has_terraform=true
           fi
           if find . -type f -name '*.py' 2>/dev/null | grep -q .; then
             echo "python=true" >> "$GITHUB_OUTPUT"
+            has_python=true
           fi
-
           echo "Detected categories:"
-          echo "  YAML:      ${{ steps.detect.outputs.yaml }}"
-          echo "  Kubernetes:${{ steps.detect.outputs.k8s }}"
-          echo "  Terraform: ${{ steps.detect.outputs.terraform }}"
-          echo "  Python:    ${{ steps.detect.outputs.python }}"
+          echo "  YAML:      $has_yaml"
+          echo "  Kubernetes:$has_k8s"
+          echo "  Terraform: $has_terraform"
+          echo "  Python:    $has_python"
 
       # ---------------- YAML ----------------
       - name: Set up Python (for yamllint)
         if: ${{ steps.detect.outputs.yaml == 'true' }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
+          python-version: "3.11"
       - name: Install yamllint
         if: ${{ steps.detect.outputs.yaml == 'true' }}
         run: python -m pip install --upgrade pip yamllint
-
       - name: Run yamllint
         if: ${{ steps.detect.outputs.yaml == 'true' }}
         run: yamllint -c .yamllint.yaml .
-
       - name: Install Prettier (YAML)
         if: ${{ steps.detect.outputs.yaml == 'true' }}
         run: npm install --global prettier@3
-
       - name: Prettier (YAML)
         if: ${{ steps.detect.outputs.yaml == 'true' }}
         run: prettier --check "**/*.{yml,yaml}"
@@ -79,8 +77,7 @@ jobs:
         if: ${{ steps.detect.outputs.k8s == 'true' }}
         uses: stackrox/kube-linter-action@v1.0.7
         with:
-          manifests: k8s
-
+          directory: k8s
       - name: Install kubeconform
         if: ${{ steps.detect.outputs.k8s == 'true' }}
         run: |
@@ -89,7 +86,6 @@ jobs:
           mkdir -p "$HOME/bin"
           mv kubeconform "$HOME/bin/"
           echo "$HOME/bin" >> "$GITHUB_PATH"
-
       - name: kubeconform schema validation
         if: ${{ steps.detect.outputs.k8s == 'true' }}
         run: kubeconform -strict -summary k8s
@@ -100,31 +96,25 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.0
-
       - name: Check Terraform formatting
         if: ${{ steps.detect.outputs.terraform == 'true' }}
         run: terraform fmt -check -recursive
-
       - name: Set up TFLint
         if: ${{ steps.detect.outputs.terraform == 'true' }}
         uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: v0.51.1
-
       - name: Initialize TFLint plugins
         if: ${{ steps.detect.outputs.terraform == 'true' }}
         run: tflint --init
-
       - name: Run TFLint
         if: ${{ steps.detect.outputs.terraform == 'true' }}
         run: tflint --recursive
-
       - name: Run tfsec
         if: ${{ steps.detect.outputs.terraform == 'true' }}
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working-directory: terraform
-
       - name: Run Checkov
         if: ${{ steps.detect.outputs.terraform == 'true' }}
         uses: bridgecrewio/checkov-action@v12
@@ -136,30 +126,25 @@ jobs:
         if: ${{ steps.detect.outputs.python == 'true' }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
+          python-version: "3.11"
       - name: Install Python linters
         if: ${{ steps.detect.outputs.python == 'true' }}
         run: python -m pip install --upgrade pip black ruff mypy
-
       - name: Black (formatting)
         if: ${{ steps.detect.outputs.python == 'true' }}
         run: black --check .
-
       - name: Ruff (lint)
         if: ${{ steps.detect.outputs.python == 'true' }}
         run: ruff check .
-
       - name: Mypy (type checking)
         if: ${{ steps.detect.outputs.python == 'true' }}
         run: mypy --ignore-missing-imports .
 
       # ---------------- GitHub Actions ----------------
       - name: actionlint
-        uses: rhysd/actionlint@v1
-
+        uses: rhysd/actionlint@v1.7.8
       - name: Summary
-        run: |
+        run: |-
           echo "Lint summary:"
           echo "YAML: ${{ steps.detect.outputs.yaml }}"
           echo "Kubernetes: ${{ steps.detect.outputs.k8s }}"

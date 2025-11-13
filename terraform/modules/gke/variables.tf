@@ -37,3 +37,13 @@ variable "subnetwork_name" {
   description = "Subnetwork name (used to reference secondary IP ranges)"
   type        = string
 }
+variable "google_domain" {
+  description = "Google Workspace domain for GKE RBAC groups"
+  type        = string
+  default     = "example.com"
+}
+variable "environment" {
+  description = "Environment name (dev, staging, prod)"
+  type        = string
+  default     = "dev"
+}

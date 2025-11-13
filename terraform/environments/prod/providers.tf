@@ -13,7 +13,7 @@ terraform {
     bucket = "servicenow-ai-terraform-state-prod"
     prefix = "terraform/state/prod"
   }
-  required_version = ">= 1.0"
+  required_version = ">= 1.11.0"
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -22,6 +22,14 @@ terraform {
     google-beta = {
       source  = "hashicorp/google-beta"
       version = "~> 7.10"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.24.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.11.0, < 3.0.0"
     }
   }
 }

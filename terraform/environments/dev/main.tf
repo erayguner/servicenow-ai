@@ -29,7 +29,8 @@ module "vpc" {
   ]
 }
 
-module "gke" {
+# checkov:skip=CKV_GCP_21:Labels are configured via merge() - Checkov cannot evaluate Terraform functions during static analysis
+module "gke" { # checkov:skip=CKV_GCP_21
   source                  = "../../modules/gke"
   project_id              = var.project_id
   region                  = "europe-west2-a" # Use single zone instead of region for dev
@@ -43,6 +44,7 @@ module "gke" {
   ai_pool_size            = { min = 0, max = 1 }
   vector_pool_size        = { min = 0, max = 1 }
   labels                  = { env = "dev", app = "ai-agent" }
+  environment             = "dev"
 }
 
 module "storage" {

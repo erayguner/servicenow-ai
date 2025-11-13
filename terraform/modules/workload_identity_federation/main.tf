@@ -19,11 +19,6 @@ variable "github_repo" {
   description = "GitHub repository name"
 }
 
-variable "location" {
-  type    = string
-  default = "global"
-}
-
 # Create Workload Identity Pool for GitHub Actions
 resource "google_iam_workload_identity_pool" "github_pool" {
   project                   = var.project_id
@@ -47,10 +42,14 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "attribute.repository"       = "assertion.repository"
     "attribute.repository_owner" = "assertion.repository_owner"
     "attribute.ref"              = "assertion.ref"
+    "attribute.aud"              = "assertion.aud"
+    "attribute.subject"          = "assertion.sub"
   }
 
-  # Only allow tokens from your GitHub organization
-  attribute_condition = "assertion.repository_owner == '${var.github_org}'"
+  # Security: restrict to main branch only for CKV_GCP_125 compliance
+  # Note: Checkov regex only accepts 'assertion.sub == "literal"' format
+  # For multi-branch support, consider using multiple providers or suppressing this check
+  attribute_condition = "assertion.sub == 'repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main'"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
@@ -66,13 +65,15 @@ resource "google_service_account" "github_actions" {
 }
 
 # Grant permissions needed for CI/CD
+# Note: roles/iam.serviceAccountUser removed from project level for security.
+# If service account impersonation is needed, grant it at the specific
+# service account level using google_service_account_iam_member
 resource "google_project_iam_member" "github_actions_permissions" {
   for_each = toset([
-    "roles/container.developer",     # Deploy to GKE
-    "roles/artifactregistry.writer", # Push container images
-    "roles/storage.objectAdmin",     # Manage GCS (for state, artifacts)
-    "roles/iam.serviceAccountUser",  # Impersonate service accounts
-    "roles/logging.logWriter",       # Write logs
+    "roles/container.developer",
+    "roles/artifactregistry.writer",
+    "roles/storage.objectAdmin",
+    "roles/logging.logWriter",
   ])
 
   project = var.project_id
@@ -86,8 +87,7 @@ resource "google_service_account_iam_binding" "github_actions_workload_identity"
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    # Allow entire repository
-    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_org}/${var.github_repo}",
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_org}/${var.github_repo}"
   ]
 }
 
