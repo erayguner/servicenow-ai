@@ -65,7 +65,7 @@ jobs:
         if: ${{ steps.detect.outputs.k8s == 'true' }}
         uses: stackrox/kube-linter-action@v1.0.7
         with:
-          manifests: k8s
+          directory: k8s
       - name: Install kubeconform
         if: ${{ steps.detect.outputs.k8s == 'true' }}
         run: |
