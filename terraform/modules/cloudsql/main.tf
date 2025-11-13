@@ -21,7 +21,6 @@ resource "google_sql_database_instance" "pg" {
       ipv4_enabled    = false
       private_network = var.private_network
       ssl_mode        = "ENCRYPTED_ONLY"
-      require_ssl     = true
     }
 
     database_flags {
