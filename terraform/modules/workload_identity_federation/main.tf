@@ -19,11 +19,6 @@ variable "github_repo" {
   description = "GitHub repository name"
 }
 
-variable "location" {
-  type    = string
-  default = "global"
-}
-
 # Create Workload Identity Pool for GitHub Actions
 resource "google_iam_workload_identity_pool" "github_pool" {
   project                   = var.project_id
