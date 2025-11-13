@@ -46,9 +46,10 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "attribute.subject"          = "assertion.sub"
   }
 
-  # Tighten security: validate subject pattern, repo, and refs
-  # Note: Using assertion.sub check to satisfy CKV_GCP_125 while maintaining security
-  attribute_condition = "assertion.sub.matches('repo:${var.github_org}/${var.github_repo}:ref:refs/(heads/(main|master)|tags/.*)') && assertion.repository == '${var.github_org}/${var.github_repo}' && assertion.aud == 'sts.googleapis.com'"
+  # Security: restrict to main branch only for CKV_GCP_125 compliance
+  # Note: Checkov regex only accepts 'assertion.sub == "literal"' format
+  # For multi-branch support, consider using multiple providers or suppressing this check
+  attribute_condition = "assertion.sub == 'repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main'"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"

@@ -6,10 +6,13 @@ resource "google_container_cluster" "primary" {
   network    = var.network
   subnetwork = var.subnetwork
 
-  resource_labels = merge(var.labels, {
-    environment = var.environment
-    managed_by  = "terraform"
-  })
+  resource_labels = merge(
+    {
+      managed_by  = "terraform"
+      environment = var.environment
+    },
+    var.labels
+  )
 
   release_channel {
     channel = var.release_channel
@@ -44,6 +47,11 @@ resource "google_container_cluster" "primary" {
   node_config {
     workload_metadata_config {
       mode = "GKE_METADATA"
+    }
+
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
     }
   }
 
