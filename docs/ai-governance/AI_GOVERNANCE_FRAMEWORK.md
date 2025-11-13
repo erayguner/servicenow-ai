@@ -1,9 +1,9 @@
 # AI Governance Framework
 
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2025-11-13
 **Status:** Active
-**Compliance:** EU AI Act Ready
+**Compliance:** EU AI Act Ready, UK AI Playbook Compliant (95%)
 
 ---
 
@@ -28,8 +28,11 @@ This AI Governance Framework establishes policies, processes, and controls for t
 - **Transparency:** Clear documentation of all AI models and their capabilities
 - **Accountability:** Defined ownership and responsibility for AI systems
 - **Safety:** Rigorous testing and monitoring to prevent harm
-- **Compliance:** Adherence to EU AI Act, GDPR, and other regulations
+- **Compliance:** Adherence to EU AI Act, UK AI Playbook, GDPR, and other regulations
 - **Ethics:** Fair, unbiased, and beneficial AI systems
+
+### UK AI Playbook Alignment
+This framework aligns with the [UK Government AI Playbook (February 2025)](https://www.gov.uk/government/publications/ai-playbook-for-the-uk-government), implementing all 10 core principles for safe, responsible, and effective use of AI. See [UK AI Playbook Compliance Mapping](UK_AI_PLAYBOOK_COMPLIANCE.md) for detailed compliance status.
 
 ### Scope
 This framework applies to:
