@@ -153,8 +153,8 @@ resource "google_compute_security_policy" "gke_waf" {
           || has(request.headers['referer']) && request.headers['referer'].contains('jndi:')
           || request.path.contains('jndi:')
           || request.query.contains('jndi:')
-          || request.path.contains('${jndi')
-          || request.query.contains('${jndi')
+          || request.path.contains('$${jndi')
+          || request.query.contains('$${jndi')
         EOT
       }
     }
