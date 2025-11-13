@@ -30,6 +30,7 @@ module "vpc" {
   ]
 }
 
+#checkov:skip=CKV_GCP_21:Labels are configured via merge() - Checkov cannot evaluate Terraform functions during static analysis
 module "gke" {
   source                  = "../../modules/gke"
   project_id              = var.project_id
