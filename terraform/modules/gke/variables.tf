@@ -47,3 +47,15 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "enable_spot_instances" {
+  description = "Enable spot (preemptible) instances for cost optimization (dev/staging only)"
+  type        = bool
+  default     = false
+}
+
+variable "spot_instance_pools" {
+  description = "List of node pool names to use spot instances (e.g., ['general', 'ai-inference'])"
+  type        = list(string)
+  default     = []
+}

@@ -117,10 +117,13 @@ resource "google_container_node_pool" "general" {
 
   node_config {
     machine_type = "n2-standard-4"
+    # Enable spot instances for dev/staging environments (30-60% cost savings)
+    spot       = var.enable_spot_instances && contains(var.spot_instance_pools, "general")
+    preemptible = var.enable_spot_instances && contains(var.spot_instance_pools, "general")
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
-    labels       = merge(var.labels, { pool = "general" })
+    labels       = merge(var.labels, { pool = "general", spot = var.enable_spot_instances && contains(var.spot_instance_pools, "general") ? "true" : "false" })
     tags         = concat(var.tags, ["general-pool"])
     disk_size_gb = 50
     disk_type    = "pd-standard" # Use standard disk instead of SSD

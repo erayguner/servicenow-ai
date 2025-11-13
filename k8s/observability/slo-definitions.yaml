@@ -1,0 +1,218 @@
+# SLO (Service Level Objective) Definitions for Critical Services
+# These define reliability targets and monitoring rules
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slo-definitions
+  namespace: observability
+  labels:
+    app: slo-monitoring
+data:
+  slo-config.yaml: |
+    # Service Level Objectives for ServiceNow AI Infrastructure
+    # Target: 99.95% uptime (21.6 minutes/month downtime)
+
+    services:
+      # LLM Gateway - Critical service for AI inference
+      llm-gateway:
+        sli:
+          - name: availability
+            description: "Percentage of successful requests"
+            target: 99.95
+            measurement_window: 30d
+            query: |
+              sum(rate(http_requests_total{job="llm-gateway",code!~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="llm-gateway"}[5m]))
+
+          - name: latency
+            description: "P99 latency under 500ms"
+            target: 500
+            unit: milliseconds
+            percentile: 99
+            measurement_window: 30d
+            query: |
+              histogram_quantile(0.99,
+                sum(rate(http_request_duration_seconds_bucket{job="llm-gateway"}[5m])) by (le)
+              )
+
+          - name: error_rate
+            description: "Error rate below 0.1%"
+            target: 0.1
+            unit: percent
+            measurement_window: 30d
+            query: |
+              sum(rate(http_requests_total{job="llm-gateway",code=~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="llm-gateway"}[5m]))
+              * 100
+
+      # Conversation Manager
+      conversation-manager:
+        sli:
+          - name: availability
+            description: "Service availability"
+            target: 99.9
+            measurement_window: 30d
+            query: |
+              sum(rate(http_requests_total{job="conversation-manager",code!~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="conversation-manager"}[5m]))
+
+          - name: latency
+            description: "P95 latency under 1000ms"
+            target: 1000
+            unit: milliseconds
+            percentile: 95
+            measurement_window: 30d
+            query: |
+              histogram_quantile(0.95,
+                sum(rate(http_request_duration_seconds_bucket{job="conversation-manager"}[5m])) by (le)
+              )
+
+      # Knowledge Base
+      knowledge-base:
+        sli:
+          - name: availability
+            description: "Vector search availability"
+            target: 99.9
+            measurement_window: 30d
+            query: |
+              sum(rate(vector_search_requests_total{status="success"}[5m]))
+              /
+              sum(rate(vector_search_requests_total[5m]))
+
+          - name: latency
+            description: "P99 search latency under 200ms"
+            target: 200
+            unit: milliseconds
+            percentile: 99
+            measurement_window: 30d
+            query: |
+              histogram_quantile(0.99,
+                sum(rate(vector_search_duration_seconds_bucket[5m])) by (le)
+              )
+
+      # API Gateway
+      api-gateway:
+        sli:
+          - name: availability
+            description: "API availability"
+            target: 99.95
+            measurement_window: 30d
+            query: |
+              sum(rate(http_requests_total{job="api-gateway",code!~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="api-gateway"}[5m]))
+
+          - name: latency
+            description: "P99 latency under 300ms"
+            target: 300
+            unit: milliseconds
+            percentile: 99
+            measurement_window: 30d
+
+          - name: throughput
+            description: "Minimum 1000 requests/second"
+            target: 1000
+            unit: rps
+            measurement_window: 5m
+            query: |
+              sum(rate(http_requests_total{job="api-gateway"}[5m]))
+
+      # Database (Cloud SQL)
+      cloudsql:
+        sli:
+          - name: availability
+            description: "Database availability"
+            target: 99.95
+            measurement_window: 30d
+            query: |
+              avg_over_time(up{job="cloudsql"}[5m])
+
+          - name: connection_success_rate
+            description: "Successful connection rate"
+            target: 99.9
+            measurement_window: 30d
+
+          - name: query_latency
+            description: "P95 query latency under 50ms"
+            target: 50
+            unit: milliseconds
+            percentile: 95
+            measurement_window: 30d
+
+      # Pub/Sub
+      pubsub:
+        sli:
+          - name: message_delivery_rate
+            description: "Message delivery success rate"
+            target: 99.99
+            measurement_window: 30d
+
+          - name: end_to_end_latency
+            description: "P99 end-to-end latency under 2000ms"
+            target: 2000
+            unit: milliseconds
+            percentile: 99
+            measurement_window: 30d
+
+    # Error Budget Policy
+    error_budget:
+      calculation_window: 30d
+      burn_rate_alerts:
+        - name: critical
+          threshold: 14.4  # Burn 5% of monthly budget in 1 hour
+          severity: page
+        - name: high
+          threshold: 6     # Burn 5% of monthly budget in 6 hours
+          severity: page
+        - name: medium
+          threshold: 1     # Burn 5% of monthly budget in 3 days
+          severity: ticket
+
+    # Alerting Rules
+    alerts:
+      - name: SLOBurnRateCritical
+        expr: |
+          (
+            sum(rate(http_requests_total{code=~"5.."}[1h]))
+            /
+            sum(rate(http_requests_total[1h]))
+          ) > 0.05
+        for: 5m
+        severity: critical
+        description: "Burning through error budget at critical rate"
+
+      - name: SLOBurnRateHigh
+        expr: |
+          (
+            sum(rate(http_requests_total{code=~"5.."}[6h]))
+            /
+            sum(rate(http_requests_total[6h]))
+          ) > 0.05
+        for: 30m
+        severity: high
+        description: "Burning through error budget at high rate"
+
+      - name: LatencySLOViolation
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job)
+          ) > 0.5
+        for: 15m
+        severity: high
+        description: "P99 latency exceeds 500ms SLO"
+
+      - name: AvailabilitySLOViolation
+        expr: |
+          (
+            sum(rate(http_requests_total{code!~"5.."}[5m])) by (job)
+            /
+            sum(rate(http_requests_total[5m])) by (job)
+          ) < 0.9995
+        for: 5m
+        severity: critical
+        description: "Service availability below 99.95% SLO"
