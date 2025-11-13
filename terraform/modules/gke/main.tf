@@ -1,5 +1,5 @@
-# checkov:skip=CKV_GCP_21:Labels are configured via merge() - Checkov cannot evaluate Terraform functions during static analysis
-resource "google_container_cluster" "primary" { # checkov:skip=CKV_GCP_21
+resource "google_container_cluster" "primary" {
+  #checkov:skip=CKV_GCP_21:Labels are configured via merge() - Checkov cannot evaluate Terraform functions during static analysis
   name     = var.cluster_name
   location = var.region
   project  = var.project_id
