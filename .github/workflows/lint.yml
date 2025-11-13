@@ -1,4 +1,3 @@
----
 name: Lint and Validate
 on:
   pull_request:

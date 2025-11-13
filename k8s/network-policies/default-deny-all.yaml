@@ -1,4 +1,3 @@
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -17,7 +16,7 @@ spec:
   podSelector: {}
   policyTypes: [Egress]
   egress:
-  # Allow DNS
+    # Allow DNS
     - to:
         - namespaceSelector:
             matchLabels:

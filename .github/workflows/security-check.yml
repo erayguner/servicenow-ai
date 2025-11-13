@@ -1,4 +1,3 @@
----
 name: Security Check - No Service Account Keys
 on:
   pull_request:
