@@ -636,13 +636,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: aggregate-results
     if: always()
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
     steps:
       - name: Notify Slack on success
-        if: success()
+        if: success() && env.SLACK_WEBHOOK != ''
         run: |
           COMMIT_SHA="${{ github.sha }}"
-          curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+          curl -X POST "${{ env.SLACK_WEBHOOK }}" \
             -H 'Content-Type: application/json' \
             -d "{
               \"text\": \"✅ Parallel test suite passed\",
@@ -658,10 +660,10 @@ jobs:
             }"
 
       - name: Notify Slack on failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK != ''
         run: |
           COMMIT_SHA="${{ github.sha }}"
-          curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+          curl -X POST "${{ env.SLACK_WEBHOOK }}" \
             -H 'Content-Type: application/json' \
             -d "{
               \"text\": \"❌ Parallel test suite failed\",
