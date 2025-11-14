@@ -12,7 +12,7 @@ resource "google_storage_bucket" "buckets" {
   }
 
   versioning {
-    enabled = true
+    enabled = coalesce(each.value.versioning, true)
   }
 
   logging {

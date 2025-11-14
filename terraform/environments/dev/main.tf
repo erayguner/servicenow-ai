@@ -20,8 +20,8 @@ module "vpc" {
   enable_serverless_connector        = true
   serverless_connector_name          = "dev-cloud-run-connector"
   serverless_connector_cidr          = "10.8.0.0/28"
-  serverless_connector_min_instances = 2
-  serverless_connector_max_instances = 3
+  serverless_connector_min_instances = 0 # Scale to zero for dev cost savings
+  serverless_connector_max_instances = 2 # Reduced for minimal test setup
   subnets = [
     {
       name                    = "dev-core-europe-west2"
@@ -57,11 +57,11 @@ module "storage" {
   project_id = var.project_id
   location   = var.region
   buckets = [
-    { name = "${var.project_id}-knowledge-documents-dev", kms_key = module.kms.key_ids["storage"] },
-    { name = "${var.project_id}-document-chunks-dev", kms_key = module.kms.key_ids["storage"] },
-    { name = "${var.project_id}-user-uploads-dev", kms_key = module.kms.key_ids["storage"], lifecycle_rules = [{ action = { type = "Delete" }, condition = { age = 14 } }] },
-    { name = "${var.project_id}-backup-dev", kms_key = module.kms.key_ids["storage"] },
-    { name = "${var.project_id}-audit-logs-archive-dev", kms_key = module.kms.key_ids["storage"] }
+    { name = "${var.project_id}-knowledge-documents-dev", kms_key = module.kms.key_ids["storage"], versioning = false },
+    { name = "${var.project_id}-document-chunks-dev", kms_key = module.kms.key_ids["storage"], versioning = false },
+    { name = "${var.project_id}-user-uploads-dev", kms_key = module.kms.key_ids["storage"], versioning = false, lifecycle_rules = [{ action = { type = "Delete" }, condition = { age = 14 } }] },
+    { name = "${var.project_id}-backup-dev", kms_key = module.kms.key_ids["storage"], versioning = false },
+    { name = "${var.project_id}-audit-logs-archive-dev", kms_key = module.kms.key_ids["storage"], versioning = false }
   ]
 }
 
@@ -82,20 +82,23 @@ module "redis" {
   project_id         = var.project_id
   region             = var.region
   name               = "dev-redis"
+  tier               = "BASIC" # Non-HA tier for dev cost savings
   authorized_network = module.vpc.network_self_link
   memory_size_gb     = 1
 }
 
 module "cloudsql" {
-  source          = "../../modules/cloudsql"
-  project_id      = var.project_id
-  region          = var.region
-  instance_name   = "dev-postgres"
-  kms_key         = module.kms.key_ids["cloudsql"]
-  private_network = module.vpc.network_self_link
-  disk_size       = 50 # Reduce from 100GB to 50GB for dev
-  databases       = ["users", "audit_logs", "knowledge_metadata", "action_logs"]
-  users           = []
+  source            = "../../modules/cloudsql"
+  project_id        = var.project_id
+  region            = var.region
+  instance_name     = "dev-postgres"
+  tier              = "db-custom-2-8192" # Smaller instance: 2 vCPU, 8GB RAM for dev
+  availability_type = "ZONAL"            # Single-zone (non-HA) for dev cost savings
+  kms_key           = module.kms.key_ids["cloudsql"]
+  private_network   = module.vpc.network_self_link
+  disk_size         = 50 # Reduced from 100GB for dev
+  databases         = ["users", "audit_logs", "knowledge_metadata", "action_logs"]
+  users             = []
 
   depends_on = [module.vpc]
 }
@@ -132,10 +135,10 @@ module "ai_research_backend" {
   enable_cloud_sql_access = true
   enable_firestore_access = true
   enable_iap              = true
-  min_instances           = 0
-  max_instances           = 5
-  cpu_limit               = "2"
-  memory_limit            = "1Gi"
+  min_instances           = 0       # Scale to zero for dev cost savings
+  max_instances           = 2       # Reduced for minimal test setup
+  cpu_limit               = "1"     # Reduced for dev cost savings
+  memory_limit            = "512Mi" # Reduced for dev cost savings
   container_port          = 8080
   health_check_path       = "/health"
   labels                  = { env = "dev", app = "ai-research-assistant" }
@@ -168,10 +171,10 @@ module "ai_research_frontend" {
   vpc_connector          = module.vpc.serverless_connector_id
   create_service_account = true
   enable_iap             = true
-  min_instances          = 0
-  max_instances          = 3
+  min_instances          = 0 # Scale to zero for dev cost savings
+  max_instances          = 2 # Reduced for minimal test setup
   cpu_limit              = "1"
-  memory_limit           = "512Mi"
+  memory_limit           = "256Mi" # Reduced for dev cost savings
   container_port         = 3000
   health_check_path      = "/"
   labels                 = { env = "dev", app = "ai-research-assistant" }
