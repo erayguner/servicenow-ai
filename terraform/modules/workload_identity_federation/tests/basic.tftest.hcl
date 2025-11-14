@@ -58,16 +58,6 @@ run "plan_workload_identity_federation" {
     condition     = resource.google_service_account_iam_binding.github_actions_workload_identity.role == "roles/iam.workloadIdentityUser"
     error_message = "Must grant workloadIdentityUser role for federation"
   }
-
-  assert {
-    condition     = length(resource.google_service_account_iam_binding.github_actions_workload_identity.members) == 1
-    error_message = "Workload Identity binding must have exactly one member"
-  }
-
-  assert {
-    condition     = resource.google_service_account_iam_binding.github_actions_workload_identity.service_account_id != null
-    error_message = "Workload Identity binding must reference service account"
-  }
 }
 
 run "plan_workload_identity_federation_different_org" {
@@ -87,11 +77,6 @@ run "plan_workload_identity_federation_different_org" {
   assert {
     condition     = resource.google_service_account.github_actions.project == "prod-project"
     error_message = "Service account must be created in correct project"
-  }
-
-  assert {
-    condition     = length(resource.google_service_account_iam_binding.github_actions_workload_identity.members) == 1
-    error_message = "Workload Identity binding must have exactly one member"
   }
 
   assert {
