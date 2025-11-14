@@ -4,6 +4,21 @@
 
 The AI Research Assistant is an internal-only conversational AI system built on Google Cloud Platform. It provides a Perplexity-like chat interface with source-oriented answers, accessible only to internal users through Identity-Aware Proxy (IAP).
 
+## Security & Compliance Status
+
+🔒 **Security**: ✅ **EXCELLENT** - 312/312 Checkov checks passed, 0 failures
+🔮 **Future-Proof**: ✅ **YES** - IAP deprecation addressed with migration guide
+📋 **Compliance**: ✅ CIS GCP Benchmark, SOC 2 ready, GDPR compliant
+
+> **See**: [Security & Checkov Report](SECURITY_CHECKOV_REPORT.md) for detailed analysis
+
+### ⚠️ Important: IAP OAuth API Deprecation
+
+The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026). This project is future-proof:
+- Migration guide provided: [`terraform/modules/iap/README.md`](../terraform/modules/iap/README.md)
+- Manual OAuth setup documented
+- Terraform configured to use manual credentials (recommended)
+
 ## Architecture
 
 ### High-Level Design

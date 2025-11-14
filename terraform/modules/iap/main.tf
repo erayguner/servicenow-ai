@@ -1,7 +1,22 @@
 # Identity-Aware Proxy (IAP) configuration for Cloud Run services
 # Provides authentication and authorization for internal web UI
 
-# IAP Brand (OAuth consent screen)
+# DEPRECATION NOTICE:
+# google_iap_brand and google_iap_client resources are deprecated as of Jan 22, 2025
+# and will be removed March 19, 2026.
+#
+# RECOMMENDED APPROACH (Future-Proof):
+# 1. Create OAuth Brand manually in GCP Console:
+#    Security > Identity-Aware Proxy > Configure Consent Screen
+# 2. Create OAuth Client manually in GCP Console:
+#    Security > Identity-Aware Proxy > Create OAuth Client
+# 3. Pass the client_id and client_secret to this module via variables
+# 4. Set create_brand = false and create_oauth_client = false (default)
+
+# IAP Brand (OAuth consent screen) - DEPRECATED
+# WARNING: This resource will stop working after March 19, 2026
+# Only enable temporarily if you need automated creation before deprecation
+# Default: disabled (count = 0) - use manual creation instead
 resource "google_iap_brand" "project_brand" {
   count             = var.create_brand ? 1 : 0
   project           = var.project_id
@@ -9,7 +24,10 @@ resource "google_iap_brand" "project_brand" {
   application_title = var.application_title
 }
 
-# IAP OAuth Client
+# IAP OAuth Client - DEPRECATED
+# WARNING: This resource will stop working after March 19, 2026
+# Only enable temporarily if you need automated creation before deprecation
+# Default: disabled (count = 0) - use manual creation instead
 resource "google_iap_client" "iap_client" {
   count        = var.create_oauth_client ? 1 : 0
   display_name = var.oauth_client_display_name
