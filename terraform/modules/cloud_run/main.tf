@@ -130,8 +130,8 @@ resource "google_service_account" "cloud_run_sa" {
 
 # Grant Cloud Run SA access to Secret Manager
 resource "google_secret_manager_secret_iam_member" "secret_access" {
-  for_each = var.secret_environment_variables
-  project  = var.project_id
+  for_each  = var.secret_environment_variables
+  project   = var.project_id
   secret_id = each.value.secret
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${var.service_account_email}"

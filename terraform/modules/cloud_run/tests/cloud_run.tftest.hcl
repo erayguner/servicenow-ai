@@ -2,12 +2,12 @@ run "test_cloud_run_service_creation" {
   command = plan
 
   variables {
-    project_id            = "test-project"
-    region                = "us-central1"
-    service_name          = "test-service"
-    image                 = "gcr.io/test-project/test-image:latest"
-    vpc_connector         = "projects/test-project/locations/us-central1/connectors/test-connector"
-    service_account_email = "test-sa@test-project.iam.gserviceaccount.com"
+    project_id             = "test-project"
+    region                 = "us-central1"
+    service_name           = "test-service"
+    image                  = "gcr.io/test-project/test-image:latest"
+    vpc_connector          = "projects/test-project/locations/us-central1/connectors/test-connector"
+    service_account_email  = "test-sa@test-project.iam.gserviceaccount.com"
     create_service_account = false
     environment_variables = {
       "NODE_ENV" = "production"
@@ -29,14 +29,14 @@ run "test_iap_enabled" {
   command = plan
 
   variables {
-    project_id            = "test-project"
-    region                = "us-central1"
-    service_name          = "test-service-iap"
-    image                 = "gcr.io/test-project/test-image:latest"
-    vpc_connector         = "projects/test-project/locations/us-central1/connectors/test-connector"
-    service_account_email = "test-sa@test-project.iam.gserviceaccount.com"
+    project_id             = "test-project"
+    region                 = "us-central1"
+    service_name           = "test-service-iap"
+    image                  = "gcr.io/test-project/test-image:latest"
+    vpc_connector          = "projects/test-project/locations/us-central1/connectors/test-connector"
+    service_account_email  = "test-sa@test-project.iam.gserviceaccount.com"
     create_service_account = false
-    enable_iap            = true
+    enable_iap             = true
   }
 
   assert {

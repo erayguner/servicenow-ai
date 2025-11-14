@@ -31,6 +31,7 @@ resource "google_compute_backend_service" "default" {
   }
 
   iap {
+    enabled              = true
     oauth2_client_id     = var.create_oauth_client ? google_iap_client.iap_client[0].client_id : var.oauth_client_id
     oauth2_client_secret = var.create_oauth_client ? google_iap_client.iap_client[0].secret : var.oauth_client_secret
   }
@@ -71,11 +72,11 @@ resource "google_compute_region_target_http_proxy" "default" {
 
 # HTTPS Target Proxy (if SSL certificate provided)
 resource "google_compute_region_target_https_proxy" "default" {
-  count           = var.ssl_certificate != null ? 1 : 0
-  name            = "${var.service_name}-https-proxy"
-  project         = var.project_id
-  region          = var.region
-  url_map         = google_compute_region_url_map.default.id
+  count            = var.ssl_certificate != null ? 1 : 0
+  name             = "${var.service_name}-https-proxy"
+  project          = var.project_id
+  region           = var.region
+  url_map          = google_compute_region_url_map.default.id
   ssl_certificates = [var.ssl_certificate]
 }
 
