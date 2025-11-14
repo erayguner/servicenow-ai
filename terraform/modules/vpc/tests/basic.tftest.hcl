@@ -45,7 +45,7 @@ run "plan_vpc_with_serverless_connector" {
   command = plan
   variables {
     project_id                         = "test-project"
-    region                             = "us-central1"
+    region                             = "europe-west2"
     network_name                       = "test-vpc-serverless"
     enable_serverless_connector        = true
     serverless_connector_name          = "test-connector"
@@ -56,7 +56,7 @@ run "plan_vpc_with_serverless_connector" {
       {
         name                    = "subnet-usc1"
         ip_cidr_range           = "10.10.0.0/20"
-        region                  = "us-central1"
+        region                  = "europe-west2"
         private_google_access   = true
         secondary_ip_range_pods = "10.20.0.0/16"
         secondary_ip_range_svc  = "10.30.0.0/20"
@@ -89,14 +89,14 @@ run "plan_vpc_without_serverless_connector" {
   command = plan
   variables {
     project_id                  = "test-project"
-    region                      = "us-central1"
+    region                      = "europe-west2"
     network_name                = "test-vpc-no-serverless"
     enable_serverless_connector = false
     subnets = [
       {
         name                    = "subnet-usc1"
         ip_cidr_range           = "10.10.0.0/20"
-        region                  = "us-central1"
+        region                  = "europe-west2"
         private_google_access   = true
         secondary_ip_range_pods = "10.20.0.0/16"
         secondary_ip_range_svc  = "10.30.0.0/20"
@@ -114,7 +114,7 @@ run "plan_vpc_with_firewall_rules" {
   command = plan
   variables {
     project_id                  = "test-project"
-    region                      = "us-central1"
+    region                      = "europe-west2"
     network_name                = "test-vpc-fw"
     enable_serverless_connector = true
     serverless_connector_cidr   = "10.8.0.0/28"
@@ -122,7 +122,7 @@ run "plan_vpc_with_firewall_rules" {
       {
         name                    = "subnet-usc1"
         ip_cidr_range           = "10.10.0.0/20"
-        region                  = "us-central1"
+        region                  = "europe-west2"
         private_google_access   = true
         secondary_ip_range_pods = "10.20.0.0/16"
         secondary_ip_range_svc  = "10.30.0.0/20"

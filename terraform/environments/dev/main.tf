@@ -24,7 +24,7 @@ module "vpc" {
   serverless_connector_max_instances = 3
   subnets = [
     {
-      name                    = "dev-core-us-central1"
+      name                    = "dev-core-europe-west2"
       ip_cidr_range           = "10.70.0.0/20"
       region                  = var.region
       private_google_access   = true
@@ -41,7 +41,7 @@ module "gke" { # checkov:skip=CKV_GCP_21
   region                  = "europe-west2-a" # Use single zone instead of region for dev
   network                 = module.vpc.network_self_link
   subnetwork              = values(module.vpc.subnet_self_links)[0]
-  subnetwork_name         = "dev-core-us-central1"
+  subnetwork_name         = "dev-core-europe-west2"
   cluster_name            = "dev-ai-agent-gke"
   master_ipv4_cidr_block  = var.gke_master_cidr
   authorized_master_cidrs = []

@@ -5,10 +5,10 @@ run "test_cloud_run_service_creation" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service"
     image                  = "gcr.io/test-project/test-image:latest"
-    vpc_connector          = "projects/test-project/locations/us-central1/connectors/test-connector"
+    vpc_connector          = "projects/test-project/locations/europe-west2/connectors/test-connector"
     service_account_email  = "test-sa@test-project.iam.gserviceaccount.com"
     create_service_account = false
     environment_variables = {
@@ -37,10 +37,10 @@ run "test_iap_enabled" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service-iap"
     image                  = "gcr.io/test-project/test-image:latest"
-    vpc_connector          = "projects/test-project/locations/us-central1/connectors/test-connector"
+    vpc_connector          = "projects/test-project/locations/europe-west2/connectors/test-connector"
     service_account_email  = "test-sa@test-project.iam.gserviceaccount.com"
     create_service_account = false
     enable_iap             = true
@@ -57,10 +57,10 @@ run "test_service_account_creation" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service-sa"
     image                  = "gcr.io/test-project/test-image:latest"
-    vpc_connector          = "projects/test-project/locations/us-central1/connectors/test-connector"
+    vpc_connector          = "projects/test-project/locations/europe-west2/connectors/test-connector"
     create_service_account = true
   }
 
@@ -80,10 +80,10 @@ run "test_secret_environment_variables" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service-secrets"
     image                  = "gcr.io/test-project/test-image:latest"
-    vpc_connector          = "projects/test-project/locations/us-central1/connectors/test-connector"
+    vpc_connector          = "projects/test-project/locations/europe-west2/connectors/test-connector"
     service_account_email  = "test-sa@test-project.iam.gserviceaccount.com"
     create_service_account = false
     secret_environment_variables = {
@@ -105,10 +105,10 @@ run "test_resource_limits" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service-limits"
     image                  = "gcr.io/test-project/test-image:latest"
-    vpc_connector          = "projects/test-project/locations/us-central1/connectors/test-connector"
+    vpc_connector          = "projects/test-project/locations/europe-west2/connectors/test-connector"
     service_account_email  = "test-sa@test-project.iam.gserviceaccount.com"
     create_service_account = false
     cpu_limit              = "2"

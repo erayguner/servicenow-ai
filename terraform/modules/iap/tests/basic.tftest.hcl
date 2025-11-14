@@ -5,11 +5,11 @@ run "test_iap_with_manual_oauth" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service"
     cloud_run_service_name = "test-cloud-run-service"
     network                = "projects/test-project/global/networks/test-vpc"
-    subnetwork             = "projects/test-project/regions/us-central1/subnetworks/test-subnet"
+    subnetwork             = "projects/test-project/regions/europe-west2/subnetworks/test-subnet"
     create_brand           = false
     create_oauth_client    = false
     oauth_client_id        = "test-client-id.apps.googleusercontent.com"
@@ -56,11 +56,11 @@ run "test_network_endpoint_group" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service-neg"
     cloud_run_service_name = "test-cloud-run-service"
     network                = "projects/test-project/global/networks/test-vpc"
-    subnetwork             = "projects/test-project/regions/us-central1/subnetworks/test-subnet"
+    subnetwork             = "projects/test-project/regions/europe-west2/subnetworks/test-subnet"
     oauth_client_id        = "test-client-id.apps.googleusercontent.com"
     oauth_client_secret    = "test-client-secret"
     iap_access_members     = []
@@ -82,11 +82,11 @@ run "test_load_balancer_configuration" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-lb"
     cloud_run_service_name = "test-cloud-run-service"
     network                = "projects/test-project/global/networks/test-vpc"
-    subnetwork             = "projects/test-project/regions/us-central1/subnetworks/test-subnet"
+    subnetwork             = "projects/test-project/regions/europe-west2/subnetworks/test-subnet"
     oauth_client_id        = "test-client-id.apps.googleusercontent.com"
     oauth_client_secret    = "test-client-secret"
     iap_access_members     = []
@@ -108,11 +108,11 @@ run "test_iap_access_members" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service-access"
     cloud_run_service_name = "test-cloud-run-service"
     network                = "projects/test-project/global/networks/test-vpc"
-    subnetwork             = "projects/test-project/regions/us-central1/subnetworks/test-subnet"
+    subnetwork             = "projects/test-project/regions/europe-west2/subnetworks/test-subnet"
     oauth_client_id        = "test-client-id.apps.googleusercontent.com"
     oauth_client_secret    = "test-client-secret"
     iap_access_members = [
@@ -138,11 +138,11 @@ run "test_health_check" {
 
   variables {
     project_id             = "test-project"
-    region                 = "us-central1"
+    region                 = "europe-west2"
     service_name           = "test-service-health"
     cloud_run_service_name = "test-cloud-run-service"
     network                = "projects/test-project/global/networks/test-vpc"
-    subnetwork             = "projects/test-project/regions/us-central1/subnetworks/test-subnet"
+    subnetwork             = "projects/test-project/regions/europe-west2/subnetworks/test-subnet"
     oauth_client_id        = "test-client-id.apps.googleusercontent.com"
     oauth_client_secret    = "test-client-secret"
     iap_access_members     = []
