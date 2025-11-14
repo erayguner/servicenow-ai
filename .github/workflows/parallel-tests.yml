@@ -12,6 +12,11 @@ on:
         required: false
         default: "4"
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GKE_REGION: europe-west2
