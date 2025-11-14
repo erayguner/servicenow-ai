@@ -106,3 +106,62 @@ resource "google_compute_firewall" "deny_all_ingress" {
   }
   source_ranges = ["0.0.0.0/0"]
 }
+
+# Serverless VPC Access Connector for Cloud Run
+resource "google_vpc_access_connector" "connector" {
+  count   = var.enable_serverless_connector ? 1 : 0
+  name    = var.serverless_connector_name
+  project = var.project_id
+  region  = var.region
+  network = google_compute_network.vpc.name
+
+  ip_cidr_range = var.serverless_connector_cidr
+
+  min_instances = var.serverless_connector_min_instances
+  max_instances = var.serverless_connector_max_instances
+  machine_type  = var.serverless_connector_machine_type
+}
+
+# Firewall rule to allow Cloud Run traffic through VPC connector
+resource "google_compute_firewall" "serverless_to_vpc" {
+  count   = var.enable_serverless_connector ? 1 : 0
+  name    = "${var.network_name}-serverless-to-vpc"
+  project = var.project_id
+  network = google_compute_network.vpc.name
+
+  direction = "INGRESS"
+  priority  = 1000
+
+  allow {
+    protocol = "tcp"
+  }
+
+  allow {
+    protocol = "udp"
+  }
+
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = [var.serverless_connector_cidr]
+}
+
+# Firewall rule for health checks
+resource "google_compute_firewall" "serverless_health_checks" {
+  count   = var.enable_serverless_connector ? 1 : 0
+  name    = "${var.network_name}-serverless-health-checks"
+  project = var.project_id
+  network = google_compute_network.vpc.name
+
+  direction = "INGRESS"
+  priority  = 1000
+
+  allow {
+    protocol = "tcp"
+    ports    = ["667"]
+  }
+
+  source_ranges = ["35.191.0.0/16", "130.211.0.0/22"]
+  target_tags   = ["vpc-connector"]
+}

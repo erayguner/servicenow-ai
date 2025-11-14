@@ -19,7 +19,7 @@ module "vpc" {
   create_fw_default_deny = false
   subnets = [
     {
-      name                    = "staging-core-us-central1"
+      name                    = "staging-core-europe-west2"
       ip_cidr_range           = "10.40.0.0/20"
       region                  = var.region
       private_google_access   = true
@@ -36,7 +36,7 @@ module "gke" { # checkov:skip=CKV_GCP_21
   region                  = var.region
   network                 = module.vpc.network_self_link
   subnetwork              = values(module.vpc.subnet_self_links)[0]
-  subnetwork_name         = "staging-core-us-central1"
+  subnetwork_name         = "staging-core-europe-west2"
   cluster_name            = "staging-ai-agent-gke"
   master_ipv4_cidr_block  = var.gke_master_cidr
   authorized_master_cidrs = []

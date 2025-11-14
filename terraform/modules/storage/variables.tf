@@ -5,6 +5,7 @@ variable "buckets" {
   type = list(object({
     name          = string
     force_destroy = optional(bool, false)
+    versioning    = optional(bool, true) # Versioning enabled by default for data protection
     kms_key       = string
     log_bucket    = optional(string)
     lifecycle_rules = optional(list(object({

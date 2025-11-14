@@ -33,3 +33,39 @@ variable "create_fw_default_deny" {
   type    = bool
   default = true
 }
+
+variable "enable_serverless_connector" {
+  description = "Enable Serverless VPC Access Connector for Cloud Run"
+  type        = bool
+  default     = false
+}
+
+variable "serverless_connector_name" {
+  description = "Name of the Serverless VPC Access Connector"
+  type        = string
+  default     = "cloud-run-connector"
+}
+
+variable "serverless_connector_cidr" {
+  description = "CIDR range for Serverless VPC Access Connector (must be /28)"
+  type        = string
+  default     = "10.8.0.0/28"
+}
+
+variable "serverless_connector_min_instances" {
+  description = "Minimum number of instances for Serverless VPC Access Connector"
+  type        = number
+  default     = 2
+}
+
+variable "serverless_connector_max_instances" {
+  description = "Maximum number of instances for Serverless VPC Access Connector"
+  type        = number
+  default     = 3
+}
+
+variable "serverless_connector_machine_type" {
+  description = "Machine type for Serverless VPC Access Connector"
+  type        = string
+  default     = "e2-micro"
+}

@@ -40,7 +40,7 @@ run "plan_cloudsql_with_replica" {
     databases           = ["db1"]
     users               = []
     enable_read_replica = true
-    replica_region      = "us-central1"
+    replica_region      = "europe-west2"
     replica_tier        = "db-n1-standard-2"
   }
 
@@ -55,8 +55,8 @@ run "plan_cloudsql_with_replica" {
   }
 
   assert {
-    condition     = resource.google_sql_database_instance.replica[0].region == "us-central1"
-    error_message = "Replica must be in different region for disaster recovery"
+    condition     = resource.google_sql_database_instance.replica[0].region == "europe-west2"
+    error_message = "Replica region must match configuration"
   }
 
   assert {
