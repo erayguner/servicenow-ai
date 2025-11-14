@@ -1,6 +1,11 @@
 # Cloud Run service for AI research assistant backend and frontend
 # Configured for internal-only access with IAP protection
 
+locals {
+  # Use created service account email if create_service_account is true, otherwise use provided email
+  service_account_email = var.create_service_account ? google_service_account.cloud_run_sa[0].email : var.service_account_email
+}
+
 resource "google_cloud_run_v2_service" "service" {
   name     = var.service_name
   project  = var.project_id
@@ -8,7 +13,7 @@ resource "google_cloud_run_v2_service" "service" {
   ingress  = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
 
   template {
-    service_account = var.service_account_email
+    service_account = local.service_account_email
 
     vpc_access {
       connector = var.vpc_connector
@@ -134,7 +139,7 @@ resource "google_secret_manager_secret_iam_member" "secret_access" {
   project   = var.project_id
   secret_id = each.value.secret
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${var.service_account_email}"
+  member    = "serviceAccount:${local.service_account_email}"
 }
 
 # Grant Cloud Run SA access to Cloud SQL (if needed)
@@ -142,7 +147,7 @@ resource "google_project_iam_member" "cloudsql_client" {
   count   = var.enable_cloud_sql_access ? 1 : 0
   project = var.project_id
   role    = "roles/cloudsql.client"
-  member  = "serviceAccount:${var.service_account_email}"
+  member  = "serviceAccount:${local.service_account_email}"
 }
 
 # Grant Cloud Run SA access to Firestore (if needed)
@@ -150,7 +155,7 @@ resource "google_project_iam_member" "firestore_user" {
   count   = var.enable_firestore_access ? 1 : 0
   project = var.project_id
   role    = "roles/datastore.user"
-  member  = "serviceAccount:${var.service_account_email}"
+  member  = "serviceAccount:${local.service_account_email}"
 }
 
 # Grant Cloud Run SA access to Cloud Storage (if needed)
@@ -158,28 +163,28 @@ resource "google_storage_bucket_iam_member" "storage_access" {
   for_each = var.storage_buckets
   bucket   = each.value
   role     = "roles/storage.objectViewer"
-  member   = "serviceAccount:${var.service_account_email}"
+  member   = "serviceAccount:${local.service_account_email}"
 }
 
 # Grant Cloud Run SA access to logging
 resource "google_project_iam_member" "log_writer" {
   project = var.project_id
   role    = "roles/logging.logWriter"
-  member  = "serviceAccount:${var.service_account_email}"
+  member  = "serviceAccount:${local.service_account_email}"
 }
 
 # Grant Cloud Run SA access to monitoring
 resource "google_project_iam_member" "monitoring_writer" {
   project = var.project_id
   role    = "roles/monitoring.metricWriter"
-  member  = "serviceAccount:${var.service_account_email}"
+  member  = "serviceAccount:${local.service_account_email}"
 }
 
 # Grant Cloud Run SA access to error reporting
 resource "google_project_iam_member" "error_reporter" {
   project = var.project_id
   role    = "roles/errorreporting.writer"
-  member  = "serviceAccount:${var.service_account_email}"
+  member  = "serviceAccount:${local.service_account_email}"
 }
 
 data "google_project" "project" {
