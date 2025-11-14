@@ -12,11 +12,16 @@ module "kms" {
 }
 
 module "vpc" {
-  source                 = "../../modules/vpc"
-  project_id             = var.project_id
-  region                 = var.region
-  network_name           = "dev-core"
-  create_fw_default_deny = false
+  source                        = "../../modules/vpc"
+  project_id                    = var.project_id
+  region                        = var.region
+  network_name                  = "dev-core"
+  create_fw_default_deny        = false
+  enable_serverless_connector   = true
+  serverless_connector_name     = "dev-cloud-run-connector"
+  serverless_connector_cidr     = "10.8.0.0/28"
+  serverless_connector_min_instances = 2
+  serverless_connector_max_instances = 3
   subnets = [
     {
       name                    = "dev-core-us-central1"
@@ -113,6 +118,69 @@ module "secrets" {
     { name = "anthropic-api-key" },
     { name = "vertexai-api-key" }
   ]
+}
+
+# AI Research Assistant Backend
+module "ai_research_backend" {
+  source                     = "../../modules/cloud_run"
+  project_id                 = var.project_id
+  region                     = var.region
+  service_name               = "ai-research-backend"
+  image                      = "gcr.io/${var.project_id}/ai-research-backend:latest"
+  vpc_connector              = module.vpc.serverless_connector_id
+  create_service_account     = true
+  enable_cloud_sql_access    = true
+  enable_firestore_access    = true
+  enable_iap                 = true
+  min_instances              = 0
+  max_instances              = 5
+  cpu_limit                  = "2"
+  memory_limit               = "1Gi"
+  container_port             = 8080
+  health_check_path          = "/health"
+  labels                     = { env = "dev", app = "ai-research-assistant" }
+  environment_variables = {
+    NODE_ENV       = "production"
+    GCP_PROJECT_ID = var.project_id
+    GCP_REGION     = var.region
+  }
+  secret_environment_variables = {
+    ANTHROPIC_API_KEY = {
+      secret  = "anthropic-api-key"
+      version = "latest"
+    }
+    OPENAI_API_KEY = {
+      secret  = "openai-api-key"
+      version = "latest"
+    }
+  }
+
+  depends_on = [module.vpc, module.secrets]
+}
+
+# AI Research Assistant Frontend
+module "ai_research_frontend" {
+  source                 = "../../modules/cloud_run"
+  project_id             = var.project_id
+  region                 = var.region
+  service_name           = "ai-research-frontend"
+  image                  = "gcr.io/${var.project_id}/ai-research-frontend:latest"
+  vpc_connector          = module.vpc.serverless_connector_id
+  create_service_account = true
+  enable_iap             = true
+  min_instances          = 0
+  max_instances          = 3
+  cpu_limit              = "1"
+  memory_limit           = "512Mi"
+  container_port         = 3000
+  health_check_path      = "/"
+  labels                 = { env = "dev", app = "ai-research-assistant" }
+  environment_variables = {
+    NODE_ENV              = "production"
+    NEXT_PUBLIC_API_URL   = "https://${module.ai_research_backend.service_url}"
+  }
+
+  depends_on = [module.vpc, module.ai_research_backend]
 }
 
 # Billing budget - comment out due to quota project authentication issues
