@@ -40,3 +40,21 @@ variable "private_network" {
   type        = string
   default     = null
 }
+
+variable "enable_read_replica" {
+  description = "Enable read replica for disaster recovery"
+  type        = bool
+  default     = false
+}
+
+variable "replica_region" {
+  description = "Region for read replica (for multi-region DR)"
+  type        = string
+  default     = null
+}
+
+variable "replica_tier" {
+  description = "Tier for read replica (defaults to same as primary)"
+  type        = string
+  default     = null
+}

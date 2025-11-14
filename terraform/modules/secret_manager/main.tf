@@ -7,6 +7,22 @@ resource "google_secret_manager_secret" "secrets" {
     auto {}
   }
 
+  # Automated rotation configuration (30-day rotation cycle)
+  dynamic "rotation" {
+    for_each = try(each.value.enable_rotation, false) ? [1] : []
+    content {
+      next_rotation_time = timeadd(timestamp(), "720h") # 30 days
+      rotation_period    = "2592000s"                   # 30 days in seconds
+    }
+  }
+
+  dynamic "topics" {
+    for_each = try(each.value.rotation_topic, null) != null ? [1] : []
+    content {
+      name = each.value.rotation_topic
+    }
+  }
+
   labels = try(each.value.labels, {})
 }
 
