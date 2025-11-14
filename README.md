@@ -88,6 +88,7 @@ This repository contains the complete infrastructure-as-code setup for deploying
 8. **api-gateway** - External API endpoint
 9. **analytics-service** - Usage analytics and reporting
 10. **document-ingestion** - Document processing pipeline
+11. **ai-research-assistant** - AI research assistant with conversational UI and Cloud Run backend
 
 ---
 
@@ -725,6 +726,7 @@ kubectl port-forward POD_NAME LOCAL_PORT:POD_PORT -n NAMESPACE
 
 ### Infrastructure Guides
 
+- [docs/AI_RESEARCH_ASSISTANT.md](docs/AI_RESEARCH_ASSISTANT.md) - AI Research Assistant deployment
 - [docs/LLM_DEPLOYMENT_GUIDE.md](docs/LLM_DEPLOYMENT_GUIDE.md) - Complete LLM infrastructure
 - [docs/FOUNDATIONAL_MODELS_GUIDE.md](docs/FOUNDATIONAL_MODELS_GUIDE.md) - Cloud models integration
 - [docs/FOUNDATIONAL_MODELS_QUICKSTART.md](docs/FOUNDATIONAL_MODELS_QUICKSTART.md) - 3-step LLM quick start
