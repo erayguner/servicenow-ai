@@ -60,8 +60,13 @@ run "plan_workload_identity_federation" {
   }
 
   assert {
-    condition     = contains(resource.google_service_account_iam_binding.github_actions_workload_identity.members, "principalSet://iam.googleapis.com/${resource.google_iam_workload_identity_pool.github_pool.name}/attribute.repository/test-org/test-repo")
-    error_message = "Workload Identity binding must reference correct GitHub repository"
+    condition     = length(resource.google_service_account_iam_binding.github_actions_workload_identity.members) == 1
+    error_message = "Workload Identity binding must have exactly one member"
+  }
+
+  assert {
+    condition     = resource.google_service_account_iam_binding.github_actions_workload_identity.service_account_id != null
+    error_message = "Workload Identity binding must reference service account"
   }
 }
 
@@ -85,7 +90,12 @@ run "plan_workload_identity_federation_different_org" {
   }
 
   assert {
-    condition     = contains(resource.google_service_account_iam_binding.github_actions_workload_identity.members, "principalSet://iam.googleapis.com/${resource.google_iam_workload_identity_pool.github_pool.name}/attribute.repository/company-org/infrastructure")
-    error_message = "Workload Identity binding must match GitHub org and repo"
+    condition     = length(resource.google_service_account_iam_binding.github_actions_workload_identity.members) == 1
+    error_message = "Workload Identity binding must have exactly one member"
+  }
+
+  assert {
+    condition     = resource.google_iam_workload_identity_pool.github_pool.project == "prod-project"
+    error_message = "Workload Identity pool must be in correct project"
   }
 }

@@ -151,6 +151,11 @@ resource "google_sql_database_instance" "replica" {
       value = "on"
     }
 
+    database_flags {
+      name  = "log_duration"
+      value = "on"
+    }
+
     maintenance_window {
       day  = 7
       hour = 6
