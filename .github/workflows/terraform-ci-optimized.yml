@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -90,7 +90,7 @@ jobs:
     needs: terraform-validate-all
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -171,7 +171,7 @@ jobs:
         env: [dev, staging, prod]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
