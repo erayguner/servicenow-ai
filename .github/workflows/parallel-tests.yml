@@ -394,18 +394,13 @@ jobs:
           version: "v1.28.0"
 
       - name: Setup kind (Kubernetes in Docker)
+        id: kind
         uses: helm/kind-action@v1.13.0
         with:
           cluster_name: test-cluster-${{ matrix.shardIndex }}
-          config: |
-            kind: Cluster
-            apiVersion: kind.x-k8s.io/v1alpha4
-            nodes:
-              - role: control-plane
-              - role: worker
-              - role: worker
 
       - name: Create isolated namespace
+        if: steps.kind.outcome == 'success'
         run: |
           kubectl create namespace e2e-shard-${{ matrix.shardIndex }}
           kubectl label namespace e2e-shard-${{ matrix.shardIndex }} \
@@ -413,6 +408,7 @@ jobs:
             test-isolation=true
 
       - name: Deploy test infrastructure
+        if: steps.kind.outcome == 'success'
         run: |
           # Apply test-specific manifests
           kubectl apply -f k8s/test/postgres.yaml -n e2e-shard-${{ matrix.shardIndex }}
@@ -425,6 +421,7 @@ jobs:
             --timeout=300s
 
       - name: Deploy microservices
+        if: steps.kind.outcome == 'success'
         run: |
           # Deploy services with test configuration
           for service in conversation-manager llm-gateway knowledge-base; do
@@ -450,7 +447,7 @@ jobs:
           fi
 
       - name: Run E2E tests (Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
-        if: steps.check_test.outputs.has_test == 'true'
+        if: steps.check_test.outputs.has_test == 'true' && steps.kind.outcome == 'success'
         working-directory: frontend
         run: |
           npm run test:e2e -- \
@@ -462,7 +459,7 @@ jobs:
           KUBECONFIG: ${{ env.KUBECONFIG }}
 
       - name: Collect pod logs on failure
-        if: failure()
+        if: failure() && steps.kind.outcome == 'success'
         run: |
           mkdir -p logs
           kubectl get pods -n "e2e-shard-${{ matrix.shardIndex }}" -o name | while IFS= read -r pod; do
@@ -479,7 +476,7 @@ jobs:
           retention-days: 7
 
       - name: Cleanup namespace
-        if: always()
+        if: always() && steps.kind.outcome == 'success'
         run: |
           kubectl delete namespace e2e-shard-${{ matrix.shardIndex }} --wait=false
 
