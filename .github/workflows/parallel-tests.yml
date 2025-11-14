@@ -639,7 +639,7 @@ jobs:
 
     steps:
       - name: Notify Slack on success
-        if: success()
+        if: success() && secrets.SLACK_WEBHOOK != ''
         run: |
           COMMIT_SHA="${{ github.sha }}"
           curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
@@ -658,7 +658,7 @@ jobs:
             }"
 
       - name: Notify Slack on failure
-        if: failure()
+        if: failure() && secrets.SLACK_WEBHOOK != ''
         run: |
           COMMIT_SHA="${{ github.sha }}"
           curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
