@@ -36,6 +36,7 @@ resource "google_cloud_run_v2_service" "service" {
         }
       }
 
+      #checkov:skip=CKV_SECRET_6:False positive - these are Secret Manager secret names, not actual secrets
       dynamic "env" {
         for_each = var.secret_environment_variables
         content {
@@ -134,6 +135,7 @@ resource "google_service_account" "cloud_run_sa" {
 }
 
 # Grant Cloud Run SA access to Secret Manager
+#checkov:skip=CKV_SECRET_6:False positive - these are Secret Manager secret names, not actual secrets
 resource "google_secret_manager_secret_iam_member" "secret_access" {
   for_each  = var.secret_environment_variables
   project   = var.project_id
