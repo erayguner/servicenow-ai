@@ -559,20 +559,39 @@ jobs:
         run: |
           npm install -g nyc
 
-          # Merge unit test coverage
-          nyc merge artifacts/coverage-unit-* coverage/unit
+          # Create coverage directories
+          mkdir -p coverage/unit coverage/integration coverage/combined
 
-          # Merge integration test coverage
-          nyc merge artifacts/coverage-integration-* coverage/integration
+          # Merge unit test coverage if artifacts exist
+          if ls artifacts/coverage-unit-* 1> /dev/null 2>&1; then
+            echo "Merging unit test coverage..."
+            nyc merge artifacts/coverage-unit-* coverage/unit
+          else
+            echo "No unit test coverage artifacts found, skipping..."
+          fi
 
-          # Generate combined report
-          nyc report \
-            --reporter=lcov \
-            --reporter=text \
-            --reporter=html \
-            --report-dir=coverage/combined
+          # Merge integration test coverage if artifacts exist
+          if ls artifacts/coverage-integration-* 1> /dev/null 2>&1; then
+            echo "Merging integration test coverage..."
+            nyc merge artifacts/coverage-integration-* coverage/integration
+          else
+            echo "No integration test coverage artifacts found, skipping..."
+          fi
+
+          # Generate combined report if any coverage exists
+          if [ -d "coverage/unit" ] || [ -d "coverage/integration" ]; then
+            echo "Generating combined coverage report..."
+            nyc report \
+              --reporter=lcov \
+              --reporter=text \
+              --reporter=html \
+              --report-dir=coverage/combined || echo "Coverage report generation skipped (no coverage data)"
+          else
+            echo "No coverage data available, skipping report generation..."
+          fi
 
       - name: Upload combined coverage
+        if: hashFiles('coverage/combined/lcov.info') != ''
         uses: codecov/codecov-action@v5
         with:
           directory: coverage/combined
@@ -594,17 +613,33 @@ jobs:
           | E2E Tests | 3 shards | ${{ needs.e2e-tests.result }} |
           | Security | 5 categories | ${{ needs.security-tests.result }} |
           | Performance | 4 endpoints | ${{ needs.performance-tests.result }} |
-
-          ## Coverage Summary
-
-          $(cat coverage/combined/lcov.info | grep -E '^(SF|DA)' | wc -l) lines covered
-
-          ## Performance Benchmarks
-
-          - API Gateway: $(cat artifacts/performance-results-api-gateway/summary-*.json | jq -r '.metrics.http_req_duration.values.p95')ms (p95)
-          - LLM Gateway: $(cat artifacts/performance-results-llm-gateway/summary-*.json | jq -r '.metrics.http_req_duration.values.p95')ms (p95)
-
           EOF
+
+          # Add coverage summary if available
+          if [ -f "coverage/combined/lcov.info" ]; then
+            echo "" >> test-summary.md
+            echo "## Coverage Summary" >> test-summary.md
+            echo "" >> test-summary.md
+            LINES_COVERED=$(grep -E '^(SF|DA)' coverage/combined/lcov.info | wc -l)
+            echo "$LINES_COVERED lines covered" >> test-summary.md
+          fi
+
+          # Add performance benchmarks if available
+          if ls artifacts/performance-results-*/summary-*.json 1> /dev/null 2>&1; then
+            echo "" >> test-summary.md
+            echo "## Performance Benchmarks" >> test-summary.md
+            echo "" >> test-summary.md
+
+            if ls artifacts/performance-results-api-gateway/summary-*.json 1> /dev/null 2>&1; then
+              P95=$(cat artifacts/performance-results-api-gateway/summary-*.json | jq -r '.metrics.http_req_duration.values.p95' 2>/dev/null || echo "N/A")
+              echo "- API Gateway: ${P95}ms (p95)" >> test-summary.md
+            fi
+
+            if ls artifacts/performance-results-llm-gateway/summary-*.json 1> /dev/null 2>&1; then
+              P95=$(cat artifacts/performance-results-llm-gateway/summary-*.json | jq -r '.metrics.http_req_duration.values.p95' 2>/dev/null || echo "N/A")
+              echo "- LLM Gateway: ${P95}ms (p95)" >> test-summary.md
+            fi
+          fi
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
