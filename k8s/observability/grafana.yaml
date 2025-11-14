@@ -55,6 +55,11 @@ metadata:
     app: grafana
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: grafana
@@ -71,6 +76,12 @@ spec:
       containers:
         - name: grafana
           image: grafana/grafana:10.2.2
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 3000
               name: http
@@ -95,6 +106,8 @@ spec:
               mountPath: /etc/grafana/provisioning/datasources
             - name: grafana-dashboards-config
               mountPath: /etc/grafana/provisioning/dashboards
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               memory: "512Mi"
@@ -123,6 +136,8 @@ spec:
         - name: grafana-dashboards-config
           configMap:
             name: grafana-dashboards
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

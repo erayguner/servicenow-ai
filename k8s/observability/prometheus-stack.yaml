@@ -164,6 +164,11 @@ metadata:
     app: prometheus
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: prometheus
@@ -180,9 +185,24 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         fsGroup: 65534
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: prometheus
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: prometheus
           image: prom/prometheus:v2.48.0
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.path=/prometheus"
@@ -197,6 +217,8 @@ spec:
               mountPath: /etc/prometheus
             - name: storage
               mountPath: /prometheus
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               memory: "2Gi"
@@ -221,6 +243,8 @@ spec:
           configMap:
             name: prometheus-config
         - name: storage
+          emptyDir: {}
+        - name: tmp
           emptyDir: {}
 ---
 apiVersion: v1

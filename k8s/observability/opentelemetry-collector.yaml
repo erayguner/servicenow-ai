@@ -151,6 +151,11 @@ metadata:
     app: opentelemetry-collector
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: opentelemetry-collector
@@ -167,9 +172,24 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         fsGroup: 65534
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: opentelemetry-collector
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: otel-collector
           image: otel/opentelemetry-collector-contrib:0.91.0
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           command:
             - /otelcol-contrib
             - --config=/conf/otel-collector-config.yaml
@@ -195,6 +215,8 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /conf
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               memory: "512Mi"
@@ -218,6 +240,8 @@ spec:
         - name: config
           configMap:
             name: opentelemetry-collector-config
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
