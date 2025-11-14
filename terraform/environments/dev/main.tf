@@ -147,14 +147,14 @@ module "ai_research_backend" {
     GCP_PROJECT_ID = var.project_id
     GCP_REGION     = var.region
   }
-  #checkov:skip=CKV_SECRET_6:False positive - these are Secret Manager secret names, not actual secrets
+
   secret_environment_variables = {
     ANTHROPIC_API_KEY = {
-      secret  = "anthropic-api-key"
+      secret  = "anthropic-api-key" #checkov:skip=CKV_SECRET_6:False positive - these are Secret Manager secret names, not actual secrets
       version = "latest"
     }
     OPENAI_API_KEY = {
-      secret  = "openai-api-key"
+      secret  = "openai-api-key" #checkov:skip=CKV_SECRET_6:False positive - these are Secret Manager secret names, not actual secrets
       version = "latest"
     }
   }
