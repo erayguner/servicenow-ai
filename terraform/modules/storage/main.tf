@@ -1,4 +1,5 @@
 resource "google_storage_bucket" "buckets" {
+  #checkov:skip=CKV_GCP_78:Versioning defaults to true - Checkov cannot evaluate coalesce() function during static analysis
   for_each                    = { for b in var.buckets : b.name => b }
   name                        = each.value.name
   project                     = var.project_id
@@ -12,7 +13,7 @@ resource "google_storage_bucket" "buckets" {
   }
 
   versioning {
-    enabled = coalesce(each.value.versioning, true)
+    enabled = coalesce(each.value.versioning, true) # Defaults to true (enabled)
   }
 
   logging {

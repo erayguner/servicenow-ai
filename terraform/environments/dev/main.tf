@@ -57,11 +57,11 @@ module "storage" {
   project_id = var.project_id
   location   = var.region
   buckets = [
-    { name = "${var.project_id}-knowledge-documents-dev", kms_key = module.kms.key_ids["storage"], versioning = false },
-    { name = "${var.project_id}-document-chunks-dev", kms_key = module.kms.key_ids["storage"], versioning = false },
-    { name = "${var.project_id}-user-uploads-dev", kms_key = module.kms.key_ids["storage"], versioning = false, lifecycle_rules = [{ action = { type = "Delete" }, condition = { age = 14 } }] },
-    { name = "${var.project_id}-backup-dev", kms_key = module.kms.key_ids["storage"], versioning = false },
-    { name = "${var.project_id}-audit-logs-archive-dev", kms_key = module.kms.key_ids["storage"], versioning = false }
+    { name = "${var.project_id}-knowledge-documents-dev", kms_key = module.kms.key_ids["storage"] },
+    { name = "${var.project_id}-document-chunks-dev", kms_key = module.kms.key_ids["storage"] },
+    { name = "${var.project_id}-user-uploads-dev", kms_key = module.kms.key_ids["storage"], lifecycle_rules = [{ action = { type = "Delete" }, condition = { age = 14 } }] },
+    { name = "${var.project_id}-backup-dev", kms_key = module.kms.key_ids["storage"] },
+    { name = "${var.project_id}-audit-logs-archive-dev", kms_key = module.kms.key_ids["storage"] }
   ]
 }
 
