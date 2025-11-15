@@ -303,6 +303,23 @@ run "plan_example" {
 }
 ```
 
+### Frontend Tests
+
+Frontend tests use npm scripts and are automatically detected by the CI/CD pipeline:
+
+```json
+{
+  "scripts": {
+    "test": "jest",                              // Unit tests
+    "test:integration": "jest --config jest.integration.config.js",  // Integration
+    "test:e2e": "playwright test",               // End-to-end
+    "test:security": "jest --config jest.security.config.js"  // Security
+  }
+}
+```
+
+The workflow uses **conditional execution** - tests are automatically skipped if scripts don't exist yet.
+
 ### Running Tests
 
 ```bash
@@ -324,7 +341,16 @@ make ci
 
 # Quick checks (no terraform validate)
 make quick-check
+
+# Frontend tests (when implemented)
+cd frontend
+npm test                  # Unit tests
+npm run test:integration  # Integration tests
+npm run test:e2e          # E2E tests
+npm run test:security     # Security tests
 ```
+
+**📚 For comprehensive testing documentation, see [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md)**
 
 ### Pre-commit Checks
 
