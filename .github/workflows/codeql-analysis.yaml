@@ -1,0 +1,147 @@
+name: CodeQL Security Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # Run weekly on Mondays at 6 AM UTC
+    - cron: '0 6 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - javascript
+          - typescript
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Override default queries with security-extended query suite
+          queries: security-extended,security-and-quality
+          # Increase RAM for analysis
+          ram: 6144
+
+      # Auto-build for JavaScript/TypeScript
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}'
+          # Upload results even if there are findings
+          upload: true
+          # Generate SARIF output
+          output: sarif-results
+          # Fail build on high severity findings
+          fail-on: high
+
+      # Upload SARIF file as artifact for debugging
+      - name: Upload SARIF as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif-${{ matrix.language }}
+          path: sarif-results/${{ matrix.language }}.sarif
+          retention-days: 7
+
+      # Generate security report summary
+      - name: Generate Security Report
+        if: always()
+        shell: bash
+        run: |
+          echo "## CodeQL Security Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Language:** ${{ matrix.language }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** $(if [ $? -eq 0 ]; then echo '✅ Passed'; else echo '❌ Failed'; fi)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "sarif-results/${{ matrix.language }}.sarif" ]; then
+            CRITICAL_COUNT=$(jq '[.runs[].results[] | select(.level == "error")] | length' "sarif-results/${{ matrix.language }}.sarif")
+            HIGH_COUNT=$(jq '[.runs[].results[] | select(.level == "warning")] | length' "sarif-results/${{ matrix.language }}.sarif")
+            MEDIUM_COUNT=$(jq '[.runs[].results[] | select(.level == "note")] | length' "sarif-results/${{ matrix.language }}.sarif")
+
+            echo "**Findings:**" >> $GITHUB_STEP_SUMMARY
+            echo "- 🔴 Critical: $CRITICAL_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- 🟡 High: $HIGH_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- 🔵 Medium: $MEDIUM_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 View detailed results in the Security tab" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Python analysis (if Python files are added in the future)
+  analyze-python:
+    name: CodeQL Analysis (Python)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: hashFiles('**/*.py') != ''
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          queries: security-extended,security-and-quality
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:python'
+          upload: true
+
+  # Summary job to check all analysis results
+  security-summary:
+    name: Security Analysis Summary
+    runs-on: ubuntu-latest
+    needs: [analyze]
+    if: always()
+
+    steps:
+      - name: Check Analysis Results
+        shell: bash
+        run: |
+          echo "## 🔒 Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All CodeQL security analyses have completed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review findings in Security → Code scanning alerts" >> $GITHUB_STEP_SUMMARY
+          echo "2. Fix high/critical severity issues" >> $GITHUB_STEP_SUMMARY
+          echo "3. Create issues for medium severity findings" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Resources:**" >> $GITHUB_STEP_SUMMARY
+          echo "- [CodeQL Documentation](https://codeql.github.com/docs/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Security Best Practices](https://docs.github.com/en/code-security)" >> $GITHUB_STEP_SUMMARY
