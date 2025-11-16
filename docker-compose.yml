@@ -1,0 +1,117 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: servicenow-ai-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: servicenow_ai_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - servicenow-ai-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: servicenow-ai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - servicenow-ai-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: servicenow-ai-backend
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/servicenow_ai_dev
+      REDIS_URL: redis://redis:6379
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID:-local-dev}
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-local-dev}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/.env:/app/.env:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - servicenow-ai-network
+    command: npm run dev
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: servicenow-ai-frontend
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+      - ./frontend/.env.local:/app/.env.local:ro
+    depends_on:
+      - backend
+    networks:
+      - servicenow-ai-network
+    command: npm run dev
+
+  # Firestore Emulator (for local GCP development)
+  firestore-emulator:
+    image: google/cloud-sdk:latest
+    container_name: servicenow-ai-firestore-emulator
+    ports:
+      - "8080:8080"
+      - "4000:4000"
+    environment:
+      FIRESTORE_PROJECT_ID: local-dev
+    command: >
+      gcloud emulators firestore start
+      --host-port=0.0.0.0:8080
+      --project=local-dev
+    networks:
+      - servicenow-ai-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  servicenow-ai-network:
+    driver: bridge
