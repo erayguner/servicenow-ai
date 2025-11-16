@@ -11,22 +11,22 @@ kind: ClusterRole
 metadata:
   name: opentelemetry-collector
 rules:
-  - apiGroups: [""]
+  - apiGroups: ['']
     resources:
       - pods
       - nodes
       - services
       - endpoints
       - namespaces
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["apps"]
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['apps']
     resources:
       - replicasets
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["batch"]
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['batch']
     resources:
       - jobs
-    verbs: ["get", "list", "watch"]
+    verbs: ['get', 'list', 'watch']
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -164,8 +164,8 @@ spec:
       labels:
         app: opentelemetry-collector
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8888"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8888'
     spec:
       serviceAccountName: opentelemetry-collector
       securityContext:
@@ -219,11 +219,11 @@ spec:
               mountPath: /tmp
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: '512Mi'
+              cpu: '500m'
             limits:
-              memory: "1Gi"
-              cpu: "1000m"
+              memory: '1Gi'
+              cpu: '1000m'
           livenessProbe:
             httpGet:
               path: /

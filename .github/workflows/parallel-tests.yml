@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       shard_count:
-        description: "Number of test shards"
+        description: 'Number of test shards'
         required: false
-        default: "4"
+        default: '4'
 
 permissions:
   contents: read
@@ -49,9 +49,9 @@ jobs:
         if: ${{ steps.detect_node.outputs.has_node == 'true' }}
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: "frontend/package-lock.json"
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Cache dependencies
         if: ${{ steps.detect_node.outputs.has_node == 'true' }}
@@ -225,7 +225,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Restore dependencies cache
         uses: actions/cache@v4
@@ -327,7 +327,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Restore dependencies cache
         uses: actions/cache@v4
@@ -391,7 +391,7 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
         with:
-          version: "v1.28.0"
+          version: 'v1.28.0'
 
       - name: Setup kind (Kubernetes in Docker)
         id: kind
@@ -529,7 +529,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Restore dependencies cache
         uses: actions/cache@v4
@@ -644,7 +644,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Merge coverage reports
         run: |

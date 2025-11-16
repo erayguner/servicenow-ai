@@ -4,129 +4,129 @@
 version: 2
 updates:
   # Terraform provider and module updates
-  - package-ecosystem: "terraform"
-    directory: "/"
+  - package-ecosystem: 'terraform'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/London"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
     open-pull-requests-limit: 10
     reviewers:
-      - "erayguner"
+      - 'erayguner'
     labels:
-      - "dependencies"
-      - "terraform"
+      - 'dependencies'
+      - 'terraform'
     commit-message:
-      prefix: "chore(terraform)"
-      include: "scope"
+      prefix: 'chore(terraform)'
+      include: 'scope'
     # Group all Terraform updates into a single PR where possible
     groups:
       terraform-providers:
         patterns:
-          - "hashicorp/*"
-          - "*/google"
+          - 'hashicorp/*'
+          - '*/google'
       terraform-modules:
         patterns:
-          - "*"
+          - '*'
         exclude-patterns:
-          - "hashicorp/*"
-          - "*/google"
+          - 'hashicorp/*'
+          - '*/google'
 
   # GitHub Actions workflow updates
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/London"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
     open-pull-requests-limit: 5
     reviewers:
-      - "erayguner"
+      - 'erayguner'
     labels:
-      - "dependencies"
-      - "github-actions"
+      - 'dependencies'
+      - 'github-actions'
     commit-message:
-      prefix: "chore(ci)"
-      include: "scope"
+      prefix: 'chore(ci)'
+      include: 'scope'
     # Group all GitHub Actions updates
     groups:
       github-actions:
         patterns:
-          - "*"
+          - '*'
 
   # Docker base image updates (if Dockerfiles present)
-  - package-ecosystem: "docker"
-    directory: "/"
+  - package-ecosystem: 'docker'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/London"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
     open-pull-requests-limit: 5
     reviewers:
-      - "erayguner"
+      - 'erayguner'
     labels:
-      - "dependencies"
-      - "docker"
+      - 'dependencies'
+      - 'docker'
     commit-message:
-      prefix: "chore(docker)"
-      include: "scope"
+      prefix: 'chore(docker)'
+      include: 'scope'
     # Group Docker updates
     groups:
       docker-images:
         patterns:
-          - "*"
+          - '*'
 
   # Python dependencies (if requirements.txt or pyproject.toml present)
-  - package-ecosystem: "pip"
-    directory: "/"
+  - package-ecosystem: 'pip'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/London"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
     open-pull-requests-limit: 10
     reviewers:
-      - "erayguner"
+      - 'erayguner'
     labels:
-      - "dependencies"
-      - "python"
+      - 'dependencies'
+      - 'python'
     commit-message:
-      prefix: "chore(python)"
-      include: "scope"
+      prefix: 'chore(python)'
+      include: 'scope'
     # Group Python dependencies by type
     groups:
       python-dev-dependencies:
-        dependency-type: "development"
+        dependency-type: 'development'
       python-production-dependencies:
-        dependency-type: "production"
+        dependency-type: 'production'
 
   # npm dependencies (if package.json present)
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/London"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
     open-pull-requests-limit: 10
     reviewers:
-      - "erayguner"
+      - 'erayguner'
     labels:
-      - "dependencies"
-      - "javascript"
+      - 'dependencies'
+      - 'javascript'
     commit-message:
-      prefix: "chore(npm)"
-      include: "scope"
+      prefix: 'chore(npm)'
+      include: 'scope'
     # Ignore major version updates for certain packages to prevent breaking changes
     ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     # Group npm dependencies
     groups:
       npm-dev-dependencies:
-        dependency-type: "development"
+        dependency-type: 'development'
       npm-production-dependencies:
-        dependency-type: "production"
+        dependency-type: 'production'
