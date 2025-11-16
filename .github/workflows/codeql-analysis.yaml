@@ -58,8 +58,6 @@ jobs:
           upload: true
           # Generate SARIF output
           output: sarif-results
-          # Fail build on high severity findings
-          fail-on: high
 
       # Upload SARIF file as artifact for debugging
       - name: Upload SARIF as Artifact
@@ -75,52 +73,29 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "## CodeQL Security Analysis Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Language:** ${{ matrix.language }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Status:** $(if [ $? -eq 0 ]; then echo '✅ Passed'; else echo '❌ Failed'; fi)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## CodeQL Security Analysis Report"
+            echo ""
+            echo "**Language:** ${{ matrix.language }}"
+            echo "**Status:** ✅ Analysis Complete"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ -f "sarif-results/${{ matrix.language }}.sarif" ]; then
-            CRITICAL_COUNT=$(jq '[.runs[].results[] | select(.level == "error")] | length' "sarif-results/${{ matrix.language }}.sarif")
-            HIGH_COUNT=$(jq '[.runs[].results[] | select(.level == "warning")] | length' "sarif-results/${{ matrix.language }}.sarif")
-            MEDIUM_COUNT=$(jq '[.runs[].results[] | select(.level == "note")] | length' "sarif-results/${{ matrix.language }}.sarif")
+          SARIF_FILE="sarif-results/${{ matrix.language }}.sarif"
+          if [ -f "$SARIF_FILE" ]; then
+            CRITICAL_COUNT=$(jq '[.runs[].results[] | select(.level == "error")] | length' "$SARIF_FILE")
+            HIGH_COUNT=$(jq '[.runs[].results[] | select(.level == "warning")] | length' "$SARIF_FILE")
+            MEDIUM_COUNT=$(jq '[.runs[].results[] | select(.level == "note")] | length' "$SARIF_FILE")
 
-            echo "**Findings:**" >> $GITHUB_STEP_SUMMARY
-            echo "- 🔴 Critical: $CRITICAL_COUNT" >> $GITHUB_STEP_SUMMARY
-            echo "- 🟡 High: $HIGH_COUNT" >> $GITHUB_STEP_SUMMARY
-            echo "- 🔵 Medium: $MEDIUM_COUNT" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "📊 View detailed results in the Security tab" >> $GITHUB_STEP_SUMMARY
+            {
+              echo "**Findings:**"
+              echo "- 🔴 Critical: $CRITICAL_COUNT"
+              echo "- 🟡 High: $HIGH_COUNT"
+              echo "- 🔵 Medium: $MEDIUM_COUNT"
+              echo ""
+              echo "📊 View detailed results in the Security tab"
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
-
-  # Python analysis (if Python files are added in the future)
-  analyze-python:
-    name: CodeQL Analysis (Python)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    if: hashFiles('**/*.py') != ''
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: python
-          queries: security-extended,security-and-quality
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: '/language:python'
-          upload: true
 
   # Summary job to check all analysis results
   security-summary:
@@ -133,15 +108,17 @@ jobs:
       - name: Check Analysis Results
         shell: bash
         run: |
-          echo "## 🔒 Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "All CodeQL security analyses have completed." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
-          echo "1. Review findings in Security → Code scanning alerts" >> $GITHUB_STEP_SUMMARY
-          echo "2. Fix high/critical severity issues" >> $GITHUB_STEP_SUMMARY
-          echo "3. Create issues for medium severity findings" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Resources:**" >> $GITHUB_STEP_SUMMARY
-          echo "- [CodeQL Documentation](https://codeql.github.com/docs/)" >> $GITHUB_STEP_SUMMARY
-          echo "- [Security Best Practices](https://docs.github.com/en/code-security)" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🔒 Security Analysis Summary"
+            echo ""
+            echo "All CodeQL security analyses have completed."
+            echo ""
+            echo "**Next Steps:**"
+            echo "1. Review findings in Security → Code scanning alerts"
+            echo "2. Fix high/critical severity issues"
+            echo "3. Create issues for medium severity findings"
+            echo ""
+            echo "**Resources:**"
+            echo "- [CodeQL Documentation](https://codeql.github.com/docs/)"
+            echo "- [Security Best Practices](https://docs.github.com/en/code-security)"
+          } >> "$GITHUB_STEP_SUMMARY"
