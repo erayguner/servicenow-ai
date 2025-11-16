@@ -48,7 +48,8 @@ jobs:
           echo "🔍 Scanning for hardcoded credentials..."
 
           # Check for GOOGLE_APPLICATION_CREDENTIALS references
-          if git grep -i "GOOGLE_APPLICATION_CREDENTIALS" -- ':!.github/workflows/security-check.yml' 2>/dev/null; then
+          # Exclude .env.example files which are legitimate templates
+          if git grep -i "GOOGLE_APPLICATION_CREDENTIALS" -- ':!.github/workflows/security-check.yml' ':!.env.example' ':!*.env.example' ':!**/.env.example' 2>/dev/null; then
             echo "⚠️  WARNING: GOOGLE_APPLICATION_CREDENTIALS found"
             echo "This should only be used in local development, never in production."
             exit 1
