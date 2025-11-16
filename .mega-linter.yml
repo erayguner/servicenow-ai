@@ -18,7 +18,7 @@ TERRAFORM_DEFAULT_BRANCH: main
 TERRAFORM_ROOT_DIRS: terraform
 # Kubernetes manifests (YAML lint covers basic structure)
 # Python settings
-PYTHON_PYLINT_ARGUMENTS: ""
+PYTHON_PYLINT_ARGUMENTS: ''
 PYTHON_MYPY_ARGUMENTS: --ignore-missing-imports
 # Report configuration
 PRINT_ALPACA: false

@@ -1,3 +1,7 @@
+// IMPORTANT: OpenTelemetry instrumentation must be imported FIRST
+// This ensures auto-instrumentation captures all HTTP, Express, and database calls
+import './instrumentation';
+
 import express, { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';

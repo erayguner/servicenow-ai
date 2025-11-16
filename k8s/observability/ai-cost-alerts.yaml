@@ -1,0 +1,168 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-ai-cost-alerts
+  namespace: observability
+  labels:
+    prometheus: kube-prometheus
+data:
+  ai-cost-alerts.yaml: |
+    groups:
+      - name: ai_cost_monitoring
+        interval: 60s
+        rules:
+          # High Cost Alert - Hourly spending exceeds threshold
+          - alert: HighLLMCostRate
+            expr: sum(rate(llm_cost_usd_total[1h])) > 100
+            for: 5m
+            labels:
+              severity: warning
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'High LLM cost rate detected'
+              description: 'LLM costs are running at ${{ $value | printf "%.2f" }}/hour. This exceeds the $100/hour threshold.'
+              runbook: 'https://docs.example.com/runbooks/high-llm-cost'
+
+          # Critical Cost Alert - Daily budget exceeded
+          - alert: DailyLLMBudgetExceeded
+            expr: sum(increase(llm_cost_usd_total[24h])) > 1000
+            for: 10m
+            labels:
+              severity: critical
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'Daily LLM budget exceeded'
+              description: 'Daily LLM costs have reached ${{ $value | printf "%.2f" }}, exceeding the $1000 daily budget.'
+              runbook: 'https://docs.example.com/runbooks/budget-exceeded'
+
+          # High Token Usage
+          - alert: HighTokenConsumption
+            expr: rate(llm_tokens_total[5m]) > 100000
+            for: 10m
+            labels:
+              severity: warning
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'High token consumption rate'
+              description: 'Token consumption rate is {{ $value | printf "%.0f" }} tokens/5min for model {{ $labels.model }}. This may indicate inefficient prompting or a spike in usage.'
+              runbook: 'https://docs.example.com/runbooks/high-token-usage'
+
+          # High LLM Latency
+          - alert: HighLLMLatency
+            expr: histogram_quantile(0.95, rate(llm_latency_ms_bucket[5m])) > 5000
+            for: 10m
+            labels:
+              severity: warning
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'High LLM latency detected'
+              description: 'P95 latency for {{ $labels.model }} is {{ $value | printf "%.0f" }}ms, exceeding 5000ms threshold.'
+              runbook: 'https://docs.example.com/runbooks/high-llm-latency'
+
+          # LLM Error Rate High
+          - alert: HighLLMErrorRate
+            expr: |
+              sum(rate(llm_requests_total{status='error'}[5m])) by (model)
+              /
+              sum(rate(llm_requests_total[5m])) by (model)
+              > 0.05
+            for: 5m
+            labels:
+              severity: critical
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'High LLM error rate'
+              description: 'Error rate for {{ $labels.model }} is {{ $value | humanizePercentage }}. This is above the 5% threshold.'
+              runbook: 'https://docs.example.com/runbooks/llm-errors'
+
+          # Prompt Injection Detected
+          - alert: PromptInjectionDetected
+            expr: increase(llm_security_prompt_injection_total{severity='high'}[5m]) > 0
+            for: 1m
+            labels:
+              severity: critical
+              component: security
+              team: security
+            annotations:
+              summary: 'High-severity prompt injection detected'
+              description: '{{ $value }} high-severity prompt injection attempts detected in the last 5 minutes.'
+              runbook: 'https://docs.example.com/runbooks/prompt-injection'
+
+          # PII Detection Alert
+          - alert: PIIDetectedInPrompts
+            expr: increase(llm_security_pii_detected_total[5m]) > 10
+            for: 2m
+            labels:
+              severity: warning
+              component: security
+              team: security
+            annotations:
+              summary: 'Multiple PII detections in prompts'
+              description: '{{ $value }} PII detections in the last 5 minutes. User data may be at risk.'
+              runbook: 'https://docs.example.com/runbooks/pii-detection'
+
+          # Cost Per Request High
+          - alert: HighCostPerRequest
+            expr: |
+              sum(rate(llm_cost_usd_total[5m])) by (model)
+              /
+              sum(rate(llm_requests_total[5m])) by (model)
+              > 0.10
+            for: 10m
+            labels:
+              severity: warning
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'High cost per request'
+              description: 'Average cost per request for {{ $labels.model }} is ${{ $value | printf "%.4f" }}, exceeding $0.10 threshold. Consider optimizing prompts or switching models.'
+              runbook: 'https://docs.example.com/runbooks/optimize-prompts'
+
+          # Model Usage Imbalance
+          - alert: ModelUsageImbalance
+            expr: |
+              (
+                sum(rate(llm_requests_total{model=~'.*opus.*'}[1h]))
+                /
+                sum(rate(llm_requests_total[1h]))
+              ) > 0.30
+            for: 15m
+            labels:
+              severity: info
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'High usage of expensive Opus model'
+              description: 'Opus model usage is {{ $value | humanizePercentage }} of total requests. Consider routing more requests to Sonnet or Haiku for cost optimization.'
+              runbook: 'https://docs.example.com/runbooks/model-routing'
+
+          # No LLM Requests (Service Down)
+          - alert: NoLLMRequests
+            expr: sum(rate(llm_requests_total[5m])) == 0
+            for: 10m
+            labels:
+              severity: critical
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'No LLM requests detected'
+              description: 'No LLM requests have been made in the last 10 minutes. Service may be down.'
+              runbook: 'https://docs.example.com/runbooks/service-down'
+
+          # Token Limit Approaching
+          - alert: TokenLimitApproaching
+            expr: max(llm_tokens_total{type='output'}) > 3500
+            for: 1m
+            labels:
+              severity: warning
+              component: ai
+              team: ai-platform
+            annotations:
+              summary: 'Response approaching token limit'
+              description: 'An LLM response used {{ $value }} output tokens, approaching the typical 4096 limit. This may result in truncated responses.'
+              runbook: 'https://docs.example.com/runbooks/token-limits'

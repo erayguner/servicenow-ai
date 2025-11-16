@@ -87,18 +87,18 @@ spec:
               name: http
           env:
             - name: GF_SECURITY_ADMIN_USER
-              value: "admin"
+              value: 'admin'
             - name: GF_SECURITY_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: grafana-credentials
                   key: admin-password
             - name: GF_INSTALL_PLUGINS
-              value: "grafana-piechart-panel,grafana-clock-panel"
+              value: 'grafana-piechart-panel,grafana-clock-panel'
             - name: GF_SERVER_ROOT_URL
-              value: "http://grafana.observability.svc.cluster.local:3000"
+              value: 'http://grafana.observability.svc.cluster.local:3000'
             - name: GF_AUTH_ANONYMOUS_ENABLED
-              value: "false"
+              value: 'false'
           volumeMounts:
             - name: grafana-storage
               mountPath: /var/lib/grafana
@@ -110,11 +110,11 @@ spec:
               mountPath: /tmp
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "250m"
+              memory: '512Mi'
+              cpu: '250m'
             limits:
-              memory: "1Gi"
-              cpu: "500m"
+              memory: '1Gi'
+              cpu: '500m'
           livenessProbe:
             httpGet:
               path: /api/health
@@ -162,4 +162,4 @@ metadata:
   namespace: observability
 type: Opaque
 stringData:
-  admin-password: "changeme-use-secret-manager"
+  admin-password: 'changeme-use-secret-manager'

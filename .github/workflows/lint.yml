@@ -58,7 +58,7 @@ jobs:
         if: ${{ steps.detect.outputs.yaml == 'true' }}
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: '3.11'
       - name: Install yamllint
         if: ${{ steps.detect.outputs.yaml == 'true' }}
         run: python -m pip install --upgrade pip yamllint
@@ -126,7 +126,7 @@ jobs:
         if: ${{ steps.detect.outputs.python == 'true' }}
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: '3.11'
       - name: Install Python linters
         if: ${{ steps.detect.outputs.python == 'true' }}
         run: python -m pip install --upgrade pip black ruff mypy

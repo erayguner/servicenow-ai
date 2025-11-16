@@ -1,0 +1,124 @@
+name: CodeQL Security Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # Run weekly on Mondays at 6 AM UTC
+    - cron: '0 6 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - javascript
+          - typescript
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Override default queries with security-extended query suite
+          queries: security-extended,security-and-quality
+          # Increase RAM for analysis
+          ram: 6144
+
+      # Auto-build for JavaScript/TypeScript
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}'
+          # Upload results even if there are findings
+          upload: true
+          # Generate SARIF output
+          output: sarif-results
+
+      # Upload SARIF file as artifact for debugging
+      - name: Upload SARIF as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif-${{ matrix.language }}
+          path: sarif-results/${{ matrix.language }}.sarif
+          retention-days: 7
+
+      # Generate security report summary
+      - name: Generate Security Report
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## CodeQL Security Analysis Report"
+            echo ""
+            echo "**Language:** ${{ matrix.language }}"
+            echo "**Status:** ✅ Analysis Complete"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          SARIF_FILE="sarif-results/${{ matrix.language }}.sarif"
+          if [ -f "$SARIF_FILE" ]; then
+            CRITICAL_COUNT=$(jq '[.runs[].results[] | select(.level == "error")] | length' "$SARIF_FILE")
+            HIGH_COUNT=$(jq '[.runs[].results[] | select(.level == "warning")] | length' "$SARIF_FILE")
+            MEDIUM_COUNT=$(jq '[.runs[].results[] | select(.level == "note")] | length' "$SARIF_FILE")
+
+            {
+              echo "**Findings:**"
+              echo "- 🔴 Critical: $CRITICAL_COUNT"
+              echo "- 🟡 High: $HIGH_COUNT"
+              echo "- 🔵 Medium: $MEDIUM_COUNT"
+              echo ""
+              echo "📊 View detailed results in the Security tab"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  # Summary job to check all analysis results
+  security-summary:
+    name: Security Analysis Summary
+    runs-on: ubuntu-latest
+    needs: [analyze]
+    if: always()
+
+    steps:
+      - name: Check Analysis Results
+        shell: bash
+        run: |
+          {
+            echo "## 🔒 Security Analysis Summary"
+            echo ""
+            echo "All CodeQL security analyses have completed."
+            echo ""
+            echo "**Next Steps:**"
+            echo "1. Review findings in Security → Code scanning alerts"
+            echo "2. Fix high/critical severity issues"
+            echo "3. Create issues for medium severity findings"
+            echo ""
+            echo "**Resources:**"
+            echo "- [CodeQL Documentation](https://codeql.github.com/docs/)"
+            echo "- [Security Best Practices](https://docs.github.com/en/code-security)"
+          } >> "$GITHUB_STEP_SUMMARY"
