@@ -325,11 +325,6 @@ variable "lambda_responder_role_arn" {
   type        = string
 }
 
-variable "step_functions_role_arn" {
-  description = "IAM role ARN for Step Functions"
-  type        = string
-}
-
 variable "step_functions_state_machine_arn" {
   description = "ARN of the incident response Step Functions state machine"
   type        = string

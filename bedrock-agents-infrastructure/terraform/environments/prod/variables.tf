@@ -40,11 +40,6 @@ variable "data_source_bucket_arn" {
   type        = string
 }
 
-variable "data_source_bucket_arn_secondary" {
-  description = "ARN of S3 bucket containing knowledge base data (secondary)"
-  type        = string
-}
-
 variable "action_lambda_arn" {
   description = "ARN of Lambda function for agent actions (primary)"
   type        = string
@@ -63,19 +58,6 @@ variable "alert_email" {
 variable "alert_sns_topic_arn" {
   description = "SNS topic ARN for alerts and notifications"
   type        = string
-}
-
-# State backend variables
-variable "state_bucket_name" {
-  description = "S3 bucket name for Terraform state"
-  type        = string
-  default     = "servicenow-ai-terraform-state-prod"
-}
-
-variable "state_lock_table_name" {
-  description = "DynamoDB table name for state locking"
-  type        = string
-  default     = "servicenow-ai-terraform-locks-prod"
 }
 
 # PagerDuty integration
@@ -131,69 +113,6 @@ variable "kms_key_id" {
   type        = string
 }
 
-# Synthetic monitoring
-variable "synthetic_test_scenarios" {
-  description = "Synthetic monitoring test scenarios"
-  type = list(object({
-    name        = string
-    description = string
-    frequency   = string
-  }))
-  default = [
-    {
-      name        = "agent-health-check"
-      description = "Basic agent health and availability"
-      frequency   = "5min"
-    },
-    {
-      name        = "knowledge-base-query"
-      description = "Knowledge base retrieval test"
-      frequency   = "10min"
-    },
-    {
-      name        = "action-group-execution"
-      description = "Action group functionality test"
-      frequency   = "15min"
-    }
-  ]
-}
-
-# Auto-scaling configuration
-variable "auto_scaling_config" {
-  description = "Auto-scaling configuration"
-  type = object({
-    min_instances        = number
-    max_instances        = number
-    desired_instances    = number
-    scale_up_threshold   = number
-    scale_down_threshold = number
-  })
-  default = {
-    min_instances        = 5
-    max_instances        = 20
-    desired_instances    = 8
-    scale_up_threshold   = 70
-    scale_down_threshold = 30
-  }
-}
-
-# Performance configuration
-variable "performance_config" {
-  description = "Performance and throughput configuration"
-  type = object({
-    provisioned_units           = number
-    cache_ttl_seconds           = number
-    max_concurrent_requests     = number
-    lambda_provisioned_capacity = number
-  })
-  default = {
-    provisioned_units           = 100
-    cache_ttl_seconds           = 3600
-    max_concurrent_requests     = 100
-    lambda_provisioned_capacity = 10
-  }
-}
-
 # Backup configuration
 variable "backup_config" {
   description = "Backup and recovery configuration"
@@ -206,23 +125,6 @@ variable "backup_config" {
     retention_days                = 30
     schedule                      = "cron(0 2 * * ? *)"
     enable_point_in_time_recovery = true
-  }
-}
-
-# Monitoring thresholds
-variable "monitoring_thresholds" {
-  description = "CloudWatch monitoring and alerting thresholds"
-  type = object({
-    error_rate_percent   = number
-    latency_ms           = number
-    availability_percent = number
-    throttle_count       = number
-  })
-  default = {
-    error_rate_percent   = 0.05 # 5%
-    latency_ms           = 2000
-    availability_percent = 99.9
-    throttle_count       = 1000
   }
 }
 

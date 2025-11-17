@@ -37,19 +37,6 @@ variable "alert_email" {
   type        = string
 }
 
-# State backend variables
-variable "state_bucket_name" {
-  description = "S3 bucket name for Terraform state"
-  type        = string
-  default     = "servicenow-ai-terraform-state-staging"
-}
-
-variable "state_lock_table_name" {
-  description = "DynamoDB table name for state locking"
-  type        = string
-  default     = "servicenow-ai-terraform-locks-staging"
-}
-
 # Testing variables
 variable "enable_load_testing" {
   description = "Enable load testing capabilities"
@@ -69,56 +56,8 @@ variable "enable_ab_testing" {
   default     = true
 }
 
-# Performance testing
-variable "load_test_config" {
-  description = "Load testing configuration"
-  type = object({
-    target_rps          = number
-    duration_minutes    = number
-    ramp_up_minutes     = number
-    concurrent_sessions = number
-  })
-  default = {
-    target_rps          = 50
-    duration_minutes    = 30
-    ramp_up_minutes     = 5
-    concurrent_sessions = 100
-  }
-}
-
-# Staging-specific variables
-variable "test_scenarios" {
-  description = "List of test scenarios to execute"
-  type        = list(string)
-  default = [
-    "functional-testing",
-    "integration-testing",
-    "performance-testing",
-    "security-testing",
-    "regression-testing"
-  ]
-}
-
-variable "qa_team_members" {
-  description = "List of QA team member emails for access"
-  type        = list(string)
-  default     = []
-}
-
 variable "enable_synthetic_monitoring" {
   description = "Enable synthetic monitoring for proactive testing"
-  type        = bool
-  default     = true
-}
-
-variable "sync_with_prod" {
-  description = "Enable data synchronization with production"
-  type        = bool
-  default     = false
-}
-
-variable "approval_required" {
-  description = "Require approval for infrastructure changes"
   type        = bool
   default     = true
 }

@@ -15,7 +15,7 @@ module "bedrock_agents" {
   prepare_agent               = true
 
   # Associate with knowledge bases if provided
-  knowledge_bases = var.knowledge_base_ids != [] ? [
+  knowledge_bases = length(var.knowledge_base_ids) > 0 ? [
     for kb_id in var.knowledge_base_ids : {
       knowledge_base_id = kb_id
       description       = "ServiceNow knowledge base for ${each.key} agent"
