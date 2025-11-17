@@ -908,6 +908,194 @@ module "monitoring_synthetics_secondary" {
 }
 
 # ==============================================================================
+# ServiceNow Integration Module - Primary Region
+# ==============================================================================
+
+module "bedrock_servicenow_primary" {
+  source = "../../modules/bedrock-servicenow"
+
+  providers = {
+    aws = aws
+  }
+
+  # Environment configuration
+  environment = local.environment
+  name_prefix = "${local.project}-primary"
+
+  # ServiceNow instance configuration
+  servicenow_instance_url              = var.servicenow_instance_url
+  servicenow_auth_type                 = var.servicenow_auth_type
+  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn
+
+  # Feature flags - all features enabled for production
+  enable_incident_automation  = true
+  enable_ticket_triage        = true
+  enable_change_management    = true
+  enable_problem_management   = true
+  enable_knowledge_sync       = true
+  enable_sla_monitoring       = true
+
+  # SLA configuration - strict for production
+  sla_breach_threshold = 75  # 75% threshold for early warnings
+
+  # Auto-assignment with high confidence threshold
+  auto_assignment_enabled              = true
+  auto_assignment_confidence_threshold = 0.90  # High confidence for production
+
+  # Agent configuration
+  agent_model_id         = local.agent_config.model_id
+  agent_idle_session_ttl = local.agent_config.idle_session_ttl
+
+  # Lambda configuration - production optimized
+  lambda_runtime     = "python3.12"
+  lambda_timeout     = 300  # 5 minutes
+  lambda_memory_size = 1024  # Higher memory for production
+
+  # API Gateway configuration
+  api_gateway_stage_name     = "prod"
+  enable_api_gateway_logging = true
+
+  # DynamoDB configuration - production grade
+  dynamodb_billing_mode          = "PAY_PER_REQUEST"
+  dynamodb_point_in_time_recovery = true
+
+  # Step Functions configuration
+  step_function_log_level = "ERROR"
+
+  # Monitoring - comprehensive
+  enable_enhanced_monitoring = true
+  alarm_notification_emails  = var.alert_email_addresses
+
+  # Security - use KMS keys from security module
+  kms_key_id                  = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest   = true
+  enable_encryption_in_transit = true
+  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+
+  # Networking - production VPC
+  vpc_id             = var.servicenow_vpc_id
+  subnet_ids         = var.servicenow_subnet_ids
+  security_group_ids = var.servicenow_security_group_ids
+
+  # Knowledge base integration - multi-region
+  knowledge_base_ids = [
+    module.bedrock_agent_primary.knowledge_base_id,
+    module.bedrock_agent_secondary.knowledge_base_id
+  ]
+
+  # Knowledge sync schedule (daily at 2 AM UTC)
+  knowledge_sync_schedule = "cron(0 2 * * ? *)"
+
+  # Workflow timeouts - production SLAs
+  incident_escalation_timeout_minutes = 30
+  change_approval_timeout_minutes     = 240  # 4 hours
+
+  # IP restrictions - production security
+  allowed_ip_ranges = var.servicenow_allowed_ip_ranges
+
+  tags = merge(local.common_tags, { Region = "primary" })
+
+  # Dependencies
+  depends_on = [
+    module.bedrock_agent_primary,
+    module.bedrock_agent_secondary,
+    module.security_kms,
+    module.monitoring_cloudwatch
+  ]
+}
+
+# ==============================================================================
+# ServiceNow Integration Module - Secondary Region (Failover)
+# ==============================================================================
+
+module "bedrock_servicenow_secondary" {
+  source = "../../modules/bedrock-servicenow"
+
+  providers = {
+    aws = aws.secondary
+  }
+
+  # Environment configuration
+  environment = local.environment
+  name_prefix = "${local.project}-secondary"
+
+  # ServiceNow instance configuration (same as primary)
+  servicenow_instance_url              = var.servicenow_instance_url
+  servicenow_auth_type                 = var.servicenow_auth_type
+  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn_secondary
+
+  # Feature flags - all features enabled
+  enable_incident_automation  = true
+  enable_ticket_triage        = true
+  enable_change_management    = true
+  enable_problem_management   = true
+  enable_knowledge_sync       = true
+  enable_sla_monitoring       = true
+
+  # Same configuration as primary for consistency
+  sla_breach_threshold                 = 75
+  auto_assignment_enabled              = true
+  auto_assignment_confidence_threshold = 0.90
+
+  # Agent configuration
+  agent_model_id         = local.agent_config.model_id
+  agent_idle_session_ttl = local.agent_config.idle_session_ttl
+
+  # Lambda configuration
+  lambda_runtime     = "python3.12"
+  lambda_timeout     = 300
+  lambda_memory_size = 1024
+
+  # API Gateway configuration
+  api_gateway_stage_name     = "prod"
+  enable_api_gateway_logging = true
+
+  # DynamoDB configuration - with cross-region replication
+  dynamodb_billing_mode          = "PAY_PER_REQUEST"
+  dynamodb_point_in_time_recovery = true
+
+  # Step Functions configuration
+  step_function_log_level = "ERROR"
+
+  # Monitoring
+  enable_enhanced_monitoring = true
+  alarm_notification_emails  = var.alert_email_addresses
+
+  # Security
+  kms_key_id                  = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest   = true
+  enable_encryption_in_transit = true
+  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+
+  # Networking - secondary VPC
+  vpc_id             = var.servicenow_vpc_id_secondary
+  subnet_ids         = var.servicenow_subnet_ids_secondary
+  security_group_ids = var.servicenow_security_group_ids_secondary
+
+  # Knowledge base integration
+  knowledge_base_ids = [module.bedrock_agent_secondary.knowledge_base_id]
+
+  # Knowledge sync schedule
+  knowledge_sync_schedule = "cron(0 2 * * ? *)"
+
+  # Workflow timeouts
+  incident_escalation_timeout_minutes = 30
+  change_approval_timeout_minutes     = 240
+
+  # IP restrictions
+  allowed_ip_ranges = var.servicenow_allowed_ip_ranges
+
+  tags = merge(local.common_tags, { Region = "secondary" })
+
+  # Dependencies
+  depends_on = [
+    module.bedrock_agent_secondary,
+    module.security_kms,
+    module.monitoring_cloudwatch
+  ]
+}
+
+# ==============================================================================
 # Outputs
 # ==============================================================================
 
@@ -1049,4 +1237,56 @@ output "security_posture_summary" {
       log_file_validation_enabled = true
     }
   }
+}
+
+# ServiceNow Module Outputs - Primary Region
+output "servicenow_api_endpoint_primary" {
+  description = "API Gateway endpoint for ServiceNow integration (primary)"
+  value       = module.bedrock_servicenow_primary.api_gateway_endpoint
+}
+
+output "servicenow_api_id_primary" {
+  description = "API Gateway ID for ServiceNow integration (primary)"
+  value       = module.bedrock_servicenow_primary.api_gateway_id
+}
+
+output "servicenow_webhook_url_primary" {
+  description = "Webhook URL for ServiceNow callbacks (primary)"
+  value       = module.bedrock_servicenow_primary.webhook_url
+}
+
+output "servicenow_dynamodb_table_primary" {
+  description = "DynamoDB table for ServiceNow session tracking (primary)"
+  value       = module.bedrock_servicenow_primary.dynamodb_table_name
+}
+
+output "servicenow_incident_workflow_arn_primary" {
+  description = "Step Functions ARN for incident workflow (primary)"
+  value       = module.bedrock_servicenow_primary.incident_workflow_arn
+}
+
+output "servicenow_change_workflow_arn_primary" {
+  description = "Step Functions ARN for change workflow (primary)"
+  value       = module.bedrock_servicenow_primary.change_workflow_arn
+}
+
+# ServiceNow Module Outputs - Secondary Region
+output "servicenow_api_endpoint_secondary" {
+  description = "API Gateway endpoint for ServiceNow integration (secondary)"
+  value       = module.bedrock_servicenow_secondary.api_gateway_endpoint
+}
+
+output "servicenow_api_id_secondary" {
+  description = "API Gateway ID for ServiceNow integration (secondary)"
+  value       = module.bedrock_servicenow_secondary.api_gateway_id
+}
+
+output "servicenow_webhook_url_secondary" {
+  description = "Webhook URL for ServiceNow callbacks (secondary)"
+  value       = module.bedrock_servicenow_secondary.webhook_url
+}
+
+output "servicenow_dynamodb_table_secondary" {
+  description = "DynamoDB table for ServiceNow session tracking (secondary)"
+  value       = module.bedrock_servicenow_secondary.dynamodb_table_name
 }

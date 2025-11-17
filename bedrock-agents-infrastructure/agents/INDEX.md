@@ -30,6 +30,14 @@ bedrock-agents-infrastructure/agents/
 │   ├── mesh-coordinator.yaml         # Peer-to-peer coordination
 │   └── adaptive-coordinator.yaml     # Dynamic strategy selection
 │
+├── servicenow/                       # ServiceNow ITSM agents
+│   ├── incident-manager.yaml         # Incident management and SLA tracking
+│   ├── ticket-analyzer.yaml          # Intelligent ticket analysis and routing
+│   ├── change-request-agent.yaml     # Change management and risk assessment
+│   ├── problem-resolver.yaml         # Root cause analysis and problem management
+│   ├── knowledge-curator.yaml        # Knowledge base management and curation
+│   └── service-catalog-assistant.yaml # Service catalog and request fulfillment
+│
 ├── agent-templates/                  # Reusable templates
 │   ├── base-agent-template.yaml      # Agent configuration template
 │   ├── instruction-templates.md      # Reusable instruction library
@@ -100,6 +108,31 @@ bedrock-agents-infrastructure/agents/
 **Use Cases:** Multi-agent workflows, complex orchestration, adaptive systems
 
 **Orchestration:** See `orchestration/adaptive-coordination-workflow.json` for intelligent coordination
+
+---
+
+### ServiceNow ITSM Agents (6)
+
+| Agent | ITIL Process | Key Capabilities |
+|-------|-------------|------------------|
+| **incident-manager** | Incident Management | Create/update/resolve incidents, SLA monitoring, auto-assignment, escalation workflows |
+| **ticket-analyzer** | Service Desk | NLP-powered categorization, sentiment analysis, urgency detection, KB matching |
+| **change-request-agent** | Change Management | Risk assessment, approval workflows, impact analysis, rollback planning |
+| **problem-resolver** | Problem Management | Root cause analysis, incident correlation, KEDB management, workaround documentation |
+| **knowledge-curator** | Knowledge Management | Auto-create KB articles, update existing content, tag/categorize, identify gaps |
+| **service-catalog-assistant** | Request Fulfillment | Catalog navigation, auto-fulfillment, request tracking, approval orchestration |
+
+**Use Cases:** IT Service Management, ServiceNow automation, ITIL process optimization, helpdesk operations
+
+**Integration:** All agents use `servicenow-integration` action group for REST API operations
+
+**Features:**
+- ITIL best practices built-in
+- Intelligent automation and routing
+- SLA monitoring and compliance
+- Knowledge base integration
+- Multi-stage approval workflows
+- Comprehensive audit trails
 
 ---
 
@@ -403,7 +436,7 @@ For questions or issues:
 
 ---
 
-**Last Updated:** 2024-01-17
-**Total Agents:** 15 agent configurations
+**Last Updated:** 2024-11-17
+**Total Agents:** 21 agent configurations (15 development + 6 ServiceNow)
 **Total Workflows:** 3 orchestration workflows
 **Total Templates:** 7+ reusable instruction templates

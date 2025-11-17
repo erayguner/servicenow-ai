@@ -474,6 +474,79 @@ module "monitoring_eventbridge" {
 # }
 
 # ==============================================================================
+# ServiceNow Integration Module
+# ==============================================================================
+
+module "bedrock_servicenow" {
+  source = "../../modules/bedrock-servicenow"
+
+  # Environment configuration
+  environment = local.environment
+  name_prefix = local.project
+
+  # ServiceNow instance configuration
+  servicenow_instance_url              = var.servicenow_instance_url
+  servicenow_auth_type                 = var.servicenow_auth_type
+  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn
+
+  # Feature flags - basic features only for dev
+  enable_incident_automation  = true
+  enable_ticket_triage        = true
+  enable_change_management    = false  # Disabled for cost savings
+  enable_problem_management   = false  # Disabled for cost savings
+  enable_knowledge_sync       = false  # Disabled for cost savings
+  enable_sla_monitoring       = false  # Disabled for cost savings
+
+  # Auto-assignment with lower confidence threshold
+  auto_assignment_enabled              = true
+  auto_assignment_confidence_threshold = 0.75  # Lower threshold for testing
+
+  # Agent configuration
+  agent_model_id         = local.agent_config.model_id
+  agent_idle_session_ttl = local.agent_config.idle_session_ttl
+
+  # Lambda configuration - cost-optimized
+  lambda_runtime     = "python3.12"
+  lambda_timeout     = 180  # 3 minutes
+  lambda_memory_size = 256  # Lower memory for dev
+
+  # DynamoDB configuration
+  dynamodb_billing_mode          = "PAY_PER_REQUEST"  # On-demand for dev
+  dynamodb_point_in_time_recovery = false  # Disabled for cost savings
+
+  # Monitoring - basic
+  enable_enhanced_monitoring = false  # Disabled for cost savings
+  alarm_notification_emails  = var.alert_email != "" ? [var.alert_email] : []
+
+  # Security - use KMS keys from security module
+  kms_key_id                  = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest   = true
+  enable_encryption_in_transit = true
+  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+
+  # Networking - no VPC for dev (cost savings)
+  vpc_id             = null
+  subnet_ids         = []
+  security_group_ids = []
+
+  # Knowledge base integration
+  knowledge_base_ids = [module.bedrock_agent.knowledge_base_id]
+
+  # Workflow timeouts
+  incident_escalation_timeout_minutes = 60  # Longer timeout for dev
+  change_approval_timeout_minutes     = 480  # 8 hours
+
+  tags = local.common_tags
+
+  # Dependencies
+  depends_on = [
+    module.bedrock_agent,
+    module.security_kms,
+    module.monitoring_cloudwatch
+  ]
+}
+
+# ==============================================================================
 # Outputs
 # ==============================================================================
 
@@ -543,4 +616,25 @@ output "cloudtrail_log_group" {
 output "cloudtrail_s3_bucket" {
   description = "S3 bucket for CloudTrail logs"
   value       = module.monitoring_cloudtrail.s3_bucket_name
+}
+
+# ServiceNow Module Outputs
+output "servicenow_api_endpoint" {
+  description = "API Gateway endpoint for ServiceNow integration"
+  value       = module.bedrock_servicenow.api_gateway_endpoint
+}
+
+output "servicenow_api_id" {
+  description = "API Gateway ID for ServiceNow integration"
+  value       = module.bedrock_servicenow.api_gateway_id
+}
+
+output "servicenow_webhook_url" {
+  description = "Webhook URL for ServiceNow callbacks"
+  value       = module.bedrock_servicenow.webhook_url
+}
+
+output "servicenow_dynamodb_table" {
+  description = "DynamoDB table for ServiceNow session tracking"
+  value       = module.bedrock_servicenow.dynamodb_table_name
 }

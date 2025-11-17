@@ -221,6 +221,45 @@ bedrock_agent_endpoints = [
 # aws wafv2 get-web-acl-for-resource --resource-arn <api-gateway-arn>
 
 # ==============================================================================
+# ServiceNow Module Configuration
+# ==============================================================================
+
+# ServiceNow Instance Configuration (Required for staging)
+servicenow_instance_url = "https://staging12345.service-now.com"
+
+# Authentication Type
+servicenow_auth_type = "oauth"
+
+# ServiceNow Credentials Secret (create in AWS Secrets Manager)
+servicenow_credentials_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:servicenow-staging-credentials-xxxxx"
+
+# VPC Configuration (optional - for private ServiceNow instances)
+servicenow_vpc_id             = null  # "vpc-0123456789abcdef0"
+servicenow_subnet_ids         = []    # ["subnet-abc123", "subnet-def456"]
+servicenow_security_group_ids = []    # ["sg-0123456789abcdef0"]
+
+# IP Restrictions (optional - restrict API Gateway access)
+servicenow_allowed_ip_ranges = [
+  # "203.0.113.0/24",  # Corporate network
+]
+
+# ServiceNow Features Enabled in Staging:
+# ✓ Incident automation
+# ✓ Ticket triage with AI
+# ✓ Change management
+# ✓ Problem management
+# ✓ Knowledge base sync
+# ✓ SLA monitoring
+
+# Cost Estimate with ServiceNow Module:
+# - API Gateway: ~$15-25/month
+# - Lambda executions: ~$30-50/month
+# - DynamoDB: ~$20-30/month
+# - Step Functions: ~$10-15/month
+# - CloudWatch logs: ~$10-15/month
+# Total Additional: ~$85-135/month
+
+# ==============================================================================
 # Monitoring Commands
 # ==============================================================================
 # View CloudWatch dashboard:
@@ -231,3 +270,20 @@ bedrock_agent_endpoints = [
 #
 # View CloudTrail events:
 # aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=InvokeAgent
+#
+# Monitor ServiceNow Integration:
+# aws apigateway get-rest-api --rest-api-id <api-id>
+# aws dynamodb describe-table --table-name servicenow-sessions-staging
+# aws stepfunctions list-executions --state-machine-arn <workflow-arn>
+
+# ==============================================================================
+# ServiceNow Integration Setup
+# ==============================================================================
+# 1. Create OAuth application in ServiceNow staging instance
+# 2. Store credentials in AWS Secrets Manager:
+#    aws secretsmanager create-secret \
+#      --name servicenow-staging-credentials \
+#      --secret-string '{"username":"...","password":"...","client_id":"...","client_secret":"..."}'
+# 3. Deploy infrastructure
+# 4. Configure ServiceNow webhooks with API Gateway endpoints from outputs
+# 5. Test all features comprehensively before promoting to production

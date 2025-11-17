@@ -208,3 +208,57 @@ variable "bedrock_agent_endpoints" {
   type        = list(string)
   default     = []
 }
+
+# ==============================================================================
+# ServiceNow Module Variables
+# ==============================================================================
+
+variable "servicenow_instance_url" {
+  description = "ServiceNow instance URL (e.g., https://your-instance.service-now.com)"
+  type        = string
+
+  validation {
+    condition     = can(regex("^https://.*\\.service-now\\.com$", var.servicenow_instance_url))
+    error_message = "ServiceNow instance URL must be a valid HTTPS URL ending with .service-now.com"
+  }
+}
+
+variable "servicenow_auth_type" {
+  description = "Authentication type for ServiceNow API (oauth or basic)"
+  type        = string
+  default     = "oauth"
+
+  validation {
+    condition     = contains(["oauth", "basic"], var.servicenow_auth_type)
+    error_message = "Authentication type must be either 'oauth' or 'basic'"
+  }
+}
+
+variable "servicenow_credentials_secret_arn" {
+  description = "ARN of existing Secrets Manager secret containing ServiceNow credentials"
+  type        = string
+}
+
+variable "servicenow_vpc_id" {
+  description = "VPC ID for ServiceNow Lambda functions"
+  type        = string
+  default     = null
+}
+
+variable "servicenow_subnet_ids" {
+  description = "Subnet IDs for ServiceNow Lambda functions"
+  type        = list(string)
+  default     = []
+}
+
+variable "servicenow_security_group_ids" {
+  description = "Security group IDs for ServiceNow Lambda functions"
+  type        = list(string)
+  default     = []
+}
+
+variable "servicenow_allowed_ip_ranges" {
+  description = "List of CIDR blocks allowed to access ServiceNow API Gateway webhooks"
+  type        = list(string)
+  default     = []
+}

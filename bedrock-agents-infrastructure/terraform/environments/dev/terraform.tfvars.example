@@ -98,8 +98,49 @@ bedrock_agent_endpoints = [
 # Uncomment the modules in main.tf if needed for security testing
 
 # ==============================================================================
+# ServiceNow Module Configuration
+# ==============================================================================
+
+# ServiceNow Instance Configuration (Optional for dev - set to "" to disable)
+servicenow_instance_url = ""  # "https://dev12345.service-now.com"
+
+# Authentication Type (oauth recommended for production)
+servicenow_auth_type = "oauth"
+
+# ServiceNow Credentials Secret (create in AWS Secrets Manager first)
+# Secret should contain: {"username": "...", "password": "...", "client_id": "...", "client_secret": "..."}
+servicenow_credentials_secret_arn = null  # "arn:aws:secretsmanager:us-east-1:123456789012:secret:servicenow-dev-credentials-xxxxx"
+
+# Cost Estimate with ServiceNow Module:
+# - API Gateway: ~$3-5/month (minimal traffic)
+# - Lambda executions: ~$10-15/month
+# - DynamoDB (PAY_PER_REQUEST): ~$5-10/month
+# - Step Functions: ~$2-5/month
+# Total Additional: ~$20-35/month
+#
+# NOTE: Most ServiceNow features are disabled in dev to save costs
+# Only incident automation and ticket triage are enabled for basic testing
+
+# ==============================================================================
 # Testing Commands
 # ==============================================================================
 # terraform init -backend-config="bucket=servicenow-ai-terraform-state-dev"
 # terraform plan -var-file="terraform.tfvars"
 # terraform apply -var-file="terraform.tfvars"
+
+# ==============================================================================
+# ServiceNow Integration Setup Steps
+# ==============================================================================
+# 1. Create ServiceNow developer instance at https://developer.servicenow.com/
+# 2. Create OAuth application in ServiceNow:
+#    - Navigate to System OAuth > Application Registry
+#    - Create new OAuth API endpoint for external clients
+#    - Note the Client ID and Client Secret
+# 3. Store credentials in AWS Secrets Manager:
+#    aws secretsmanager create-secret \
+#      --name servicenow-dev-credentials \
+#      --description "ServiceNow dev instance credentials" \
+#      --secret-string '{"username":"admin","password":"YOUR_PASSWORD","client_id":"YOUR_CLIENT_ID","client_secret":"YOUR_CLIENT_SECRET"}'
+# 4. Update servicenow_instance_url and servicenow_credentials_secret_arn above
+# 5. Deploy infrastructure: terraform apply
+# 6. Configure ServiceNow webhook to point to API Gateway endpoint (see outputs)

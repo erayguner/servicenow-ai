@@ -1,0 +1,426 @@
+{
+  "Comment": "ServiceNow SLA Monitoring Workflow - SLA breach prevention, escalation, and compliance tracking",
+  "StartAt": "MonitorSLATimers",
+  "States": {
+    "MonitorSLATimers": {
+      "Type": "Wait",
+      "Seconds": 600,
+      "Next": "FetchTicketsAtRisk"
+    },
+    "FetchTicketsAtRisk": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-fetch-sla-at-risk",
+        "Payload": {
+          "thresholdPercentage": 80,
+          "includeBreached": true,
+          "maxResults": 50
+        }
+      },
+      "ResultPath": "$.atRiskTickets",
+      "Next": "CheckIfTicketsAtRisk"
+    },
+    "CheckIfTicketsAtRisk": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.atRiskTickets.Payload.atRiskCount",
+          "NumericGreaterThan": 0,
+          "Next": "AnalyzeRiskLevels"
+        }
+      ],
+      "Default": "MonitorSLATimers"
+    },
+    "AnalyzeRiskLevels": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-analyze-sla-risk",
+        "Payload": {
+          "tickets.$": "$.atRiskTickets.Payload.tickets",
+          "categorizeBy": "slaThreshold"
+        }
+      },
+      "ResultPath": "$.riskAnalysis",
+      "Next": "SegmentTicketsBySeverity"
+    },
+    "SegmentTicketsBySeverity": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-segment-tickets-sla",
+        "Payload": {
+          "tickets.$": "$.atRiskTickets.Payload.tickets",
+          "segments": ["CRITICAL_BREACH", "CRITICAL_RISK", "HIGH_RISK", "MEDIUM_RISK"]
+        }
+      },
+      "ResultPath": "$.segmentation",
+      "Next": "ProcessSegmentedTickets"
+    },
+    "ProcessSegmentedTickets": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "ProcessCriticalBreaches",
+          "States": {
+            "ProcessCriticalBreaches": {
+              "Type": "Map",
+              "ItemsPath": "$.segmentation.Payload.criticalBreach",
+              "MaxConcurrency": 5,
+              "Iterator": {
+                "StartAt": "ImmediateEscalationAction",
+                "States": {
+                  "ImmediateEscalationAction": {
+                    "Type": "Parallel",
+                    "Branches": [
+                      {
+                        "StartAt": "EscalateToManager",
+                        "States": {
+                          "EscalateToManager": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::lambda:invoke",
+                            "Parameters": {
+                              "FunctionName": "servicenow-escalate-ticket-sla",
+                              "Payload": {
+                                "ticketId.$": "$.ticket.sys_id",
+                                "escalationLevel": "MANAGER",
+                                "reason": "SLA breach imminent",
+                                "priority": "P1"
+                              }
+                            },
+                            "ResultPath": "$.escalation",
+                            "End": true
+                          }
+                        }
+                      },
+                      {
+                        "StartAt": "SendCriticalAlert",
+                        "States": {
+                          "SendCriticalAlert": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::sns:publish",
+                            "Parameters": {
+                              "TopicArn.$": "$.slaBreachAlertTopic",
+                              "Subject": "CRITICAL: SLA Breach - Immediate Action Required",
+                              "Message": {
+                                "Fn::Format": [
+                                  "SLA BREACH ALERT\n\nTicket ID: {}\nTitle: {}\nCategory: {}\nAssignee: {}\n\nSLA Deadline: {}\nTime Remaining: {} minutes\n\nImmediate escalation initiated. Please address immediately.",
+                                  "$.ticket.sys_id",
+                                  "$.ticket.short_description",
+                                  "$.ticket.category",
+                                  "$.ticket.assigned_to.display_value",
+                                  "$.ticket.sla_deadline",
+                                  "$.ticket.minutesRemaining"
+                                ]
+                              }
+                            },
+                            "End": true
+                          }
+                        }
+                      },
+                      {
+                        "StartAt": "UpdateTicketUrgency",
+                        "States": {
+                          "UpdateTicketUrgency": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::lambda:invoke",
+                            "Parameters": {
+                              "FunctionName": "servicenow-update-ticket-urgency",
+                              "Payload": {
+                                "ticketId.$": "$.ticket.sys_id",
+                                "newUrgency": 1,
+                                "newPriority": "P1",
+                                "reason": "SLA breach imminent"
+                              }
+                            },
+                            "End": true
+                          }
+                        }
+                      }
+                    ],
+                    "End": true
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "ProcessCriticalRisk",
+          "States": {
+            "ProcessCriticalRisk": {
+              "Type": "Map",
+              "ItemsPath": "$.segmentation.Payload.criticalRisk",
+              "MaxConcurrency": 3,
+              "Iterator": {
+                "StartAt": "AssignToSeniorTechnician",
+                "States": {
+                  "AssignToSeniorTechnician": {
+                    "Type": "Task",
+                    "Resource": "arn:aws:states:::lambda:invoke",
+                    "Parameters": {
+                      "FunctionName": "servicenow-assign-to-senior",
+                      "Payload": {
+                        "ticketId.$": "$.ticket.sys_id",
+                        "priority": "HIGH",
+                        "assignmentPool": "senior_technicians"
+                      }
+                    },
+                    "ResultPath": "$.assignment",
+                    "Next": "NotifySeniorTechnician"
+                  },
+                  "NotifySeniorTechnician": {
+                    "Type": "Task",
+                    "Resource": "arn:aws:states:::sns:publish",
+                    "Parameters": {
+                      "TopicArn.$": "$.slaWarningTopic",
+                      "Subject": "High Priority: SLA at Risk",
+                      "Message": {
+                        "Fn::Format": [
+                          "Ticket {} is at high risk of SLA breach.\n\nAssigned to: {}\nTime remaining: {} minutes\nPriority: HIGH\n\nPlease prioritize this ticket.",
+                          "$.ticket.sys_id",
+                          "$.assignment.Payload.assignedTo",
+                          "$.ticket.minutesRemaining"
+                        ]
+                      }
+                    },
+                    "End": true
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "ProcessHighRisk",
+          "States": {
+            "ProcessHighRisk": {
+              "Type": "Map",
+              "ItemsPath": "$.segmentation.Payload.highRisk",
+              "MaxConcurrency": 2,
+              "Iterator": {
+                "StartAt": "SendReminderNotification",
+                "States": {
+                  "SendReminderNotification": {
+                    "Type": "Task",
+                    "Resource": "arn:aws:states:::sns:publish",
+                    "Parameters": {
+                      "TopicArn.$": "$.slaWarningTopic",
+                      "Subject": "SLA Reminder: Ticket Needs Attention",
+                      "Message": {
+                        "Fn::Format": [
+                          "Reminder: Ticket {} needs attention.\n\nTime remaining: {} minutes\n\nPlease update status or resolve the ticket.",
+                          "$.ticket.sys_id",
+                          "$.ticket.minutesRemaining"
+                        ]
+                      }
+                    },
+                    "End": true
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "RecordSLAStatus",
+          "States": {
+            "RecordSLAStatus": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:putItem",
+              "Parameters": {
+                "TableName": "servicenow-sla-monitoring",
+                "Item": {
+                  "MonitoringCycleId": {
+                    "S.$": "$$.Execution.Name"
+                  },
+                  "ExecutedAt": {
+                    "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+                  },
+                  "AtRiskCount": {
+                    "N.$": "States.JsonToString($.atRiskTickets.Payload.atRiskCount)"
+                  },
+                  "BreachedCount": {
+                    "N.$": "States.JsonToString($.segmentation.Payload.criticalBreach.length())"
+                  },
+                  "CriticalRiskCount": {
+                    "N.$": "States.JsonToString($.segmentation.Payload.criticalRisk.length())"
+                  },
+                  "HighRiskCount": {
+                    "N.$": "States.JsonToString($.segmentation.Payload.highRisk.length())"
+                  },
+                  "Status": {
+                    "S": "PROCESSED"
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "GenerateSLAReport"
+    },
+    "GenerateSLAReport": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-generate-sla-report",
+        "Payload": {
+          "atRiskTickets.$": "$.atRiskTickets.Payload.tickets",
+          "analysis.$": "$.riskAnalysis.Payload",
+          "segmentation.$": "$.segmentation.Payload"
+        }
+      },
+      "ResultPath": "$.slaReport",
+      "Next": "PublishSLAMetrics"
+    },
+    "PublishSLAMetrics": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "PublishToCloudWatch",
+          "States": {
+            "PublishToCloudWatch": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:cloudwatch:putMetricData",
+              "Parameters": {
+                "Namespace": "ServiceNow/SLA",
+                "MetricData": [
+                  {
+                    "MetricName": "TicketsAtRisk",
+                    "Value.$": "$.atRiskTickets.Payload.atRiskCount",
+                    "Unit": "Count"
+                  },
+                  {
+                    "MetricName": "BreachedSLAs",
+                    "Value.$": "$.segmentation.Payload.criticalBreach.length()",
+                    "Unit": "Count"
+                  },
+                  {
+                    "MetricName": "SLACompliancePercentage",
+                    "Value.$": "$.slaReport.Payload.compliancePercentage",
+                    "Unit": "Percent"
+                  }
+                ]
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "StoreReportInS3",
+          "States": {
+            "StoreReportInS3": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:s3:putObject",
+              "Parameters": {
+                "Bucket.$": "$.reportsBucket",
+                "Key": {
+                  "Fn::Format": [
+                    "sla-reports/{}/sla-report.json",
+                    "States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), 'T'), 0)"
+                  ]
+                },
+                "Body": {
+                  "report.$": "$.slaReport.Payload",
+                  "generatedAt.$": "$.timestamp",
+                  "executionId.$": "$$.Execution.Name"
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SendExecutiveSummary",
+          "States": {
+            "SendExecutiveSummary": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.segmentation.Payload.criticalBreach.length()",
+                  "NumericGreaterThan": 0,
+                  "Next": "NotifyExecutives"
+                }
+              ],
+              "Default": "SummaryNotificationSkipped"
+            },
+            "NotifyExecutives": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.executiveTopic",
+                "Subject": "SLA Monitoring Report - Executive Summary",
+                "Message": {
+                  "Fn::Format": [
+                    "SLA Monitoring Executive Summary\n\nTotal At-Risk Tickets: {}\nBreached SLAs: {}\nCritical Risk: {}\nHigh Risk: {}\n\nSLA Compliance: {}%\n\nImmmediate action required on {} breached tickets.",
+                    "$.atRiskTickets.Payload.atRiskCount",
+                    "$.segmentation.Payload.criticalBreach.length()",
+                    "$.segmentation.Payload.criticalRisk.length()",
+                    "$.segmentation.Payload.highRisk.length()",
+                    "$.slaReport.Payload.compliancePercentage",
+                    "$.segmentation.Payload.criticalBreach.length()"
+                  ]
+                }
+              },
+              "End": true
+            },
+            "SummaryNotificationSkipped": {
+              "Type": "Pass",
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "UpdateComplianceTracker"
+    },
+    "UpdateComplianceTracker": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "servicenow-sla-compliance",
+        "Key": {
+          "Date": {
+            "S.$": "States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), 'T'), 0)"
+          }
+        },
+        "AttributeUpdates": {
+          "CompliancePercentage": {
+            "Action": "PUT",
+            "Value": {
+              "N.$": "States.JsonToString($.slaReport.Payload.compliancePercentage)"
+            }
+          },
+          "BreachedCount": {
+            "Action": "PUT",
+            "Value": {
+              "N.$": "States.JsonToString($.segmentation.Payload.criticalBreach.length())"
+            }
+          },
+          "AtRiskCount": {
+            "Action": "PUT",
+            "Value": {
+              "N.$": "States.JsonToString($.atRiskTickets.Payload.atRiskCount)"
+            }
+          },
+          "LastMonitoringCycle": {
+            "Action": "PUT",
+            "Value": {
+              "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+            }
+          }
+        }
+      },
+      "Next": "ContinueMonitoring"
+    },
+    "ContinueMonitoring": {
+      "Type": "Pass",
+      "Next": "MonitorSLATimers"
+    }
+  }
+}

@@ -597,6 +597,95 @@ module "monitoring_synthetics" {
 }
 
 # ==============================================================================
+# ServiceNow Integration Module
+# ==============================================================================
+
+module "bedrock_servicenow" {
+  source = "../../modules/bedrock-servicenow"
+
+  # Environment configuration
+  environment = local.environment
+  name_prefix = local.project
+
+  # ServiceNow instance configuration
+  servicenow_instance_url              = var.servicenow_instance_url
+  servicenow_auth_type                 = var.servicenow_auth_type
+  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn
+
+  # Feature flags - all features enabled for staging testing
+  enable_incident_automation  = true
+  enable_ticket_triage        = true
+  enable_change_management    = true
+  enable_problem_management   = true
+  enable_knowledge_sync       = true
+  enable_sla_monitoring       = true
+
+  # SLA configuration
+  sla_breach_threshold = 80  # 80% threshold for warnings
+
+  # Auto-assignment with standard confidence threshold
+  auto_assignment_enabled              = true
+  auto_assignment_confidence_threshold = 0.85  # Standard threshold
+
+  # Agent configuration
+  agent_model_id         = local.agent_config.model_id
+  agent_idle_session_ttl = local.agent_config.idle_session_ttl
+
+  # Lambda configuration - standard
+  lambda_runtime     = "python3.12"
+  lambda_timeout     = 300  # 5 minutes
+  lambda_memory_size = 512  # Standard memory
+
+  # API Gateway configuration
+  api_gateway_stage_name     = "staging"
+  enable_api_gateway_logging = true
+
+  # DynamoDB configuration
+  dynamodb_billing_mode          = "PAY_PER_REQUEST"
+  dynamodb_point_in_time_recovery = true
+
+  # Step Functions configuration
+  step_function_log_level = "ERROR"
+
+  # Monitoring - enhanced
+  enable_enhanced_monitoring = true
+  alarm_notification_emails  = [var.alert_email]
+
+  # Security - use KMS keys from security module
+  kms_key_id                  = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest   = true
+  enable_encryption_in_transit = true
+  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+
+  # Networking - use VPC if available
+  vpc_id             = var.servicenow_vpc_id
+  subnet_ids         = var.servicenow_subnet_ids
+  security_group_ids = var.servicenow_security_group_ids
+
+  # Knowledge base integration
+  knowledge_base_ids = [module.bedrock_agent.knowledge_base_id]
+
+  # Knowledge sync schedule (daily at 2 AM)
+  knowledge_sync_schedule = "cron(0 2 * * ? *)"
+
+  # Workflow timeouts
+  incident_escalation_timeout_minutes = 30
+  change_approval_timeout_minutes     = 240  # 4 hours
+
+  # IP restrictions (if applicable)
+  allowed_ip_ranges = var.servicenow_allowed_ip_ranges
+
+  tags = local.common_tags
+
+  # Dependencies
+  depends_on = [
+    module.bedrock_agent,
+    module.security_kms,
+    module.monitoring_cloudwatch
+  ]
+}
+
+# ==============================================================================
 # Outputs
 # ==============================================================================
 
@@ -716,4 +805,35 @@ output "config_recorder_name" {
 output "synthetics_canary_name" {
   description = "Name of the CloudWatch Synthetics canary"
   value       = module.monitoring_synthetics.canary_name
+}
+
+# ServiceNow Module Outputs
+output "servicenow_api_endpoint" {
+  description = "API Gateway endpoint for ServiceNow integration"
+  value       = module.bedrock_servicenow.api_gateway_endpoint
+}
+
+output "servicenow_api_id" {
+  description = "API Gateway ID for ServiceNow integration"
+  value       = module.bedrock_servicenow.api_gateway_id
+}
+
+output "servicenow_webhook_url" {
+  description = "Webhook URL for ServiceNow callbacks"
+  value       = module.bedrock_servicenow.webhook_url
+}
+
+output "servicenow_dynamodb_table" {
+  description = "DynamoDB table for ServiceNow session tracking"
+  value       = module.bedrock_servicenow.dynamodb_table_name
+}
+
+output "servicenow_incident_workflow_arn" {
+  description = "Step Functions ARN for incident workflow"
+  value       = module.bedrock_servicenow.incident_workflow_arn
+}
+
+output "servicenow_change_workflow_arn" {
+  description = "Step Functions ARN for change workflow"
+  value       = module.bedrock_servicenow.change_workflow_arn
 }

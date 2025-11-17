@@ -108,3 +108,35 @@ variable "bedrock_agent_endpoints" {
   type        = list(string)
   default     = []
 }
+
+# ==============================================================================
+# ServiceNow Module Variables
+# ==============================================================================
+
+variable "servicenow_instance_url" {
+  description = "ServiceNow instance URL (e.g., https://your-instance.service-now.com)"
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.servicenow_instance_url == "" || can(regex("^https://.*\\.service-now\\.com$", var.servicenow_instance_url))
+    error_message = "ServiceNow instance URL must be a valid HTTPS URL ending with .service-now.com"
+  }
+}
+
+variable "servicenow_auth_type" {
+  description = "Authentication type for ServiceNow API (oauth or basic)"
+  type        = string
+  default     = "oauth"
+
+  validation {
+    condition     = contains(["oauth", "basic"], var.servicenow_auth_type)
+    error_message = "Authentication type must be either 'oauth' or 'basic'"
+  }
+}
+
+variable "servicenow_credentials_secret_arn" {
+  description = "ARN of existing Secrets Manager secret containing ServiceNow credentials"
+  type        = string
+  default     = null
+}

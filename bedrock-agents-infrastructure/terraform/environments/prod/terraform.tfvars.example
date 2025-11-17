@@ -528,3 +528,227 @@ synthetics_subnet_ids = []     # Private subnet IDs for canaries
 # 5. Monitor performance metrics
 #
 # Runbook: https://wiki.example.com/bedrock-dr-runbook
+
+# ==============================================================================
+# SERVICENOW MODULE CONFIGURATION
+# ==============================================================================
+
+# ServiceNow Instance URL (Production)
+servicenow_instance_url = "https://prod12345.service-now.com"
+
+# Authentication Type (OAuth strongly recommended for production)
+servicenow_auth_type = "oauth"
+
+# ServiceNow Credentials - Primary Region
+# IMPORTANT: Create secret in AWS Secrets Manager first
+# Secret format: {"username":"service_account","password":"...","client_id":"...","client_secret":"..."}
+servicenow_credentials_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:servicenow-prod-credentials-xxxxx"
+
+# ServiceNow Credentials - Secondary Region (replicated)
+servicenow_credentials_secret_arn_secondary = "arn:aws:secretsmanager:us-west-2:123456789012:secret:servicenow-prod-credentials-xxxxx"
+
+# VPC Configuration - Primary Region (Required for production)
+servicenow_vpc_id     = "vpc-0123456789abcdef0"
+servicenow_subnet_ids = [
+  "subnet-0a1b2c3d4e5f6g7h8",  # Private subnet 1a
+  "subnet-1b2c3d4e5f6g7h8i9",  # Private subnet 1b
+  "subnet-2c3d4e5f6g7h8i9j0"   # Private subnet 1c
+]
+servicenow_security_group_ids = [
+  "sg-0123456789abcdef0"  # ServiceNow integration security group
+]
+
+# VPC Configuration - Secondary Region
+servicenow_vpc_id_secondary     = "vpc-9876543210fedcba9"
+servicenow_subnet_ids_secondary = [
+  "subnet-9a8b7c6d5e4f3g2h1",  # Private subnet 2a
+  "subnet-8b7c6d5e4f3g2h1i0",  # Private subnet 2b
+  "subnet-7c6d5e4f3g2h1i0j9"   # Private subnet 2c
+]
+servicenow_security_group_ids_secondary = [
+  "sg-9876543210fedcba9"  # ServiceNow integration security group (secondary)
+]
+
+# IP Restrictions (Corporate network ranges only)
+servicenow_allowed_ip_ranges = [
+  "203.0.113.0/24",   # Corporate HQ
+  "198.51.100.0/24",  # Remote office 1
+  "192.0.2.0/24",     # Remote office 2
+  "10.0.0.0/8"        # Internal VPN ranges
+]
+
+# ==============================================================================
+# SERVICENOW FEATURES - PRODUCTION CONFIGURATION
+# ==============================================================================
+
+# All features enabled in production:
+# ✓ Incident automation with AI-powered triage
+# ✓ Intelligent ticket triage and routing
+# ✓ Change management with approval workflows
+# ✓ Problem management and root cause analysis
+# ✓ Knowledge base synchronization (daily at 2 AM UTC)
+# ✓ SLA monitoring with breach alerts (75% threshold)
+# ✓ Auto-assignment with 90% confidence threshold
+# ✓ Multi-region deployment with automatic failover
+# ✓ Comprehensive monitoring and alerting
+# ✓ Enhanced security with VPC, encryption, and IP restrictions
+
+# ==============================================================================
+# SERVICENOW COST ESTIMATE - PRODUCTION
+# ==============================================================================
+#
+# PRIMARY REGION:
+# - API Gateway (production traffic): ~$50-100/month
+# - Lambda (provisioned capacity): ~$100-150/month
+# - DynamoDB (PAY_PER_REQUEST): ~$75-125/month
+# - Step Functions (workflows): ~$50-75/month
+# - CloudWatch (logs, metrics, alarms): ~$40-60/month
+# - Secrets Manager: ~$2/month
+#
+# SECONDARY REGION (Failover):
+# - API Gateway: ~$50-100/month
+# - Lambda: ~$100-150/month
+# - DynamoDB (with replication): ~$75-125/month
+# - Step Functions: ~$50-75/month
+# - CloudWatch: ~$40-60/month
+# - Secrets Manager: ~$2/month
+#
+# TOTAL SERVICENOW MODULE COST: ~$634-1,024/month
+#
+# NOTE: Costs vary based on:
+# - Number of ServiceNow incidents/tickets processed
+# - Workflow execution frequency
+# - DynamoDB read/write patterns
+# - API Gateway request volume
+# - Lambda execution duration
+#
+# COST OPTIMIZATION:
+# - Use DynamoDB on-demand pricing for variable workloads
+# - Optimize Lambda memory and timeout settings
+# - Enable CloudWatch log retention policies
+# - Use API Gateway caching for frequent queries
+# - Monitor and adjust auto-scaling thresholds
+
+# ==============================================================================
+# SERVICENOW INTEGRATION SETUP - PRODUCTION
+# ==============================================================================
+
+# Prerequisites:
+# 1. Production ServiceNow instance with admin access
+# 2. AWS Secrets Manager secrets created in both regions
+# 3. VPCs and subnets configured with proper routing
+# 4. Security groups allowing Lambda to ServiceNow communication
+# 5. PagerDuty or SNS topics for critical alerts
+# 6. Runbook for incident response and failover procedures
+
+# Setup Steps:
+#
+# 1. Create ServiceNow OAuth Application:
+#    - Navigate to System OAuth > Application Registry
+#    - Create OAuth API endpoint for external clients
+#    - Configure redirect URIs
+#    - Set appropriate scopes (incident, change, problem, knowledge)
+#    - Note Client ID and Client Secret
+#
+# 2. Store Credentials in AWS Secrets Manager (Primary):
+#    aws secretsmanager create-secret \
+#      --region us-east-1 \
+#      --name servicenow-prod-credentials \
+#      --description "ServiceNow production credentials - PRIMARY" \
+#      --secret-string '{"username":"svc_bedrock_agent","password":"STRONG_PASSWORD","client_id":"CLIENT_ID","client_secret":"CLIENT_SECRET"}' \
+#      --kms-key-id <kms-key-id>
+#
+# 3. Replicate Secret to Secondary Region:
+#    aws secretsmanager replicate-secret-to-regions \
+#      --secret-id servicenow-prod-credentials \
+#      --add-replica-regions Region=us-west-2,KmsKeyId=<secondary-kms-key-id>
+#
+# 4. Deploy Infrastructure:
+#    terraform init
+#    terraform plan -var-file="terraform.tfvars" -out=prod.plan
+#    terraform apply prod.plan
+#
+# 5. Configure ServiceNow Webhooks:
+#    - Use API Gateway endpoints from Terraform outputs
+#    - Set up webhooks for incident, change, problem events
+#    - Configure authentication headers
+#    - Test webhooks with sample events
+#
+# 6. Verify Multi-Region Setup:
+#    - Test primary region functionality
+#    - Test secondary region functionality
+#    - Verify DynamoDB replication
+#    - Test failover scenarios
+#
+# 7. Enable Monitoring:
+#    - Configure CloudWatch dashboards
+#    - Set up SNS alert subscriptions
+#    - Enable X-Ray tracing
+#    - Configure PagerDuty integration
+#
+# 8. Production Readiness Checklist:
+#    ☐ OAuth credentials tested and working
+#    ☐ All workflows tested end-to-end
+#    ☐ Failover tested successfully
+#    ☐ Monitoring and alerting verified
+#    ☐ Security groups and VPC configuration validated
+#    ☐ IAM roles and permissions reviewed
+#    ☐ Backup and recovery procedures documented
+#    ☐ Runbooks created and team trained
+#    ☐ Load testing completed
+#    ☐ Security scan completed
+
+# ==============================================================================
+# SERVICENOW MONITORING & TROUBLESHOOTING
+# ==============================================================================
+
+# Monitor API Gateway:
+# aws apigateway get-rest-api --rest-api-id <primary-api-id>
+# aws apigateway get-rest-api --rest-api-id <secondary-api-id> --region us-west-2
+
+# Check DynamoDB Tables:
+# aws dynamodb describe-table --table-name servicenow-sessions-prod-primary
+# aws dynamodb describe-table --table-name servicenow-sessions-prod-secondary --region us-west-2
+
+# Monitor Step Functions:
+# aws stepfunctions list-executions --state-machine-arn <incident-workflow-arn> --max-results 10
+# aws stepfunctions list-executions --state-machine-arn <change-workflow-arn> --max-results 10
+
+# View Lambda Logs:
+# aws logs tail /aws/lambda/servicenow-incident-handler-prod --follow
+# aws logs tail /aws/lambda/servicenow-change-handler-prod --follow
+
+# Check Secrets:
+# aws secretsmanager describe-secret --secret-id servicenow-prod-credentials
+# aws secretsmanager get-secret-value --secret-id servicenow-prod-credentials --query SecretString
+
+# Test Webhook:
+# curl -X POST https://<api-gateway-url>/prod/webhook/incident \
+#   -H "Content-Type: application/json" \
+#   -d '{"number":"INC0001234","short_description":"Test incident","priority":"3"}'
+
+# ==============================================================================
+# SERVICENOW OPERATIONAL PROCEDURES
+# ==============================================================================
+
+# Incident Response:
+# 1. Check CloudWatch dashboard for system health
+# 2. Review recent Lambda executions for errors
+# 3. Verify ServiceNow connectivity
+# 4. Check API Gateway metrics
+# 5. Review Step Functions execution history
+# 6. Escalate to on-call engineer if unresolved
+
+# Failover Procedure:
+# 1. Verify secondary region health
+# 2. Update Route 53 DNS to point to secondary API Gateway
+# 3. Monitor DynamoDB replication lag
+# 4. Verify workflow executions in secondary region
+# 5. Document failover event and root cause
+
+# Rollback Procedure:
+# 1. Identify last known good Terraform state
+# 2. Revert to previous configuration
+# 3. Apply Terraform changes
+# 4. Verify system functionality
+# 5. Update runbooks with lessons learned
