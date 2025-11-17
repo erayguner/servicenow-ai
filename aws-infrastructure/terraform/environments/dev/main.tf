@@ -59,13 +59,13 @@ module "kms" {
 module "vpc" {
   source = "../../modules/vpc"
 
-  name                     = "dev-core"
-  vpc_cidr                 = "10.10.0.0/16"
-  environment              = "dev"
-  enable_nat_gateway       = true
-  single_nat_gateway       = true # COST SAVING: Single NAT Gateway
-  enable_flow_logs         = false # COST SAVING: Disabled for dev
-  enable_vpc_endpoints     = true  # COST SAVING: Avoid NAT Gateway data transfer
+  name                 = "dev-core"
+  vpc_cidr             = "10.10.0.0/16"
+  environment          = "dev"
+  enable_nat_gateway   = true
+  single_nat_gateway   = true  # COST SAVING: Single NAT Gateway
+  enable_flow_logs     = false # COST SAVING: Disabled for dev
+  enable_vpc_endpoints = true  # COST SAVING: Avoid NAT Gateway data transfer
 
   tags = local.common_tags
 }
