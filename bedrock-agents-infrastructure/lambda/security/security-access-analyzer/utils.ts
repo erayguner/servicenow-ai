@@ -285,7 +285,7 @@ async function createLeastPrivilegePolicy(
       optimized.Action = optimized.Action.map((action) => {
         if (action.includes('*')) {
           // In production, this would be based on actual usage
-          return action.replace('*', 'GetObject'); // Example
+          return action.replace(/\*/g, 'GetObject'); // Example - replaces all occurrences
         }
         return action;
       });
