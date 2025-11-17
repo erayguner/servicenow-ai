@@ -1,0 +1,403 @@
+{
+  "Comment": "Full-Stack Development Workflow - Parallel execution of backend, frontend, and ML development with integration",
+  "StartAt": "PlanningPhase",
+  "States": {
+    "PlanningPhase": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "ProjectPlanning",
+          "States": {
+            "ProjectPlanning": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.plannerAgentId",
+                "AgentAliasId.$": "$.plannerAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText.$": "$.projectRequirements"
+              },
+              "ResultPath": "$.planningResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "ArchitectureDesign",
+          "States": {
+            "ArchitectureDesign": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.architectureAgentId",
+                "AgentAliasId.$": "$.architectureAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText.$": "$.projectRequirements"
+              },
+              "ResultPath": "$.architectureResult",
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.planningPhaseResults",
+      "Next": "ParallelDevelopment"
+    },
+    "ParallelDevelopment": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "BackendDevelopment",
+          "States": {
+            "BackendDevelopment": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.backendDevAgentId",
+                "AgentAliasId.$": "$.backendDevAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Implement backend based on:\n\nPlan: {}\n\nArchitecture: {}",
+                    "$.planningPhaseResults[0].planningResult.output",
+                    "$.planningPhaseResults[1].architectureResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.backendResult",
+              "Next": "BackendTests"
+            },
+            "BackendTests": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.testerAgentId",
+                "AgentAliasId.$": "$.testerAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Create comprehensive backend tests for:\n\n{}",
+                    "$.backendResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.backendTestResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "FrontendDevelopment",
+          "States": {
+            "FrontendDevelopment": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.frontendDevAgentId",
+                "AgentAliasId.$": "$.frontendDevAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Implement frontend based on:\n\nPlan: {}\n\nArchitecture: {}",
+                    "$.planningPhaseResults[0].planningResult.output",
+                    "$.planningPhaseResults[1].architectureResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.frontendResult",
+              "Next": "FrontendTests"
+            },
+            "FrontendTests": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.testerAgentId",
+                "AgentAliasId.$": "$.testerAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Create comprehensive frontend tests for:\n\n{}",
+                    "$.frontendResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.frontendTestResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "MLDevelopment",
+          "States": {
+            "MLDevelopment": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.mlDeveloperAgentId",
+                "AgentAliasId.$": "$.mlDeveloperAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Implement ML components based on:\n\nPlan: {}\n\nArchitecture: {}",
+                    "$.planningPhaseResults[0].planningResult.output",
+                    "$.planningPhaseResults[1].architectureResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.mlResult",
+              "Next": "MLValidation"
+            },
+            "MLValidation": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.testerAgentId",
+                "AgentAliasId.$": "$.testerAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Validate ML model performance and create tests for:\n\n{}",
+                    "$.mlResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.mlTestResult",
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.developmentResults",
+      "Next": "ParallelReview"
+    },
+    "ParallelReview": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "CodeReview",
+          "States": {
+            "CodeReview": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.reviewerAgentId",
+                "AgentAliasId.$": "$.reviewerAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Review all code for quality:\n\nBackend: {}\n\nFrontend: {}\n\nML: {}",
+                    "$.developmentResults[0].backendResult.output",
+                    "$.developmentResults[1].frontendResult.output",
+                    "$.developmentResults[2].mlResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.codeReviewResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SecurityAudit",
+          "States": {
+            "SecurityAudit": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.securityAuditorAgentId",
+                "AgentAliasId.$": "$.securityAuditorAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Perform security audit on:\n\nBackend: {}\n\nFrontend: {}\n\nML: {}",
+                    "$.developmentResults[0].backendResult.output",
+                    "$.developmentResults[1].frontendResult.output",
+                    "$.developmentResults[2].mlResult.output"
+                  ]
+                }
+              },
+              "ResultPath": "$.securityAuditResult",
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.reviewResults",
+      "Next": "CheckReviewApproval"
+    },
+    "CheckReviewApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.reviewResults[0].codeReviewResult.approved",
+              "BooleanEquals": true
+            },
+            {
+              "Variable": "$.reviewResults[1].securityAuditResult.approved",
+              "BooleanEquals": true
+            }
+          ],
+          "Next": "IntegrationPhase"
+        }
+      ],
+      "Default": "ReviewIssuesFound"
+    },
+    "ReviewIssuesFound": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "Full-Stack Workflow - Review Issues",
+        "Message": {
+          "codeReview.$": "$.reviewResults[0].codeReviewResult",
+          "securityAudit.$": "$.reviewResults[1].securityAuditResult"
+        }
+      },
+      "Next": "FailDueToReviewIssues"
+    },
+    "FailDueToReviewIssues": {
+      "Type": "Fail",
+      "Error": "ReviewFailed",
+      "Cause": "Code review or security audit identified blocking issues"
+    },
+    "IntegrationPhase": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.hierarchicalCoordinatorAgentId",
+        "AgentAliasId.$": "$.hierarchicalCoordinatorAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Integrate all components:\n\nBackend: {}\n\nFrontend: {}\n\nML: {}\n\nEnsure all parts work together.",
+            "$.developmentResults[0].backendResult.output",
+            "$.developmentResults[1].frontendResult.output",
+            "$.developmentResults[2].mlResult.output"
+          ]
+        }
+      },
+      "ResultPath": "$.integrationResult",
+      "Next": "End2EndTesting"
+    },
+    "End2EndTesting": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.testerAgentId",
+        "AgentAliasId.$": "$.testerAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Perform comprehensive end-to-end testing of the integrated system:\n\n{}",
+            "$.integrationResult.output"
+          ]
+        }
+      },
+      "ResultPath": "$.e2eTestResult",
+      "Next": "CheckE2ETests"
+    },
+    "CheckE2ETests": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.e2eTestResult.testsPassed",
+          "BooleanEquals": true,
+          "Next": "DeploymentPreparation"
+        }
+      ],
+      "Default": "E2ETestsFailed"
+    },
+    "E2ETestsFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "Full-Stack Workflow - E2E Tests Failed",
+        "Message.$": "$.e2eTestResult"
+      },
+      "Next": "FailDueToE2ETests"
+    },
+    "FailDueToE2ETests": {
+      "Type": "Fail",
+      "Error": "E2ETestsFailed",
+      "Cause": "End-to-end tests failed during integration phase"
+    },
+    "DeploymentPreparation": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "GenerateDocumentation",
+          "States": {
+            "GenerateDocumentation": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.plannerAgentId",
+                "AgentAliasId.$": "$.plannerAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": "Generate comprehensive deployment documentation including architecture diagrams, API documentation, and user guides."
+              },
+              "ResultPath": "$.documentationResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "StoreArtifacts",
+          "States": {
+            "StoreArtifacts": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:s3:putObject",
+              "Parameters": {
+                "Bucket.$": "$.artifactBucket",
+                "Key": {
+                  "Fn::Format": [
+                    "full-stack-results/{}/complete-results.json",
+                    "$.sessionId"
+                  ]
+                },
+                "Body": {
+                  "planning.$": "$.planningPhaseResults",
+                  "backend.$": "$.developmentResults[0]",
+                  "frontend.$": "$.developmentResults[1]",
+                  "ml.$": "$.developmentResults[2]",
+                  "reviews.$": "$.reviewResults",
+                  "integration.$": "$.integrationResult",
+                  "e2eTests.$": "$.e2eTestResult"
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SendSuccessNotification",
+          "States": {
+            "SendSuccessNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.notificationTopicArn",
+                "Subject": "Full-Stack Development - Successfully Completed",
+                "Message": {
+                  "Fn::Format": [
+                    "Full-stack development workflow completed successfully for session {}. Ready for deployment.",
+                    "$.sessionId"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.deploymentPrepResults",
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

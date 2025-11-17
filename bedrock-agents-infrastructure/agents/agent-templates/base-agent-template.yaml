@@ -1,0 +1,90 @@
+---
+# Base Agent Template
+# Use this as a starting point for creating new Bedrock agents
+
+agentName: ${AGENT_NAME}
+agentResourceRoleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/BedrockAgentRole
+
+description: |
+  ${AGENT_DESCRIPTION}
+  Brief description of what this agent does and its primary responsibilities.
+
+foundationModel: ${FOUNDATION_MODEL:-anthropic.claude-3-5-sonnet-20241022-v2:0}
+
+instruction: |
+  ${AGENT_INSTRUCTIONS}
+
+  ## Core Responsibilities
+  - [Responsibility 1]
+  - [Responsibility 2]
+  - [Responsibility 3]
+
+  ## Best Practices
+  - [Practice 1]
+  - [Practice 2]
+  - [Practice 3]
+
+  ## Quality Standards
+  - [Standard 1]
+  - [Standard 2]
+  - [Standard 3]
+
+  ## Output Format
+  Provide clear, structured outputs that include:
+  - Summary of actions taken
+  - Results and findings
+  - Recommendations or next steps
+
+idleSessionTTLInSeconds: ${IDLE_SESSION_TTL:-600}
+
+promptOverrideConfiguration:
+  promptConfigurations:
+    - promptType: PRE_PROCESSING
+      promptCreationMode: ${PRE_PROCESSING_MODE:-OVERRIDDEN}
+      promptState: ENABLED
+      basePromptTemplate: |
+        ${PRE_PROCESSING_TEMPLATE}
+        $conversation_history$
+        $output_format_instructions$
+
+    - promptType: ORCHESTRATION
+      promptCreationMode: ${ORCHESTRATION_MODE:-OVERRIDDEN}
+      promptState: ENABLED
+      basePromptTemplate: |
+        ${ORCHESTRATION_TEMPLATE}
+        $instruction$
+        $agent_scratchpad$
+        $conversation_history$
+        $output_format_instructions$
+
+    - promptType: POST_PROCESSING
+      promptCreationMode: ${POST_PROCESSING_MODE:-DEFAULT}
+      promptState: ${POST_PROCESSING_STATE:-DISABLED}
+
+actionGroups: ${ACTION_GROUPS:-[]}
+  # Example:
+  # - actionGroupName: example-action-group
+  #   description: Description of what this action group does
+  #   actionGroupExecutor:
+  #     lambda: arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:ExampleFunction
+  #   apiSchema:
+  #     s3:
+  #       s3BucketName: ${BEDROCK_BUCKET}
+  #       s3ObjectKey: schemas/example-schema.json
+
+knowledgeBases: ${KNOWLEDGE_BASES:-[]}
+  # Example:
+  # - knowledgeBaseId: ${EXAMPLE_KB_ID}
+  #   description: Example knowledge base
+  #   knowledgeBaseState: ENABLED
+
+guardrailConfiguration:
+  guardrailIdentifier: ${GUARDRAIL_ID}
+  guardrailVersion: ${GUARDRAIL_VERSION:-"1"}
+
+tags:
+  Environment: ${ENVIRONMENT}
+  Agent: ${AGENT_TAG_NAME}
+  ManagedBy: terraform
+  Project: servicenow-ai
+  # Add custom tags as needed

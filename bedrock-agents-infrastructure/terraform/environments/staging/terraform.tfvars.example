@@ -1,0 +1,116 @@
+# Staging Environment Configuration Example
+# Copy this file to terraform.tfvars and update with your values
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Owner Information
+owner_email = "qa-team@example.com"
+
+# Agent Configuration
+agent_instruction = <<-EOT
+  You are a ServiceNow AI assistant in staging environment.
+  This environment mirrors production for testing and validation.
+  Provide production-quality responses while allowing for testing scenarios.
+  Support comprehensive testing of all ServiceNow integrations.
+EOT
+
+# Data Sources
+data_source_bucket_arn = "arn:aws:s3:::servicenow-ai-data-staging"
+
+# Lambda Configuration
+action_lambda_arn = "arn:aws:lambda:us-east-1:123456789012:function:servicenow-actions-staging"
+
+# Alerts
+alert_email = "staging-alerts@example.com"
+
+# Backend Configuration
+state_bucket_name     = "servicenow-ai-terraform-state-staging"
+state_lock_table_name = "servicenow-ai-terraform-locks-staging"
+
+# Testing Configuration
+enable_load_testing   = true
+enable_chaos_testing  = true
+enable_ab_testing     = true
+
+# Load Test Configuration
+load_test_config = {
+  target_rps          = 50
+  duration_minutes    = 30
+  ramp_up_minutes     = 5
+  concurrent_sessions = 100
+}
+
+# Test Scenarios
+test_scenarios = [
+  "functional-testing",
+  "integration-testing",
+  "performance-testing",
+  "security-testing",
+  "regression-testing"
+]
+
+# QA Team
+qa_team_members = [
+  "qa-lead@example.com",
+  "qa-engineer1@example.com",
+  "qa-engineer2@example.com",
+  "automation-engineer@example.com"
+]
+
+# Monitoring
+enable_synthetic_monitoring = true
+
+# Data Sync
+sync_with_prod = false
+
+# Approval
+approval_required = true
+
+# Compliance
+enable_audit_logging = true
+compliance_framework = "sox"
+
+# Example resource naming:
+# - Agent: servicenow-ai-agent-staging
+# - Knowledge Base: servicenow-ai-kb-staging
+# - Log Group: /aws/bedrock/agent/servicenow-ai-staging
+# - Orchestrator: servicenow-ai-orchestrator-staging
+
+# Action Groups Enabled:
+# - servicenow-read
+# - servicenow-write
+# - servicenow-query
+# - analytics-actions
+# - notification-actions
+# - workflow-actions
+
+# Cost Estimate:
+# - Bedrock Agent (3 instances): ~$150-250/month
+# - OpenSearch Serverless: ~$80-120/month
+# - Lambda executions: ~$20-40/month
+# - CloudWatch logs (30 days): ~$20-30/month
+# - X-Ray tracing: ~$10-20/month
+# - S3 storage: ~$10-15/month
+# - Data transfer: ~$10-25/month
+# Total: ~$300-500/month
+
+# Testing Commands:
+# terraform init -backend-config="bucket=servicenow-ai-terraform-state-staging"
+# terraform plan -var-file="terraform.tfvars" -out=staging.plan
+# terraform apply staging.plan
+
+# Load Testing:
+# artillery run load-test.yml --target https://bedrock-agent-runtime.us-east-1.amazonaws.com
+
+# Monitoring:
+# aws cloudwatch get-metric-statistics \
+#   --namespace AWS/Bedrock \
+#   --metric-name Invocations \
+#   --dimensions Name=AgentId,Value=AGENT_ID
+
+# Performance Testing:
+# Test concurrent sessions: 100
+# Target RPS: 50
+# Duration: 30 minutes
+# Expected latency: < 3 seconds

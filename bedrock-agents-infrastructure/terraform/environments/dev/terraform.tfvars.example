@@ -1,0 +1,62 @@
+# Development Environment Configuration Example
+# Copy this file to terraform.tfvars and update with your values
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Owner Information
+owner_email = "dev-team@example.com"
+
+# Agent Configuration
+agent_instruction = <<-EOT
+  You are a ServiceNow AI assistant in development mode.
+  Help developers test and debug ServiceNow integrations.
+  Provide detailed responses for troubleshooting.
+  This is a development environment - be verbose and educational.
+EOT
+
+# Data Sources
+data_source_bucket_arn = "arn:aws:s3:::servicenow-ai-data-dev"
+
+# Lambda Configuration
+action_lambda_arn = "arn:aws:lambda:us-east-1:123456789012:function:servicenow-actions-dev"
+
+# Alerts (optional in dev)
+alert_email = "dev-alerts@example.com"
+
+# Backend Configuration
+state_bucket_name     = "servicenow-ai-terraform-state-dev"
+state_lock_table_name = "servicenow-ai-terraform-locks-dev"
+
+# Cost Optimization
+enable_cost_optimization = true
+auto_shutdown_enabled    = true
+
+# Development Team
+dev_team_members = [
+  "developer1@example.com",
+  "developer2@example.com",
+  "developer3@example.com"
+]
+
+# Debug Settings
+enable_debug_mode  = true
+test_data_enabled  = true
+
+# Example resource naming:
+# - Agent: servicenow-ai-agent-dev
+# - Knowledge Base: servicenow-ai-kb-dev
+# - Log Group: /aws/bedrock/agent/servicenow-ai-dev
+
+# Cost Estimate:
+# - Bedrock Agent (on-demand): ~$20-40/month
+# - OpenSearch Serverless: ~$20-30/month
+# - Lambda executions: ~$5-10/month
+# - CloudWatch logs: ~$5-10/month
+# - S3 storage: ~$5/month
+# Total: ~$50-100/month (with auto-shutdown)
+
+# Testing Commands:
+# terraform init -backend-config="bucket=servicenow-ai-terraform-state-dev"
+# terraform plan -var-file="terraform.tfvars"
+# terraform apply -var-file="terraform.tfvars"

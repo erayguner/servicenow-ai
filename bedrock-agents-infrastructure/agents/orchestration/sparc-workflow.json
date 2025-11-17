@@ -1,0 +1,398 @@
+{
+  "Comment": "SPARC Methodology Workflow - Sequential execution of Specification, Pseudocode, Architecture, Refinement phases",
+  "StartAt": "SpecificationPhase",
+  "States": {
+    "SpecificationPhase": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.specificationAgentId",
+        "AgentAliasId.$": "$.specificationAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText.$": "$.userRequirements"
+      },
+      "ResultPath": "$.specificationResult",
+      "Next": "ValidateSpecification",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleSpecificationError"
+        }
+      ]
+    },
+    "ValidateSpecification": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.specificationResult.completion",
+          "StringEquals": "COMPLETE",
+          "Next": "PseudocodePhase"
+        }
+      ],
+      "Default": "HandleSpecificationError"
+    },
+    "PseudocodePhase": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.pseudocodeAgentId",
+        "AgentAliasId.$": "$.pseudocodeAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Based on the specification:\n\n{}\n\nCreate detailed pseudocode for the implementation.",
+            "$.specificationResult.output"
+          ]
+        }
+      },
+      "ResultPath": "$.pseudocodeResult",
+      "Next": "ValidatePseudocode",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandlePseudocodeError"
+        }
+      ]
+    },
+    "ValidatePseudocode": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.pseudocodeResult.completion",
+          "StringEquals": "COMPLETE",
+          "Next": "ArchitecturePhase"
+        }
+      ],
+      "Default": "HandlePseudocodeError"
+    },
+    "ArchitecturePhase": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.architectureAgentId",
+        "AgentAliasId.$": "$.architectureAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Based on:\n\nSpecification: {}\n\nPseudocode: {}\n\nDesign the system architecture.",
+            "$.specificationResult.output",
+            "$.pseudocodeResult.output"
+          ]
+        }
+      },
+      "ResultPath": "$.architectureResult",
+      "Next": "ValidateArchitecture",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleArchitectureError"
+        }
+      ]
+    },
+    "ValidateArchitecture": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.architectureResult.completion",
+          "StringEquals": "COMPLETE",
+          "Next": "RefinementPhase"
+        }
+      ],
+      "Default": "HandleArchitectureError"
+    },
+    "RefinementPhase": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.refinementAgentId",
+        "AgentAliasId.$": "$.refinementAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Implement using TDD based on:\n\nSpecification: {}\n\nPseudocode: {}\n\nArchitecture: {}\n\nFollow Red-Green-Refactor cycle.",
+            "$.specificationResult.output",
+            "$.pseudocodeResult.output",
+            "$.architectureResult.output"
+          ]
+        }
+      },
+      "ResultPath": "$.refinementResult",
+      "Next": "TestingAndValidation",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleRefinementError"
+        }
+      ]
+    },
+    "TestingAndValidation": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.testerAgentId",
+        "AgentAliasId.$": "$.testerAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Validate the implementation:\n\n{}\n\nEnsure tests pass and coverage is adequate.",
+            "$.refinementResult.output"
+          ]
+        }
+      },
+      "ResultPath": "$.testingResult",
+      "Next": "CheckTestResults",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleTestingError"
+        }
+      ]
+    },
+    "CheckTestResults": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.testingResult.testsPassed",
+          "BooleanEquals": true,
+          "Next": "CodeReview"
+        }
+      ],
+      "Default": "TestsFailed"
+    },
+    "TestsFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "SPARC Workflow - Tests Failed",
+        "Message": {
+          "Fn::Format": [
+            "Tests failed in refinement phase. Details: {}",
+            "$.testingResult"
+          ]
+        }
+      },
+      "Next": "RefinementIteration"
+    },
+    "RefinementIteration": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.iterationCount",
+          "NumericLessThan": 3,
+          "Next": "IncrementIteration"
+        }
+      ],
+      "Default": "MaxIterationsReached"
+    },
+    "IncrementIteration": {
+      "Type": "Pass",
+      "Parameters": {
+        "iterationCount.$": "States.MathAdd($.iterationCount, 1)"
+      },
+      "ResultPath": "$.iterationCount",
+      "Next": "RefinementPhase"
+    },
+    "MaxIterationsReached": {
+      "Type": "Fail",
+      "Error": "MaxIterationsReached",
+      "Cause": "Maximum refinement iterations (3) reached without passing tests"
+    },
+    "CodeReview": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.reviewerAgentId",
+        "AgentAliasId.$": "$.reviewerAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Review the implementation for quality, security, and best practices:\n\n{}",
+            "$.refinementResult.output"
+          ]
+        }
+      },
+      "ResultPath": "$.reviewResult",
+      "Next": "CheckReviewApproval"
+    },
+    "CheckReviewApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.reviewResult.approved",
+          "BooleanEquals": true,
+          "Next": "SPARCComplete"
+        }
+      ],
+      "Default": "ReviewFailed"
+    },
+    "ReviewFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "SPARC Workflow - Review Failed",
+        "Message": {
+          "Fn::Format": [
+            "Code review identified issues. Details: {}",
+            "$.reviewResult.issues"
+          ]
+        }
+      },
+      "Next": "AddressReviewIssues"
+    },
+    "AddressReviewIssues": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.refinementAgentId",
+        "AgentAliasId.$": "$.refinementAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Address the following code review issues:\n\n{}",
+            "$.reviewResult.issues"
+          ]
+        }
+      },
+      "ResultPath": "$.refinementResult",
+      "Next": "TestingAndValidation"
+    },
+    "SPARCComplete": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "StoreArtifacts",
+          "States": {
+            "StoreArtifacts": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:s3:putObject",
+              "Parameters": {
+                "Bucket.$": "$.artifactBucket",
+                "Key": {
+                  "Fn::Format": [
+                    "sparc-results/{}/complete-results.json",
+                    "$.sessionId"
+                  ]
+                },
+                "Body": {
+                  "specification.$": "$.specificationResult",
+                  "pseudocode.$": "$.pseudocodeResult",
+                  "architecture.$": "$.architectureResult",
+                  "refinement.$": "$.refinementResult",
+                  "testing.$": "$.testingResult",
+                  "review.$": "$.reviewResult"
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SendSuccessNotification",
+          "States": {
+            "SendSuccessNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.notificationTopicArn",
+                "Subject": "SPARC Workflow - Successfully Completed",
+                "Message": {
+                  "Fn::Format": [
+                    "SPARC workflow completed successfully for session {}. All phases passed validation and code review.",
+                    "$.sessionId"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "HandleSpecificationError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "SPARC Workflow - Specification Phase Failed",
+        "Message.$": "$.error"
+      },
+      "Next": "SpecificationFailed"
+    },
+    "SpecificationFailed": {
+      "Type": "Fail",
+      "Error": "SpecificationPhaseError",
+      "Cause": "Failed to complete specification phase"
+    },
+    "HandlePseudocodeError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "SPARC Workflow - Pseudocode Phase Failed",
+        "Message.$": "$.error"
+      },
+      "Next": "PseudocodeFailed"
+    },
+    "PseudocodeFailed": {
+      "Type": "Fail",
+      "Error": "PseudocodePhaseError",
+      "Cause": "Failed to complete pseudocode phase"
+    },
+    "HandleArchitectureError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "SPARC Workflow - Architecture Phase Failed",
+        "Message.$": "$.error"
+      },
+      "Next": "ArchitectureFailed"
+    },
+    "ArchitectureFailed": {
+      "Type": "Fail",
+      "Error": "ArchitecturePhaseError",
+      "Cause": "Failed to complete architecture phase"
+    },
+    "HandleRefinementError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "SPARC Workflow - Refinement Phase Failed",
+        "Message.$": "$.error"
+      },
+      "Next": "RefinementFailed"
+    },
+    "RefinementFailed": {
+      "Type": "Fail",
+      "Error": "RefinementPhaseError",
+      "Cause": "Failed to complete refinement phase"
+    },
+    "HandleTestingError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "SPARC Workflow - Testing Phase Failed",
+        "Message.$": "$.error"
+      },
+      "Next": "TestingFailed"
+    },
+    "TestingFailed": {
+      "Type": "Fail",
+      "Error": "TestingPhaseError",
+      "Cause": "Failed to complete testing phase"
+    }
+  }
+}
