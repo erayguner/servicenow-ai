@@ -187,7 +187,7 @@ knowledgeBases:
 
 guardrailConfiguration:
   guardrailIdentifier: ${GUARDRAIL_ID}
-  guardrailVersion: "1"
+  guardrailVersion: '1'
 
 tags:
   Environment: ${ENVIRONMENT}

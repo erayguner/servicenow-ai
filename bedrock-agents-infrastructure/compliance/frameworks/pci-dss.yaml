@@ -2,598 +2,597 @@
 # Payment Card Industry Data Security Standard
 
 framework:
-  name: "PCI DSS"
-  version: "4.0"
-  effective_date: "2024-03-31"
-  description: "Payment Card Industry Data Security Standard v4.0"
-  scope: "Amazon Bedrock Agents handling payment card data"
+  name: 'PCI DSS'
+  version: '4.0'
+  effective_date: '2024-03-31'
+  description: 'Payment Card Industry Data Security Standard v4.0'
+  scope: 'Amazon Bedrock Agents handling payment card data'
 
 requirements:
-
   # Requirement 1: Install and Maintain Network Security Controls
   req_1:
-    title: "Install and Maintain Network Security Controls"
+    title: 'Install and Maintain Network Security Controls'
 
     1.1:
-      control: "Processes and mechanisms for installing and maintaining network security controls"
+      control: 'Processes and mechanisms for installing and maintaining network security controls'
       sub_requirements:
         1.1.1:
-          description: "Document and implement security policies and procedures"
+          description: 'Document and implement security policies and procedures'
           aws_mappings:
-            - service: "VPC"
+            - service: 'VPC'
               checks:
                 - vpc_flow_logs_enabled
                 - network_acls_documented
-            - service: "Security Groups"
+            - service: 'Security Groups'
               checks:
                 - security_groups_documented
                 - baseline_configurations_maintained
 
     1.2:
-      control: "Network security controls are configured and maintained"
+      control: 'Network security controls are configured and maintained'
       sub_requirements:
         1.2.1:
-          description: "Configuration standards for NSCs implemented"
+          description: 'Configuration standards for NSCs implemented'
           aws_mappings:
-            - service: "VPC"
+            - service: 'VPC'
               checks:
                 - default_security_group_restricts_traffic
                 - vpc_endpoints_configured_for_services
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_vpc_endpoint_configured
                 - private_subnet_deployment
 
         1.2.2:
-          description: "NSCs restrict connections between untrusted networks and CDE"
+          description: 'NSCs restrict connections between untrusted networks and CDE'
           aws_mappings:
-            - service: "Security Groups"
+            - service: 'Security Groups'
               checks:
                 - inbound_rules_restrictive
                 - outbound_rules_documented
-            - service: "Network Firewall"
+            - service: 'Network Firewall'
               checks:
                 - stateful_rules_configured
                 - intrusion_prevention_enabled
 
         1.2.3:
-          description: "NSCs restrict inbound traffic to necessary protocols"
+          description: 'NSCs restrict inbound traffic to necessary protocols'
           aws_mappings:
-            - service: "Security Groups"
+            - service: 'Security Groups'
               rules:
                 - pci-sg-restrict-ingress
                 - pci-no-unrestricted-ingress
-            - service: "WAF"
+            - service: 'WAF'
               checks:
                 - waf_rules_configured
                 - rate_limiting_enabled
 
         1.2.4:
-          description: "Anti-spoofing measures implemented"
+          description: 'Anti-spoofing measures implemented'
           aws_mappings:
-            - service: "VPC"
+            - service: 'VPC'
               checks:
                 - source_dest_check_enabled
                 - network_acls_anti_spoofing
 
         1.2.5:
-          description: "NSCs restrict outbound traffic to necessary protocols"
+          description: 'NSCs restrict outbound traffic to necessary protocols'
           aws_mappings:
-            - service: "Security Groups"
+            - service: 'Security Groups'
               checks:
                 - egress_rules_documented
                 - unnecessary_protocols_blocked
 
         1.2.6:
-          description: "Security features defined for required services and protocols"
+          description: 'Security features defined for required services and protocols'
           aws_mappings:
-            - service: "API Gateway"
+            - service: 'API Gateway'
               checks:
                 - api_gateway_ssl_enabled
                 - authorization_configured
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_api_authentication_required
                 - tls_1_2_minimum_enforced
 
         1.2.7:
-          description: "NSCs configurations reviewed at least every six months"
+          description: 'NSCs configurations reviewed at least every six months'
           aws_mappings:
-            - service: "Config"
+            - service: 'Config'
               checks:
                 - config_rules_evaluation_frequency
                 - security_group_review_scheduled
-            - service: "EventBridge"
+            - service: 'EventBridge'
               rules:
                 - six_month_review_reminder
 
         1.2.8:
-          description: "Configuration files secured from unauthorized access"
+          description: 'Configuration files secured from unauthorized access'
           aws_mappings:
-            - service: "S3"
+            - service: 'S3'
               checks:
                 - config_bucket_encryption_enabled
                 - config_bucket_access_logging
                 - config_bucket_versioning_enabled
 
     1.3:
-      control: "Network access to and from the cardholder data environment is restricted"
+      control: 'Network access to and from the cardholder data environment is restricted'
       sub_requirements:
         1.3.1:
-          description: "Inbound traffic restricted to necessary for business"
+          description: 'Inbound traffic restricted to necessary for business'
           aws_mappings:
-            - service: "Security Groups"
+            - service: 'Security Groups'
               rules:
                 - pci-inbound-traffic-minimal
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_agent_ingress_restricted
 
         1.3.2:
-          description: "Outbound traffic restricted to necessary for business"
+          description: 'Outbound traffic restricted to necessary for business'
           aws_mappings:
-            - service: "Security Groups"
+            - service: 'Security Groups'
               rules:
                 - pci-outbound-traffic-minimal
-            - service: "VPC"
+            - service: 'VPC'
               checks:
                 - nat_gateway_egress_only
 
         1.3.3:
-          description: "NSCs installed between wireless networks and CDE"
+          description: 'NSCs installed between wireless networks and CDE'
           aws_mappings:
-            - service: "VPC"
+            - service: 'VPC'
               checks:
                 - separate_subnet_wireless_traffic
                 - wireless_network_isolated
 
     1.4:
-      control: "Network connections between trusted and untrusted networks are controlled"
+      control: 'Network connections between trusted and untrusted networks are controlled'
       sub_requirements:
         1.4.1:
-          description: "NSCs implemented between trusted and untrusted networks"
+          description: 'NSCs implemented between trusted and untrusted networks'
           aws_mappings:
-            - service: "Transit Gateway"
+            - service: 'Transit Gateway'
               checks:
                 - tgw_route_tables_configured
                 - network_segmentation_enforced
-            - service: "Network Firewall"
+            - service: 'Network Firewall'
               checks:
                 - firewall_deployed_perimeter
 
         1.4.2:
-          description: "Inbound traffic from untrusted networks restricted"
+          description: 'Inbound traffic from untrusted networks restricted'
           aws_mappings:
-            - service: "WAF"
+            - service: 'WAF'
               checks:
                 - waf_web_acl_configured
                 - geo_blocking_configured
-            - service: "Shield"
+            - service: 'Shield'
               checks:
                 - shield_advanced_enabled
 
         1.4.3:
-          description: "Anti-spoofing measures prevent source address spoofing"
+          description: 'Anti-spoofing measures prevent source address spoofing'
           aws_mappings:
-            - service: "VPC"
+            - service: 'VPC'
               checks:
                 - source_dest_check_enabled_instances
 
         1.4.4:
-          description: "System components storing cardholder data are not directly accessible"
+          description: 'System components storing cardholder data are not directly accessible'
           aws_mappings:
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_knowledge_base_no_public_access
                 - bedrock_agents_private_deployment
-            - service: "S3"
+            - service: 'S3'
               checks:
                 - s3_bucket_public_access_blocked
 
         1.4.5:
-          description: "Security controls prevent disclosure of internal IP addresses"
+          description: 'Security controls prevent disclosure of internal IP addresses'
           aws_mappings:
-            - service: "VPC"
+            - service: 'VPC'
               checks:
                 - nat_gateway_used_outbound
                 - elastic_ip_addresses_managed
 
     1.5:
-      control: "Risks to the CDE from computing devices are mitigated"
+      control: 'Risks to the CDE from computing devices are mitigated'
       sub_requirements:
         1.5.1:
-          description: "Security controls implemented for computing devices"
+          description: 'Security controls implemented for computing devices'
           aws_mappings:
-            - service: "Systems Manager"
+            - service: 'Systems Manager'
               checks:
                 - ssm_managed_instances
                 - patch_compliance_enforced
-            - service: "Inspector"
+            - service: 'Inspector'
               checks:
                 - continuous_scanning_enabled
 
   # Requirement 2: Apply Secure Configurations
   req_2:
-    title: "Apply Secure Configurations to All System Components"
+    title: 'Apply Secure Configurations to All System Components'
 
     2.1:
-      control: "Processes and mechanisms for applying secure configurations"
+      control: 'Processes and mechanisms for applying secure configurations'
       sub_requirements:
         2.1.1:
-          description: "Security policies and procedures documented"
+          description: 'Security policies and procedures documented'
           aws_mappings:
-            - service: "Config"
+            - service: 'Config'
               checks:
                 - conformance_packs_deployed
                 - config_rules_compliant
 
         2.1.2:
-          description: "Roles and responsibilities defined"
+          description: 'Roles and responsibilities defined'
           aws_mappings:
-            - service: "IAM"
+            - service: 'IAM'
               checks:
                 - iam_roles_documented
                 - least_privilege_enforced
 
     2.2:
-      control: "System components are configured and managed securely"
+      control: 'System components are configured and managed securely'
       sub_requirements:
         2.2.1:
-          description: "Configuration standards developed for all system components"
+          description: 'Configuration standards developed for all system components'
           aws_mappings:
-            - service: "Config"
+            - service: 'Config'
               checks:
                 - config_baselines_defined
-            - service: "Systems Manager"
+            - service: 'Systems Manager'
               checks:
                 - ssm_documents_configured
 
         2.2.2:
-          description: "Vendor default accounts changed or disabled"
+          description: 'Vendor default accounts changed or disabled'
           aws_mappings:
-            - service: "RDS"
+            - service: 'RDS'
               checks:
                 - rds_default_admin_changed
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_default_settings_reviewed
 
         2.2.3:
-          description: "Primary function per server enforced"
+          description: 'Primary function per server enforced'
           aws_mappings:
-            - service: "EC2"
+            - service: 'EC2'
               checks:
                 - single_purpose_instances
-            - service: "Lambda"
+            - service: 'Lambda'
               checks:
                 - function_separation_of_concerns
 
         2.2.4:
-          description: "Only necessary services and protocols enabled"
+          description: 'Only necessary services and protocols enabled'
           aws_mappings:
-            - service: "Security Groups"
+            - service: 'Security Groups'
               rules:
                 - pci-minimal-ports-protocols
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_api_minimal_permissions
 
         2.2.5:
-          description: "Security features implemented for required services"
+          description: 'Security features implemented for required services'
           aws_mappings:
-            - service: "API Gateway"
+            - service: 'API Gateway'
               checks:
                 - api_gateway_authentication
                 - api_gateway_authorization
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_guardrails_enabled
                 - bedrock_input_validation
 
         2.2.6:
-          description: "System security parameters configured to prevent misuse"
+          description: 'System security parameters configured to prevent misuse'
           aws_mappings:
-            - service: "GuardDuty"
+            - service: 'GuardDuty'
               checks:
                 - guardduty_enabled
                 - threat_intelligence_enabled
-            - service: "Security Hub"
+            - service: 'Security Hub'
               checks:
                 - security_standards_enabled
 
         2.2.7:
-          description: "All non-console administrative access encrypted"
+          description: 'All non-console administrative access encrypted'
           aws_mappings:
-            - service: "Systems Manager"
+            - service: 'Systems Manager'
               checks:
                 - session_manager_encryption_enabled
-            - service: "EC2"
+            - service: 'EC2'
               checks:
                 - ssh_keys_managed
                 - no_password_authentication
 
   # Requirement 3: Protect Stored Account Data
   req_3:
-    title: "Protect Stored Account Data"
+    title: 'Protect Stored Account Data'
 
     3.1:
-      control: "Processes and mechanisms for protecting stored account data"
+      control: 'Processes and mechanisms for protecting stored account data'
       sub_requirements:
         3.1.1:
-          description: "Security policies documented and implemented"
+          description: 'Security policies documented and implemented'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_policies_documented
-            - service: "S3"
+            - service: 'S3'
               checks:
                 - encryption_policy_enforced
 
     3.2:
-      control: "Storage of account data is kept to minimum"
+      control: 'Storage of account data is kept to minimum'
       sub_requirements:
         3.2.1:
-          description: "Account data storage kept to minimum required"
+          description: 'Account data storage kept to minimum required'
           aws_mappings:
-            - service: "S3"
+            - service: 'S3'
               checks:
                 - lifecycle_policies_configured
                 - data_retention_enforced
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_knowledge_base_data_minimization
 
     3.3:
-      control: "Sensitive authentication data is not stored after authorization"
+      control: 'Sensitive authentication data is not stored after authorization'
       sub_requirements:
         3.3.1:
-          description: "SAD not retained after authorization"
+          description: 'SAD not retained after authorization'
           aws_mappings:
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_agent_no_sad_storage
-            - service: "Lambda"
+            - service: 'Lambda'
               checks:
                 - lambda_ephemeral_storage_only
 
         3.3.2:
-          description: "SAD rendered unrecoverable"
+          description: 'SAD rendered unrecoverable'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - immediate_key_deletion_for_sad
 
         3.3.3:
-          description: "SAD not displayed"
+          description: 'SAD not displayed'
           aws_mappings:
-            - service: "CloudWatch Logs"
+            - service: 'CloudWatch Logs'
               checks:
                 - log_masking_enabled
                 - sensitive_data_redaction
 
     3.4:
-      control: "Access to displays of full PAN and ability to copy cardholder data restricted"
+      control: 'Access to displays of full PAN and ability to copy cardholder data restricted'
       sub_requirements:
         3.4.1:
-          description: "PAN masked when displayed"
+          description: 'PAN masked when displayed'
           aws_mappings:
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_output_masking_configured
-            - service: "Lambda"
+            - service: 'Lambda'
               checks:
                 - pan_masking_function_implemented
 
         3.4.2:
-          description: "PAN copy protected when displayed"
+          description: 'PAN copy protected when displayed'
           aws_mappings:
-            - service: "API Gateway"
+            - service: 'API Gateway'
               checks:
                 - response_data_protection_enabled
 
     3.5:
-      control: "Primary Account Number is secured wherever it is stored"
+      control: 'Primary Account Number is secured wherever it is stored'
       sub_requirements:
         3.5.1:
-          description: "PAN rendered unreadable using approved methods"
+          description: 'PAN rendered unreadable using approved methods'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_cmk_used_for_pan
                 - key_rotation_enabled
-            - service: "S3"
+            - service: 'S3'
               checks:
                 - s3_bucket_encryption_required
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_knowledge_base_encrypted_cmk
                 - bedrock_model_data_encrypted
 
         3.5.1.1:
-          description: "Hashes use keyed cryptographic hash"
+          description: 'Hashes use keyed cryptographic hash'
           aws_mappings:
-            - service: "Lambda"
+            - service: 'Lambda'
               checks:
                 - hmac_sha256_minimum
                 - key_management_documented
 
         3.5.1.2:
-          description: "PAN unreadable in removable media"
+          description: 'PAN unreadable in removable media'
           aws_mappings:
-            - service: "S3"
+            - service: 'S3'
               checks:
                 - s3_default_encryption_enabled
-            - service: "EBS"
+            - service: 'EBS'
               checks:
                 - ebs_encryption_by_default
 
         3.5.1.3:
-          description: "PAN unreadable in non-removable media"
+          description: 'PAN unreadable in non-removable media'
           aws_mappings:
-            - service: "RDS"
+            - service: 'RDS'
               checks:
                 - rds_storage_encrypted
-            - service: "DynamoDB"
+            - service: 'DynamoDB'
               checks:
                 - dynamodb_encryption_enabled
 
     3.6:
-      control: "Cryptographic keys used to protect stored account data are secured"
+      control: 'Cryptographic keys used to protect stored account data are secured'
       sub_requirements:
         3.6.1:
-          description: "Procedures for key management defined and implemented"
+          description: 'Procedures for key management defined and implemented'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - key_management_procedures_documented
                 - key_administrators_defined
 
         3.6.1.1:
-          description: "Key custodians limited to fewest necessary"
+          description: 'Key custodians limited to fewest necessary'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_admin_minimal
                 - kms_key_usage_minimal
 
         3.6.1.2:
-          description: "Key access restricted to key custodians"
+          description: 'Key access restricted to key custodians'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_policy_restrictive
                 - kms_grants_reviewed
 
         3.6.1.3:
-          description: "Keys stored in fewest locations"
+          description: 'Keys stored in fewest locations'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_centralized
                 - multi_region_keys_justified
 
     3.7:
-      control: "Where cryptography is used to protect stored account data"
+      control: 'Where cryptography is used to protect stored account data'
       sub_requirements:
         3.7.1:
-          description: "Key management processes and procedures implemented"
+          description: 'Key management processes and procedures implemented'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - key_rotation_annual_minimum
                 - key_expiration_monitored
 
         3.7.2:
-          description: "Prevention of unauthorized substitution of keys"
+          description: 'Prevention of unauthorized substitution of keys'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_deletion_prevention
                 - cloudtrail_kms_events_logged
 
         3.7.3:
-          description: "Secure key destruction"
+          description: 'Secure key destruction'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_deletion_window_minimum
 
         3.7.4:
-          description: "Cryptographic key storage in minimum locations"
+          description: 'Cryptographic key storage in minimum locations'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_material_not_exported
 
         3.7.5:
-          description: "Prevention of weak key use"
+          description: 'Prevention of weak key use'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_spec_compliant
                 - symmetric_keys_aes256
 
         3.7.6:
-          description: "Key retirement or replacement as necessary"
+          description: 'Key retirement or replacement as necessary'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - key_rotation_enabled
                 - manual_rotation_documented
 
         3.7.7:
-          description: "Unauthorized replacement of keys prevented"
+          description: 'Unauthorized replacement of keys prevented'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_modification_alerted
 
         3.7.8:
-          description: "Key custodians acknowledge responsibilities"
+          description: 'Key custodians acknowledge responsibilities'
           aws_mappings:
-            - service: "IAM"
+            - service: 'IAM'
               checks:
                 - key_custodian_training_documented
 
         3.7.9:
-          description: "Inventory of cryptographic keys maintained"
+          description: 'Inventory of cryptographic keys maintained'
           aws_mappings:
-            - service: "Config"
+            - service: 'Config'
               checks:
                 - kms_key_inventory_tracked
                 - key_metadata_documented
 
   # Requirement 4: Protect Cardholder Data with Strong Cryptography
   req_4:
-    title: "Protect Cardholder Data with Strong Cryptography During Transmission"
+    title: 'Protect Cardholder Data with Strong Cryptography During Transmission'
 
     4.1:
-      control: "Processes and mechanisms for protecting cardholder data with strong cryptography"
+      control: 'Processes and mechanisms for protecting cardholder data with strong cryptography'
       sub_requirements:
         4.1.1:
-          description: "Security policies documented"
+          description: 'Security policies documented'
           aws_mappings:
-            - service: "ACM"
+            - service: 'ACM'
               checks:
                 - certificate_management_policy_documented
 
         4.1.2:
-          description: "Cryptographic keys protected"
+          description: 'Cryptographic keys protected'
           aws_mappings:
-            - service: "KMS"
+            - service: 'KMS'
               checks:
                 - kms_key_rotation_enabled
                 - key_policies_restrictive
 
     4.2:
-      control: "PAN is protected with strong cryptography during transmission"
+      control: 'PAN is protected with strong cryptography during transmission'
       sub_requirements:
         4.2.1:
-          description: "Strong cryptography and security protocols implemented"
+          description: 'Strong cryptography and security protocols implemented'
           aws_mappings:
-            - service: "ALB"
+            - service: 'ALB'
               checks:
                 - alb_http_to_https_redirect
                 - tls_1_2_minimum
-            - service: "API Gateway"
+            - service: 'API Gateway'
               checks:
                 - api_gateway_tls_configured
-            - service: "Bedrock"
+            - service: 'Bedrock'
               checks:
                 - bedrock_api_tls_enforced
 
         4.2.1.1:
-          description: "Industry best practices maintained"
+          description: 'Industry best practices maintained'
           aws_mappings:
-            - service: "ACM"
+            - service: 'ACM'
               checks:
                 - certificate_transparency_enabled
                 - strong_cipher_suites
 
         4.2.1.2:
-          description: "Only trusted certificates accepted"
+          description: 'Only trusted certificates accepted'
           aws_mappings:
-            - service: "ACM"
+            - service: 'ACM'
               checks:
                 - certificates_from_trusted_ca
                 - certificate_validation_enabled
@@ -601,95 +600,95 @@ requirements:
 # Automated Compliance Monitoring
 automation:
   aws_config_rules:
-    - rule_name: "pci-dss-bedrock-encryption"
-      description: "Ensure all Bedrock resources encrypted with CMK"
-      source: "CUSTOM"
-      lambda_arn: "arn:aws:lambda:region:account:function:pci-bedrock-encryption-check"
+    - rule_name: 'pci-dss-bedrock-encryption'
+      description: 'Ensure all Bedrock resources encrypted with CMK'
+      source: 'CUSTOM'
+      lambda_arn: 'arn:aws:lambda:region:account:function:pci-bedrock-encryption-check'
 
-    - rule_name: "pci-dss-cloudtrail-enabled"
-      description: "CloudTrail enabled in all regions"
-      source: "AWS_MANAGED"
-      identifier: "CLOUD_TRAIL_ENABLED"
+    - rule_name: 'pci-dss-cloudtrail-enabled'
+      description: 'CloudTrail enabled in all regions'
+      source: 'AWS_MANAGED'
+      identifier: 'CLOUD_TRAIL_ENABLED'
 
-    - rule_name: "pci-dss-s3-bucket-public-read-prohibited"
-      description: "S3 buckets prohibit public read"
-      source: "AWS_MANAGED"
-      identifier: "S3_BUCKET_PUBLIC_READ_PROHIBITED"
+    - rule_name: 'pci-dss-s3-bucket-public-read-prohibited'
+      description: 'S3 buckets prohibit public read'
+      source: 'AWS_MANAGED'
+      identifier: 'S3_BUCKET_PUBLIC_READ_PROHIBITED'
 
   security_hub_controls:
-    - standard: "PCI DSS"
+    - standard: 'PCI DSS'
       controls:
-        - "PCI.AutoScaling.1"
-        - "PCI.CloudTrail.1"
-        - "PCI.CloudTrail.2"
-        - "PCI.CloudTrail.3"
-        - "PCI.CloudTrail.4"
-        - "PCI.CodeBuild.1"
-        - "PCI.Config.1"
-        - "PCI.CW.1"
-        - "PCI.DMS.1"
-        - "PCI.EC2.1"
-        - "PCI.EC2.2"
-        - "PCI.EC2.3"
-        - "PCI.EC2.4"
-        - "PCI.EC2.5"
-        - "PCI.EC2.6"
-        - "PCI.ELBV2.1"
-        - "PCI.ES.1"
-        - "PCI.ES.2"
-        - "PCI.GuardDuty.1"
-        - "PCI.IAM.1"
-        - "PCI.IAM.2"
-        - "PCI.IAM.3"
-        - "PCI.IAM.4"
-        - "PCI.IAM.5"
-        - "PCI.IAM.6"
-        - "PCI.IAM.7"
-        - "PCI.IAM.8"
-        - "PCI.KMS.1"
-        - "PCI.Lambda.1"
-        - "PCI.Lambda.2"
-        - "PCI.RDS.1"
-        - "PCI.RDS.2"
-        - "PCI.Redshift.1"
-        - "PCI.S3.1"
-        - "PCI.S3.2"
-        - "PCI.S3.3"
-        - "PCI.S3.4"
-        - "PCI.S3.5"
-        - "PCI.S3.6"
-        - "PCI.SageMaker.1"
-        - "PCI.SSM.1"
-        - "PCI.SSM.2"
-        - "PCI.SSM.3"
+        - 'PCI.AutoScaling.1'
+        - 'PCI.CloudTrail.1'
+        - 'PCI.CloudTrail.2'
+        - 'PCI.CloudTrail.3'
+        - 'PCI.CloudTrail.4'
+        - 'PCI.CodeBuild.1'
+        - 'PCI.Config.1'
+        - 'PCI.CW.1'
+        - 'PCI.DMS.1'
+        - 'PCI.EC2.1'
+        - 'PCI.EC2.2'
+        - 'PCI.EC2.3'
+        - 'PCI.EC2.4'
+        - 'PCI.EC2.5'
+        - 'PCI.EC2.6'
+        - 'PCI.ELBV2.1'
+        - 'PCI.ES.1'
+        - 'PCI.ES.2'
+        - 'PCI.GuardDuty.1'
+        - 'PCI.IAM.1'
+        - 'PCI.IAM.2'
+        - 'PCI.IAM.3'
+        - 'PCI.IAM.4'
+        - 'PCI.IAM.5'
+        - 'PCI.IAM.6'
+        - 'PCI.IAM.7'
+        - 'PCI.IAM.8'
+        - 'PCI.KMS.1'
+        - 'PCI.Lambda.1'
+        - 'PCI.Lambda.2'
+        - 'PCI.RDS.1'
+        - 'PCI.RDS.2'
+        - 'PCI.Redshift.1'
+        - 'PCI.S3.1'
+        - 'PCI.S3.2'
+        - 'PCI.S3.3'
+        - 'PCI.S3.4'
+        - 'PCI.S3.5'
+        - 'PCI.S3.6'
+        - 'PCI.SageMaker.1'
+        - 'PCI.SSM.1'
+        - 'PCI.SSM.2'
+        - 'PCI.SSM.3'
 
 # Quarterly Scanning Requirements
 vulnerability_scanning:
-  frequency: "Quarterly"
+  frequency: 'Quarterly'
   scope:
     - external_ip_addresses
     - bedrock_api_endpoints
     - application_layer_components
   approved_vendors:
-    - "AWS Inspector"
-    - "Qualys"
-    - "Rapid7"
+    - 'AWS Inspector'
+    - 'Qualys'
+    - 'Rapid7'
   remediation_timeline:
-    critical: "Immediately"
-    high: "30 days"
-    medium: "90 days"
-    low: "As resources permit"
+    critical: 'Immediately'
+    high: '30 days'
+    medium: '90 days'
+    low: 'As resources permit'
 
 # Penetration Testing
 penetration_testing:
-  frequency: "Annual"
+  frequency: 'Annual'
   scope:
     - network_layer
     - application_layer
     - bedrock_agent_security
   methodology:
-    - "OWASP Testing Guide"
-    - "PTES"
+    - 'OWASP Testing Guide'
+    - 'PTES'
   reporting_requirements:
     - executive_summary
     - technical_findings

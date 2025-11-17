@@ -2,207 +2,204 @@
 # General Data Protection Regulation (EU) 2016/679
 
 framework:
-  name: "GDPR"
-  version: "2016/679"
-  effective_date: "2018-05-25"
-  jurisdiction: "European Union"
-  scope: "Processing of personal data in Amazon Bedrock Agents"
+  name: 'GDPR'
+  version: '2016/679'
+  effective_date: '2018-05-25'
+  jurisdiction: 'European Union'
+  scope: 'Processing of personal data in Amazon Bedrock Agents'
   territorial_scope:
-    - "Processing in context of EU establishment"
-    - "Offering goods/services to EU data subjects"
-    - "Monitoring behavior of EU data subjects"
+    - 'Processing in context of EU establishment'
+    - 'Offering goods/services to EU data subjects'
+    - 'Monitoring behavior of EU data subjects'
 
 # Principles (Article 5)
 principles:
-
   lawfulness_fairness_transparency:
-    article: "5(1)(a)"
+    article: '5(1)(a)'
     requirements:
       - lawful_basis_for_processing
       - transparent_information_provision
       - fair_processing_practices
     aws_mappings:
-      - service: "Bedrock"
+      - service: 'Bedrock'
         checks:
           - bedrock_processing_purpose_documented
           - bedrock_legal_basis_identified
-      - service: "CloudTrail"
+      - service: 'CloudTrail'
         checks:
           - processing_activities_logged
           - audit_trail_maintained
 
   purpose_limitation:
-    article: "5(1)(b)"
+    article: '5(1)(b)'
     requirements:
       - specific_explicit_legitimate_purposes
       - no_further_incompatible_processing
     aws_mappings:
-      - service: "Bedrock"
+      - service: 'Bedrock'
         checks:
           - bedrock_agent_purpose_defined
           - bedrock_knowledge_base_purpose_limited
-      - service: "Tags"
+      - service: 'Tags'
         checks:
           - purpose_tags_applied
           - data_processing_purpose_labeled
 
   data_minimisation:
-    article: "5(1)(c)"
+    article: '5(1)(c)'
     requirements:
       - adequate_relevant_limited_data
       - necessary_for_purposes
     aws_mappings:
-      - service: "Bedrock"
+      - service: 'Bedrock'
         checks:
           - bedrock_minimal_data_collection
           - unnecessary_data_fields_excluded
-      - service: "S3"
+      - service: 'S3'
         checks:
           - lifecycle_policies_configured
           - data_retention_limits_enforced
 
   accuracy:
-    article: "5(1)(d)"
+    article: '5(1)(d)'
     requirements:
       - accurate_data_maintained
       - inaccurate_data_erased_rectified
     aws_mappings:
-      - service: "Bedrock"
+      - service: 'Bedrock'
         checks:
           - bedrock_knowledge_base_update_procedures
           - data_quality_validation_enabled
-      - service: "DynamoDB"
+      - service: 'DynamoDB'
         checks:
           - data_validation_rules_implemented
 
   storage_limitation:
-    article: "5(1)(e)"
+    article: '5(1)(e)'
     requirements:
       - retention_period_defined
       - archival_for_public_interest
     aws_mappings:
-      - service: "S3"
+      - service: 'S3'
         checks:
           - lifecycle_policies_configured
           - object_expiration_configured
-      - service: "Bedrock"
+      - service: 'Bedrock'
         checks:
           - bedrock_data_retention_policy
           - automated_deletion_configured
-      - service: "Glacier"
+      - service: 'Glacier'
         checks:
           - archival_policies_compliant
 
   integrity_confidentiality:
-    article: "5(1)(f)"
+    article: '5(1)(f)'
     requirements:
       - appropriate_security_measures
       - protection_against_unauthorized_processing
       - protection_against_loss_damage
     aws_mappings:
-      - service: "KMS"
+      - service: 'KMS'
         checks:
           - encryption_at_rest_enabled
           - cmk_for_personal_data
-      - service: "Bedrock"
+      - service: 'Bedrock'
         checks:
           - bedrock_knowledge_base_encrypted
           - bedrock_api_tls_enforced
-      - service: "GuardDuty"
+      - service: 'GuardDuty'
         checks:
           - threat_detection_enabled
           - unauthorized_access_monitored
 
   accountability:
-    article: "5(2)"
+    article: '5(2)'
     requirements:
       - controller_responsibility_demonstrated
       - compliance_evidence_maintained
     aws_mappings:
-      - service: "Config"
+      - service: 'Config'
         checks:
           - compliance_tracking_enabled
           - configuration_history_maintained
-      - service: "Audit Manager"
+      - service: 'Audit Manager'
         checks:
           - gdpr_assessment_framework_configured
           - evidence_collection_automated
 
 # Lawful Basis for Processing (Article 6)
 lawful_basis:
-
   consent:
-    article: "6(1)(a)"
+    article: '6(1)(a)'
     requirements:
       - freely_given_specific_informed_unambiguous
       - clear_affirmative_action
       - withdrawal_as_easy_as_giving
     aws_mappings:
-      - service: "DynamoDB"
+      - service: 'DynamoDB'
         implementation:
           - consent_records_table
           - timestamp_consent_given
           - consent_version_tracked
-      - service: "Bedrock"
+      - service: 'Bedrock'
         checks:
           - bedrock_consent_verification_implemented
 
   contract:
-    article: "6(1)(b)"
+    article: '6(1)(b)'
     requirements:
       - necessary_for_contract_performance
       - pre_contractual_steps
     aws_mappings:
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - contract_processing_purpose_tagged
 
   legal_obligation:
-    article: "6(1)(c)"
+    article: '6(1)(c)'
     requirements:
       - compliance_with_legal_obligation
     aws_mappings:
-      - service: "CloudTrail"
+      - service: 'CloudTrail'
         implementation:
           - legal_hold_capabilities
           - compliance_logging
 
   vital_interests:
-    article: "6(1)(d)"
+    article: '6(1)(d)'
     requirements:
       - protection_of_vital_interests
     aws_mappings:
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - emergency_processing_procedures
 
   public_task:
-    article: "6(1)(e)"
+    article: '6(1)(e)'
     requirements:
       - task_in_public_interest
       - official_authority_exercise
     aws_mappings:
-      - service: "Tags"
+      - service: 'Tags'
         implementation:
           - public_interest_tag
 
   legitimate_interests:
-    article: "6(1)(f)"
+    article: '6(1)(f)'
     requirements:
       - legitimate_interests_of_controller
       - balancing_test_performed
       - not_override_data_subject_rights
     aws_mappings:
-      - service: "Documentation"
+      - service: 'Documentation'
         implementation:
           - lia_assessments_documented
           - balancing_test_records
 
 # Data Subject Rights
 data_subject_rights:
-
   right_to_information:
-    articles: ["13", "14"]
+    articles: ['13', '14']
     requirements:
       - identity_contact_details_controller
       - dpo_contact_details
@@ -216,17 +213,17 @@ data_subject_rights:
       - right_to_lodge_complaint
       - automated_decision_making_info
     aws_mappings:
-      - service: "API Gateway"
+      - service: 'API Gateway'
         implementation:
           - privacy_notice_endpoint
           - data_processing_info_api
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_processing_transparency
 
   right_of_access:
-    article: "15"
-    response_time: "1 month (extendable by 2 months)"
+    article: '15'
+    response_time: '1 month (extendable by 2 months)'
     requirements:
       - confirmation_of_processing
       - copy_of_personal_data
@@ -238,39 +235,39 @@ data_subject_rights:
       - source_of_data
       - automated_decision_making_info
     aws_mappings:
-      - service: "Lambda"
+      - service: 'Lambda'
         implementation:
           - sar_automation_function
           - data_export_function
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_data_extraction_capability
           - knowledge_base_data_retrieval
-      - service: "S3"
+      - service: 'S3'
         implementation:
           - sar_response_bucket
           - secure_data_export
 
   right_to_rectification:
-    article: "16"
-    response_time: "1 month (extendable by 2 months)"
+    article: '16'
+    response_time: '1 month (extendable by 2 months)'
     requirements:
       - inaccurate_data_correction
       - incomplete_data_completion
     aws_mappings:
-      - service: "Lambda"
+      - service: 'Lambda'
         implementation:
           - data_rectification_function
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_knowledge_base_update_api
-      - service: "DynamoDB"
+      - service: 'DynamoDB'
         implementation:
           - update_procedures_documented
 
   right_to_erasure:
-    article: "17"
-    response_time: "1 month (extendable by 2 months)"
+    article: '17'
+    response_time: '1 month (extendable by 2 months)'
     grounds:
       - no_longer_necessary
       - consent_withdrawn
@@ -279,102 +276,101 @@ data_subject_rights:
       - legal_obligation
       - child_consent_services
     aws_mappings:
-      - service: "Lambda"
+      - service: 'Lambda'
         implementation:
           - automated_deletion_function
           - cascading_deletion_logic
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_knowledge_base_deletion
           - bedrock_agent_data_purge
-      - service: "S3"
+      - service: 'S3'
         implementation:
           - object_deletion_with_versions
           - permanent_deletion_capability
-      - service: "CloudTrail"
+      - service: 'CloudTrail'
         implementation:
           - deletion_requests_logged
 
   right_to_restriction:
-    article: "18"
-    response_time: "1 month (extendable by 2 months)"
+    article: '18'
+    response_time: '1 month (extendable by 2 months)'
     grounds:
       - accuracy_contested
       - unlawful_processing
       - no_longer_needed_but_required_for_legal_claims
       - objection_pending_verification
     aws_mappings:
-      - service: "DynamoDB"
+      - service: 'DynamoDB'
         implementation:
           - restriction_flag_attribute
           - processing_status_tracking
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_processing_restriction_flag
-      - service: "Lambda"
+      - service: 'Lambda'
         implementation:
           - restriction_enforcement_logic
 
   right_to_data_portability:
-    article: "20"
-    response_time: "1 month (extendable by 2 months)"
+    article: '20'
+    response_time: '1 month (extendable by 2 months)'
     requirements:
       - structured_commonly_used_format
       - machine_readable_format
       - transmit_to_another_controller
     aws_mappings:
-      - service: "Lambda"
+      - service: 'Lambda'
         implementation:
           - data_export_json_csv_xml
           - automated_portability_function
-      - service: "S3"
+      - service: 'S3'
         implementation:
           - secure_export_bucket
           - pre_signed_url_generation
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_data_export_api
 
   right_to_object:
-    article: "21"
-    response_time: "1 month (extendable by 2 months)"
+    article: '21'
+    response_time: '1 month (extendable by 2 months)'
     grounds:
       - processing_based_on_legitimate_interests
       - processing_for_direct_marketing
       - processing_for_scientific_research
     aws_mappings:
-      - service: "Lambda"
+      - service: 'Lambda'
         implementation:
           - objection_processing_function
           - marketing_opt_out_function
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_processing_cessation
-      - service: "DynamoDB"
+      - service: 'DynamoDB'
         implementation:
           - objection_status_tracking
 
   automated_decision_making:
-    article: "22"
+    article: '22'
     requirements:
       - not_subject_to_solely_automated_decisions
       - right_to_human_intervention
       - right_to_express_point_of_view
       - right_to_contest_decision
     aws_mappings:
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_agent_human_in_loop
           - automated_decision_logging
           - explainability_features
-      - service: "SageMaker"
+      - service: 'SageMaker'
         implementation:
           - model_explainability_reports
           - clarify_bias_detection
 
 # Security of Processing (Article 32)
 security_measures:
-
   technical_measures:
     requirements:
       - pseudonymisation_encryption
@@ -385,31 +381,31 @@ security_measures:
       - restore_availability_after_incident
       - regular_testing_evaluation
     aws_mappings:
-      - service: "KMS"
+      - service: 'KMS'
         controls:
           - encryption_at_rest
           - key_rotation_enabled
           - cmk_for_personal_data
-      - service: "Bedrock"
+      - service: 'Bedrock'
         controls:
           - bedrock_knowledge_base_encrypted
           - bedrock_data_encrypted_cmk
           - bedrock_vpc_endpoint_encryption
-      - service: "VPC"
+      - service: 'VPC'
         controls:
           - network_isolation
           - private_subnets
           - security_groups_restrictive
-      - service: "Backup"
+      - service: 'Backup'
         controls:
           - automated_backups
           - cross_region_replication
           - backup_vault_locked
-      - service: "GuardDuty"
+      - service: 'GuardDuty'
         controls:
           - threat_detection
           - anomaly_detection
-      - service: "CloudWatch"
+      - service: 'CloudWatch'
         controls:
           - availability_monitoring
           - performance_metrics
@@ -421,12 +417,12 @@ security_measures:
       - confidentiality_agreements
       - incident_response_procedures
     aws_mappings:
-      - service: "IAM"
+      - service: 'IAM'
         controls:
           - least_privilege_access
           - role_based_access_control
           - access_reviews_quarterly
-      - service: "CloudTrail"
+      - service: 'CloudTrail'
         controls:
           - comprehensive_audit_logging
           - log_file_validation
@@ -437,20 +433,19 @@ security_measures:
       - implementation_costs
       - nature_scope_context_purposes
       - risk_of_varying_likelihood_severity
-    frequency: "Annual or after significant changes"
+    frequency: 'Annual or after significant changes'
     aws_mappings:
-      - service: "Security Hub"
+      - service: 'Security Hub'
         implementation:
           - security_score_tracking
           - findings_risk_assessment
-      - service: "Inspector"
+      - service: 'Inspector'
         implementation:
           - vulnerability_risk_scoring
           - network_exposure_assessment
 
 # Data Protection Impact Assessment (Article 35)
 dpia:
-
   mandatory_scenarios:
     - systematic_extensive_automated_processing_with_legal_effects
     - large_scale_processing_special_categories
@@ -468,15 +463,15 @@ dpia:
     - demonstrate_compliance
 
   aws_mappings:
-    - service: "Audit Manager"
+    - service: 'Audit Manager'
       implementation:
         - dpia_assessment_framework
         - automated_evidence_collection
-    - service: "Security Hub"
+    - service: 'Security Hub'
       implementation:
         - risk_findings_aggregation
         - security_posture_assessment
-    - service: "Bedrock"
+    - service: 'Bedrock'
       implementation:
         - bedrock_processing_risk_assessment
         - bedrock_safeguards_documentation
@@ -485,15 +480,14 @@ dpia:
     required: true
 
   consultation_with_supervisory_authority:
-    condition: "High risk remains after mitigation"
+    condition: 'High risk remains after mitigation'
 
 # Data Breach Notification (Articles 33-34)
 data_breach:
-
   notification_to_supervisory_authority:
-    article: "33"
-    timeline: "72 hours of becoming aware"
-    exemption: "Unlikely to result in risk to rights and freedoms"
+    article: '33'
+    timeline: '72 hours of becoming aware'
+    exemption: 'Unlikely to result in risk to rights and freedoms'
     content:
       - nature_of_breach
       - categories_approximate_number_data_subjects
@@ -502,27 +496,27 @@ data_breach:
       - likely_consequences
       - measures_taken_or_proposed
     aws_mappings:
-      - service: "GuardDuty"
+      - service: 'GuardDuty'
         implementation:
           - breach_detection_automated
           - security_findings_critical_alerts
-      - service: "Macie"
+      - service: 'Macie'
         implementation:
           - sensitive_data_exposure_detection
           - unauthorized_access_findings
-      - service: "EventBridge"
+      - service: 'EventBridge'
         implementation:
           - automated_incident_notifications
           - breach_response_workflow
-      - service: "SNS"
+      - service: 'SNS'
         implementation:
           - dpo_notification_topic
           - stakeholder_alert_distribution
 
   notification_to_data_subjects:
-    article: "34"
-    timeline: "Without undue delay"
-    condition: "Likely to result in high risk to rights and freedoms"
+    article: '34'
+    timeline: 'Without undue delay'
+    condition: 'Likely to result in high risk to rights and freedoms'
     exemptions:
       - appropriate_technical_organizational_protection (e.g., encryption)
       - subsequent_measures_ensuring_high_risk_no_longer_likely
@@ -533,24 +527,23 @@ data_breach:
       - likely_consequences
       - measures_taken_or_proposed
     aws_mappings:
-      - service: "SES"
+      - service: 'SES'
         implementation:
           - breach_notification_email_templates
           - mass_notification_capability
-      - service: "SNS"
+      - service: 'SNS'
         implementation:
           - sms_notification_topics
           - multi_channel_notification
-      - service: "Lambda"
+      - service: 'Lambda'
         implementation:
           - automated_subject_notification
           - notification_tracking_logging
 
 # International Data Transfers (Chapter V)
 data_transfers:
-
   adequacy_decision:
-    article: "45"
+    article: '45'
     approved_countries:
       - Andorra
       - Argentina
@@ -568,24 +561,24 @@ data_transfers:
       - Uruguay
 
   appropriate_safeguards:
-    article: "46"
+    article: '46'
     mechanisms:
       - standard_contractual_clauses
       - binding_corporate_rules
       - approved_code_of_conduct
       - approved_certification_mechanism
     aws_mappings:
-      - service: "AWS Data Processing Addendum"
+      - service: 'AWS Data Processing Addendum'
         implementation:
           - aws_dpa_executed
           - standard_contractual_clauses_incorporated
-      - service: "Compliance"
+      - service: 'Compliance'
         certifications:
           - iso_27001
           - iso_27017
           - iso_27018
           - soc_2
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_data_residency_configuration
           - bedrock_regional_endpoints_used
@@ -596,36 +589,35 @@ data_transfers:
       - evaluate_supplementary_measures
       - document_assessment_decision
     aws_mappings:
-      - service: "Documentation"
+      - service: 'Documentation'
         implementation:
           - tia_documented
           - supplementary_measures_identified
 
   data_localization:
     aws_mappings:
-      - service: "S3"
+      - service: 'S3'
         implementation:
           - bucket_region_restriction
           - replication_controls
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_regional_deployment
           - knowledge_base_region_locked
-      - service: "KMS"
+      - service: 'KMS'
         implementation:
           - regional_kms_keys
           - no_multi_region_keys_for_personal_data
 
 # Data Protection Officer (Articles 37-39)
 dpo:
-
   designation_required:
     conditions:
       - public_authority_processing
       - core_activities_require_systematic_monitoring
       - core_activities_large_scale_special_categories
     aws_mappings:
-      - service: "IAM"
+      - service: 'IAM'
         implementation:
           - dpo_role_created
           - dpo_access_permissions
@@ -647,18 +639,17 @@ dpo:
     - act_as_contact_point_for_supervisory_authority
 
   aws_mappings:
-    - service: "Security Hub"
+    - service: 'Security Hub'
       implementation:
         - dpo_dashboard_access
         - compliance_status_visibility
-    - service: "CloudTrail"
+    - service: 'CloudTrail'
       implementation:
         - dpo_audit_access
         - processing_activity_visibility
 
 # Records of Processing Activities (Article 30)
 records:
-
   controller_records:
     required_information:
       - controller_representative_contact_details
@@ -670,15 +661,15 @@ records:
       - retention_periods
       - security_measures_description
     aws_mappings:
-      - service: "Service Catalog"
+      - service: 'Service Catalog'
         implementation:
           - processing_activity_portfolio
           - bedrock_agent_catalog
-      - service: "Systems Manager"
+      - service: 'Systems Manager'
         implementation:
           - processing_inventory
           - parameter_store_metadata
-      - service: "Bedrock"
+      - service: 'Bedrock'
         implementation:
           - bedrock_agent_registry
           - knowledge_base_catalog
@@ -691,86 +682,84 @@ records:
       - third_country_transfers
       - security_measures_description
     aws_mappings:
-      - service: "Organizations"
+      - service: 'Organizations'
         implementation:
           - sub_processor_account_tracking
-      - service: "Service Catalog"
+      - service: 'Service Catalog'
         implementation:
           - third_party_service_catalog
 
 # Automated Compliance Monitoring
 automation:
-
   aws_config_rules:
-    - rule_name: "gdpr-encryption-at-rest"
-      applicable_article: "32"
-      description: "Ensure personal data encrypted at rest"
+    - rule_name: 'gdpr-encryption-at-rest'
+      applicable_article: '32'
+      description: 'Ensure personal data encrypted at rest'
 
-    - rule_name: "gdpr-encryption-in-transit"
-      applicable_article: "32"
-      description: "Ensure personal data encrypted in transit"
+    - rule_name: 'gdpr-encryption-in-transit'
+      applicable_article: '32'
+      description: 'Ensure personal data encrypted in transit'
 
-    - rule_name: "gdpr-access-logging"
-      applicable_article: "32"
-      description: "Ensure access to personal data is logged"
+    - rule_name: 'gdpr-access-logging'
+      applicable_article: '32'
+      description: 'Ensure access to personal data is logged'
 
-    - rule_name: "gdpr-data-retention"
-      applicable_article: "5(1)(e)"
-      description: "Ensure data retention policies enforced"
+    - rule_name: 'gdpr-data-retention'
+      applicable_article: '5(1)(e)'
+      description: 'Ensure data retention policies enforced'
 
-    - rule_name: "gdpr-bedrock-knowledge-base-encryption"
-      applicable_article: "32"
-      description: "Ensure Bedrock knowledge bases encrypted with CMK"
+    - rule_name: 'gdpr-bedrock-knowledge-base-encryption'
+      applicable_article: '32'
+      description: 'Ensure Bedrock knowledge bases encrypted with CMK'
 
   security_hub_controls:
-    - standard: "AWS Foundational Security Best Practices"
+    - standard: 'AWS Foundational Security Best Practices'
       gdpr_relevant_controls:
         - encryption_controls
         - access_control_controls
         - logging_monitoring_controls
 
   cloudwatch_alarms:
-    - alarm_name: "gdpr-unauthorized-access"
-      metric: "UnauthorizedAPICallsAlarmMetric"
-      article: "32"
+    - alarm_name: 'gdpr-unauthorized-access'
+      metric: 'UnauthorizedAPICallsAlarmMetric'
+      article: '32'
 
-    - alarm_name: "gdpr-root-account-usage"
-      metric: "RootAccountUsageAlarmMetric"
-      article: "32"
+    - alarm_name: 'gdpr-root-account-usage'
+      metric: 'RootAccountUsageAlarmMetric'
+      article: '32'
 
-    - alarm_name: "gdpr-bedrock-encryption-disabled"
-      metric: "BedrockEncryptionDisabled"
-      article: "32"
+    - alarm_name: 'gdpr-bedrock-encryption-disabled'
+      metric: 'BedrockEncryptionDisabled'
+      article: '32'
 
   lambda_automation:
-    - function_name: "gdpr-sar-automation"
-      purpose: "Automate subject access requests"
-      article: "15"
+    - function_name: 'gdpr-sar-automation'
+      purpose: 'Automate subject access requests'
+      article: '15'
 
-    - function_name: "gdpr-deletion-automation"
-      purpose: "Automate right to erasure"
-      article: "17"
+    - function_name: 'gdpr-deletion-automation'
+      purpose: 'Automate right to erasure'
+      article: '17'
 
-    - function_name: "gdpr-data-portability"
-      purpose: "Automate data portability requests"
-      article: "20"
+    - function_name: 'gdpr-data-portability'
+      purpose: 'Automate data portability requests'
+      article: '20'
 
-    - function_name: "gdpr-breach-notification"
-      purpose: "Automate breach notification workflow"
-      articles: ["33", "34"]
+    - function_name: 'gdpr-breach-notification'
+      purpose: 'Automate breach notification workflow'
+      articles: ['33', '34']
 
 # Penalties (Article 83)
 administrative_fines:
-
   tier_1:
-    max_fine: "€10,000,000 or 2% of annual global turnover (whichever higher)"
+    max_fine: '€10,000,000 or 2% of annual global turnover (whichever higher)'
     violations:
       - insufficient_technical_measures (Article 32)
       - insufficient_dpia (Article 35)
       - insufficient_consultation_with_sa (Article 36)
 
   tier_2:
-    max_fine: "€20,000,000 or 4% of annual global turnover (whichever higher)"
+    max_fine: '€20,000,000 or 4% of annual global turnover (whichever higher)'
     violations:
       - basic_principles_violations (Article 5)
       - lawful_basis_violations (Article 6)
@@ -792,7 +781,6 @@ administrative_fines:
 
 # Evidence Collection
 evidence_collection:
-
   continuous:
     - cloudtrail_logs (all API activity)
     - config_snapshots (configuration compliance)
@@ -813,4 +801,4 @@ evidence_collection:
     - forensic_analysis_results
     - notification_confirmations
 
-  retention_period: "As required by applicable law (typically 6+ years)"
+  retention_period: 'As required by applicable law (typically 6+ years)'

@@ -3,633 +3,630 @@
 # Last Updated: 2025-11-17
 
 audit_metadata:
-  audit_type: "Annual Compliance Audit"
-  scope: "Amazon Bedrock Agents Infrastructure"
+  audit_type: 'Annual Compliance Audit'
+  scope: 'Amazon Bedrock Agents Infrastructure'
   frameworks:
     - SOC 2 Type II
     - HIPAA
     - PCI DSS v4.0
     - GDPR
     - ISO/IEC 27001:2022
-  auditor: "TBD"
-  audit_period_start: "YYYY-MM-DD"
-  audit_period_end: "YYYY-MM-DD"
+  auditor: 'TBD'
+  audit_period_start: 'YYYY-MM-DD'
+  audit_period_end: 'YYYY-MM-DD'
 
 # Administrative Controls
 administrative_controls:
-
   policies_and_procedures:
-    - id: "AC-001"
-      control: "Information Security Policy"
-      requirement: "Documented and approved information security policy exists"
+    - id: 'AC-001'
+      control: 'Information Security Policy'
+      requirement: 'Documented and approved information security policy exists'
       evidence:
         - Policy document with version control
         - Executive approval signatures
         - Annual review records
-      compliance_frameworks: ["SOC2", "ISO27001", "HIPAA"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001', 'HIPAA']
+      status: 'pending'
+      notes: ''
 
-    - id: "AC-002"
-      control: "Data Classification Policy"
-      requirement: "Data classification policy defines PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED levels"
+    - id: 'AC-002'
+      control: 'Data Classification Policy'
+      requirement: 'Data classification policy defines PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED levels'
       evidence:
         - Data classification policy document
         - Data inventory with classification tags
         - AWS resource tags verification
-      compliance_frameworks: ["SOC2", "GDPR", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'GDPR', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "AC-003"
-      control: "Access Control Policy"
-      requirement: "Access control policy enforces least privilege and separation of duties"
+    - id: 'AC-003'
+      control: 'Access Control Policy'
+      requirement: 'Access control policy enforces least privilege and separation of duties'
       evidence:
         - Access control policy document
         - IAM policy review reports
         - Access review records (quarterly for CONFIDENTIAL, monthly for RESTRICTED)
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "AC-004"
-      control: "Encryption Policy"
-      requirement: "Encryption policy mandates encryption at rest and in transit for sensitive data"
+    - id: 'AC-004'
+      control: 'Encryption Policy'
+      requirement: 'Encryption policy mandates encryption at rest and in transit for sensitive data'
       evidence:
         - Encryption policy document
         - KMS key inventory
         - Encryption verification reports
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'GDPR', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "AC-005"
-      control: "Incident Response Policy"
-      requirement: "Incident response procedures documented and tested"
+    - id: 'AC-005'
+      control: 'Incident Response Policy'
+      requirement: 'Incident response procedures documented and tested'
       evidence:
         - Incident response policy
         - Incident response plan
         - Tabletop exercise records (quarterly)
         - Incident logs and post-mortem reports
-      compliance_frameworks: ["SOC2", "HIPAA", "GDPR", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'GDPR', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "AC-006"
-      control: "Backup and Retention Policy"
-      requirement: "Backup and data retention requirements defined per data classification"
+    - id: 'AC-006'
+      control: 'Backup and Retention Policy'
+      requirement: 'Backup and data retention requirements defined per data classification'
       evidence:
         - Backup and retention policy
         - Backup success/failure logs
         - Restore test results (quarterly for RESTRICTED)
-      compliance_frameworks: ["SOC2", "HIPAA", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
   risk_management:
-    - id: "RM-001"
-      control: "Risk Assessment"
-      requirement: "Annual risk assessment conducted for Bedrock infrastructure"
+    - id: 'RM-001'
+      control: 'Risk Assessment'
+      requirement: 'Annual risk assessment conducted for Bedrock infrastructure'
       evidence:
         - Risk assessment report
         - Risk register
         - Risk treatment plan
-      compliance_frameworks: ["SOC2", "ISO27001", "HIPAA"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001', 'HIPAA']
+      status: 'pending'
+      notes: ''
 
-    - id: "RM-002"
-      control: "Privacy Impact Assessment (DPIA)"
-      requirement: "DPIA conducted for Bedrock agents processing personal data"
+    - id: 'RM-002'
+      control: 'Privacy Impact Assessment (DPIA)'
+      requirement: 'DPIA conducted for Bedrock agents processing personal data'
       evidence:
         - DPIA documents
         - Data flow diagrams
         - Privacy risk mitigation plans
-      compliance_frameworks: ["GDPR", "HIPAA"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['GDPR', 'HIPAA']
+      status: 'pending'
+      notes: ''
 
-    - id: "RM-003"
-      control: "Vendor Risk Management"
-      requirement: "AWS vendor assessment and BAA/DPA executed"
+    - id: 'RM-003'
+      control: 'Vendor Risk Management'
+      requirement: 'AWS vendor assessment and BAA/DPA executed'
       evidence:
         - AWS Business Associate Agreement (BAA)
         - AWS Data Processing Addendum (DPA)
         - AWS compliance reports (SOC 2, ISO 27001)
-      compliance_frameworks: ["HIPAA", "GDPR", "SOC2"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['HIPAA', 'GDPR', 'SOC2']
+      status: 'pending'
+      notes: ''
 
   training_and_awareness:
-    - id: "TA-001"
-      control: "Security Awareness Training"
-      requirement: "All personnel complete annual security awareness training"
+    - id: 'TA-001'
+      control: 'Security Awareness Training'
+      requirement: 'All personnel complete annual security awareness training'
       evidence:
         - Training completion records
         - Training curriculum
         - Test scores and certifications
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "TA-002"
-      control: "GDPR/Privacy Training"
-      requirement: "Personnel handling personal data complete GDPR/privacy training"
+    - id: 'TA-002'
+      control: 'GDPR/Privacy Training'
+      requirement: 'Personnel handling personal data complete GDPR/privacy training'
       evidence:
         - GDPR training completion records
         - Privacy policy acknowledgments
-      compliance_frameworks: ["GDPR", "HIPAA"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['GDPR', 'HIPAA']
+      status: 'pending'
+      notes: ''
 
 # Technical Controls
 technical_controls:
-
   encryption:
-    - id: "TC-ENC-001"
-      control: "Encryption at Rest - Bedrock Knowledge Bases"
-      requirement: "All Bedrock knowledge bases encrypted with customer-managed KMS keys (CMK)"
+    - id: 'TC-ENC-001'
+      control: 'Encryption at Rest - Bedrock Knowledge Bases'
+      requirement: 'All Bedrock knowledge bases encrypted with customer-managed KMS keys (CMK)'
       evidence:
         - AWS Config compliance report for bedrock-agent-encryption-check
         - KMS key configuration screenshots
         - Knowledge base encryption verification
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
-      aws_config_rule: "bedrock-agent-encryption-check"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'GDPR', 'ISO27001']
+      aws_config_rule: 'bedrock-agent-encryption-check'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-ENC-002"
-      control: "Encryption at Rest - S3 Data Sources"
-      requirement: "S3 buckets containing Bedrock data encrypted with CMK"
+    - id: 'TC-ENC-002'
+      control: 'Encryption at Rest - S3 Data Sources'
+      requirement: 'S3 buckets containing Bedrock data encrypted with CMK'
       evidence:
         - AWS Config compliance report for s3-bucket-server-side-encryption-enabled
         - S3 bucket encryption configuration
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
-      aws_config_rule: "s3-bucket-server-side-encryption-enabled"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'GDPR', 'ISO27001']
+      aws_config_rule: 's3-bucket-server-side-encryption-enabled'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-ENC-003"
-      control: "Encryption in Transit"
-      requirement: "All Bedrock API calls use TLS 1.2 or higher"
+    - id: 'TC-ENC-003'
+      control: 'Encryption in Transit'
+      requirement: 'All Bedrock API calls use TLS 1.2 or higher'
       evidence:
         - VPC endpoint configuration
         - API Gateway TLS configuration
         - ALB listener configuration
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'GDPR', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-ENC-004"
-      control: "KMS Key Rotation"
-      requirement: "Automatic key rotation enabled for all CMKs"
+    - id: 'TC-ENC-004'
+      control: 'KMS Key Rotation'
+      requirement: 'Automatic key rotation enabled for all CMKs'
       evidence:
         - AWS Config compliance report for cmk-rotation-enabled
         - KMS key rotation status report
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "cmk-backing-key-rotation-enabled"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'cmk-backing-key-rotation-enabled'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-ENC-005"
-      control: "CloudWatch Logs Encryption"
-      requirement: "CloudWatch log groups encrypted with CMK"
+    - id: 'TC-ENC-005'
+      control: 'CloudWatch Logs Encryption'
+      requirement: 'CloudWatch log groups encrypted with CMK'
       evidence:
         - AWS Config compliance report for cloudwatch-log-group-encrypted
         - Log group configuration screenshots
-      compliance_frameworks: ["SOC2", "HIPAA", "GDPR", "ISO27001"]
-      aws_config_rule: "cloudwatch-log-group-encrypted"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'GDPR', 'ISO27001']
+      aws_config_rule: 'cloudwatch-log-group-encrypted'
+      status: 'pending'
+      notes: ''
 
   access_control:
-    - id: "TC-AC-001"
-      control: "IAM Least Privilege"
-      requirement: "Bedrock agent IAM roles follow least privilege principle"
+    - id: 'TC-AC-001'
+      control: 'IAM Least Privilege'
+      requirement: 'Bedrock agent IAM roles follow least privilege principle'
       evidence:
         - AWS Config compliance report for bedrock-iam-least-privilege
         - IAM policy review reports
         - IAM Access Analyzer findings
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "bedrock-iam-least-privilege"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'bedrock-iam-least-privilege'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-AC-002"
-      control: "Multi-Factor Authentication (MFA)"
-      requirement: "MFA enabled for all users with access to CONFIDENTIAL/RESTRICTED data"
+    - id: 'TC-AC-002'
+      control: 'Multi-Factor Authentication (MFA)'
+      requirement: 'MFA enabled for all users with access to CONFIDENTIAL/RESTRICTED data'
       evidence:
         - AWS Config compliance report for iam-user-mfa-enabled
         - IAM credential report
         - Root account MFA verification
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "iam-user-mfa-enabled"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'iam-user-mfa-enabled'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-AC-003"
-      control: "Root Account Protection"
-      requirement: "Root account MFA enabled and no access keys"
+    - id: 'TC-AC-003'
+      control: 'Root Account Protection'
+      requirement: 'Root account MFA enabled and no access keys'
       evidence:
         - AWS Config compliance report for iam-root-access-key-check
         - Root account MFA screenshot
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "iam-root-access-key-check"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'iam-root-access-key-check'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-AC-004"
-      control: "Password Policy"
-      requirement: "IAM password policy enforces complexity and rotation"
+    - id: 'TC-AC-004'
+      control: 'Password Policy'
+      requirement: 'IAM password policy enforces complexity and rotation'
       evidence:
         - AWS Config compliance report for iam-password-policy
         - Password policy configuration screenshot
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "iam-password-policy"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'iam-password-policy'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-AC-005"
-      control: "Access Key Rotation"
-      requirement: "IAM access keys rotated at least every 90 days"
+    - id: 'TC-AC-005'
+      control: 'Access Key Rotation'
+      requirement: 'IAM access keys rotated at least every 90 days'
       evidence:
         - AWS Config compliance report for access-keys-rotated
         - IAM credential report
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "access-keys-rotated"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'access-keys-rotated'
+      status: 'pending'
+      notes: ''
 
   logging_and_monitoring:
-    - id: "TC-LOG-001"
-      control: "CloudTrail Logging"
-      requirement: "CloudTrail enabled in all regions with log file validation"
+    - id: 'TC-LOG-001'
+      control: 'CloudTrail Logging'
+      requirement: 'CloudTrail enabled in all regions with log file validation'
       evidence:
         - AWS Config compliance report for cloudtrail-enabled
         - CloudTrail configuration screenshots
         - Log file validation verification
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
-      aws_config_rule: "cloud-trail-enabled"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'GDPR', 'ISO27001']
+      aws_config_rule: 'cloud-trail-enabled'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-LOG-002"
-      control: "Bedrock Model Invocation Logging"
-      requirement: "Model invocation logging enabled with CloudWatch Logs encryption"
+    - id: 'TC-LOG-002'
+      control: 'Bedrock Model Invocation Logging'
+      requirement: 'Model invocation logging enabled with CloudWatch Logs encryption'
       evidence:
         - AWS Config compliance report for bedrock-logging-enabled
         - Bedrock logging configuration screenshots
         - Sample invocation logs
-      compliance_frameworks: ["SOC2", "HIPAA", "GDPR", "ISO27001"]
-      aws_config_rule: "bedrock-logging-enabled"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'GDPR', 'ISO27001']
+      aws_config_rule: 'bedrock-logging-enabled'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-LOG-003"
-      control: "VPC Flow Logs"
-      requirement: "VPC Flow Logs enabled for Bedrock VPC endpoints"
+    - id: 'TC-LOG-003'
+      control: 'VPC Flow Logs'
+      requirement: 'VPC Flow Logs enabled for Bedrock VPC endpoints'
       evidence:
         - AWS Config compliance report for vpc-flow-logs-enabled
         - VPC Flow Logs configuration
-      compliance_frameworks: ["SOC2", "ISO27001"]
-      aws_config_rule: "vpc-flow-logs-enabled"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001']
+      aws_config_rule: 'vpc-flow-logs-enabled'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-LOG-004"
-      control: "Log Retention"
-      requirement: "Logs retained for 7 years minimum (RESTRICTED data)"
+    - id: 'TC-LOG-004'
+      control: 'Log Retention'
+      requirement: 'Logs retained for 7 years minimum (RESTRICTED data)'
       evidence:
         - CloudWatch Logs retention configuration
         - S3 log bucket lifecycle policies
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS']
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-LOG-005"
-      control: "Security Monitoring - GuardDuty"
-      requirement: "Amazon GuardDuty enabled for threat detection"
+    - id: 'TC-LOG-005'
+      control: 'Security Monitoring - GuardDuty'
+      requirement: 'Amazon GuardDuty enabled for threat detection'
       evidence:
         - GuardDuty enablement status
         - GuardDuty findings report
         - Automated response configuration
-      compliance_frameworks: ["SOC2", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-LOG-006"
-      control: "Security Monitoring - Security Hub"
-      requirement: "AWS Security Hub enabled with compliance standards"
+    - id: 'TC-LOG-006'
+      control: 'Security Monitoring - Security Hub'
+      requirement: 'AWS Security Hub enabled with compliance standards'
       evidence:
         - Security Hub enablement status
         - Compliance standards enabled (AWS Foundational, CIS, PCI DSS)
         - Security score and findings
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
   network_security:
-    - id: "TC-NET-001"
-      control: "VPC Endpoints for Bedrock"
-      requirement: "Bedrock accessed via VPC endpoints for RESTRICTED data"
+    - id: 'TC-NET-001'
+      control: 'VPC Endpoints for Bedrock'
+      requirement: 'Bedrock accessed via VPC endpoints for RESTRICTED data'
       evidence:
         - AWS Config compliance report for bedrock-network-isolation
         - VPC endpoint configuration screenshots
         - Private DNS enablement
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "bedrock-network-isolation"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'bedrock-network-isolation'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-NET-002"
-      control: "Security Groups"
-      requirement: "Security groups follow least privilege (restrictive ingress/egress)"
+    - id: 'TC-NET-002'
+      control: 'Security Groups'
+      requirement: 'Security groups follow least privilege (restrictive ingress/egress)'
       evidence:
         - AWS Config compliance report for vpc-sg-open-only-to-authorized-ports
         - Security group configuration review
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      aws_config_rule: "vpc-sg-open-only-to-authorized-ports"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      aws_config_rule: 'vpc-sg-open-only-to-authorized-ports'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-NET-003"
-      control: "S3 Block Public Access"
-      requirement: "S3 buckets with Bedrock data block all public access"
+    - id: 'TC-NET-003'
+      control: 'S3 Block Public Access'
+      requirement: 'S3 buckets with Bedrock data block all public access'
       evidence:
         - AWS Config compliance report for s3-bucket-public-read-prohibited
         - S3 bucket public access settings
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
-      aws_config_rule: "s3-bucket-public-read-prohibited"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'GDPR', 'ISO27001']
+      aws_config_rule: 's3-bucket-public-read-prohibited'
+      status: 'pending'
+      notes: ''
 
   backup_and_recovery:
-    - id: "TC-BCR-001"
-      control: "Bedrock Knowledge Base Backup"
-      requirement: "Knowledge base data sources have backup with 7-year retention"
+    - id: 'TC-BCR-001'
+      control: 'Bedrock Knowledge Base Backup'
+      requirement: 'Knowledge base data sources have backup with 7-year retention'
       evidence:
         - AWS Config compliance report for bedrock-knowledge-base-backup
         - AWS Backup plan configuration
         - Backup success logs
-      compliance_frameworks: ["SOC2", "HIPAA", "ISO27001"]
-      aws_config_rule: "bedrock-knowledge-base-backup"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'ISO27001']
+      aws_config_rule: 'bedrock-knowledge-base-backup'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-BCR-002"
-      control: "S3 Versioning"
-      requirement: "S3 buckets with Bedrock data have versioning enabled"
+    - id: 'TC-BCR-002'
+      control: 'S3 Versioning'
+      requirement: 'S3 buckets with Bedrock data have versioning enabled'
       evidence:
         - AWS Config compliance report for s3-bucket-versioning-enabled
         - S3 bucket versioning configuration
-      compliance_frameworks: ["SOC2", "HIPAA", "ISO27001"]
-      aws_config_rule: "s3-bucket-versioning-enabled"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'ISO27001']
+      aws_config_rule: 's3-bucket-versioning-enabled'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-BCR-003"
-      control: "Disaster Recovery Testing"
-      requirement: "Disaster recovery tested annually with documented results"
+    - id: 'TC-BCR-003'
+      control: 'Disaster Recovery Testing'
+      requirement: 'Disaster recovery tested annually with documented results'
       evidence:
         - DR test plan
         - DR test execution logs
         - DR test report with RTO/RPO validation
-      compliance_frameworks: ["SOC2", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
   data_protection:
-    - id: "TC-DP-001"
-      control: "Data Classification Tagging"
-      requirement: "All Bedrock resources tagged with data classification"
+    - id: 'TC-DP-001'
+      control: 'Data Classification Tagging'
+      requirement: 'All Bedrock resources tagged with data classification'
       evidence:
         - AWS Config compliance report for required-tags
         - Resource tagging report
-      compliance_frameworks: ["GDPR", "ISO27001"]
-      aws_config_rule: "required-tags"
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['GDPR', 'ISO27001']
+      aws_config_rule: 'required-tags'
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-DP-002"
-      control: "Sensitive Data Discovery"
-      requirement: "Amazon Macie scans S3 buckets for PII/PHI/PCI"
+    - id: 'TC-DP-002'
+      control: 'Sensitive Data Discovery'
+      requirement: 'Amazon Macie scans S3 buckets for PII/PHI/PCI'
       evidence:
         - Macie enablement status
         - Macie job configuration
         - Macie findings report
-      compliance_frameworks: ["GDPR", "HIPAA", "PCI-DSS"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['GDPR', 'HIPAA', 'PCI-DSS']
+      status: 'pending'
+      notes: ''
 
-    - id: "TC-DP-003"
-      control: "Data Retention and Disposal"
-      requirement: "Data retention policies automated via S3 lifecycle or data expiration"
+    - id: 'TC-DP-003'
+      control: 'Data Retention and Disposal'
+      requirement: 'Data retention policies automated via S3 lifecycle or data expiration'
       evidence:
         - S3 lifecycle policies
         - DynamoDB TTL configuration
         - Data disposal logs
-      compliance_frameworks: ["GDPR", "HIPAA", "PCI-DSS", "SOC2"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['GDPR', 'HIPAA', 'PCI-DSS', 'SOC2']
+      status: 'pending'
+      notes: ''
 
 # Operational Controls
 operational_controls:
-
   change_management:
-    - id: "OC-CM-001"
-      control: "Change Management Process"
-      requirement: "Infrastructure changes deployed via IaC with approvals"
+    - id: 'OC-CM-001'
+      control: 'Change Management Process'
+      requirement: 'Infrastructure changes deployed via IaC with approvals'
       evidence:
         - Terraform/CloudFormation version control
         - Pull request approval records
         - Deployment logs
-      compliance_frameworks: ["SOC2", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "OC-CM-002"
-      control: "Configuration Drift Detection"
-      requirement: "AWS Config tracks configuration changes and drift"
+    - id: 'OC-CM-002'
+      control: 'Configuration Drift Detection'
+      requirement: 'AWS Config tracks configuration changes and drift'
       evidence:
         - Config configuration recorder status
         - Configuration timeline
         - Drift detection reports
-      compliance_frameworks: ["SOC2", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
   vulnerability_management:
-    - id: "OC-VM-001"
-      control: "Vulnerability Scanning"
-      requirement: "Amazon Inspector scans for vulnerabilities"
+    - id: 'OC-VM-001'
+      control: 'Vulnerability Scanning'
+      requirement: 'Amazon Inspector scans for vulnerabilities'
       evidence:
         - Inspector enablement status
         - Inspector scan results
         - Remediation tracking
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "OC-VM-002"
-      control: "Patch Management"
-      requirement: "Security patches applied within defined SLA"
+    - id: 'OC-VM-002'
+      control: 'Patch Management'
+      requirement: 'Security patches applied within defined SLA'
       evidence:
         - Systems Manager Patch Manager configuration
         - Patch compliance reports
         - Patching schedule documentation
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
   access_reviews:
-    - id: "OC-AR-001"
-      control: "Access Review - RESTRICTED Data"
-      requirement: "Monthly access review for RESTRICTED data"
+    - id: 'OC-AR-001'
+      control: 'Access Review - RESTRICTED Data'
+      requirement: 'Monthly access review for RESTRICTED data'
       evidence:
         - Access review reports (monthly for past 12 months)
         - Access approval/revocation records
-      compliance_frameworks: ["SOC2", "HIPAA", "PCI-DSS", "GDPR"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'HIPAA', 'PCI-DSS', 'GDPR']
+      status: 'pending'
+      notes: ''
 
-    - id: "OC-AR-002"
-      control: "Access Review - CONFIDENTIAL Data"
-      requirement: "Quarterly access review for CONFIDENTIAL data"
+    - id: 'OC-AR-002'
+      control: 'Access Review - CONFIDENTIAL Data'
+      requirement: 'Quarterly access review for CONFIDENTIAL data'
       evidence:
         - Access review reports (quarterly for past 4 quarters)
         - Access approval/revocation records
-      compliance_frameworks: ["SOC2", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
-    - id: "OC-AR-003"
-      control: "Privileged Access Review"
-      requirement: "Privileged account usage monitored and reviewed"
+    - id: 'OC-AR-003'
+      control: 'Privileged Access Review'
+      requirement: 'Privileged account usage monitored and reviewed'
       evidence:
         - CloudTrail logs for privileged actions
         - Root account usage reports (should be zero)
         - Break-glass account usage logs
-      compliance_frameworks: ["SOC2", "PCI-DSS", "ISO27001"]
-      status: "pending"
-      notes: ""
+      compliance_frameworks: ['SOC2', 'PCI-DSS', 'ISO27001']
+      status: 'pending'
+      notes: ''
 
 # Compliance-Specific Controls
 
 gdpr_specific:
-  - id: "GDPR-001"
-    control: "Data Subject Rights - Access (Article 15)"
-    requirement: "Process for handling subject access requests within 1 month"
+  - id: 'GDPR-001'
+    control: 'Data Subject Rights - Access (Article 15)'
+    requirement: 'Process for handling subject access requests within 1 month'
     evidence:
       - SAR procedure documentation
       - SAR request logs
       - SAR response samples (anonymized)
-    compliance_frameworks: ["GDPR"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['GDPR']
+    status: 'pending'
+    notes: ''
 
-  - id: "GDPR-002"
-    control: "Data Subject Rights - Erasure (Article 17)"
-    requirement: "Process for deleting personal data upon request"
+  - id: 'GDPR-002'
+    control: 'Data Subject Rights - Erasure (Article 17)'
+    requirement: 'Process for deleting personal data upon request'
     evidence:
       - Data deletion procedure
       - Deletion request logs
       - Deletion verification records
-    compliance_frameworks: ["GDPR"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['GDPR']
+    status: 'pending'
+    notes: ''
 
-  - id: "GDPR-003"
-    control: "Data Breach Notification (Article 33)"
-    requirement: "Data breach notification to supervisory authority within 72 hours"
+  - id: 'GDPR-003'
+    control: 'Data Breach Notification (Article 33)'
+    requirement: 'Data breach notification to supervisory authority within 72 hours'
     evidence:
       - Breach notification procedure
       - Breach notification templates
       - Sample breach notifications (if applicable)
-    compliance_frameworks: ["GDPR"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['GDPR']
+    status: 'pending'
+    notes: ''
 
-  - id: "GDPR-004"
-    control: "Records of Processing Activities (Article 30)"
-    requirement: "Maintain records of processing activities"
+  - id: 'GDPR-004'
+    control: 'Records of Processing Activities (Article 30)'
+    requirement: 'Maintain records of processing activities'
     evidence:
       - Processing activities register
       - Data flow diagrams
       - Third-party data processor inventory
-    compliance_frameworks: ["GDPR"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['GDPR']
+    status: 'pending'
+    notes: ''
 
 hipaa_specific:
-  - id: "HIPAA-001"
-    control: "Business Associate Agreement (BAA)"
-    requirement: "BAA executed with AWS for Bedrock PHI processing"
+  - id: 'HIPAA-001'
+    control: 'Business Associate Agreement (BAA)'
+    requirement: 'BAA executed with AWS for Bedrock PHI processing'
     evidence:
       - AWS BAA signed agreement
       - AWS HIPAA Eligible Services verification
-    compliance_frameworks: ["HIPAA"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['HIPAA']
+    status: 'pending'
+    notes: ''
 
-  - id: "HIPAA-002"
-    control: "PHI Breach Notification (164.410)"
-    requirement: "Breach notification process for PHI within 60 days"
+  - id: 'HIPAA-002'
+    control: 'PHI Breach Notification (164.410)'
+    requirement: 'Breach notification process for PHI within 60 days'
     evidence:
       - Breach notification procedure
       - Breach risk assessment methodology
       - Sample notifications (if applicable)
-    compliance_frameworks: ["HIPAA"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['HIPAA']
+    status: 'pending'
+    notes: ''
 
-  - id: "HIPAA-003"
-    control: "Audit Controls (164.312(b))"
-    requirement: "Implement audit controls to record ePHI access"
+  - id: 'HIPAA-003'
+    control: 'Audit Controls (164.312(b))'
+    requirement: 'Implement audit controls to record ePHI access'
     evidence:
       - CloudTrail logs for PHI access
       - Bedrock invocation logs
       - Audit log retention verification
-    compliance_frameworks: ["HIPAA"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['HIPAA']
+    status: 'pending'
+    notes: ''
 
 pci_dss_specific:
-  - id: "PCI-001"
-    control: "Cardholder Data Environment (CDE) Segmentation"
-    requirement: "CDE segmented from non-CDE networks"
+  - id: 'PCI-001'
+    control: 'Cardholder Data Environment (CDE) Segmentation'
+    requirement: 'CDE segmented from non-CDE networks'
     evidence:
       - Network diagram showing segmentation
       - Security group rules
       - Network ACLs
-    compliance_frameworks: ["PCI-DSS"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['PCI-DSS']
+    status: 'pending'
+    notes: ''
 
-  - id: "PCI-002"
-    control: "Quarterly Vulnerability Scanning"
-    requirement: "Quarterly vulnerability scans by approved vendor"
+  - id: 'PCI-002'
+    control: 'Quarterly Vulnerability Scanning'
+    requirement: 'Quarterly vulnerability scans by approved vendor'
     evidence:
       - Quarterly scan reports (past 4 quarters)
       - Remediation tracking
       - ASV certification
-    compliance_frameworks: ["PCI-DSS"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['PCI-DSS']
+    status: 'pending'
+    notes: ''
 
-  - id: "PCI-003"
-    control: "Annual Penetration Testing"
-    requirement: "Annual penetration test of CDE and segmentation"
+  - id: 'PCI-003'
+    control: 'Annual Penetration Testing'
+    requirement: 'Annual penetration test of CDE and segmentation'
     evidence:
       - Penetration test report
       - Remediation plan
       - Retest results
-    compliance_frameworks: ["PCI-DSS"]
-    status: "pending"
-    notes: ""
+    compliance_frameworks: ['PCI-DSS']
+    status: 'pending'
+    notes: ''
 
 # Summary Reporting
 audit_summary:
-  total_controls: 0  # Auto-calculated
+  total_controls: 0 # Auto-calculated
   compliant: 0
   non_compliant: 0
   pending: 0

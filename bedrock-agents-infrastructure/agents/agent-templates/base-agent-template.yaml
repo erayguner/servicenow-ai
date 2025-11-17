@@ -61,7 +61,8 @@ promptOverrideConfiguration:
       promptCreationMode: ${POST_PROCESSING_MODE:-DEFAULT}
       promptState: ${POST_PROCESSING_STATE:-DISABLED}
 
-actionGroups: ${ACTION_GROUPS:-[]}
+actionGroups:
+  ${ACTION_GROUPS:-[]}
   # Example:
   # - actionGroupName: example-action-group
   #   description: Description of what this action group does
@@ -72,7 +73,8 @@ actionGroups: ${ACTION_GROUPS:-[]}
   #       s3BucketName: ${BEDROCK_BUCKET}
   #       s3ObjectKey: schemas/example-schema.json
 
-knowledgeBases: ${KNOWLEDGE_BASES:-[]}
+knowledgeBases:
+  ${KNOWLEDGE_BASES:-[]}
   # Example:
   # - knowledgeBaseId: ${EXAMPLE_KB_ID}
   #   description: Example knowledge base
