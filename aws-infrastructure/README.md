@@ -47,10 +47,30 @@ aws-infrastructure/
 
 ```
 
+## Environments
+
+This infrastructure supports multiple environments with different configurations:
+
+### 🚀 Production Environment
+- **Purpose**: Customer-facing production workloads
+- **Cost**: ~$3,112/month (with Reserved Instances: ~$2,000/month)
+- **Features**: Multi-AZ HA, Enhanced monitoring, 30-day backups
+- **Documentation**: [Production README](terraform/environments/prod/README.md)
+
+### 💻 Development Environment
+- **Purpose**: Feature development and testing
+- **Cost**: ~$50-80/month (with Spot instances and optimizations)
+- **Features**: Single-AZ, Spot instances, minimal redundancy
+- **Documentation**: [Development README](terraform/environments/dev/README.md)
+
+**💰 Cost Savings**: Dev environment is **97.4% cheaper** than production!
+
+For detailed cost comparison, see [COST_COMPARISON.md](docs/COST_COMPARISON.md)
+
 ## Prerequisites
 
 1. **AWS Account** with appropriate permissions
-2. **Terraform** >= 1.6
+2. **Terraform** >= 1.11.0
 3. **AWS CLI** configured with credentials
 4. **kubectl** for Kubernetes management
 5. **Node.js** >= 20 (for backend)
@@ -92,12 +112,25 @@ aws dynamodb create-table \
   --region us-east-1
 ```
 
-### 2. Configure Variables
+### 2. Choose Your Environment
+
+**For Development** (recommended for testing):
+```bash
+cd terraform/environments/dev
+```
+
+**For Production**:
+```bash
+cd terraform/environments/prod
+```
+
+### 3. Configure Variables
 
 Create a `terraform.tfvars` file in the environment directory:
 
 ```bash
-cd terraform/environments/prod
+# If in dev:
+cd terraform/environments/dev
 cat > terraform.tfvars <<EOF
 region                  = "us-east-1"
 eks_public_access_cidrs = ["YOUR_IP/32"]
@@ -107,7 +140,7 @@ budget_alert_emails     = ["your-email@example.com"]
 EOF
 ```
 
-### 3. Deploy Infrastructure
+### 4. Deploy Infrastructure
 
 ```bash
 cd terraform/environments/prod
@@ -124,7 +157,7 @@ terraform apply
 
 This will create all AWS resources. The process takes approximately 20-30 minutes.
 
-### 4. Configure kubectl
+### 5. Configure kubectl
 
 After EKS cluster is created:
 
@@ -133,7 +166,7 @@ aws eks update-kubeconfig --region us-east-1 --name prod-ai-agent-eks
 kubectl get nodes
 ```
 
-### 5. Deploy Application
+### 6. Deploy Application
 
 ```bash
 # Update backend configuration

@@ -1,0 +1,14 @@
+# AWS Development Environment Variables
+# Copy this file to terraform.tfvars and update with your values
+
+region = "us-east-1"
+
+# Restrict access to your IP for security
+eks_public_access_cidrs = ["YOUR_IP/32"]
+
+# Database credentials (use strong passwords even in dev)
+db_master_password = "CHANGE_ME_DEV_PASSWORD"
+redis_auth_token   = "CHANGE_ME_DEV_TOKEN_MIN_16_CHARS"
+
+# Budget alerts
+budget_alert_emails = ["your-email@example.com"]
