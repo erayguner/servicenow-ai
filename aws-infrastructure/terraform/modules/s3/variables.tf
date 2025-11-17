@@ -6,7 +6,7 @@ variable "environment" {
 variable "buckets" {
   description = "List of S3 buckets to create"
   type = list(object({
-    name                        = string
+    name                       = string
     kms_key_arn                = string
     versioning_enabled         = optional(bool, true)
     enable_intelligent_tiering = optional(bool, false)

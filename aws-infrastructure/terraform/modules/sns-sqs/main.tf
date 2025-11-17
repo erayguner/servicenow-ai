@@ -26,13 +26,13 @@ resource "aws_sns_topic" "main" {
 resource "aws_sqs_queue" "main" {
   for_each = { for topic in var.topics : topic.name => topic }
 
-  name                       = "${each.value.name}-queue"
-  delay_seconds              = 0
-  max_message_size           = 262144
-  message_retention_seconds  = each.value.message_retention_seconds
-  receive_wait_time_seconds  = 20
-  fifo_queue                 = each.value.fifo
-  kms_master_key_id          = var.kms_key_arn
+  name                              = "${each.value.name}-queue"
+  delay_seconds                     = 0
+  max_message_size                  = 262144
+  message_retention_seconds         = each.value.message_retention_seconds
+  receive_wait_time_seconds         = 20
+  fifo_queue                        = each.value.fifo
+  kms_master_key_id                 = var.kms_key_arn
   kms_data_key_reuse_period_seconds = 300
 
   tags = merge(var.tags, { Name = "${each.value.name}-queue" })

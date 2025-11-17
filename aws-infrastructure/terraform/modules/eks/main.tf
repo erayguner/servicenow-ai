@@ -22,9 +22,9 @@ locals {
     var.tags,
     {
       "kubernetes.io/cluster/${local.cluster_name}" = "owned"
-      ManagedBy                                      = "Terraform"
-      Module                                         = "eks"
-      Environment                                    = var.environment
+      ManagedBy                                     = "Terraform"
+      Module                                        = "eks"
+      Environment                                   = var.environment
     }
   )
 }
@@ -192,7 +192,7 @@ resource "aws_security_group" "node" {
   tags = merge(
     local.common_tags,
     {
-      Name                                           = "${local.cluster_name}-node-sg"
+      Name                                          = "${local.cluster_name}-node-sg"
       "kubernetes.io/cluster/${local.cluster_name}" = "owned"
     }
   )

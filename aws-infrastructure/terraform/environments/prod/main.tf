@@ -47,13 +47,13 @@ module "kms" {
 
   key_prefix = "prod"
   keys = {
-    storage        = "Storage encryption"
-    rds            = "RDS encryption"
-    dynamodb       = "DynamoDB encryption"
-    sns-sqs        = "SNS/SQS encryption"
-    elasticache    = "ElastiCache encryption"
-    secrets        = "Secrets Manager encryption"
-    eks            = "EKS encryption"
+    storage     = "Storage encryption"
+    rds         = "RDS encryption"
+    dynamodb    = "DynamoDB encryption"
+    sns-sqs     = "SNS/SQS encryption"
+    elasticache = "ElastiCache encryption"
+    secrets     = "Secrets Manager encryption"
+    eks         = "EKS encryption"
   }
 
   enable_multi_region = false
@@ -80,12 +80,12 @@ module "vpc" {
 module "eks" {
   source = "../../modules/eks"
 
-  cluster_name        = local.cluster_name
-  vpc_id              = module.vpc.vpc_id
-  private_subnet_ids  = module.vpc.private_subnet_ids
-  public_subnet_ids   = module.vpc.public_subnet_ids
-  kubernetes_version  = "1.29"
-  environment         = "prod"
+  cluster_name       = local.cluster_name
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
+  public_subnet_ids  = module.vpc.public_subnet_ids
+  kubernetes_version = "1.29"
+  environment        = "prod"
 
   endpoint_private_access = true
   endpoint_public_access  = true
@@ -128,24 +128,24 @@ module "rds" {
   eks_node_security_group_id = module.eks.node_security_group_id
   environment                = "prod"
 
-  engine_version   = "16.1"
-  instance_class   = "db.r6i.xlarge"
-  allocated_storage = 200
+  engine_version        = "16.1"
+  instance_class        = "db.r6i.xlarge"
+  allocated_storage     = 200
   max_allocated_storage = 1000
 
   database_name   = "agentdb"
   master_username = "postgres"
   master_password = var.db_master_password # Use AWS Secrets Manager in production
 
-  multi_az               = true
+  multi_az                = true
   backup_retention_period = 30
-  deletion_protection    = true
+  deletion_protection     = true
 
   monitoring_interval         = 60
   enable_performance_insights = true
   kms_key_arn                 = module.kms.key_arns["rds"]
 
-  create_read_replica        = var.create_rds_read_replica
+  create_read_replica         = var.create_rds_read_replica
   read_replica_instance_class = "db.r6i.large"
 
   tags = local.common_tags
@@ -204,21 +204,21 @@ module "s3" {
 
   buckets = [
     {
-      name                        = "servicenow-ai-knowledge-documents-prod"
-      kms_key_arn                 = module.kms.key_arns["storage"]
-      versioning_enabled          = true
-      enable_intelligent_tiering  = true
-      enable_eventbridge          = true
+      name                       = "servicenow-ai-knowledge-documents-prod"
+      kms_key_arn                = module.kms.key_arns["storage"]
+      versioning_enabled         = true
+      enable_intelligent_tiering = true
+      enable_eventbridge         = true
     },
     {
-      name                = "servicenow-ai-document-chunks-prod"
-      kms_key_arn         = module.kms.key_arns["storage"]
-      versioning_enabled  = true
+      name               = "servicenow-ai-document-chunks-prod"
+      kms_key_arn        = module.kms.key_arns["storage"]
+      versioning_enabled = true
     },
     {
-      name                = "servicenow-ai-user-uploads-prod"
-      kms_key_arn         = module.kms.key_arns["storage"]
-      versioning_enabled  = true
+      name               = "servicenow-ai-user-uploads-prod"
+      kms_key_arn        = module.kms.key_arns["storage"]
+      versioning_enabled = true
       lifecycle_rules = [
         {
           id              = "delete-old-uploads"
@@ -227,9 +227,9 @@ module "s3" {
       ]
     },
     {
-      name                = "servicenow-ai-backup-prod"
-      kms_key_arn         = module.kms.key_arns["storage"]
-      versioning_enabled  = true
+      name               = "servicenow-ai-backup-prod"
+      kms_key_arn        = module.kms.key_arns["storage"]
+      versioning_enabled = true
       lifecycle_rules = [
         {
           id = "archive-old-backups"
@@ -242,9 +242,9 @@ module "s3" {
       ]
     },
     {
-      name                = "servicenow-ai-audit-logs-prod"
-      kms_key_arn         = module.kms.key_arns["storage"]
-      versioning_enabled  = true
+      name               = "servicenow-ai-audit-logs-prod"
+      kms_key_arn        = module.kms.key_arns["storage"]
+      versioning_enabled = true
     }
   ]
 
@@ -312,11 +312,11 @@ module "secrets" {
     { name = "prod/openai-api-key", description = "OpenAI API Key" },
     { name = "prod/anthropic-api-key", description = "Anthropic API Key" },
     {
-      name               = "prod/rds-master-password"
-      description        = "RDS Master Password"
-      enable_rotation    = true
+      name                = "prod/rds-master-password"
+      description         = "RDS Master Password"
+      enable_rotation     = true
       rotation_lambda_arn = var.rds_rotation_lambda_arn
-      rotation_days      = 90
+      rotation_days       = 90
     }
   ]
 

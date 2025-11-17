@@ -120,11 +120,11 @@ resource "aws_db_instance" "main" {
   parameter_group_name   = aws_db_parameter_group.main.name
 
   # Backups
-  backup_retention_period = var.backup_retention_period
-  backup_window           = var.backup_window
-  maintenance_window      = var.maintenance_window
-  copy_tags_to_snapshot   = true
-  skip_final_snapshot     = var.skip_final_snapshot
+  backup_retention_period   = var.backup_retention_period
+  backup_window             = var.backup_window
+  maintenance_window        = var.maintenance_window
+  copy_tags_to_snapshot     = true
+  skip_final_snapshot       = var.skip_final_snapshot
   final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.identifier}-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
 
   # Enhanced Monitoring (2025 best practice)
@@ -133,12 +133,12 @@ resource "aws_db_instance" "main" {
   monitoring_role_arn             = var.monitoring_interval > 0 ? aws_iam_role.rds_monitoring[0].arn : null
 
   # Performance Insights (2025 best practice)
-  performance_insights_enabled    = var.enable_performance_insights
-  performance_insights_kms_key_id = var.enable_performance_insights ? var.kms_key_arn : null
+  performance_insights_enabled          = var.enable_performance_insights
+  performance_insights_kms_key_id       = var.enable_performance_insights ? var.kms_key_arn : null
   performance_insights_retention_period = var.enable_performance_insights ? 7 : null
 
-  deletion_protection      = var.deletion_protection
-  publicly_accessible      = false
+  deletion_protection        = var.deletion_protection
+  publicly_accessible        = false
   auto_minor_version_upgrade = true
 
   tags = merge(
@@ -190,8 +190,8 @@ resource "aws_db_instance" "read_replica" {
   vpc_security_group_ids = [aws_security_group.rds.id]
 
   # Performance Insights for read replica
-  performance_insights_enabled    = var.enable_performance_insights
-  performance_insights_kms_key_id = var.enable_performance_insights ? var.kms_key_arn : null
+  performance_insights_enabled          = var.enable_performance_insights
+  performance_insights_kms_key_id       = var.enable_performance_insights ? var.kms_key_arn : null
   performance_insights_retention_period = var.enable_performance_insights ? 7 : null
 
   tags = merge(
