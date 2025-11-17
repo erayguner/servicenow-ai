@@ -3,12 +3,12 @@
 # ==============================================================================
 
 variables {
-  project_name = "integration-cloudtrail"
-  environment  = "integration"
-  create_trail = true
-  kms_key_id = "arn:aws:kms:us-east-1:123456789012:key/12345"
+  project_name  = "integration-cloudtrail"
+  environment   = "integration"
+  create_trail  = true
+  kms_key_id    = "arn:aws:kms:us-east-1:123456789012:key/12345"
   sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:cloudtrail-notifications"
-  tags = { Environment = "integration" }
+  tags          = { Environment = "integration" }
 }
 
 run "verify_kms_encryption" {

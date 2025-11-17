@@ -21,17 +21,17 @@ output "dashboard_arn" {
 output "bedrock_alarm_names" {
   description = "Names of Bedrock agent alarms"
   value = {
-    invocation_errors   = try(aws_cloudwatch_metric_alarm.bedrock_invocation_errors[0].alarm_name, null)
-    invocation_latency  = try(aws_cloudwatch_metric_alarm.bedrock_invocation_latency[0].alarm_name, null)
-    throttles           = try(aws_cloudwatch_metric_alarm.bedrock_throttles[0].alarm_name, null)
-    invocation_anomaly  = try(aws_cloudwatch_metric_alarm.bedrock_invocation_anomaly[0].alarm_name, null)
+    invocation_errors  = try(aws_cloudwatch_metric_alarm.bedrock_invocation_errors[0].alarm_name, null)
+    invocation_latency = try(aws_cloudwatch_metric_alarm.bedrock_invocation_latency[0].alarm_name, null)
+    throttles          = try(aws_cloudwatch_metric_alarm.bedrock_throttles[0].alarm_name, null)
+    invocation_anomaly = try(aws_cloudwatch_metric_alarm.bedrock_invocation_anomaly[0].alarm_name, null)
   }
 }
 
 output "lambda_alarm_names" {
   description = "Names of Lambda function alarms"
   value = {
-    errors                 = { for k, v in aws_cloudwatch_metric_alarm.lambda_errors : k => v.alarm_name }
+    errors                = { for k, v in aws_cloudwatch_metric_alarm.lambda_errors : k => v.alarm_name }
     duration              = { for k, v in aws_cloudwatch_metric_alarm.lambda_duration : k => v.alarm_name }
     throttles             = { for k, v in aws_cloudwatch_metric_alarm.lambda_throttles : k => v.alarm_name }
     concurrent_executions = { for k, v in aws_cloudwatch_metric_alarm.lambda_concurrent_executions : k => v.alarm_name }
@@ -41,8 +41,8 @@ output "lambda_alarm_names" {
 output "step_functions_alarm_names" {
   description = "Names of Step Functions alarms"
   value = {
-    failed     = { for k, v in aws_cloudwatch_metric_alarm.step_functions_failed : k => v.alarm_name }
-    timed_out  = { for k, v in aws_cloudwatch_metric_alarm.step_functions_timed_out : k => v.alarm_name }
+    failed    = { for k, v in aws_cloudwatch_metric_alarm.step_functions_failed : k => v.alarm_name }
+    timed_out = { for k, v in aws_cloudwatch_metric_alarm.step_functions_timed_out : k => v.alarm_name }
   }
 }
 

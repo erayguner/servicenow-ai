@@ -201,11 +201,11 @@ output "dashboard_name" {
 output "log_groups" {
   description = "Map of CloudWatch log group names"
   value = {
-    api_gateway       = aws_cloudwatch_log_group.api_gateway.name
-    step_functions    = aws_cloudwatch_log_group.step_functions.name
+    api_gateway        = aws_cloudwatch_log_group.api_gateway.name
+    step_functions     = aws_cloudwatch_log_group.step_functions.name
     lambda_integration = aws_cloudwatch_log_group.lambda_integration.name
-    lambda_webhook    = aws_cloudwatch_log_group.lambda_webhook.name
-    lambda_knowledge  = var.enable_knowledge_sync ? aws_cloudwatch_log_group.lambda_knowledge_sync[0].name : null
+    lambda_webhook     = aws_cloudwatch_log_group.lambda_webhook.name
+    lambda_knowledge   = var.enable_knowledge_sync ? aws_cloudwatch_log_group.lambda_knowledge_sync[0].name : null
   }
 }
 

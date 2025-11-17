@@ -3,15 +3,15 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-cloudtrail"
-  environment  = "prod"
-  create_trail = true
-  enable_cloudwatch_logs = true
-  enable_s3_data_events = true
+  project_name              = "advanced-cloudtrail"
+  environment               = "prod"
+  create_trail              = true
+  enable_cloudwatch_logs    = true
+  enable_s3_data_events     = true
   enable_lambda_data_events = true
-  is_multi_region_trail = true
-  is_organization_trail = true
-  tags = { Environment = "prod" }
+  is_multi_region_trail     = true
+  is_organization_trail     = true
+  tags                      = { Environment = "prod" }
 }
 
 run "verify_multi_region_trail" {

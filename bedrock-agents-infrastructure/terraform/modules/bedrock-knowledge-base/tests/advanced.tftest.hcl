@@ -9,15 +9,15 @@ variables {
   description         = "Advanced knowledge base with custom configuration"
   create_s3_bucket    = true
 
-  enable_versioning            = true
+  enable_versioning             = true
   enable_server_side_encryption = true
-  kms_key_id                   = "12345678-1234-1234-1234-123456789012"
+  kms_key_id                    = "12345678-1234-1234-1234-123456789012"
 
-  chunking_strategy    = "FIXED_SIZE"
-  max_tokens          = 512
-  overlap_percentage  = 20
+  chunking_strategy  = "FIXED_SIZE"
+  max_tokens         = 512
+  overlap_percentage = 20
 
-  vector_dimension    = 1536
+  vector_dimension = 1536
 
   tags = {
     Environment = "advanced-test"

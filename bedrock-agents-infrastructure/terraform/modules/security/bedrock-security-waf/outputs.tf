@@ -137,16 +137,16 @@ output "waf_logging_enabled" {
 output "enabled_protection_features" {
   description = "Map of enabled WAF protection features"
   value = {
-    rate_limiting        = true
-    sql_injection        = true
-    xss_protection       = true
-    ip_reputation        = true
-    known_bad_inputs     = true
+    rate_limiting         = true
+    sql_injection         = true
+    xss_protection        = true
+    ip_reputation         = true
+    known_bad_inputs      = true
     anonymous_ip_blocking = var.enable_anonymous_ip_list
-    geo_blocking         = length(var.blocked_countries) > 0
-    ip_whitelist         = length(var.allowed_ip_addresses) > 0
-    ip_blacklist         = length(var.blocked_ip_addresses) > 0
-    api_key_validation   = var.require_api_key_header
+    geo_blocking          = length(var.blocked_countries) > 0
+    ip_whitelist          = length(var.allowed_ip_addresses) > 0
+    ip_blacklist          = length(var.blocked_ip_addresses) > 0
+    api_key_validation    = var.require_api_key_header
   }
 }
 

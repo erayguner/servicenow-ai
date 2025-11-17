@@ -132,9 +132,9 @@ output "permission_boundary_enabled" {
 output "all_role_arns" {
   description = "Map of all IAM role ARNs created by this module"
   value = {
-    bedrock_agent_execution = aws_iam_role.bedrock_agent_execution.arn
-    lambda_execution        = aws_iam_role.lambda_execution.arn
+    bedrock_agent_execution  = aws_iam_role.bedrock_agent_execution.arn
+    lambda_execution         = aws_iam_role.lambda_execution.arn
     step_functions_execution = var.enable_step_functions ? aws_iam_role.step_functions_execution[0].arn : null
-    cross_account_access    = var.enable_cross_account_access ? aws_iam_role.cross_account_access[0].arn : null
+    cross_account_access     = var.enable_cross_account_access ? aws_iam_role.cross_account_access[0].arn : null
   }
 }

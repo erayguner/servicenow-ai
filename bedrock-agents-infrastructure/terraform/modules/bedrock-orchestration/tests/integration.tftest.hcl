@@ -12,9 +12,9 @@ variables {
     "arn:aws:bedrock:us-east-1:123456789012:agent/AGENT3"
   ]
 
-  create_dynamodb_table = true
-  enable_logging = true
-  enable_sns_notifications = true
+  create_dynamodb_table      = true
+  enable_logging             = true
+  enable_sns_notifications   = true
   enable_eventbridge_trigger = true
 
   tags = {

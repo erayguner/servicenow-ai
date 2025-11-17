@@ -142,16 +142,16 @@ resource "aws_api_gateway_stage" "servicenow_webhooks" {
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn
     format = jsonencode({
-      requestId      = "$context.requestId"
-      ip             = "$context.identity.sourceIp"
-      caller         = "$context.identity.caller"
-      user           = "$context.identity.user"
-      requestTime    = "$context.requestTime"
-      httpMethod     = "$context.httpMethod"
-      resourcePath   = "$context.resourcePath"
-      status         = "$context.status"
-      protocol       = "$context.protocol"
-      responseLength = "$context.responseLength"
+      requestId        = "$context.requestId"
+      ip               = "$context.identity.sourceIp"
+      caller           = "$context.identity.caller"
+      user             = "$context.identity.user"
+      requestTime      = "$context.requestTime"
+      httpMethod       = "$context.httpMethod"
+      resourcePath     = "$context.resourcePath"
+      status           = "$context.status"
+      protocol         = "$context.protocol"
+      responseLength   = "$context.responseLength"
       integrationError = "$context.integrationErrorMessage"
     })
   }
@@ -235,10 +235,10 @@ resource "aws_api_gateway_rest_api_policy" "servicenow_webhooks" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
+        Effect    = "Allow"
         Principal = "*"
-        Action = "execute-api:Invoke"
-        Resource = "${aws_api_gateway_rest_api.servicenow_webhooks.execution_arn}/*"
+        Action    = "execute-api:Invoke"
+        Resource  = "${aws_api_gateway_rest_api.servicenow_webhooks.execution_arn}/*"
         Condition = {
           IpAddress = {
             "aws:SourceIp" = var.allowed_ip_ranges

@@ -5,8 +5,8 @@
 variables {
   project_name = "validation-waf"
   environment  = "validation"
-  scope = "REGIONAL"
-  tags = { Environment = "validation" }
+  scope        = "REGIONAL"
+  tags         = { Environment = "validation" }
 }
 
 run "validate_outputs" {

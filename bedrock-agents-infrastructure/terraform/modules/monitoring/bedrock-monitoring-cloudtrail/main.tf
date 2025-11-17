@@ -2,9 +2,9 @@
 # Provides comprehensive audit trail for all API activity
 
 locals {
-  trail_name             = var.trail_name != null ? var.trail_name : "${var.project_name}-${var.environment}-trail"
-  bucket_name            = var.create_s3_bucket ? "${var.project_name}-${var.environment}-cloudtrail-${data.aws_caller_identity.current.account_id}" : var.s3_bucket_name
-  log_group_name         = var.create_cloudwatch_logs_group ? "/aws/cloudtrail/${var.project_name}-${var.environment}" : var.cloudwatch_logs_group_name
+  trail_name     = var.trail_name != null ? var.trail_name : "${var.project_name}-${var.environment}-trail"
+  bucket_name    = var.create_s3_bucket ? "${var.project_name}-${var.environment}-cloudtrail-${data.aws_caller_identity.current.account_id}" : var.s3_bucket_name
+  log_group_name = var.create_cloudwatch_logs_group ? "/aws/cloudtrail/${var.project_name}-${var.environment}" : var.cloudwatch_logs_group_name
 
   common_tags = merge(
     var.tags,
@@ -25,8 +25,8 @@ locals {
           equals = ["Management"]
         },
         {
-          field       = "resources.type"
-          equals      = ["AWS::Bedrock::Agent", "AWS::Bedrock::KnowledgeBase"]
+          field  = "resources.type"
+          equals = ["AWS::Bedrock::Agent", "AWS::Bedrock::KnowledgeBase"]
         }
       ]
     },

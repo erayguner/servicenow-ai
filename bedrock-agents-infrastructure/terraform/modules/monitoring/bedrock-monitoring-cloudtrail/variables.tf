@@ -122,10 +122,10 @@ variable "advanced_event_selectors" {
   type = list(object({
     name = string
     field_selectors = list(object({
-      field  = string
-      equals = optional(list(string))
-      not_equals = optional(list(string))
-      starts_with = optional(list(string))
+      field           = string
+      equals          = optional(list(string))
+      not_equals      = optional(list(string))
+      starts_with     = optional(list(string))
       not_starts_with = optional(list(string))
     }))
   }))

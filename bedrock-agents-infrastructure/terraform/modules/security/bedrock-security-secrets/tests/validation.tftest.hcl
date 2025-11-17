@@ -7,7 +7,7 @@ variables {
   environment  = "validation"
   secrets = {
     validation_secret = {
-      description = "Validation secret"
+      description   = "Validation secret"
       secret_string = "validation"
     }
   }

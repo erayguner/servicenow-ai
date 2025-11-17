@@ -26,13 +26,13 @@ output "s3_bucket_arn" {
 output "config_rule_arns" {
   description = "ARNs of Config rules"
   value = {
-    s3_encryption           = try(aws_config_config_rule.s3_bucket_encryption[0].arn, null)
-    kms_rotation           = try(aws_config_config_rule.kms_key_rotation[0].arn, null)
-    cloudwatch_encryption  = try(aws_config_config_rule.cloudwatch_logs_encryption[0].arn, null)
-    s3_public_access       = try(aws_config_config_rule.s3_public_access[0].arn, null)
-    iam_user_no_policies   = try(aws_config_config_rule.iam_user_no_policies[0].arn, null)
-    lambda_dlq             = try(aws_config_config_rule.lambda_dlq[0].arn, null)
-    lambda_in_vpc          = try(aws_config_config_rule.lambda_in_vpc[0].arn, null)
+    s3_encryption         = try(aws_config_config_rule.s3_bucket_encryption[0].arn, null)
+    kms_rotation          = try(aws_config_config_rule.kms_key_rotation[0].arn, null)
+    cloudwatch_encryption = try(aws_config_config_rule.cloudwatch_logs_encryption[0].arn, null)
+    s3_public_access      = try(aws_config_config_rule.s3_public_access[0].arn, null)
+    iam_user_no_policies  = try(aws_config_config_rule.iam_user_no_policies[0].arn, null)
+    lambda_dlq            = try(aws_config_config_rule.lambda_dlq[0].arn, null)
+    lambda_in_vpc         = try(aws_config_config_rule.lambda_in_vpc[0].arn, null)
   }
 }
 

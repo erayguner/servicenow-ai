@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "validation-guardduty"
-  environment  = "validation"
+  project_name     = "validation-guardduty"
+  environment      = "validation"
   enable_guardduty = true
-  tags = { Environment = "validation" }
+  tags             = { Environment = "validation" }
 }
 
 run "validate_outputs" {

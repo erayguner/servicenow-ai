@@ -5,8 +5,8 @@
 variables {
   project_name = "validation-xray"
   environment  = "validation"
-  enable_xray = true
-  tags = { Environment = "validation" }
+  enable_xray  = true
+  tags         = { Environment = "validation" }
 }
 
 run "validate_outputs" {

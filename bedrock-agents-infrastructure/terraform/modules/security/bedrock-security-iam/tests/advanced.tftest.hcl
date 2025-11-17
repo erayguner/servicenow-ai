@@ -7,19 +7,19 @@ variables {
   environment  = "prod"
   aws_region   = "us-east-1"
 
-  allowed_bedrock_models  = ["arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-v2"]
-  knowledge_base_arns     = ["arn:aws:bedrock:us-east-1:123456789012:knowledge-base/KB123"]
-  dynamodb_table_arns     = ["arn:aws:dynamodb:us-east-1:123456789012:table/test-table"]
-  kms_key_arns           = ["arn:aws:kms:us-east-1:123456789012:key/12345"]
-  sns_topic_arn          = "arn:aws:sns:us-east-1:123456789012:alarms"
+  allowed_bedrock_models    = ["arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-v2"]
+  knowledge_base_arns       = ["arn:aws:bedrock:us-east-1:123456789012:knowledge-base/KB123"]
+  dynamodb_table_arns       = ["arn:aws:dynamodb:us-east-1:123456789012:table/test-table"]
+  kms_key_arns              = ["arn:aws:kms:us-east-1:123456789012:key/12345"]
+  sns_topic_arn             = "arn:aws:sns:us-east-1:123456789012:alarms"
   cloudtrail_log_group_name = "/aws/cloudtrail/advanced"
 
   enable_permission_boundary  = true
-  enable_step_functions      = true
+  enable_step_functions       = true
   enable_cross_account_access = true
-  trusted_account_ids        = ["123456789012"]
-  external_id               = "test-external-id"
-  allowed_regions           = ["us-east-1", "us-west-2"]
+  trusted_account_ids         = ["123456789012"]
+  external_id                 = "test-external-id"
+  allowed_regions             = ["us-east-1", "us-west-2"]
 
   tags = {
     Environment = "prod"

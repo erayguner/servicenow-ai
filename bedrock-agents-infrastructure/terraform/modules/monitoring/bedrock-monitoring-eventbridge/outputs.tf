@@ -11,14 +11,14 @@ output "event_bus_arn" {
 output "event_rule_arns" {
   description = "ARNs of EventBridge rules"
   value = {
-    bedrock_state_change       = try(aws_cloudwatch_event_rule.bedrock_state_change[0].arn, null)
-    bedrock_errors            = try(aws_cloudwatch_event_rule.bedrock_errors[0].arn, null)
-    lambda_errors             = try(aws_cloudwatch_event_rule.lambda_errors[0].arn, null)
-    lambda_throttles          = try(aws_cloudwatch_event_rule.lambda_throttles[0].arn, null)
+    bedrock_state_change        = try(aws_cloudwatch_event_rule.bedrock_state_change[0].arn, null)
+    bedrock_errors              = try(aws_cloudwatch_event_rule.bedrock_errors[0].arn, null)
+    lambda_errors               = try(aws_cloudwatch_event_rule.lambda_errors[0].arn, null)
+    lambda_throttles            = try(aws_cloudwatch_event_rule.lambda_throttles[0].arn, null)
     step_functions_state_change = try(aws_cloudwatch_event_rule.step_functions_state_change[0].arn, null)
-    cloudtrail_insights       = try(aws_cloudwatch_event_rule.cloudtrail_insights[0].arn, null)
-    config_compliance         = try(aws_cloudwatch_event_rule.config_compliance[0].arn, null)
-    health_events             = try(aws_cloudwatch_event_rule.health_events[0].arn, null)
+    cloudtrail_insights         = try(aws_cloudwatch_event_rule.cloudtrail_insights[0].arn, null)
+    config_compliance           = try(aws_cloudwatch_event_rule.config_compliance[0].arn, null)
+    health_events               = try(aws_cloudwatch_event_rule.health_events[0].arn, null)
   }
 }
 

@@ -119,9 +119,9 @@ resource "aws_sns_topic" "executive_escalation" {
 
 # SNS subscriptions for Slack integration
 resource "aws_sns_topic_subscription" "security_team_slack" {
-  topic_arn            = aws_sns_topic.security_team.arn
-  protocol             = "https"
-  endpoint             = var.security_team_slack_webhook
+  topic_arn              = aws_sns_topic.security_team.arn
+  protocol               = "https"
+  endpoint               = var.security_team_slack_webhook
   endpoint_auto_confirms = true
 
   filter_policy = jsonencode({
@@ -130,16 +130,16 @@ resource "aws_sns_topic_subscription" "security_team_slack" {
 }
 
 resource "aws_sns_topic_subscription" "incident_commander_slack" {
-  topic_arn            = aws_sns_topic.incident_commander.arn
-  protocol             = "https"
-  endpoint             = var.incident_commander_slack_webhook
+  topic_arn              = aws_sns_topic.incident_commander.arn
+  protocol               = "https"
+  endpoint               = var.incident_commander_slack_webhook
   endpoint_auto_confirms = true
 }
 
 resource "aws_sns_topic_subscription" "forensics_slack" {
-  topic_arn            = aws_sns_topic.forensics_team.arn
-  protocol             = "https"
-  endpoint             = var.forensics_team_slack_webhook
+  topic_arn              = aws_sns_topic.forensics_team.arn
+  protocol               = "https"
+  endpoint               = var.forensics_team_slack_webhook
   endpoint_auto_confirms = true
 }
 
@@ -170,16 +170,16 @@ resource "aws_sns_topic_subscription" "executive_email" {
 
 # SNS subscriptions for Lambda processors
 resource "aws_sns_topic_subscription" "incident_logger" {
-  topic_arn            = aws_sns_topic.incident_response.arn
-  protocol             = "lambda"
-  endpoint             = var.incident_logger_lambda_arn
+  topic_arn              = aws_sns_topic.incident_response.arn
+  protocol               = "lambda"
+  endpoint               = var.incident_logger_lambda_arn
   endpoint_auto_confirms = true
 }
 
 resource "aws_sns_topic_subscription" "incident_tracker" {
-  topic_arn            = aws_sns_topic.incident_response.arn
-  protocol             = "lambda"
-  endpoint             = var.incident_tracker_lambda_arn
+  topic_arn              = aws_sns_topic.incident_response.arn
+  protocol               = "lambda"
+  endpoint               = var.incident_tracker_lambda_arn
   endpoint_auto_confirms = true
 }
 
@@ -231,9 +231,9 @@ resource "aws_sns_topic" "dlq_notifications" {
 }
 
 resource "aws_sns_topic_subscription" "dlq_security_team" {
-  topic_arn            = aws_sns_topic.dlq_notifications.arn
-  protocol             = "https"
-  endpoint             = var.security_team_slack_webhook
+  topic_arn              = aws_sns_topic.dlq_notifications.arn
+  protocol               = "https"
+  endpoint               = var.security_team_slack_webhook
   endpoint_auto_confirms = true
 }
 

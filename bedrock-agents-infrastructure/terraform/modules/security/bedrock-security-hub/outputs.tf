@@ -157,19 +157,19 @@ output "remediation_dry_run" {
 output "enabled_standards" {
   description = "Map of enabled security standards"
   value = {
-    aws_foundational = var.enable_aws_foundational_standard
+    aws_foundational    = var.enable_aws_foundational_standard
     cis_aws_foundations = var.enable_cis_aws_foundations
-    pci_dss = var.enable_pci_dss
-    nist = var.enable_nist
+    pci_dss             = var.enable_pci_dss
+    nist                = var.enable_nist
   }
 }
 
 output "enabled_integrations" {
   description = "Map of enabled product integrations"
   value = {
-    guardduty = var.enable_guardduty_integration
-    config = var.enable_config_integration
-    inspector = var.enable_inspector_integration
+    guardduty       = var.enable_guardduty_integration
+    config          = var.enable_config_integration
+    inspector       = var.enable_inspector_integration
     access_analyzer = var.enable_access_analyzer_integration
   }
 }

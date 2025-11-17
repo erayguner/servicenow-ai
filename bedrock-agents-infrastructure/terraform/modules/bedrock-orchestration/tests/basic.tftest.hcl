@@ -10,9 +10,9 @@ variables {
     "arn:aws:bedrock:us-east-1:123456789012:agent/AGENT123"
   ]
 
-  create_dynamodb_table = true
+  create_dynamodb_table  = true
   use_default_definition = true
-  orchestration_pattern = "sequential"
+  orchestration_pattern  = "sequential"
 
   tags = {
     Environment = "test"

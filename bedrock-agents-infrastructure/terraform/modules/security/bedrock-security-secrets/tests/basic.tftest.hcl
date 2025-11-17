@@ -7,7 +7,7 @@ variables {
   environment  = "test"
   secrets = {
     api_key = {
-      description = "Test API key"
+      description   = "Test API key"
       secret_string = "test-value"
     }
   }

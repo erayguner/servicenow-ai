@@ -3,12 +3,12 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-kms"
-  environment  = "prod"
-  enable_key_rotation = true
+  project_name            = "advanced-kms"
+  environment             = "prod"
+  enable_key_rotation     = true
   deletion_window_in_days = 7
-  multi_region = true
-  tags = { Environment = "prod", Critical = "true" }
+  multi_region            = true
+  tags                    = { Environment = "prod", Critical = "true" }
 }
 
 run "verify_multi_region_key" {

@@ -58,18 +58,18 @@ output "third_party_keys_secret_name" {
 output "all_secret_arns" {
   description = "Map of all secret ARNs"
   value = {
-    bedrock_api_keys        = aws_secretsmanager_secret.bedrock_api_keys.arn
-    database_credentials    = var.enable_database_secrets ? aws_secretsmanager_secret.database_credentials[0].arn : null
-    third_party_keys        = length(var.third_party_api_keys) > 0 ? aws_secretsmanager_secret.third_party_keys[0].arn : null
+    bedrock_api_keys     = aws_secretsmanager_secret.bedrock_api_keys.arn
+    database_credentials = var.enable_database_secrets ? aws_secretsmanager_secret.database_credentials[0].arn : null
+    third_party_keys     = length(var.third_party_api_keys) > 0 ? aws_secretsmanager_secret.third_party_keys[0].arn : null
   }
 }
 
 output "all_secret_names" {
   description = "Map of all secret names"
   value = {
-    bedrock_api_keys        = aws_secretsmanager_secret.bedrock_api_keys.name
-    database_credentials    = var.enable_database_secrets ? aws_secretsmanager_secret.database_credentials[0].name : null
-    third_party_keys        = length(var.third_party_api_keys) > 0 ? aws_secretsmanager_secret.third_party_keys[0].name : null
+    bedrock_api_keys     = aws_secretsmanager_secret.bedrock_api_keys.name
+    database_credentials = var.enable_database_secrets ? aws_secretsmanager_secret.database_credentials[0].name : null
+    third_party_keys     = length(var.third_party_api_keys) > 0 ? aws_secretsmanager_secret.third_party_keys[0].name : null
   }
 }
 

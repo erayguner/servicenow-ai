@@ -8,11 +8,11 @@ variables {
 
   # Disable optional features for basic test
   enable_incident_automation = true
-  enable_ticket_triage      = true
-  enable_change_management  = false
-  enable_problem_management = false
-  enable_knowledge_sync     = false
-  enable_sla_monitoring     = true
+  enable_ticket_triage       = true
+  enable_change_management   = false
+  enable_problem_management  = false
+  enable_knowledge_sync      = false
+  enable_sla_monitoring      = true
 
   enable_enhanced_monitoring = false
 

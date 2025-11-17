@@ -3,14 +3,14 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-xray"
-  environment  = "prod"
-  enable_xray = true
-  sampling_rate = 0.1
-  enable_insights = true
+  project_name                  = "advanced-xray"
+  environment                   = "prod"
+  enable_xray                   = true
+  sampling_rate                 = 0.1
+  enable_insights               = true
   enable_insights_notifications = true
-  kms_key_id = "arn:aws:kms:us-east-1:123456789012:key/12345"
-  tags = { Environment = "prod" }
+  kms_key_id                    = "arn:aws:kms:us-east-1:123456789012:key/12345"
+  tags                          = { Environment = "prod" }
 }
 
 run "verify_sampling_rate" {

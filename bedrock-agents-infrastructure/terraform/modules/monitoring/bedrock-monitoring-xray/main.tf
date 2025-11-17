@@ -134,7 +134,7 @@ resource "aws_xray_sampling_rule" "errors" {
   priority       = 1
   version        = 1
   reservoir_size = 10
-  fixed_rate     = 1.0  # Sample all errors
+  fixed_rate     = 1.0 # Sample all errors
   url_path       = "*"
   host           = "*"
   http_method    = "*"
@@ -200,11 +200,11 @@ resource "aws_cloudwatch_event_target" "xray_insights_sns" {
 
   input_transformer {
     input_paths = {
-      insightId    = "$.detail.InsightId"
-      state        = "$.detail.State"
-      summary      = "$.detail.Summary"
-      startTime    = "$.detail.StartTime"
-      endTime      = "$.detail.EndTime"
+      insightId            = "$.detail.InsightId"
+      state                = "$.detail.State"
+      summary              = "$.detail.Summary"
+      startTime            = "$.detail.StartTime"
+      endTime              = "$.detail.EndTime"
       rootCauseServiceName = "$.detail.RootCauseServiceName"
     }
 

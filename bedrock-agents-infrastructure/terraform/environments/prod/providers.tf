@@ -32,8 +32,8 @@ provider "aws" {
   # }
 
   # Additional retry configuration for production stability
-  retry_mode      = "adaptive"
-  max_attempts    = 5
+  retry_mode   = "adaptive"
+  max_attempts = 5
 }
 
 # Secondary region provider for high availability

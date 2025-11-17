@@ -3,12 +3,12 @@
 # ==============================================================================
 
 variables {
-  project_name = "test-monitoring"
-  environment  = "test"
-  bedrock_agent_id = "AGENT123"
+  project_name           = "test-monitoring"
+  environment            = "test"
+  bedrock_agent_id       = "AGENT123"
   bedrock_agent_alias_id = "ALIAS123"
-  lambda_function_names = ["test-function"]
-  tags = { Environment = "test" }
+  lambda_function_names  = ["test-function"]
+  tags                   = { Environment = "test" }
 }
 
 run "verify_sns_topic" {

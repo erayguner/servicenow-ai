@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "test-config"
-  environment  = "test"
+  project_name  = "test-config"
+  environment   = "test"
   enable_config = true
-  tags = { Environment = "test" }
+  tags          = { Environment = "test" }
 }
 
 run "verify_config_recorder" {

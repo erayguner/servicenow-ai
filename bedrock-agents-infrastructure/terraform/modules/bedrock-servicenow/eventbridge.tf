@@ -208,7 +208,7 @@ resource "aws_cloudwatch_event_target" "problem_analysis" {
 
   input_transformer {
     input_paths = {
-      pattern = "$.detail.pattern"
+      pattern   = "$.detail.pattern"
       incidents = "$.detail.related_incidents"
     }
     input_template = <<-EOT
@@ -304,7 +304,7 @@ resource "aws_cloudwatch_event_connection" "servicenow_api" {
       for_each = var.servicenow_auth_type == "oauth" ? [1] : []
       content {
         authorization_endpoint = "${var.servicenow_instance_url}/oauth_auth.do"
-        http_method           = "POST"
+        http_method            = "POST"
 
         oauth_http_parameters {
           body {

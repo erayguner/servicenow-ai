@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "test-guardduty"
-  environment  = "test"
+  project_name     = "test-guardduty"
+  environment      = "test"
   enable_guardduty = true
-  tags = { Environment = "test" }
+  tags             = { Environment = "test" }
 }
 
 run "verify_guardduty_detector" {

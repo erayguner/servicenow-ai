@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "validation-securityhub"
-  environment  = "validation"
+  project_name        = "validation-securityhub"
+  environment         = "validation"
   enable_security_hub = true
-  tags = { Environment = "validation" }
+  tags                = { Environment = "validation" }
 }
 
 run "validate_outputs" {

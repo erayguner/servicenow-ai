@@ -3,13 +3,13 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-waf"
-  environment  = "prod"
-  scope = "REGIONAL"
-  rate_limit = 1000
-  enable_logging = true
+  project_name       = "advanced-waf"
+  environment        = "prod"
+  scope              = "REGIONAL"
+  rate_limit         = 1000
+  enable_logging     = true
   enable_bot_control = true
-  tags = { Environment = "prod" }
+  tags               = { Environment = "prod" }
 }
 
 run "verify_rate_limit_configuration" {

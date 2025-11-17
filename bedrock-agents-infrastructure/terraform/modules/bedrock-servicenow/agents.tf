@@ -91,11 +91,11 @@ module "bedrock_agents" {
                     schema = {
                       type = "object"
                       properties = {
-                        incident_id       = { type = "string" }
-                        work_notes        = { type = "string" }
-                        state             = { type = "integer" }
-                        assignment_group  = { type = "string" }
-                        assigned_to       = { type = "string" }
+                        incident_id      = { type = "string" }
+                        work_notes       = { type = "string" }
+                        state            = { type = "integer" }
+                        assignment_group = { type = "string" }
+                        assigned_to      = { type = "string" }
                       }
                       required = ["incident_id"]
                     }
@@ -141,7 +141,7 @@ module "bedrock_agents" {
       })
       enabled = true
     }
-  ] : each.key == "triage" ? [
+    ] : each.key == "triage" ? [
     {
       action_group_name = "triage-actions"
       description       = "Actions for ticket triage"
@@ -226,7 +226,7 @@ module "bedrock_agents" {
       })
       enabled = true
     }
-  ] : each.key == "knowledge" ? [
+    ] : each.key == "knowledge" ? [
     {
       action_group_name = "knowledge-actions"
       description       = "Actions for knowledge base management"
@@ -272,10 +272,10 @@ module "bedrock_agents" {
                             items = {
                               type = "object"
                               properties = {
-                                article_id    = { type = "string" }
-                                title         = { type = "string" }
-                                content       = { type = "string" }
-                                relevance     = { type = "number" }
+                                article_id = { type = "string" }
+                                title      = { type = "string" }
+                                content    = { type = "string" }
+                                relevance  = { type = "number" }
                               }
                             }
                           }

@@ -2,10 +2,10 @@
 resource "aws_dynamodb_table" "state" {
   count = var.create_dynamodb_table ? 1 : 0
 
-  name           = var.dynamodb_table_name != null ? var.dynamodb_table_name : "${var.orchestration_name}-state"
-  billing_mode   = var.dynamodb_billing_mode
-  hash_key       = "execution_id"
-  range_key      = "timestamp"
+  name         = var.dynamodb_table_name != null ? var.dynamodb_table_name : "${var.orchestration_name}-state"
+  billing_mode = var.dynamodb_billing_mode
+  hash_key     = "execution_id"
+  range_key    = "timestamp"
 
   dynamic "attribute" {
     for_each = [
@@ -324,7 +324,7 @@ resource "aws_cloudwatch_event_target" "state_machine" {
   dynamic "input_transformer" {
     for_each = var.eventbridge_input_transformer != null ? [var.eventbridge_input_transformer] : []
     content {
-      input_paths = input_transformer.value.input_paths_map
+      input_paths    = input_transformer.value.input_paths_map
       input_template = input_transformer.value.input_template
     }
   }
@@ -385,12 +385,12 @@ data "aws_iam_policy_document" "eventbridge_permissions" {
 # Default State Machine Definition
 locals {
   default_state_machine_definition = templatefile("${path.module}/templates/${var.orchestration_pattern}_definition.json.tpl", {
-    agent_arns            = jsonencode(var.agent_arns)
-    dynamodb_table_name   = var.create_dynamodb_table ? aws_dynamodb_table.state[0].name : ""
-    sns_topic_arn         = var.enable_sns_notifications ? aws_sns_topic.notifications[0].arn : ""
-    timeout_seconds       = var.timeout_seconds
-    max_retry_attempts    = var.max_retry_attempts
-    error_handling        = var.error_handling_strategy
+    agent_arns          = jsonencode(var.agent_arns)
+    dynamodb_table_name = var.create_dynamodb_table ? aws_dynamodb_table.state[0].name : ""
+    sns_topic_arn       = var.enable_sns_notifications ? aws_sns_topic.notifications[0].arn : ""
+    timeout_seconds     = var.timeout_seconds
+    max_retry_attempts  = var.max_retry_attempts
+    error_handling      = var.error_handling_strategy
   })
 }
 

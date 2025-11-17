@@ -3,13 +3,13 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-guardduty"
-  environment  = "prod"
-  enable_guardduty = true
+  project_name                 = "advanced-guardduty"
+  environment                  = "prod"
+  enable_guardduty             = true
   finding_publishing_frequency = "FIFTEEN_MINUTES"
   enable_kubernetes_protection = true
-  enable_malware_protection = true
-  tags = { Environment = "prod" }
+  enable_malware_protection    = true
+  tags                         = { Environment = "prod" }
 }
 
 run "verify_kubernetes_protection" {

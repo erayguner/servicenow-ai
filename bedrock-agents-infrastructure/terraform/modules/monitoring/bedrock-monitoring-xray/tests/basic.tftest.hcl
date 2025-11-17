@@ -5,8 +5,8 @@
 variables {
   project_name = "test-xray"
   environment  = "test"
-  enable_xray = true
-  tags = { Environment = "test" }
+  enable_xray  = true
+  tags         = { Environment = "test" }
 }
 
 run "verify_xray_group" {

@@ -150,11 +150,11 @@ resource "aws_secretsmanager_secret_version" "servicenow_credentials" {
 
   secret_id = aws_secretsmanager_secret.servicenow_credentials[0].id
   secret_string = jsonencode({
-    instance_url = var.servicenow_instance_url
-    auth_type    = var.servicenow_auth_type
-    username     = "REPLACE_WITH_USERNAME"
-    password     = "REPLACE_WITH_PASSWORD"
-    client_id    = var.servicenow_auth_type == "oauth" ? "REPLACE_WITH_CLIENT_ID" : null
+    instance_url  = var.servicenow_instance_url
+    auth_type     = var.servicenow_auth_type
+    username      = "REPLACE_WITH_USERNAME"
+    password      = "REPLACE_WITH_PASSWORD"
+    client_id     = var.servicenow_auth_type == "oauth" ? "REPLACE_WITH_CLIENT_ID" : null
     client_secret = var.servicenow_auth_type == "oauth" ? "REPLACE_WITH_CLIENT_SECRET" : null
   })
 
@@ -169,10 +169,10 @@ locals {
 
 # DynamoDB Table for State Tracking
 resource "aws_dynamodb_table" "servicenow_state" {
-  name           = "${local.name_prefix}-state-${local.resource_id}"
-  billing_mode   = var.dynamodb_billing_mode
-  hash_key       = "ticketId"
-  range_key      = "timestamp"
+  name         = "${local.name_prefix}-state-${local.resource_id}"
+  billing_mode = var.dynamodb_billing_mode
+  hash_key     = "ticketId"
+  range_key    = "timestamp"
 
   stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"

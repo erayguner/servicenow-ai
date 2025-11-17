@@ -3,13 +3,13 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-securityhub"
-  environment  = "prod"
-  enable_security_hub = true
-  enable_pci_dss = true
-  enable_nist = true
+  project_name         = "advanced-securityhub"
+  environment          = "prod"
+  enable_security_hub  = true
+  enable_pci_dss       = true
+  enable_nist          = true
   auto_enable_controls = true
-  tags = { Environment = "prod" }
+  tags                 = { Environment = "prod" }
 }
 
 run "verify_pci_dss_standard" {

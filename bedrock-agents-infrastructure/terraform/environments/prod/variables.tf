@@ -162,9 +162,9 @@ variable "synthetic_test_scenarios" {
 variable "auto_scaling_config" {
   description = "Auto-scaling configuration"
   type = object({
-    min_instances     = number
-    max_instances     = number
-    desired_instances = number
+    min_instances        = number
+    max_instances        = number
+    desired_instances    = number
     scale_up_threshold   = number
     scale_down_threshold = number
   })
@@ -181,9 +181,9 @@ variable "auto_scaling_config" {
 variable "performance_config" {
   description = "Performance and throughput configuration"
   type = object({
-    provisioned_units        = number
-    cache_ttl_seconds        = number
-    max_concurrent_requests  = number
+    provisioned_units           = number
+    cache_ttl_seconds           = number
+    max_concurrent_requests     = number
     lambda_provisioned_capacity = number
   })
   default = {
@@ -198,8 +198,8 @@ variable "performance_config" {
 variable "backup_config" {
   description = "Backup and recovery configuration"
   type = object({
-    retention_days              = number
-    schedule                    = string
+    retention_days                = number
+    schedule                      = string
     enable_point_in_time_recovery = bool
   })
   default = {
@@ -219,7 +219,7 @@ variable "monitoring_thresholds" {
     throttle_count       = number
   })
   default = {
-    error_rate_percent   = 0.05  # 5%
+    error_rate_percent   = 0.05 # 5%
     latency_ms           = 2000
     availability_percent = 99.9
     throttle_count       = 1000
@@ -230,10 +230,10 @@ variable "monitoring_thresholds" {
 variable "compliance_config" {
   description = "Compliance and regulatory requirements"
   type = object({
-    frameworks            = list(string)
-    enable_audit_logging  = bool
-    log_retention_days    = number
-    enable_encryption     = bool
+    frameworks           = list(string)
+    enable_audit_logging = bool
+    log_retention_days   = number
+    enable_encryption    = bool
   })
   default = {
     frameworks           = ["sox", "pci", "hipaa"]
@@ -247,10 +247,10 @@ variable "compliance_config" {
 variable "business_continuity_config" {
   description = "Business continuity and disaster recovery configuration"
   type = object({
-    enable_multi_region          = bool
-    enable_automatic_failover    = bool
-    rpo_minutes                  = number  # Recovery Point Objective
-    rto_minutes                  = number  # Recovery Time Objective
+    enable_multi_region       = bool
+    enable_automatic_failover = bool
+    rpo_minutes               = number # Recovery Point Objective
+    rto_minutes               = number # Recovery Time Objective
   })
   default = {
     enable_multi_region       = true
@@ -265,10 +265,10 @@ variable "cost_allocation_tags" {
   description = "Additional cost allocation tags"
   type        = map(string)
   default = {
-    Department     = "Engineering"
-    Application    = "ServiceNow-AI"
-    CostCenter     = "PROD-OPS"
-    BusinessUnit   = "IT-Operations"
+    Department   = "Engineering"
+    Application  = "ServiceNow-AI"
+    CostCenter   = "PROD-OPS"
+    BusinessUnit = "IT-Operations"
   }
 }
 
@@ -276,13 +276,13 @@ variable "cost_allocation_tags" {
 variable "change_window" {
   description = "Approved change window for maintenance"
   type = object({
-    day_of_week  = string
-    start_hour   = number
+    day_of_week    = string
+    start_hour     = number
     duration_hours = number
   })
   default = {
     day_of_week    = "Sunday"
-    start_hour     = 2  # 2 AM
+    start_hour     = 2 # 2 AM
     duration_hours = 4
   }
 }
@@ -291,11 +291,11 @@ variable "change_window" {
 variable "security_config" {
   description = "Security and access control configuration"
   type = object({
-    enable_waf                = bool
-    enable_shield_advanced    = bool
-    enable_secrets_rotation   = bool
-    mfa_required              = bool
-    ip_whitelist              = list(string)
+    enable_waf              = bool
+    enable_shield_advanced  = bool
+    enable_secrets_rotation = bool
+    mfa_required            = bool
+    ip_whitelist            = list(string)
   })
   default = {
     enable_waf              = true

@@ -5,11 +5,11 @@
 # ==============================================================================
 
 variables {
-  lambda_function_name = "validation-lambda"
+  lambda_function_name   = "validation-lambda"
   create_lambda_function = true
 
-  lambda_runtime = "python3.12"
-  lambda_handler = "index.handler"
+  lambda_runtime            = "python3.12"
+  lambda_handler            = "index.handler"
   lambda_source_code_inline = "def handler(event, context): return {}"
 
   api_schema = jsonencode({ openapi = "3.0.0" })

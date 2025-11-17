@@ -31,42 +31,42 @@ locals {
 
   # Staging tags
   common_tags = {
-    Environment     = "staging"
-    Project         = "servicenow-ai"
-    ManagedBy       = "terraform"
-    CostCenter      = "qa-testing"
-    Owner           = var.owner_email
-    AutoShutdown    = "false"
-    BackupRequired  = "true"
-    Compliance      = "sox-compliant"
+    Environment        = "staging"
+    Project            = "servicenow-ai"
+    ManagedBy          = "terraform"
+    CostCenter         = "qa-testing"
+    Owner              = var.owner_email
+    AutoShutdown       = "false"
+    BackupRequired     = "true"
+    Compliance         = "sox-compliant"
     DataClassification = "confidential"
   }
 
   # Medium configuration for staging
   agent_config = {
-    instance_count          = 3
-    model_id                = "anthropic.claude-3-sonnet-20240229-v1:0"
-    enable_trace            = true
-    idle_session_ttl        = 1800  # 30 minutes
-    enable_provisioned      = false
-    pricing_model           = "on-demand"
+    instance_count     = 3
+    model_id           = "anthropic.claude-3-sonnet-20240229-v1:0"
+    enable_trace       = true
+    idle_session_ttl   = 1800 # 30 minutes
+    enable_provisioned = false
+    pricing_model      = "on-demand"
   }
 
   # Full knowledge base configuration
   knowledge_base_config = {
-    enabled             = true
-    storage_type        = "opensearch-serverless"
-    embedding_model     = "amazon.titan-embed-text-v2"
-    chunking_strategy   = "hierarchical"
-    chunk_size          = 512
-    chunk_overlap       = 50
-    max_tokens          = 1024
+    enabled           = true
+    storage_type      = "opensearch-serverless"
+    embedding_model   = "amazon.titan-embed-text-v2"
+    chunking_strategy = "hierarchical"
+    chunk_size        = 512
+    chunk_overlap     = 50
+    max_tokens        = 1024
   }
 
   # All action groups for staging
   action_groups = {
     enabled = true
-    groups  = [
+    groups = [
       "servicenow-read",
       "servicenow-write",
       "servicenow-query",
@@ -78,7 +78,7 @@ locals {
 
   # Orchestration configuration
   orchestration_config = {
-    enabled                = true
+    enabled                    = true
     max_concurrent_invocations = 10
     prompt_override_enabled    = true
     enable_code_interpretation = true
@@ -110,8 +110,8 @@ module "bedrock_agent" {
   enable_trace_logging = local.agent_config.enable_trace
 
   # Knowledge Base configuration
-  enable_knowledge_base     = local.knowledge_base_config.enabled
-  knowledge_base_name       = "${local.project}-kb-${local.environment}"
+  enable_knowledge_base      = local.knowledge_base_config.enabled
+  knowledge_base_name        = "${local.project}-kb-${local.environment}"
   knowledge_base_description = "Staging knowledge base for ServiceNow AI"
 
   # Storage configuration
@@ -136,30 +136,30 @@ module "bedrock_agent" {
   action_lambda_arn = var.action_lambda_arn
 
   # Orchestration configuration
-  enable_orchestration           = local.orchestration_config.enabled
-  max_concurrent_invocations     = local.orchestration_config.max_concurrent_invocations
-  enable_prompt_override         = local.orchestration_config.prompt_override_enabled
-  enable_code_interpretation     = local.orchestration_config.enable_code_interpretation
+  enable_orchestration       = local.orchestration_config.enabled
+  max_concurrent_invocations = local.orchestration_config.max_concurrent_invocations
+  enable_prompt_override     = local.orchestration_config.prompt_override_enabled
+  enable_code_interpretation = local.orchestration_config.enable_code_interpretation
 
   # IAM roles
   agent_role_name = "${local.project}-bedrock-agent-role-${local.environment}"
 
   # Monitoring - Enhanced CloudWatch
   enable_cloudwatch_logs = true
-  log_retention_days     = 30  # 30 days for staging
+  log_retention_days     = 30 # 30 days for staging
 
   enable_xray_tracing     = true
   enable_detailed_metrics = true
 
   # Alerting - Enabled
-  enable_alerting             = true
-  alert_email                 = var.alert_email
-  throttle_threshold          = 500
-  error_rate_threshold        = 0.1
-  latency_threshold_ms        = 3000
+  enable_alerting      = true
+  alert_email          = var.alert_email
+  throttle_threshold   = 500
+  error_rate_threshold = 0.1
+  latency_threshold_ms = 3000
 
   # Cost optimization - Moderate
-  enable_auto_shutdown = false  # No auto-shutdown in staging
+  enable_auto_shutdown = false # No auto-shutdown in staging
 
   # Backup - Enabled
   enable_backup         = true
@@ -186,14 +186,14 @@ module "agent_orchestrator" {
   primary_agent_id = module.bedrock_agent.agent_id
 
   # Orchestration configuration
-  max_agents            = 5
-  enable_auto_scaling   = true
-  min_agents            = 2
-  max_agents_limit      = 10
+  max_agents          = 5
+  enable_auto_scaling = true
+  min_agents          = 2
+  max_agents_limit    = 10
 
   # Testing configuration
-  enable_chaos_testing  = var.enable_chaos_testing
-  enable_ab_testing     = var.enable_ab_testing
+  enable_chaos_testing = var.enable_chaos_testing
+  enable_ab_testing    = var.enable_ab_testing
 
   tags = local.common_tags
 }
@@ -211,9 +211,9 @@ module "security_kms" {
   aws_region   = var.aws_region
 
   # Standard KMS configuration for staging
-  enable_key_rotation      = true   # Enabled for staging
-  enable_multi_region      = false
-  deletion_window_in_days  = 14
+  enable_key_rotation     = true # Enabled for staging
+  enable_multi_region     = false
+  deletion_window_in_days = 14
 
   # IAM role ARNs that need KMS access
   iam_role_arns = [
@@ -247,7 +247,7 @@ module "security_iam" {
 
   # Permission boundary - enabled for staging
   enable_permission_boundary = true
-  max_session_duration       = 7200  # 2 hours
+  max_session_duration       = 7200 # 2 hours
 
   allowed_regions = [var.aws_region, "us-west-2"]
 
@@ -297,9 +297,9 @@ module "security_guardduty" {
 
   # Standard protections for staging
   enable_s3_protection      = true
-  enable_eks_protection     = false  # Enable if using EKS
+  enable_eks_protection     = false # Enable if using EKS
   enable_lambda_protection  = true
-  enable_rds_protection     = false  # Enable if using RDS
+  enable_rds_protection     = false # Enable if using RDS
   enable_malware_protection = true
 
   # Threat detection
@@ -323,9 +323,9 @@ module "security_hub" {
   environment  = local.environment
 
   # Enable compliance standards
-  enable_cis_standard         = true
-  enable_pci_dss              = false
-  enable_aws_foundational     = true
+  enable_cis_standard     = true
+  enable_pci_dss          = false
+  enable_aws_foundational = true
 
   # Findings configuration
   critical_findings_threshold = 1
@@ -368,9 +368,9 @@ module "security_waf" {
   api_gateway_arn = var.api_gateway_arn
 
   # Alarms
-  sns_topic_arn                = module.monitoring_cloudwatch.sns_topic_arn
-  blocked_requests_threshold   = 500
-  rate_limit_alarm_threshold   = 300
+  sns_topic_arn              = module.monitoring_cloudwatch.sns_topic_arn
+  blocked_requests_threshold = 500
+  rate_limit_alarm_threshold = 300
 
   tags = local.common_tags
 }
@@ -386,8 +386,8 @@ module "security_secrets" {
   kms_key_id = module.security_kms.secrets_key_id
 
   # Rotation enabled for staging
-  enable_rotation    = true
-  rotation_days      = 30
+  enable_rotation = true
+  rotation_days   = 30
 
   # Recovery window
   recovery_window_in_days = 14
@@ -426,16 +426,16 @@ module "monitoring_cloudwatch" {
   sns_email_subscriptions = [var.alert_email]
 
   # Alarms - standard thresholds for staging
-  bedrock_error_rate_threshold           = 5
-  bedrock_invocation_latency_threshold   = 30000  # 30 seconds
-  bedrock_throttle_threshold             = 10
-  lambda_error_rate_threshold            = 5
-  lambda_duration_threshold              = 10000
-  lambda_throttles_threshold             = 5
-  step_functions_failed_executions_threshold = 5
+  bedrock_error_rate_threshold                  = 5
+  bedrock_invocation_latency_threshold          = 30000 # 30 seconds
+  bedrock_throttle_threshold                    = 10
+  lambda_error_rate_threshold                   = 5
+  lambda_duration_threshold                     = 10000
+  lambda_throttles_threshold                    = 5
+  step_functions_failed_executions_threshold    = 5
   step_functions_timed_out_executions_threshold = 3
-  api_gateway_5xx_error_threshold        = 5
-  api_gateway_latency_threshold          = 5000
+  api_gateway_5xx_error_threshold               = 5
+  api_gateway_latency_threshold                 = 5000
 
   # Anomaly detection - enabled for staging
   enable_anomaly_detection = true
@@ -467,7 +467,7 @@ module "monitoring_xray" {
   # X-Ray configuration
   enable_insights       = true
   enable_sampling_rules = true
-  sampling_rate         = 0.2  # Sample 20% of requests
+  sampling_rate         = 0.2 # Sample 20% of requests
 
   # Tracing configuration
   enable_active_tracing = true
@@ -548,8 +548,8 @@ module "monitoring_eventbridge" {
   environment  = local.environment
 
   # Event patterns
-  enable_bedrock_events = true
-  enable_lambda_events  = true
+  enable_bedrock_events  = true
+  enable_lambda_events   = true
   enable_security_events = true
 
   # Targets
@@ -560,7 +560,7 @@ module "monitoring_eventbridge" {
   event_bus_name          = "${local.project}-${local.environment}-events"
 
   # Archive
-  enable_event_archive = true
+  enable_event_archive   = true
   archive_retention_days = 30
 
   tags = local.common_tags
@@ -608,24 +608,24 @@ module "bedrock_servicenow" {
   name_prefix = local.project
 
   # ServiceNow instance configuration
-  servicenow_instance_url              = var.servicenow_instance_url
-  servicenow_auth_type                 = var.servicenow_auth_type
-  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn
+  servicenow_instance_url           = var.servicenow_instance_url
+  servicenow_auth_type              = var.servicenow_auth_type
+  servicenow_credentials_secret_arn = var.servicenow_credentials_secret_arn
 
   # Feature flags - all features enabled for staging testing
-  enable_incident_automation  = true
-  enable_ticket_triage        = true
-  enable_change_management    = true
-  enable_problem_management   = true
-  enable_knowledge_sync       = true
-  enable_sla_monitoring       = true
+  enable_incident_automation = true
+  enable_ticket_triage       = true
+  enable_change_management   = true
+  enable_problem_management  = true
+  enable_knowledge_sync      = true
+  enable_sla_monitoring      = true
 
   # SLA configuration
-  sla_breach_threshold = 80  # 80% threshold for warnings
+  sla_breach_threshold = 80 # 80% threshold for warnings
 
   # Auto-assignment with standard confidence threshold
   auto_assignment_enabled              = true
-  auto_assignment_confidence_threshold = 0.85  # Standard threshold
+  auto_assignment_confidence_threshold = 0.85 # Standard threshold
 
   # Agent configuration
   agent_model_id         = local.agent_config.model_id
@@ -633,15 +633,15 @@ module "bedrock_servicenow" {
 
   # Lambda configuration - standard
   lambda_runtime     = "python3.12"
-  lambda_timeout     = 300  # 5 minutes
-  lambda_memory_size = 512  # Standard memory
+  lambda_timeout     = 300 # 5 minutes
+  lambda_memory_size = 512 # Standard memory
 
   # API Gateway configuration
   api_gateway_stage_name     = "staging"
   enable_api_gateway_logging = true
 
   # DynamoDB configuration
-  dynamodb_billing_mode          = "PAY_PER_REQUEST"
+  dynamodb_billing_mode           = "PAY_PER_REQUEST"
   dynamodb_point_in_time_recovery = true
 
   # Step Functions configuration
@@ -652,10 +652,10 @@ module "bedrock_servicenow" {
   alarm_notification_emails  = [var.alert_email]
 
   # Security - use KMS keys from security module
-  kms_key_id                  = module.security_kms.bedrock_data_key_id
-  enable_encryption_at_rest   = true
+  kms_key_id                   = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest    = true
   enable_encryption_in_transit = true
-  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+  sns_kms_master_key_id        = module.security_kms.bedrock_data_key_id
 
   # Networking - use VPC if available
   vpc_id             = var.servicenow_vpc_id
@@ -670,7 +670,7 @@ module "bedrock_servicenow" {
 
   # Workflow timeouts
   incident_escalation_timeout_minutes = 30
-  change_approval_timeout_minutes     = 240  # 4 hours
+  change_approval_timeout_minutes     = 240 # 4 hours
 
   # IP restrictions (if applicable)
   allowed_ip_ranges = var.servicenow_allowed_ip_ranges

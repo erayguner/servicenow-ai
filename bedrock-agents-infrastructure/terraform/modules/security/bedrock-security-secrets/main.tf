@@ -313,11 +313,11 @@ resource "aws_secretsmanager_secret_policy" "bedrock_api_keys" {
         Resource = "*"
       },
       {
-        Sid    = "DenyUnencryptedAccess"
-        Effect = "Deny"
+        Sid       = "DenyUnencryptedAccess"
+        Effect    = "Deny"
         Principal = "*"
-        Action = "secretsmanager:GetSecretValue"
-        Resource = "*"
+        Action    = "secretsmanager:GetSecretValue"
+        Resource  = "*"
         Condition = {
           Bool = {
             "aws:SecureTransport" = "false"

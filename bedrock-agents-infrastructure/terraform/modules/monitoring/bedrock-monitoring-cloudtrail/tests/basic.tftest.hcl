@@ -6,7 +6,7 @@ variables {
   project_name = "test-cloudtrail"
   environment  = "test"
   create_trail = true
-  tags = { Environment = "test" }
+  tags         = { Environment = "test" }
 }
 
 run "verify_cloudtrail_creation" {

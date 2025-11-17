@@ -12,17 +12,17 @@ variables {
   ]
 
   create_dynamodb_table = true
-  state_machine_type = "EXPRESS"
+  state_machine_type    = "EXPRESS"
 
   enable_logging = true
-  log_level = "ALL"
+  log_level      = "ALL"
 
   enable_xray_tracing = true
 
   enable_sns_notifications = true
-  sns_email_subscriptions = ["test@example.com"]
+  sns_email_subscriptions  = ["test@example.com"]
 
-  enable_eventbridge_trigger = true
+  enable_eventbridge_trigger      = true
   eventbridge_schedule_expression = "rate(1 hour)"
 
   kms_key_id = "12345678-1234-1234-1234-123456789012"

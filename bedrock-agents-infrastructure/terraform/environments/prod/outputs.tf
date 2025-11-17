@@ -62,10 +62,10 @@ output "global_endpoint_dns" {
 output "failover_status" {
   description = "Failover configuration status"
   value = {
-    enabled               = module.global_traffic_manager.failover_enabled
-    primary_healthy       = module.global_traffic_manager.primary_health_status
-    secondary_healthy     = module.global_traffic_manager.secondary_health_status
-    active_endpoint       = module.global_traffic_manager.active_endpoint
+    enabled           = module.global_traffic_manager.failover_enabled
+    primary_healthy   = module.global_traffic_manager.primary_health_status
+    secondary_healthy = module.global_traffic_manager.secondary_health_status
+    active_endpoint   = module.global_traffic_manager.active_endpoint
   }
 }
 
@@ -125,17 +125,17 @@ output "estimated_monthly_cost" {
 output "cost_breakdown" {
   description = "Detailed cost breakdown by service"
   value = {
-    bedrock_agents_primary      = "$800-1200/month (8 instances, provisioned)"
-    bedrock_agents_secondary    = "$800-1200/month (8 instances, provisioned)"
-    opensearch_provisioned      = "$400-600/month (HA cluster)"
-    lambda_provisioned          = "$100-150/month (provisioned concurrency)"
-    cloudwatch_logs_metrics     = "$80-120/month (90-day retention)"
-    xray_tracing                = "$40-60/month"
-    s3_storage_replication      = "$50-80/month"
-    data_transfer               = "$100-200/month (multi-region)"
-    waf_shield                  = "$200-300/month (Shield Advanced)"
-    synthetics_monitoring       = "$30-50/month"
-    backup_storage              = "$50-100/month"
+    bedrock_agents_primary   = "$800-1200/month (8 instances, provisioned)"
+    bedrock_agents_secondary = "$800-1200/month (8 instances, provisioned)"
+    opensearch_provisioned   = "$400-600/month (HA cluster)"
+    lambda_provisioned       = "$100-150/month (provisioned concurrency)"
+    cloudwatch_logs_metrics  = "$80-120/month (90-day retention)"
+    xray_tracing             = "$40-60/month"
+    s3_storage_replication   = "$50-80/month"
+    data_transfer            = "$100-200/month (multi-region)"
+    waf_shield               = "$200-300/month (Shield Advanced)"
+    synthetics_monitoring    = "$30-50/month"
+    backup_storage           = "$50-100/month"
   }
 }
 
@@ -143,14 +143,14 @@ output "cost_breakdown" {
 output "performance_configuration" {
   description = "Production performance configuration"
   value = {
-    provisioned_units           = local.agent_config.provisioned_units
-    min_instances               = local.agent_config.min_instances
-    max_instances               = local.agent_config.max_instances
-    current_instances           = local.agent_config.desired_instances
-    auto_scaling_enabled        = true
-    cache_enabled               = true
-    cache_ttl                   = "1 hour"
-    max_concurrent_invocations  = local.orchestration_config.max_concurrent_invocations
+    provisioned_units          = local.agent_config.provisioned_units
+    min_instances              = local.agent_config.min_instances
+    max_instances              = local.agent_config.max_instances
+    current_instances          = local.agent_config.desired_instances
+    auto_scaling_enabled       = true
+    cache_enabled              = true
+    cache_ttl                  = "1 hour"
+    max_concurrent_invocations = local.orchestration_config.max_concurrent_invocations
   }
 }
 
@@ -158,11 +158,11 @@ output "performance_configuration" {
 output "api_endpoints" {
   description = "Production API endpoints"
   value = {
-    global_endpoint           = module.global_traffic_manager.endpoint
-    primary_direct            = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com"
-    secondary_direct          = "https://bedrock-agent-runtime.${var.secondary_region}.amazonaws.com"
-    primary_knowledge_base    = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com/knowledgebases/${module.bedrock_agent_primary.knowledge_base_id}"
-    secondary_knowledge_base  = "https://bedrock-agent-runtime.${var.secondary_region}.amazonaws.com/knowledgebases/${module.bedrock_agent_secondary.knowledge_base_id}"
+    global_endpoint          = module.global_traffic_manager.endpoint
+    primary_direct           = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com"
+    secondary_direct         = "https://bedrock-agent-runtime.${var.secondary_region}.amazonaws.com"
+    primary_knowledge_base   = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com/knowledgebases/${module.bedrock_agent_primary.knowledge_base_id}"
+    secondary_knowledge_base = "https://bedrock-agent-runtime.${var.secondary_region}.amazonaws.com/knowledgebases/${module.bedrock_agent_secondary.knowledge_base_id}"
   }
 }
 
@@ -170,15 +170,15 @@ output "api_endpoints" {
 output "high_availability_config" {
   description = "High availability configuration details"
   value = {
-    multi_region_enabled       = true
-    primary_region             = var.aws_region
-    secondary_region           = var.secondary_region
-    dr_region                  = var.dr_region
-    availability_zones         = 3
-    automatic_failover         = true
-    health_check_interval      = "30 seconds"
-    rpo_minutes                = var.business_continuity_config.rpo_minutes
-    rto_minutes                = var.business_continuity_config.rto_minutes
+    multi_region_enabled  = true
+    primary_region        = var.aws_region
+    secondary_region      = var.secondary_region
+    dr_region             = var.dr_region
+    availability_zones    = 3
+    automatic_failover    = true
+    health_check_interval = "30 seconds"
+    rpo_minutes           = var.business_continuity_config.rpo_minutes
+    rto_minutes           = var.business_continuity_config.rto_minutes
   }
 }
 
@@ -186,14 +186,14 @@ output "high_availability_config" {
 output "security_configuration" {
   description = "Security and compliance configuration"
   value = {
-    waf_enabled                = var.security_config.enable_waf
-    shield_advanced_enabled    = var.security_config.enable_shield_advanced
-    encryption_at_rest         = true
-    encryption_in_transit      = true
-    kms_key_id                 = var.kms_key_id
-    compliance_frameworks      = var.compliance_config.frameworks
-    audit_logging_enabled      = var.compliance_config.enable_audit_logging
-    secrets_rotation_enabled   = var.security_config.enable_secrets_rotation
+    waf_enabled              = var.security_config.enable_waf
+    shield_advanced_enabled  = var.security_config.enable_shield_advanced
+    encryption_at_rest       = true
+    encryption_in_transit    = true
+    kms_key_id               = var.kms_key_id
+    compliance_frameworks    = var.compliance_config.frameworks
+    audit_logging_enabled    = var.compliance_config.enable_audit_logging
+    secrets_rotation_enabled = var.security_config.enable_secrets_rotation
   }
 }
 
@@ -201,11 +201,11 @@ output "security_configuration" {
 output "backup_configuration" {
   description = "Backup and recovery configuration"
   value = {
-    backup_enabled                = true
-    retention_days                = var.backup_config.retention_days
-    backup_schedule               = var.backup_config.schedule
-    point_in_time_recovery        = var.backup_config.enable_point_in_time_recovery
-    cross_region_replication      = true
+    backup_enabled           = true
+    retention_days           = var.backup_config.retention_days
+    backup_schedule          = var.backup_config.schedule
+    point_in_time_recovery   = var.backup_config.enable_point_in_time_recovery
+    cross_region_replication = true
   }
 }
 
@@ -224,7 +224,7 @@ output "operational_dashboards" {
 # Production Usage Guide
 output "production_usage_guide" {
   description = "Production usage and operational guide"
-  value = <<-EOT
+  value       = <<-EOT
     Production Environment - Operational Guide
     ==========================================
 
@@ -276,7 +276,7 @@ output "production_usage_guide" {
 # Resource Tags
 output "resource_tags" {
   description = "Common tags applied to all production resources"
-  value = merge(local.common_tags, var.cost_allocation_tags)
+  value       = merge(local.common_tags, var.cost_allocation_tags)
 }
 
 # Action Groups
@@ -289,14 +289,14 @@ output "enabled_action_groups" {
 output "compliance_status" {
   description = "Compliance and regulatory status"
   value = {
-    frameworks            = var.compliance_config.frameworks
-    audit_logging         = var.compliance_config.enable_audit_logging
-    encryption            = var.compliance_config.enable_encryption
-    log_retention_days    = var.compliance_config.log_retention_days
-    waf_enabled           = var.security_config.enable_waf
-    shield_advanced       = var.security_config.enable_shield_advanced
-    mfa_required          = var.security_config.mfa_required
-    secrets_rotation      = var.security_config.enable_secrets_rotation
+    frameworks         = var.compliance_config.frameworks
+    audit_logging      = var.compliance_config.enable_audit_logging
+    encryption         = var.compliance_config.enable_encryption
+    log_retention_days = var.compliance_config.log_retention_days
+    waf_enabled        = var.security_config.enable_waf
+    shield_advanced    = var.security_config.enable_shield_advanced
+    mfa_required       = var.security_config.mfa_required
+    secrets_rotation   = var.security_config.enable_secrets_rotation
   }
 }
 
@@ -304,12 +304,12 @@ output "compliance_status" {
 output "disaster_recovery_status" {
   description = "Disaster recovery configuration and status"
   value = {
-    multi_region_enabled      = var.business_continuity_config.enable_multi_region
-    automatic_failover        = var.business_continuity_config.enable_automatic_failover
-    rpo_minutes               = var.business_continuity_config.rpo_minutes
-    rto_minutes               = var.business_continuity_config.rto_minutes
-    cross_region_replication  = true
-    backup_retention_days     = var.backup_config.retention_days
-    point_in_time_recovery    = var.backup_config.enable_point_in_time_recovery
+    multi_region_enabled     = var.business_continuity_config.enable_multi_region
+    automatic_failover       = var.business_continuity_config.enable_automatic_failover
+    rpo_minutes              = var.business_continuity_config.rpo_minutes
+    rto_minutes              = var.business_continuity_config.rto_minutes
+    cross_region_replication = true
+    backup_retention_days    = var.backup_config.retention_days
+    point_in_time_recovery   = var.backup_config.enable_point_in_time_recovery
   }
 }

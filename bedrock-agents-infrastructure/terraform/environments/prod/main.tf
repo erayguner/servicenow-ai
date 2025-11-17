@@ -34,48 +34,48 @@ locals {
 
   # Production tags
   common_tags = {
-    Environment        = "prod"
-    Project            = "servicenow-ai"
-    ManagedBy          = "terraform"
-    CostCenter         = "production-operations"
-    Owner              = var.owner_email
-    AutoShutdown       = "false"
-    BackupRequired     = "true"
-    Compliance         = "sox-pci-hipaa"
-    DataClassification = "highly-confidential"
-    DisasterRecovery   = "enabled"
+    Environment         = "prod"
+    Project             = "servicenow-ai"
+    ManagedBy           = "terraform"
+    CostCenter          = "production-operations"
+    Owner               = var.owner_email
+    AutoShutdown        = "false"
+    BackupRequired      = "true"
+    Compliance          = "sox-pci-hipaa"
+    DataClassification  = "highly-confidential"
+    DisasterRecovery    = "enabled"
     BusinessCriticality = "tier-1"
   }
 
   # Full HA configuration for production
   agent_config = {
-    min_instances           = 5
-    max_instances           = 20
-    desired_instances       = 8
-    model_id                = "anthropic.claude-3-5-sonnet-20241022-v2:0"
-    enable_trace            = true
-    idle_session_ttl        = 3600  # 1 hour
-    enable_provisioned      = true
-    provisioned_units       = 100
-    pricing_model           = "provisioned"
+    min_instances      = 5
+    max_instances      = 20
+    desired_instances  = 8
+    model_id           = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+    enable_trace       = true
+    idle_session_ttl   = 3600 # 1 hour
+    enable_provisioned = true
+    provisioned_units  = 100
+    pricing_model      = "provisioned"
   }
 
   # Enterprise knowledge base configuration
   knowledge_base_config = {
-    enabled             = true
-    storage_type        = "opensearch-provisioned"
-    embedding_model     = "cohere.embed-english-v3"
-    chunking_strategy   = "semantic"
-    chunk_size          = 1024
-    chunk_overlap       = 100
-    max_tokens          = 2048
-    enable_reranking    = true
+    enabled           = true
+    storage_type      = "opensearch-provisioned"
+    embedding_model   = "cohere.embed-english-v3"
+    chunking_strategy = "semantic"
+    chunk_size        = 1024
+    chunk_overlap     = 100
+    max_tokens        = 2048
+    enable_reranking  = true
   }
 
   # All action groups for production
   action_groups = {
     enabled = true
-    groups  = [
+    groups = [
       "servicenow-read",
       "servicenow-write",
       "servicenow-query",
@@ -134,9 +134,9 @@ module "bedrock_agent_primary" {
   desired_agent_instances = local.agent_config.desired_instances
 
   # Scaling policies
-  scale_up_threshold   = 70   # CPU/Memory percentage
+  scale_up_threshold   = 70 # CPU/Memory percentage
   scale_down_threshold = 30
-  scale_up_cooldown    = 60   # seconds
+  scale_up_cooldown    = 60 # seconds
   scale_down_cooldown  = 300
 
   # Provisioned throughput for consistent performance
@@ -178,47 +178,47 @@ module "bedrock_agent_primary" {
   lambda_provisioned_capacity = 10
 
   # Advanced orchestration
-  enable_orchestration           = local.orchestration_config.enabled
-  max_concurrent_invocations     = local.orchestration_config.max_concurrent_invocations
-  enable_prompt_override         = local.orchestration_config.prompt_override_enabled
-  enable_code_interpretation     = local.orchestration_config.enable_code_interpretation
-  enable_memory_optimization     = local.orchestration_config.enable_memory_optimization
-  enable_caching                 = local.orchestration_config.enable_caching
-  cache_ttl_seconds              = 3600
+  enable_orchestration       = local.orchestration_config.enabled
+  max_concurrent_invocations = local.orchestration_config.max_concurrent_invocations
+  enable_prompt_override     = local.orchestration_config.prompt_override_enabled
+  enable_code_interpretation = local.orchestration_config.enable_code_interpretation
+  enable_memory_optimization = local.orchestration_config.enable_memory_optimization
+  enable_caching             = local.orchestration_config.enable_caching
+  cache_ttl_seconds          = 3600
 
   # IAM roles
   agent_role_name = "${local.project}-bedrock-agent-role-${local.environment}-primary"
 
   # Monitoring - Full observability
-  enable_cloudwatch_logs  = true
-  log_retention_days      = 90  # 90 days for production
-  enable_log_insights     = true
+  enable_cloudwatch_logs = true
+  log_retention_days     = 90 # 90 days for production
+  enable_log_insights    = true
 
   enable_xray_tracing     = true
   enable_detailed_metrics = true
   enable_custom_metrics   = true
 
   # CloudWatch dashboards
-  enable_dashboard        = true
-  dashboard_name          = "${local.project}-${local.environment}-primary"
+  enable_dashboard = true
+  dashboard_name   = "${local.project}-${local.environment}-primary"
 
   # Alerting - Comprehensive
-  enable_alerting              = true
-  alert_email                  = var.alert_email
-  alert_sns_topic_arn          = var.alert_sns_topic_arn
-  throttle_threshold           = 1000
-  error_rate_threshold         = 0.05  # 5% error rate
-  latency_threshold_ms         = 2000
-  availability_threshold       = 99.9
+  enable_alerting        = true
+  alert_email            = var.alert_email
+  alert_sns_topic_arn    = var.alert_sns_topic_arn
+  throttle_threshold     = 1000
+  error_rate_threshold   = 0.05 # 5% error rate
+  latency_threshold_ms   = 2000
+  availability_threshold = 99.9
 
   # PagerDuty integration
-  enable_pagerduty            = var.enable_pagerduty
-  pagerduty_integration_key   = var.pagerduty_integration_key
+  enable_pagerduty          = var.enable_pagerduty
+  pagerduty_integration_key = var.pagerduty_integration_key
 
   # Backup - Production grade
-  enable_backup         = true
-  backup_retention_days = 30
-  backup_schedule       = "cron(0 2 * * ? *)"  # Daily at 2 AM
+  enable_backup                 = true
+  backup_retention_days         = 30
+  backup_schedule               = "cron(0 2 * * ? *)" # Daily at 2 AM
   enable_point_in_time_recovery = true
 
   # High availability
@@ -230,10 +230,10 @@ module "bedrock_agent_primary" {
   ]
 
   # WAF protection
-  enable_waf              = true
-  waf_rules               = var.waf_rules
-  enable_rate_limiting    = true
-  rate_limit_requests     = 10000  # per 5 minutes
+  enable_waf           = true
+  waf_rules            = var.waf_rules
+  enable_rate_limiting = true
+  rate_limit_requests  = 10000 # per 5 minutes
 
   # DDoS protection
   enable_shield_advanced = var.enable_shield_advanced
@@ -281,11 +281,11 @@ module "bedrock_agent_secondary" {
   provisioned_model_units       = local.agent_config.provisioned_units
 
   # Knowledge base replication
-  enable_knowledge_base       = local.knowledge_base_config.enabled
-  knowledge_base_name         = "${local.project}-kb-${local.environment}-secondary"
-  knowledge_base_storage_type = local.knowledge_base_config.storage_type
+  enable_knowledge_base           = local.knowledge_base_config.enabled
+  knowledge_base_name             = "${local.project}-kb-${local.environment}-secondary"
+  knowledge_base_storage_type     = local.knowledge_base_config.storage_type
   enable_cross_region_replication = true
-  replication_source_kb_id    = module.bedrock_agent_primary.knowledge_base_id
+  replication_source_kb_id        = module.bedrock_agent_primary.knowledge_base_id
 
   # Other settings match primary
   enable_action_groups = local.action_groups.enabled
@@ -310,18 +310,18 @@ module "global_traffic_manager" {
   secondary_region = local.regions.secondary
 
   # Health check configuration
-  health_check_enabled      = true
-  health_check_interval     = 30
-  health_check_path         = "/health"
-  health_check_timeout      = 10
-  health_check_threshold    = 3
+  health_check_enabled   = true
+  health_check_interval  = 30
+  health_check_path      = "/health"
+  health_check_timeout   = 10
+  health_check_threshold = 3
 
   # Routing policy
-  routing_policy = "latency"  # or "failover", "geolocation"
+  routing_policy = "latency" # or "failover", "geolocation"
 
   # Failover configuration
   enable_automatic_failover = true
-  failover_threshold        = 5  # failures before failover
+  failover_threshold        = 5 # failures before failover
 
   tags = local.common_tags
 }
@@ -365,9 +365,9 @@ module "security_kms" {
   aws_region   = local.regions.primary
 
   # Production KMS configuration with multi-region
-  enable_key_rotation      = true   # Mandatory for production
-  enable_multi_region      = true   # Multi-region keys for DR
-  deletion_window_in_days  = 30     # Maximum protection
+  enable_key_rotation     = true # Mandatory for production
+  enable_multi_region     = true # Multi-region keys for DR
+  deletion_window_in_days = 30   # Maximum protection
 
   # IAM role ARNs that need KMS access
   iam_role_arns = [
@@ -387,7 +387,7 @@ module "security_kms" {
   # SNS topic for alerts
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
 
-  kms_error_threshold = 5  # Strict threshold for production
+  kms_error_threshold = 5 # Strict threshold for production
 
   tags = local.common_tags
 }
@@ -402,7 +402,7 @@ module "security_iam" {
 
   # Permission boundary - mandatory for production
   enable_permission_boundary = true
-  max_session_duration       = 43200  # 12 hours maximum
+  max_session_duration       = 43200 # 12 hours maximum
 
   # All active regions
   allowed_regions = [
@@ -445,7 +445,7 @@ module "security_iam" {
   # SNS topic
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
 
-  unauthorized_calls_threshold = 1  # Zero tolerance in production
+  unauthorized_calls_threshold = 1 # Zero tolerance in production
 
   tags = local.common_tags
 }
@@ -457,7 +457,7 @@ module "security_guardduty" {
   project_name = local.project
   environment  = local.environment
 
-  finding_publishing_frequency = "FIFTEEN_MINUTES"  # Real-time monitoring
+  finding_publishing_frequency = "FIFTEEN_MINUTES" # Real-time monitoring
 
   # All protections enabled for production
   enable_s3_protection      = true
@@ -467,7 +467,7 @@ module "security_guardduty" {
   enable_malware_protection = true
 
   # Advanced threat detection
-  enable_crypto_mining_detection = true
+  enable_crypto_mining_detection    = true
   enable_organization_configuration = var.enable_guardduty_org_config
 
   # Custom threat intelligence
@@ -475,16 +475,16 @@ module "security_guardduty" {
   trusted_ip_set_location          = var.trusted_ip_set_location
 
   # Findings processor Lambda
-  enable_findings_processor    = true
-  findings_processor_zip_path  = var.guardduty_processor_zip_path
+  enable_findings_processor   = true
+  findings_processor_zip_path = var.guardduty_processor_zip_path
 
-  sns_topic_arn              = module.monitoring_cloudwatch.sns_topic_arn
+  sns_topic_arn               = module.monitoring_cloudwatch.sns_topic_arn
   high_severity_sns_topic_arn = var.critical_alert_sns_topic_arn
-  kms_key_arn                = module.security_kms.bedrock_data_key_arn
+  kms_key_arn                 = module.security_kms.bedrock_data_key_arn
 
   log_retention_days = 90
 
-  findings_count_threshold = 1  # Alert on any finding
+  findings_count_threshold = 1 # Alert on any finding
 
   tags = local.common_tags
 }
@@ -497,13 +497,13 @@ module "security_hub" {
   environment  = local.environment
 
   # All compliance standards enabled
-  enable_cis_standard         = true
-  enable_pci_dss              = var.enable_pci_compliance
-  enable_aws_foundational     = true
-  enable_nist_framework       = var.enable_nist_compliance
+  enable_cis_standard     = true
+  enable_pci_dss          = var.enable_pci_compliance
+  enable_aws_foundational = true
+  enable_nist_framework   = var.enable_nist_compliance
 
   # Strict findings thresholds
-  critical_findings_threshold = 0  # Zero tolerance
+  critical_findings_threshold = 0 # Zero tolerance
   high_findings_threshold     = 1
 
   # Organization-wide configuration
@@ -512,8 +512,8 @@ module "security_hub" {
   # Automated remediation
   enable_automated_remediation = true
 
-  sns_topic_arn              = module.monitoring_cloudwatch.sns_topic_arn
-  critical_sns_topic_arn     = var.critical_alert_sns_topic_arn
+  sns_topic_arn          = module.monitoring_cloudwatch.sns_topic_arn
+  critical_sns_topic_arn = var.critical_alert_sns_topic_arn
 
   log_retention_days = 90
 
@@ -528,7 +528,7 @@ module "security_waf" {
   environment  = local.environment
 
   waf_scope  = "REGIONAL"
-  rate_limit = 10000  # Production rate limit per 5 minutes
+  rate_limit = 10000 # Production rate limit per 5 minutes
 
   # AWS Managed Rules - strict configuration
   enable_core_rule_exceptions = false
@@ -555,9 +555,9 @@ module "security_waf" {
   api_gateway_arn = var.api_gateway_arn_primary
 
   # Strict alarms
-  sns_topic_arn                = module.monitoring_cloudwatch.sns_topic_arn
-  blocked_requests_threshold   = 1000
-  rate_limit_alarm_threshold   = 500
+  sns_topic_arn              = module.monitoring_cloudwatch.sns_topic_arn
+  blocked_requests_threshold = 1000
+  rate_limit_alarm_threshold = 500
 
   tags = local.common_tags
 }
@@ -589,9 +589,9 @@ module "security_waf_secondary" {
 
   api_gateway_arn = var.api_gateway_arn_secondary
 
-  sns_topic_arn                = module.monitoring_cloudwatch.sns_topic_arn
-  blocked_requests_threshold   = 1000
-  rate_limit_alarm_threshold   = 500
+  sns_topic_arn              = module.monitoring_cloudwatch.sns_topic_arn
+  blocked_requests_threshold = 1000
+  rate_limit_alarm_threshold = 500
 
   tags = merge(local.common_tags, { Region = "secondary" })
 }
@@ -607,14 +607,14 @@ module "security_secrets" {
   kms_key_id = module.security_kms.secrets_key_id
 
   # Mandatory rotation for production
-  enable_rotation    = true
-  rotation_days      = 30  # Monthly rotation
+  enable_rotation = true
+  rotation_days   = 30 # Monthly rotation
 
   # Extended recovery window for production
   recovery_window_in_days = 30
 
   # Replica secrets in secondary region
-  enable_replica = true
+  enable_replica  = true
   replica_regions = [local.regions.secondary, local.regions.dr]
 
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
@@ -652,16 +652,16 @@ module "monitoring_cloudwatch" {
   alarm_sns_topic_arn     = var.critical_alert_sns_topic_arn
 
   # Alarms - strict thresholds for production
-  bedrock_error_rate_threshold           = 1   # 1% error rate
-  bedrock_invocation_latency_threshold   = 2000  # 2 seconds
-  bedrock_throttle_threshold             = 5
-  lambda_error_rate_threshold            = 1
-  lambda_duration_threshold              = 5000
-  lambda_throttles_threshold             = 3
-  step_functions_failed_executions_threshold = 1
+  bedrock_error_rate_threshold                  = 1    # 1% error rate
+  bedrock_invocation_latency_threshold          = 2000 # 2 seconds
+  bedrock_throttle_threshold                    = 5
+  lambda_error_rate_threshold                   = 1
+  lambda_duration_threshold                     = 5000
+  lambda_throttles_threshold                    = 3
+  step_functions_failed_executions_threshold    = 1
   step_functions_timed_out_executions_threshold = 1
-  api_gateway_5xx_error_threshold        = 1
-  api_gateway_latency_threshold          = 2000
+  api_gateway_5xx_error_threshold               = 1
+  api_gateway_latency_threshold                 = 2000
 
   # Advanced monitoring features
   enable_anomaly_detection = true
@@ -698,7 +698,7 @@ module "monitoring_xray" {
   # X-Ray configuration - full insights
   enable_insights       = true
   enable_sampling_rules = true
-  sampling_rate         = 1.0  # 100% sampling in production
+  sampling_rate         = 1.0 # 100% sampling in production
 
   # Active tracing
   enable_active_tracing = true
@@ -726,8 +726,8 @@ module "monitoring_cloudtrail" {
   environment  = local.environment
 
   # S3 bucket for CloudTrail logs with versioning
-  create_s3_bucket = true
-  s3_bucket_name   = "${local.project}-cloudtrail-${local.environment}"
+  create_s3_bucket  = true
+  s3_bucket_name    = "${local.project}-cloudtrail-${local.environment}"
   enable_versioning = true
   enable_mfa_delete = var.enable_mfa_delete
 
@@ -767,7 +767,7 @@ module "monitoring_config" {
 
   # Configuration recorder - continuous recording
   enable_config_recorder = true
-  delivery_frequency     = "One_Hour"  # Frequent delivery for production
+  delivery_frequency     = "One_Hour" # Frequent delivery for production
 
   # S3 bucket for Config snapshots
   create_s3_bucket = true
@@ -781,9 +781,9 @@ module "monitoring_config" {
   custom_rules        = var.config_custom_rules
 
   # Aggregator for multi-region/multi-account
-  enable_aggregator = var.enable_config_aggregator
+  enable_aggregator      = var.enable_config_aggregator
   aggregator_account_ids = var.config_aggregator_accounts
-  aggregator_regions     = [
+  aggregator_regions = [
     local.regions.primary,
     local.regions.secondary,
     local.regions.dr
@@ -804,14 +804,14 @@ module "monitoring_eventbridge" {
   environment  = local.environment
 
   # Comprehensive event patterns
-  enable_bedrock_events   = true
-  enable_lambda_events    = true
-  enable_security_events  = true
-  enable_health_events    = true
+  enable_bedrock_events    = true
+  enable_lambda_events     = true
+  enable_security_events   = true
+  enable_health_events     = true
   enable_compliance_events = true
 
   # Multiple targets
-  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+  sns_topic_arn          = module.monitoring_cloudwatch.sns_topic_arn
   critical_sns_topic_arn = var.critical_alert_sns_topic_arn
 
   # Custom event bus for application events
@@ -819,8 +819,8 @@ module "monitoring_eventbridge" {
   event_bus_name          = "${local.project}-${local.environment}-events"
 
   # Event archive for compliance
-  enable_event_archive = true
-  archive_retention_days = 365  # 1 year retention
+  enable_event_archive   = true
+  archive_retention_days = 365 # 1 year retention
 
   # Cross-region event routing
   enable_cross_region_events = true
@@ -841,7 +841,7 @@ module "monitoring_synthetics" {
 
   # Canary configuration - frequent testing
   canary_name     = "${local.project}-agent-canary-${local.environment}"
-  canary_schedule = "rate(5 minutes)"  # Every 5 minutes
+  canary_schedule = "rate(5 minutes)" # Every 5 minutes
 
   # Multiple endpoints across regions
   endpoints = concat(
@@ -863,7 +863,7 @@ module "monitoring_synthetics" {
 
   # Strict alarms
   success_rate_threshold = 99.9
-  duration_threshold     = 5000  # 5 seconds
+  duration_threshold     = 5000 # 5 seconds
 
   # Multi-location testing
   enable_multi_location = true
@@ -923,24 +923,24 @@ module "bedrock_servicenow_primary" {
   name_prefix = "${local.project}-primary"
 
   # ServiceNow instance configuration
-  servicenow_instance_url              = var.servicenow_instance_url
-  servicenow_auth_type                 = var.servicenow_auth_type
-  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn
+  servicenow_instance_url           = var.servicenow_instance_url
+  servicenow_auth_type              = var.servicenow_auth_type
+  servicenow_credentials_secret_arn = var.servicenow_credentials_secret_arn
 
   # Feature flags - all features enabled for production
-  enable_incident_automation  = true
-  enable_ticket_triage        = true
-  enable_change_management    = true
-  enable_problem_management   = true
-  enable_knowledge_sync       = true
-  enable_sla_monitoring       = true
+  enable_incident_automation = true
+  enable_ticket_triage       = true
+  enable_change_management   = true
+  enable_problem_management  = true
+  enable_knowledge_sync      = true
+  enable_sla_monitoring      = true
 
   # SLA configuration - strict for production
-  sla_breach_threshold = 75  # 75% threshold for early warnings
+  sla_breach_threshold = 75 # 75% threshold for early warnings
 
   # Auto-assignment with high confidence threshold
   auto_assignment_enabled              = true
-  auto_assignment_confidence_threshold = 0.90  # High confidence for production
+  auto_assignment_confidence_threshold = 0.90 # High confidence for production
 
   # Agent configuration
   agent_model_id         = local.agent_config.model_id
@@ -949,14 +949,14 @@ module "bedrock_servicenow_primary" {
   # Lambda configuration - production optimized
   lambda_runtime     = "python3.12"
   lambda_timeout     = 300  # 5 minutes
-  lambda_memory_size = 1024  # Higher memory for production
+  lambda_memory_size = 1024 # Higher memory for production
 
   # API Gateway configuration
   api_gateway_stage_name     = "prod"
   enable_api_gateway_logging = true
 
   # DynamoDB configuration - production grade
-  dynamodb_billing_mode          = "PAY_PER_REQUEST"
+  dynamodb_billing_mode           = "PAY_PER_REQUEST"
   dynamodb_point_in_time_recovery = true
 
   # Step Functions configuration
@@ -967,10 +967,10 @@ module "bedrock_servicenow_primary" {
   alarm_notification_emails  = var.alert_email_addresses
 
   # Security - use KMS keys from security module
-  kms_key_id                  = module.security_kms.bedrock_data_key_id
-  enable_encryption_at_rest   = true
+  kms_key_id                   = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest    = true
   enable_encryption_in_transit = true
-  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+  sns_kms_master_key_id        = module.security_kms.bedrock_data_key_id
 
   # Networking - production VPC
   vpc_id             = var.servicenow_vpc_id
@@ -988,7 +988,7 @@ module "bedrock_servicenow_primary" {
 
   # Workflow timeouts - production SLAs
   incident_escalation_timeout_minutes = 30
-  change_approval_timeout_minutes     = 240  # 4 hours
+  change_approval_timeout_minutes     = 240 # 4 hours
 
   # IP restrictions - production security
   allowed_ip_ranges = var.servicenow_allowed_ip_ranges
@@ -1020,17 +1020,17 @@ module "bedrock_servicenow_secondary" {
   name_prefix = "${local.project}-secondary"
 
   # ServiceNow instance configuration (same as primary)
-  servicenow_instance_url              = var.servicenow_instance_url
-  servicenow_auth_type                 = var.servicenow_auth_type
-  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn_secondary
+  servicenow_instance_url           = var.servicenow_instance_url
+  servicenow_auth_type              = var.servicenow_auth_type
+  servicenow_credentials_secret_arn = var.servicenow_credentials_secret_arn_secondary
 
   # Feature flags - all features enabled
-  enable_incident_automation  = true
-  enable_ticket_triage        = true
-  enable_change_management    = true
-  enable_problem_management   = true
-  enable_knowledge_sync       = true
-  enable_sla_monitoring       = true
+  enable_incident_automation = true
+  enable_ticket_triage       = true
+  enable_change_management   = true
+  enable_problem_management  = true
+  enable_knowledge_sync      = true
+  enable_sla_monitoring      = true
 
   # Same configuration as primary for consistency
   sla_breach_threshold                 = 75
@@ -1051,7 +1051,7 @@ module "bedrock_servicenow_secondary" {
   enable_api_gateway_logging = true
 
   # DynamoDB configuration - with cross-region replication
-  dynamodb_billing_mode          = "PAY_PER_REQUEST"
+  dynamodb_billing_mode           = "PAY_PER_REQUEST"
   dynamodb_point_in_time_recovery = true
 
   # Step Functions configuration
@@ -1062,10 +1062,10 @@ module "bedrock_servicenow_secondary" {
   alarm_notification_emails  = var.alert_email_addresses
 
   # Security
-  kms_key_id                  = module.security_kms.bedrock_data_key_id
-  enable_encryption_at_rest   = true
+  kms_key_id                   = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest    = true
   enable_encryption_in_transit = true
-  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+  sns_kms_master_key_id        = module.security_kms.bedrock_data_key_id
 
   # Networking - secondary VPC
   vpc_id             = var.servicenow_vpc_id_secondary
@@ -1222,8 +1222,8 @@ output "security_posture_summary" {
   description = "Summary of security posture"
   value = {
     encryption = {
-      kms_rotation_enabled    = true
-      multi_region_keys       = true
+      kms_rotation_enabled     = true
+      multi_region_keys        = true
       secrets_rotation_enabled = true
     }
     threat_detection = {

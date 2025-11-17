@@ -7,20 +7,20 @@ variables {
   environment  = "prod"
   canaries = {
     bedrock_full_journey = {
-      handler = "customCanary.handler"
-      runtime_version = "syn-python-selenium-1.0"
+      handler             = "customCanary.handler"
+      runtime_version     = "syn-python-selenium-1.0"
       schedule_expression = "rate(1 minute)"
-      endpoint_url = "https://api.example.com"
-      timeout_in_seconds = 300
-      memory_in_mb = 1024
+      endpoint_url        = "https://api.example.com"
+      timeout_in_seconds  = 300
+      memory_in_mb        = 1024
       vpc_config = {
-        subnet_ids = ["subnet-123", "subnet-456"]
+        subnet_ids         = ["subnet-123", "subnet-456"]
         security_group_ids = ["sg-123"]
       }
     }
   }
   enable_alarms = true
-  tags = { Environment = "prod" }
+  tags          = { Environment = "prod" }
 }
 
 run "verify_vpc_configuration" {

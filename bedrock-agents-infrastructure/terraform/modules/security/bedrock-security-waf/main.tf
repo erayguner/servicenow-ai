@@ -293,7 +293,7 @@ resource "aws_wafv2_web_acl" "main" {
         not_statement {
           statement {
             byte_match_statement {
-              search_string         = var.api_key_header_value
+              search_string = var.api_key_header_value
               field_to_match {
                 single_header {
                   name = var.api_key_header_name

@@ -156,11 +156,11 @@ output "module_version" {
 output "protection_features" {
   description = "Map of enabled protection features"
   value = {
-    s3              = var.enable_s3_protection
-    eks             = var.enable_eks_protection
-    lambda          = var.enable_lambda_protection
-    rds             = var.enable_rds_protection
-    malware         = var.enable_malware_protection
-    crypto_mining   = var.enable_crypto_mining_detection
+    s3            = var.enable_s3_protection
+    eks           = var.enable_eks_protection
+    lambda        = var.enable_lambda_protection
+    rds           = var.enable_rds_protection
+    malware       = var.enable_malware_protection
+    crypto_mining = var.enable_crypto_mining_detection
   }
 }

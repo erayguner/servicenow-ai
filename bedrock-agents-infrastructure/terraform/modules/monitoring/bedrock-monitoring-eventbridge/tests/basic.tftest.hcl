@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "test-eventbridge"
-  environment  = "test"
+  project_name     = "test-eventbridge"
+  environment      = "test"
   create_event_bus = true
-  tags = { Environment = "test" }
+  tags             = { Environment = "test" }
 }
 
 run "verify_event_bus" {

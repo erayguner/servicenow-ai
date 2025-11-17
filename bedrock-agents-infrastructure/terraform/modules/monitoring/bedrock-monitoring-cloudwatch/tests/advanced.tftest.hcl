@@ -3,17 +3,17 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-monitoring"
-  environment  = "prod"
-  bedrock_agent_id = "AGENT456"
-  bedrock_agent_alias_id = "ALIAS456"
-  lambda_function_names = ["func1", "func2", "func3"]
+  project_name                     = "advanced-monitoring"
+  environment                      = "prod"
+  bedrock_agent_id                 = "AGENT456"
+  bedrock_agent_alias_id           = "ALIAS456"
+  lambda_function_names            = ["func1", "func2", "func3"]
   step_function_state_machine_arns = ["arn:aws:states:us-east-1:123456789012:stateMachine:test"]
-  api_gateway_ids = ["api123"]
-  enable_anomaly_detection = true
-  enable_composite_alarms = true
-  create_dashboard = true
-  tags = { Environment = "prod" }
+  api_gateway_ids                  = ["api123"]
+  enable_anomaly_detection         = true
+  enable_composite_alarms          = true
+  create_dashboard                 = true
+  tags                             = { Environment = "prod" }
 }
 
 run "verify_anomaly_detection" {

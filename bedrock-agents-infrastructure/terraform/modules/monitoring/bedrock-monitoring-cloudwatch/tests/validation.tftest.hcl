@@ -3,12 +3,12 @@
 # ==============================================================================
 
 variables {
-  project_name = "validation-monitoring"
-  environment  = "validation"
-  bedrock_agent_id = "AGENTVAL"
+  project_name           = "validation-monitoring"
+  environment            = "validation"
+  bedrock_agent_id       = "AGENTVAL"
   bedrock_agent_alias_id = "ALIASVAL"
-  lambda_function_names = []
-  tags = { Environment = "validation" }
+  lambda_function_names  = []
+  tags                   = { Environment = "validation" }
 }
 
 run "validate_outputs" {

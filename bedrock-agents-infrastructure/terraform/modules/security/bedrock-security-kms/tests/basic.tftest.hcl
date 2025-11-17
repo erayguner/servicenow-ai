@@ -3,11 +3,11 @@
 # ==============================================================================
 
 variables {
-  project_name = "test-kms"
-  environment  = "test"
-  enable_key_rotation = true
+  project_name            = "test-kms"
+  environment             = "test"
+  enable_key_rotation     = true
   deletion_window_in_days = 30
-  tags = { Environment = "test" }
+  tags                    = { Environment = "test" }
 }
 
 run "verify_kms_key_creation" {

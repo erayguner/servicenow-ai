@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "test-securityhub"
-  environment  = "test"
+  project_name        = "test-securityhub"
+  environment         = "test"
   enable_security_hub = true
-  tags = { Environment = "test" }
+  tags                = { Environment = "test" }
 }
 
 run "verify_security_hub_account" {

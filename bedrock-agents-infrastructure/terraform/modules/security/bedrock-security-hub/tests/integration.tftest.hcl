@@ -3,11 +3,11 @@
 # ==============================================================================
 
 variables {
-  project_name = "integration-securityhub"
-  environment  = "integration"
+  project_name        = "integration-securityhub"
+  environment         = "integration"
   enable_security_hub = true
-  sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:security-alerts"
-  tags = { Environment = "integration" }
+  sns_topic_arn       = "arn:aws:sns:us-east-1:123456789012:security-alerts"
+  tags                = { Environment = "integration" }
 }
 
 run "verify_eventbridge_rule" {

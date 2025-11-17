@@ -3,13 +3,13 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-config"
-  environment  = "prod"
-  enable_config = true
-  recording_frequency = "CONTINUOUS"
+  project_name             = "advanced-config"
+  environment              = "prod"
+  enable_config            = true
+  recording_frequency      = "CONTINUOUS"
   include_global_resources = true
-  enable_config_rules = true
-  tags = { Environment = "prod" }
+  enable_config_rules      = true
+  tags                     = { Environment = "prod" }
 }
 
 run "verify_recording_all_resources" {

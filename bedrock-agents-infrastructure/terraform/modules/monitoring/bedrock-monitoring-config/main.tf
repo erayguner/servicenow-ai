@@ -2,7 +2,7 @@
 # Provides continuous compliance checking and remediation
 
 locals {
-  bucket_name = var.create_s3_bucket ? "${var.project_name}-${var.environment}-config-${data.aws_caller_identity.current.account_id}" : var.s3_bucket_name
+  bucket_name   = var.create_s3_bucket ? "${var.project_name}-${var.environment}-config-${data.aws_caller_identity.current.account_id}" : var.s3_bucket_name
   recorder_name = "${var.project_name}-${var.environment}-recorder"
 
   common_tags = merge(

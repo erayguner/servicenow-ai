@@ -3,11 +3,11 @@
 # ==============================================================================
 
 variables {
-  project_name = "integration-waf"
-  environment  = "integration"
-  scope = "REGIONAL"
+  project_name      = "integration-waf"
+  environment       = "integration"
+  scope             = "REGIONAL"
   associate_alb_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/test-alb/abc123"
-  tags = { Environment = "integration" }
+  tags              = { Environment = "integration" }
 }
 
 run "verify_alb_association" {

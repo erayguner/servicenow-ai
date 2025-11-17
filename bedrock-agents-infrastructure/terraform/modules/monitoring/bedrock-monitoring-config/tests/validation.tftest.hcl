@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "validation-config"
-  environment  = "validation"
+  project_name  = "validation-config"
+  environment   = "validation"
   enable_config = true
-  tags = { Environment = "validation" }
+  tags          = { Environment = "validation" }
 }
 
 run "validate_outputs" {

@@ -31,35 +31,35 @@ locals {
 
   # Cost optimization tags
   common_tags = {
-    Environment     = "dev"
-    Project         = "servicenow-ai"
-    ManagedBy       = "terraform"
-    CostCenter      = "development"
-    Owner           = var.owner_email
-    AutoShutdown    = "true"
-    BackupRequired  = "false"
-    Compliance      = "none"
+    Environment    = "dev"
+    Project        = "servicenow-ai"
+    ManagedBy      = "terraform"
+    CostCenter     = "development"
+    Owner          = var.owner_email
+    AutoShutdown   = "true"
+    BackupRequired = "false"
+    Compliance     = "none"
   }
 
   # Minimal configuration for dev
   agent_config = {
-    instance_count          = 1
-    model_id                = "anthropic.claude-3-sonnet-20240229-v1:0"
-    enable_trace            = true
-    idle_session_ttl        = 600  # 10 minutes
-    enable_provisioned      = false
-    pricing_model           = "on-demand"
+    instance_count     = 1
+    model_id           = "anthropic.claude-3-sonnet-20240229-v1:0"
+    enable_trace       = true
+    idle_session_ttl   = 600 # 10 minutes
+    enable_provisioned = false
+    pricing_model      = "on-demand"
   }
 
   # Basic knowledge base configuration
   knowledge_base_config = {
-    enabled             = true
-    storage_type        = "opensearch-serverless"
-    embedding_model     = "amazon.titan-embed-text-v1"
-    chunking_strategy   = "fixed_size"
-    chunk_size          = 300
-    chunk_overlap       = 20
-    max_tokens          = 512
+    enabled           = true
+    storage_type      = "opensearch-serverless"
+    embedding_model   = "amazon.titan-embed-text-v1"
+    chunking_strategy = "fixed_size"
+    chunk_size        = 300
+    chunk_overlap     = 20
+    max_tokens        = 512
   }
 
   # Limited action groups for dev
@@ -94,8 +94,8 @@ module "bedrock_agent" {
   enable_trace_logging = local.agent_config.enable_trace
 
   # Knowledge Base configuration
-  enable_knowledge_base     = local.knowledge_base_config.enabled
-  knowledge_base_name       = "${local.project}-kb-${local.environment}"
+  enable_knowledge_base      = local.knowledge_base_config.enabled
+  knowledge_base_name        = "${local.project}-kb-${local.environment}"
   knowledge_base_description = "Development knowledge base for ServiceNow AI"
 
   # Storage configuration (OpenSearch Serverless for cost efficiency)
@@ -124,25 +124,25 @@ module "bedrock_agent" {
 
   # Monitoring - Basic CloudWatch
   enable_cloudwatch_logs = true
-  log_retention_days     = 7  # Short retention for dev
+  log_retention_days     = 7 # Short retention for dev
 
-  enable_xray_tracing    = false  # Disabled for cost savings
+  enable_xray_tracing     = false # Disabled for cost savings
   enable_detailed_metrics = false # Disabled for cost savings
 
   # Alerting - Minimal
-  enable_alerting             = false
-  alert_email                 = var.alert_email
-  throttle_threshold          = 100
-  error_rate_threshold        = 0.5
-  latency_threshold_ms        = 5000
+  enable_alerting      = false
+  alert_email          = var.alert_email
+  throttle_threshold   = 100
+  error_rate_threshold = 0.5
+  latency_threshold_ms = 5000
 
   # Cost optimization
   enable_auto_shutdown = true
-  shutdown_cron        = "0 20 * * MON-FRI"  # Shutdown at 8 PM weekdays
-  startup_cron         = "0 8 * * MON-FRI"   # Start at 8 AM weekdays
+  shutdown_cron        = "0 20 * * MON-FRI" # Shutdown at 8 PM weekdays
+  startup_cron         = "0 8 * * MON-FRI"  # Start at 8 AM weekdays
 
   # Backup - Disabled for dev
-  enable_backup        = false
+  enable_backup         = false
   backup_retention_days = 1
 
   # Multi-region - Disabled
@@ -165,9 +165,9 @@ module "security_kms" {
   aws_region   = var.aws_region
 
   # Minimal KMS configuration for dev
-  enable_key_rotation      = false  # Disabled for cost savings
-  enable_multi_region      = false
-  deletion_window_in_days  = 7      # Short window for dev
+  enable_key_rotation     = false # Disabled for cost savings
+  enable_multi_region     = false
+  deletion_window_in_days = 7 # Short window for dev
 
   # IAM role ARNs that need KMS access
   iam_role_arns = [
@@ -309,8 +309,8 @@ module "security_secrets" {
   kms_key_id = module.security_kms.secrets_key_id
 
   # Rotation disabled for dev
-  enable_rotation    = false
-  rotation_days      = 90
+  enable_rotation = false
+  rotation_days   = 90
 
   # Recovery window
   recovery_window_in_days = 7
@@ -349,12 +349,12 @@ module "monitoring_cloudwatch" {
   sns_email_subscriptions = var.alert_email != "" ? [var.alert_email] : []
 
   # Alarms - relaxed thresholds for dev
-  bedrock_error_rate_threshold           = 10  # Higher tolerance
-  bedrock_invocation_latency_threshold   = 60000  # 60 seconds
-  bedrock_throttle_threshold             = 20
-  lambda_error_rate_threshold            = 10
-  lambda_duration_threshold              = 30000
-  lambda_throttles_threshold             = 10
+  bedrock_error_rate_threshold         = 10    # Higher tolerance
+  bedrock_invocation_latency_threshold = 60000 # 60 seconds
+  bedrock_throttle_threshold           = 20
+  lambda_error_rate_threshold          = 10
+  lambda_duration_threshold            = 30000
+  lambda_throttles_threshold           = 10
 
   # Anomaly detection - disabled for dev
   enable_anomaly_detection = false
@@ -485,21 +485,21 @@ module "bedrock_servicenow" {
   name_prefix = local.project
 
   # ServiceNow instance configuration
-  servicenow_instance_url              = var.servicenow_instance_url
-  servicenow_auth_type                 = var.servicenow_auth_type
-  servicenow_credentials_secret_arn    = var.servicenow_credentials_secret_arn
+  servicenow_instance_url           = var.servicenow_instance_url
+  servicenow_auth_type              = var.servicenow_auth_type
+  servicenow_credentials_secret_arn = var.servicenow_credentials_secret_arn
 
   # Feature flags - basic features only for dev
-  enable_incident_automation  = true
-  enable_ticket_triage        = true
-  enable_change_management    = false  # Disabled for cost savings
-  enable_problem_management   = false  # Disabled for cost savings
-  enable_knowledge_sync       = false  # Disabled for cost savings
-  enable_sla_monitoring       = false  # Disabled for cost savings
+  enable_incident_automation = true
+  enable_ticket_triage       = true
+  enable_change_management   = false # Disabled for cost savings
+  enable_problem_management  = false # Disabled for cost savings
+  enable_knowledge_sync      = false # Disabled for cost savings
+  enable_sla_monitoring      = false # Disabled for cost savings
 
   # Auto-assignment with lower confidence threshold
   auto_assignment_enabled              = true
-  auto_assignment_confidence_threshold = 0.75  # Lower threshold for testing
+  auto_assignment_confidence_threshold = 0.75 # Lower threshold for testing
 
   # Agent configuration
   agent_model_id         = local.agent_config.model_id
@@ -507,22 +507,22 @@ module "bedrock_servicenow" {
 
   # Lambda configuration - cost-optimized
   lambda_runtime     = "python3.12"
-  lambda_timeout     = 180  # 3 minutes
-  lambda_memory_size = 256  # Lower memory for dev
+  lambda_timeout     = 180 # 3 minutes
+  lambda_memory_size = 256 # Lower memory for dev
 
   # DynamoDB configuration
-  dynamodb_billing_mode          = "PAY_PER_REQUEST"  # On-demand for dev
-  dynamodb_point_in_time_recovery = false  # Disabled for cost savings
+  dynamodb_billing_mode           = "PAY_PER_REQUEST" # On-demand for dev
+  dynamodb_point_in_time_recovery = false             # Disabled for cost savings
 
   # Monitoring - basic
-  enable_enhanced_monitoring = false  # Disabled for cost savings
+  enable_enhanced_monitoring = false # Disabled for cost savings
   alarm_notification_emails  = var.alert_email != "" ? [var.alert_email] : []
 
   # Security - use KMS keys from security module
-  kms_key_id                  = module.security_kms.bedrock_data_key_id
-  enable_encryption_at_rest   = true
+  kms_key_id                   = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest    = true
   enable_encryption_in_transit = true
-  sns_kms_master_key_id       = module.security_kms.bedrock_data_key_id
+  sns_kms_master_key_id        = module.security_kms.bedrock_data_key_id
 
   # Networking - no VPC for dev (cost savings)
   vpc_id             = null
@@ -534,7 +534,7 @@ module "bedrock_servicenow" {
 
   # Workflow timeouts
   incident_escalation_timeout_minutes = 60  # Longer timeout for dev
-  change_approval_timeout_minutes     = 480  # 8 hours
+  change_approval_timeout_minutes     = 480 # 8 hours
 
   tags = local.common_tags
 

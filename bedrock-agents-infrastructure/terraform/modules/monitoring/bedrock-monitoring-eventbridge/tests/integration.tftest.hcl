@@ -3,12 +3,12 @@
 # ==============================================================================
 
 variables {
-  project_name = "integration-eventbridge"
-  environment  = "integration"
-  create_event_bus = true
-  sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:eventbridge-notifications"
+  project_name         = "integration-eventbridge"
+  environment          = "integration"
+  create_event_bus     = true
+  sns_topic_arn        = "arn:aws:sns:us-east-1:123456789012:eventbridge-notifications"
   lambda_function_arns = ["arn:aws:lambda:us-east-1:123456789012:function:event-handler"]
-  tags = { Environment = "integration" }
+  tags                 = { Environment = "integration" }
 }
 
 run "verify_sns_target" {

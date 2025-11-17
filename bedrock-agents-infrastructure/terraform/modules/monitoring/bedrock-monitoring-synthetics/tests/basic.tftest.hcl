@@ -7,10 +7,10 @@ variables {
   environment  = "test"
   canaries = {
     bedrock_api_health = {
-      handler = "apiCanaryBlueprint.handler"
-      runtime_version = "syn-python-selenium-1.0"
+      handler             = "apiCanaryBlueprint.handler"
+      runtime_version     = "syn-python-selenium-1.0"
       schedule_expression = "rate(5 minutes)"
-      endpoint_url = "https://api.example.com/health"
+      endpoint_url        = "https://api.example.com/health"
     }
   }
   tags = { Environment = "test" }

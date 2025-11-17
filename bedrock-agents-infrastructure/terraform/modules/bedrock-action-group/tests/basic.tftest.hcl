@@ -5,8 +5,8 @@
 # ==============================================================================
 
 variables {
-  lambda_function_name = "test-action-lambda"
-  description         = "Test action group Lambda"
+  lambda_function_name   = "test-action-lambda"
+  description            = "Test action group Lambda"
   create_lambda_function = true
 
   lambda_runtime = "python3.12"

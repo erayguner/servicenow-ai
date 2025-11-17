@@ -6,9 +6,9 @@ resource "aws_iam_role" "agent" {
   tags = merge(
     var.tags,
     {
-      Name        = "${var.agent_name}-agent-role"
-      ManagedBy   = "Terraform"
-      Component   = "BedrockAgent"
+      Name      = "${var.agent_name}-agent-role"
+      ManagedBy = "Terraform"
+      Component = "BedrockAgent"
     }
   )
 }

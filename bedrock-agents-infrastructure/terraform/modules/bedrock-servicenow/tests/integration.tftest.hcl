@@ -8,18 +8,18 @@ variables {
 
   # Enable all features for integration testing
   enable_incident_automation = true
-  enable_ticket_triage      = true
-  enable_change_management  = true
-  enable_problem_management = true
-  enable_knowledge_sync     = true
-  enable_sla_monitoring     = true
+  enable_ticket_triage       = true
+  enable_change_management   = true
+  enable_problem_management  = true
+  enable_knowledge_sync      = true
+  enable_sla_monitoring      = true
 
-  auto_assignment_enabled            = true
+  auto_assignment_enabled              = true
   auto_assignment_confidence_threshold = 0.85
-  sla_breach_threshold              = 80
+  sla_breach_threshold                 = 80
 
   enable_enhanced_monitoring = true
-  alarm_notification_emails = ["test@example.com"]
+  alarm_notification_emails  = ["test@example.com"]
 
   knowledge_base_ids      = []
   knowledge_sync_schedule = "cron(0 2 * * ? *)"

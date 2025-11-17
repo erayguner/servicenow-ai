@@ -79,7 +79,7 @@ output "api_endpoint" {
 
 output "testing_guide" {
   description = "Quick testing guide"
-  value = <<-EOT
+  value       = <<-EOT
     Development Environment Testing:
 
     1. Invoke Agent:

@@ -301,15 +301,15 @@ resource "aws_bedrockagent_knowledge_base" "this" {
 
 # Data Source for Knowledge Base
 resource "aws_bedrockagent_data_source" "this" {
-  knowledge_base_id     = aws_bedrockagent_knowledge_base.this.id
-  name                  = "${var.knowledge_base_name}-s3-datasource"
-  description           = "S3 data source for ${var.knowledge_base_name}"
-  data_deletion_policy  = var.data_deletion_policy
+  knowledge_base_id    = aws_bedrockagent_knowledge_base.this.id
+  name                 = "${var.knowledge_base_name}-s3-datasource"
+  description          = "S3 data source for ${var.knowledge_base_name}"
+  data_deletion_policy = var.data_deletion_policy
 
   data_source_configuration {
     type = "S3"
     s3_configuration {
-      bucket_arn = local.s3_bucket_arn
+      bucket_arn         = local.s3_bucket_arn
       inclusion_prefixes = var.s3_bucket_prefix != "" ? [var.s3_bucket_prefix] : null
     }
   }
@@ -333,8 +333,8 @@ resource "aws_bedrockagent_data_source" "this" {
 
 # Local variables
 locals {
-  collection_name = var.opensearch_collection_name != null ? var.opensearch_collection_name : "${var.knowledge_base_name}-collection"
-  s3_bucket_arn   = var.create_s3_bucket ? aws_s3_bucket.documents[0].arn : var.existing_s3_bucket_arn
+  collection_name     = var.opensearch_collection_name != null ? var.opensearch_collection_name : "${var.knowledge_base_name}-collection"
+  s3_bucket_arn       = var.create_s3_bucket ? aws_s3_bucket.documents[0].arn : var.existing_s3_bucket_arn
   embedding_model_arn = var.embedding_model_arn != null ? var.embedding_model_arn : "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/${var.embedding_model_id}"
 }
 

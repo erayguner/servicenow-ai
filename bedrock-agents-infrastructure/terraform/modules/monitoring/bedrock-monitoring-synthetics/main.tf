@@ -17,7 +17,7 @@ locals {
   bedrock_canaries = {
     for endpoint in var.bedrock_agent_endpoints :
     endpoint.name => {
-      endpoint_url         = endpoint.endpoint_url
+      endpoint_url        = endpoint.endpoint_url
       method              = "POST"
       expected_status     = 200
       timeout_seconds     = 60
@@ -199,7 +199,7 @@ resource "local_file" "canary_scripts" {
   for_each = var.enable_synthetics ? local.all_canaries : {}
 
   filename = "${path.module}/scripts/canary-${each.key}.js"
-  content  = templatefile("${path.module}/templates/api-canary.js.tpl", {
+  content = templatefile("${path.module}/templates/api-canary.js.tpl", {
     endpoint_url    = each.value.endpoint_url
     method          = each.value.method
     expected_status = each.value.expected_status
@@ -249,9 +249,9 @@ resource "aws_synthetics_canary" "canaries" {
   }
 
   run_config {
-    timeout_in_seconds    = each.value.timeout_seconds
-    memory_in_mb         = 1024
-    active_tracing       = var.enable_active_tracing
+    timeout_in_seconds = each.value.timeout_seconds
+    memory_in_mb       = 1024
+    active_tracing     = var.enable_active_tracing
     environment_variables = {
       ENDPOINT_URL    = each.value.endpoint_url
       METHOD          = each.value.method
@@ -326,7 +326,7 @@ resource "aws_cloudwatch_metric_alarm" "canary_duration" {
   namespace           = "CloudWatchSynthetics"
   period              = 300
   statistic           = "Average"
-  threshold           = each.value.timeout_seconds * 1000 * 0.8  # 80% of timeout
+  threshold           = each.value.timeout_seconds * 1000 * 0.8 # 80% of timeout
   treat_missing_data  = "notBreaching"
   alarm_actions       = [var.alarm_sns_topic_arn]
   actions_enabled     = true

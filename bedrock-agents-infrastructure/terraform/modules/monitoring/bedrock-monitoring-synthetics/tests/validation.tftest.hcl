@@ -7,10 +7,10 @@ variables {
   environment  = "validation"
   canaries = {
     validation_canary = {
-      handler = "index.handler"
-      runtime_version = "syn-python-selenium-1.0"
+      handler             = "index.handler"
+      runtime_version     = "syn-python-selenium-1.0"
       schedule_expression = "rate(5 minutes)"
-      endpoint_url = "https://validation.example.com"
+      endpoint_url        = "https://validation.example.com"
     }
   }
   tags = { Environment = "validation" }

@@ -6,9 +6,9 @@
 
 variables {
   orchestration_name = "validation-orchestration"
-  agent_arns = ["arn:aws:bedrock:us-east-1:123456789012:agent/VAL123"]
+  agent_arns         = ["arn:aws:bedrock:us-east-1:123456789012:agent/VAL123"]
 
-  create_dynamodb_table = true
+  create_dynamodb_table    = true
   enable_sns_notifications = true
 
   tags = {

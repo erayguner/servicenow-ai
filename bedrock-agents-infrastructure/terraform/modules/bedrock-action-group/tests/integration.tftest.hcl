@@ -5,14 +5,14 @@
 # ==============================================================================
 
 variables {
-  lambda_function_name = "integration-test"
+  lambda_function_name   = "integration-test"
   create_lambda_function = false
-  existing_lambda_arn = "arn:aws:lambda:us-east-1:123456789012:function:existing-function"
+  existing_lambda_arn    = "arn:aws:lambda:us-east-1:123456789012:function:existing-function"
 
   api_schema = jsonencode({
     openapi = "3.0.0"
     info = {
-      title = "Integration Test API"
+      title   = "Integration Test API"
       version = "1.0.0"
     }
     paths = {

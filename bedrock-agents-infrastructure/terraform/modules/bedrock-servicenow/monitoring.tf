@@ -306,10 +306,10 @@ resource "aws_cloudwatch_metric_alarm" "bedrock_agent_errors" {
 resource "aws_cloudwatch_composite_alarm" "critical_issues" {
   count = var.enable_enhanced_monitoring ? 1 : 0
 
-  alarm_name          = "${local.name_prefix}-critical-issues"
-  alarm_description   = "Critical issues detected in ServiceNow integration"
-  actions_enabled     = true
-  alarm_actions       = [aws_sns_topic.servicenow_notifications.arn]
+  alarm_name        = "${local.name_prefix}-critical-issues"
+  alarm_description = "Critical issues detected in ServiceNow integration"
+  actions_enabled   = true
+  alarm_actions     = [aws_sns_topic.servicenow_notifications.arn]
 
   alarm_rule = join(" OR ", compact([
     length(aws_cloudwatch_metric_alarm.lambda_errors) > 0 ? "ALARM(${aws_cloudwatch_metric_alarm.lambda_errors[0].alarm_name})" : "",

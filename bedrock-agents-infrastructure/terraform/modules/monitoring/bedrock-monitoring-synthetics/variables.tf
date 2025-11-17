@@ -17,7 +17,7 @@ variable "enable_synthetics" {
 variable "canaries" {
   description = "Map of canary configurations"
   type = map(object({
-    endpoint_url         = string
+    endpoint_url        = string
     method              = optional(string, "GET")
     expected_status     = optional(number, 200)
     timeout_seconds     = optional(number, 60)
@@ -33,9 +33,9 @@ variable "canaries" {
 variable "bedrock_agent_endpoints" {
   description = "List of Bedrock agent API endpoints to monitor"
   type = list(object({
-    name        = string
+    name         = string
     endpoint_url = string
-    headers     = optional(map(string), {})
+    headers      = optional(map(string), {})
   }))
   default = []
 }

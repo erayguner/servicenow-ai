@@ -7,11 +7,11 @@ variables {
   environment  = "validation"
   aws_region   = "us-east-1"
 
-  allowed_bedrock_models = ["arn:aws:bedrock:us-east-1::foundation-model/*"]
-  knowledge_base_arns    = []
-  dynamodb_table_arns    = []
-  kms_key_arns          = []
-  sns_topic_arn         = "arn:aws:sns:us-east-1:123456789012:validation"
+  allowed_bedrock_models    = ["arn:aws:bedrock:us-east-1::foundation-model/*"]
+  knowledge_base_arns       = []
+  dynamodb_table_arns       = []
+  kms_key_arns              = []
+  sns_topic_arn             = "arn:aws:sns:us-east-1:123456789012:validation"
   cloudtrail_log_group_name = "/aws/cloudtrail/validation"
 
   tags = {

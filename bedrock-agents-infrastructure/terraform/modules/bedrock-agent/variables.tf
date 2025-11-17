@@ -15,7 +15,7 @@ variable "model_id" {
   default     = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 
   validation {
-    condition = can(regex("^anthropic\\.claude-", var.model_id))
+    condition     = can(regex("^anthropic\\.claude-", var.model_id))
     error_message = "Model ID must be a valid Anthropic Claude model."
   }
 }
@@ -76,16 +76,16 @@ variable "enable_user_input" {
 variable "prompt_override_configuration" {
   description = "Prompt override configuration for the agent"
   type = object({
-    prompt_type             = string
-    prompt_creation_mode    = string
-    prompt_state            = string
-    base_prompt_template    = string
+    prompt_type          = string
+    prompt_creation_mode = string
+    prompt_state         = string
+    base_prompt_template = string
     inference_configuration = optional(object({
-      temperature     = optional(number, 0.7)
-      top_p           = optional(number, 0.9)
-      top_k           = optional(number, 250)
-      maximum_length  = optional(number, 2048)
-      stop_sequences  = optional(list(string), [])
+      temperature    = optional(number, 0.7)
+      top_p          = optional(number, 0.9)
+      top_k          = optional(number, 250)
+      maximum_length = optional(number, 2048)
+      stop_sequences = optional(list(string), [])
     }), null)
   })
   default = null

@@ -21,7 +21,7 @@ variables {
       action_group_name = "test-action-group"
       description       = "Test action group"
       lambda_arn        = "arn:aws:lambda:us-east-1:123456789012:function:test-function"
-      api_schema        = jsonencode({
+      api_schema = jsonencode({
         openapi = "3.0.0"
         info = {
           title   = "Test API"

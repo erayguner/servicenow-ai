@@ -39,8 +39,8 @@ resource "aws_sqs_queue" "dlq" {
   count = var.enable_dlq ? 1 : 0
 
   name                      = "${var.project_name}-${var.environment}-events-dlq"
-  message_retention_seconds = 1209600  # 14 days
-  kms_master_key_id        = var.kms_key_id
+  message_retention_seconds = 1209600 # 14 days
+  kms_master_key_id         = var.kms_key_id
 
   tags = local.common_tags
 }

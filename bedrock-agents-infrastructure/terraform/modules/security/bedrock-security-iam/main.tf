@@ -9,10 +9,10 @@ locals {
   common_tags = merge(
     var.tags,
     {
-      Module      = "bedrock-security-iam"
-      ManagedBy   = "terraform"
+      Module        = "bedrock-security-iam"
+      ManagedBy     = "terraform"
       SecurityLevel = "critical"
-      Compliance  = "SOC2,HIPAA,PCI-DSS"
+      Compliance    = "SOC2,HIPAA,PCI-DSS"
     }
   )
 }
@@ -33,9 +33,9 @@ resource "aws_iam_role" "bedrock_agent_execution" {
   tags = merge(
     local.common_tags,
     {
-      Name        = "${var.project_name}-bedrock-agent-execution-${var.environment}"
-      Purpose     = "bedrock-agent-execution"
-      ABAC        = "enabled"
+      Name    = "${var.project_name}-bedrock-agent-execution-${var.environment}"
+      Purpose = "bedrock-agent-execution"
+      ABAC    = "enabled"
     }
   )
 }

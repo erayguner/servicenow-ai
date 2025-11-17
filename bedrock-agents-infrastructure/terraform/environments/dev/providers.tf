@@ -5,14 +5,14 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Environment     = "dev"
-      Project         = "servicenow-ai"
-      ManagedBy       = "terraform"
-      CostCenter      = "development"
-      Owner           = var.owner_email
-      AutoShutdown    = "true"
-      BackupRequired  = "false"
-      Compliance      = "none"
+      Environment        = "dev"
+      Project            = "servicenow-ai"
+      ManagedBy          = "terraform"
+      CostCenter         = "development"
+      Owner              = var.owner_email
+      AutoShutdown       = "true"
+      BackupRequired     = "false"
+      Compliance         = "none"
       TerraformWorkspace = terraform.workspace
     }
   }
@@ -47,7 +47,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Purpose = "terraform-state"
+      Purpose     = "terraform-state"
       Environment = "dev"
     }
   }

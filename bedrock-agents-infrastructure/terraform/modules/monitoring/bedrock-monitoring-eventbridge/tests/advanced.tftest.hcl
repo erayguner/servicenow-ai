@@ -3,14 +3,14 @@
 # ==============================================================================
 
 variables {
-  project_name = "advanced-eventbridge"
-  environment  = "prod"
-  create_event_bus = true
-  enable_archive = true
-  archive_retention_days = 90
+  project_name                = "advanced-eventbridge"
+  environment                 = "prod"
+  create_event_bus            = true
+  enable_archive              = true
+  archive_retention_days      = 90
   enable_cross_account_access = true
-  allowed_account_ids = ["123456789012"]
-  tags = { Environment = "prod" }
+  allowed_account_ids         = ["123456789012"]
+  tags                        = { Environment = "prod" }
 }
 
 run "verify_archive_retention" {

@@ -451,10 +451,10 @@ resource "aws_cloudwatch_metric_alarm" "bedrock_invocation_anomaly" {
 resource "aws_cloudwatch_composite_alarm" "bedrock_critical_health" {
   count = var.enable_composite_alarms && var.bedrock_agent_id != null ? 1 : 0
 
-  alarm_name          = "${var.project_name}-${var.environment}-bedrock-critical-health"
-  alarm_description   = "Critical health issues detected with Bedrock agent"
-  actions_enabled     = var.alarm_actions_enabled
-  alarm_actions       = compact([var.alarm_sns_topic_arn, try(aws_sns_topic.alarms[0].arn, "")])
+  alarm_name        = "${var.project_name}-${var.environment}-bedrock-critical-health"
+  alarm_description = "Critical health issues detected with Bedrock agent"
+  actions_enabled   = var.alarm_actions_enabled
+  alarm_actions     = compact([var.alarm_sns_topic_arn, try(aws_sns_topic.alarms[0].arn, "")])
 
   alarm_rule = join(" OR ", compact([
     try("ALARM(${aws_cloudwatch_metric_alarm.bedrock_invocation_errors[0].alarm_name})", ""),
@@ -477,9 +477,9 @@ resource "aws_cloudwatch_log_metric_filter" "bedrock_errors" {
   pattern        = "[time, request_id, level = ERROR*, ...]"
 
   metric_transformation {
-    name      = "BedrockErrorCount"
-    namespace = var.metric_namespace
-    value     = "1"
+    name          = "BedrockErrorCount"
+    namespace     = var.metric_namespace
+    value         = "1"
     default_value = 0
   }
 }
@@ -493,9 +493,9 @@ resource "aws_cloudwatch_log_metric_filter" "bedrock_timeouts" {
   pattern        = "[time, request_id, level, msg = *timeout* || msg = *timed?out*]"
 
   metric_transformation {
-    name      = "BedrockTimeoutCount"
-    namespace = var.metric_namespace
-    value     = "1"
+    name          = "BedrockTimeoutCount"
+    namespace     = var.metric_namespace
+    value         = "1"
     default_value = 0
   }
 }
@@ -509,13 +509,13 @@ resource "aws_cloudwatch_dashboard" "main" {
 
   dashboard_name = local.dashboard_name
   dashboard_body = templatefile("${path.module}/templates/dashboard.json.tpl", {
-    region                = data.aws_region.current.name
-    bedrock_agent_id      = var.bedrock_agent_id
+    region                 = data.aws_region.current.name
+    bedrock_agent_id       = var.bedrock_agent_id
     bedrock_agent_alias_id = var.bedrock_agent_alias_id
-    lambda_functions      = jsonencode(var.lambda_function_names)
-    step_functions        = jsonencode(var.step_function_state_machine_arns)
-    api_gateways          = jsonencode(var.api_gateway_ids)
-    metric_namespace      = var.metric_namespace
+    lambda_functions       = jsonencode(var.lambda_function_names)
+    step_functions         = jsonencode(var.step_function_state_machine_arns)
+    api_gateways           = jsonencode(var.api_gateway_ids)
+    metric_namespace       = var.metric_namespace
   })
 }
 

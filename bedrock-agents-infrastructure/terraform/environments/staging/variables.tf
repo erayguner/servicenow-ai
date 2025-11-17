@@ -73,10 +73,10 @@ variable "enable_ab_testing" {
 variable "load_test_config" {
   description = "Load testing configuration"
   type = object({
-    target_rps           = number
-    duration_minutes     = number
-    ramp_up_minutes      = number
-    concurrent_sessions  = number
+    target_rps          = number
+    duration_minutes    = number
+    ramp_up_minutes     = number
+    concurrent_sessions = number
   })
   default = {
     target_rps          = 50
@@ -90,7 +90,7 @@ variable "load_test_config" {
 variable "test_scenarios" {
   description = "List of test scenarios to execute"
   type        = list(string)
-  default     = [
+  default = [
     "functional-testing",
     "integration-testing",
     "performance-testing",

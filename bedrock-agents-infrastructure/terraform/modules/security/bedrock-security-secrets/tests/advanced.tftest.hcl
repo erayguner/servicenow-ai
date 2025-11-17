@@ -7,19 +7,19 @@ variables {
   environment  = "prod"
   secrets = {
     db_password = {
-      description = "Database password"
-      secret_string = "supersecret"
+      description             = "Database password"
+      secret_string           = "supersecret"
       recovery_window_in_days = 7
     }
     api_token = {
-      description = "API token"
-      secret_string = "token123"
+      description             = "API token"
+      secret_string           = "token123"
       recovery_window_in_days = 30
     }
   }
-  enable_rotation = true
+  enable_rotation     = true
   rotation_lambda_arn = "arn:aws:lambda:us-east-1:123456789012:function:rotation"
-  tags = { Environment = "prod" }
+  tags                = { Environment = "prod" }
 }
 
 run "verify_multiple_secrets" {

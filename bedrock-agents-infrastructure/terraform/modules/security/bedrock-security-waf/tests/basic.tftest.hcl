@@ -5,8 +5,8 @@
 variables {
   project_name = "test-waf"
   environment  = "test"
-  scope = "REGIONAL"
-  tags = { Environment = "test" }
+  scope        = "REGIONAL"
+  tags         = { Environment = "test" }
 }
 
 run "verify_waf_web_acl" {

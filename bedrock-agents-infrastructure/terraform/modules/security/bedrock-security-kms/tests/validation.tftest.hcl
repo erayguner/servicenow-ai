@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "validation-kms"
-  environment  = "validation"
+  project_name        = "validation-kms"
+  environment         = "validation"
   enable_key_rotation = true
-  tags = { Environment = "validation" }
+  tags                = { Environment = "validation" }
 }
 
 run "validate_outputs" {

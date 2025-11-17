@@ -5,8 +5,8 @@
 # ==============================================================================
 
 variables {
-  lambda_function_name = "advanced-action-lambda"
-  description         = "Advanced action group Lambda"
+  lambda_function_name   = "advanced-action-lambda"
+  description            = "Advanced action group Lambda"
   create_lambda_function = true
 
   lambda_runtime     = "python3.12"
@@ -16,15 +16,15 @@ variables {
 
   lambda_source_code_inline = "def handler(event, context): return {'statusCode': 200}"
 
-  enable_lambda_vpc = true
-  vpc_subnet_ids = ["subnet-12345", "subnet-67890"]
+  enable_lambda_vpc      = true
+  vpc_subnet_ids         = ["subnet-12345", "subnet-67890"]
   vpc_security_group_ids = ["sg-12345"]
 
-  enable_xray_tracing = true
+  enable_xray_tracing    = true
   enable_lambda_insights = true
 
   lambda_environment_variables = {
-    ENV = "test"
+    ENV       = "test"
     LOG_LEVEL = "DEBUG"
   }
 

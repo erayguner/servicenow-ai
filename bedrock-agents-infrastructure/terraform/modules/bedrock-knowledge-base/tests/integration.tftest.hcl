@@ -5,9 +5,9 @@
 # ==============================================================================
 
 variables {
-  knowledge_base_name = "integration-kb"
-  description         = "Integration test knowledge base"
-  create_s3_bucket    = false
+  knowledge_base_name    = "integration-kb"
+  description            = "Integration test knowledge base"
+  create_s3_bucket       = false
   existing_s3_bucket_arn = "arn:aws:s3:::existing-bucket"
 
   tags = {

@@ -13,10 +13,10 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::bedrock:invokeAgent"
         Parameters = {
-          AgentId       = try(module.bedrock_agents["incident"].agent_id, "")
-          AgentAliasId  = try(module.bedrock_agents["incident"].agent_aliases["production"].agent_alias_id, "")
-          SessionId     = ".$$.Execution.Name"
-          InputText     = "$.incident.description"
+          AgentId      = try(module.bedrock_agents["incident"].agent_id, "")
+          AgentAliasId = try(module.bedrock_agents["incident"].agent_aliases["production"].agent_alias_id, "")
+          SessionId    = ".$$.Execution.Name"
+          InputText    = "$.incident.description"
         }
         ResultPath = "$.analysis"
         Next       = "CheckSeverity"
@@ -50,7 +50,7 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = aws_lambda_function.servicenow_integration.arn
         Parameters = {
-          action = "escalate"
+          action       = "escalate"
           "incident.$" = "$.incident"
           "analysis.$" = "$.analysis"
         }
@@ -62,8 +62,8 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::sns:publish"
         Parameters = {
-          TopicArn = aws_sns_topic.servicenow_notifications.arn
-          Subject  = "Critical Incident Escalation"
+          TopicArn    = aws_sns_topic.servicenow_notifications.arn
+          Subject     = "Critical Incident Escalation"
           "Message.$" = "States.Format('Critical incident {} has been escalated. Severity: {}', $.incident.number, $.analysis.severity)"
         }
         Next = "UpdateState"
@@ -73,7 +73,7 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = aws_lambda_function.servicenow_integration.arn
         Parameters = {
-          action = "assign"
+          action       = "assign"
           "incident.$" = "$.incident"
           "analysis.$" = "$.analysis"
         }
@@ -85,9 +85,9 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::bedrock:invokeAgent"
         Parameters = {
-          AgentId      = try(module.bedrock_agents["triage"].agent_id, "")
-          AgentAliasId = try(module.bedrock_agents["triage"].agent_aliases["production"].agent_alias_id, "")
-          SessionId    = ".$$.Execution.Name"
+          AgentId       = try(module.bedrock_agents["triage"].agent_id, "")
+          AgentAliasId  = try(module.bedrock_agents["triage"].agent_aliases["production"].agent_alias_id, "")
+          SessionId     = ".$$.Execution.Name"
           "InputText.$" = "States.Format('Triage this incident: {}', $.incident.description)"
         }
         ResultPath = "$.triage"
@@ -98,9 +98,9 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type = "Choice"
         Choices = [
           {
-            Variable = "$.triage.confidence"
+            Variable                 = "$.triage.confidence"
             NumericGreaterThanEquals = var.auto_assignment_confidence_threshold
-            Next     = "AutoAssign"
+            Next                     = "AutoAssign"
           }
         ]
         Default = "ManualReview"
@@ -110,9 +110,9 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = aws_lambda_function.servicenow_integration.arn
         Parameters = {
-          action        = "auto_assign"
-          "incident.$"  = "$.incident"
-          "triage.$"    = "$.triage"
+          action       = "auto_assign"
+          "incident.$" = "$.incident"
+          "triage.$"   = "$.triage"
         }
         ResultPath = "$.assignment"
         Next       = "StartSLAMonitor"
@@ -139,7 +139,7 @@ resource "aws_sfn_state_machine" "incident_workflow" {
             timeout_minutes = var.incident_escalation_timeout_minutes
           }
         }
-        ResultPath = "$.sla"
+        ResultPath     = "$.sla"
         TimeoutSeconds = var.incident_escalation_timeout_minutes * 60
         Catch = [
           {
@@ -155,8 +155,8 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::sns:publish"
         Parameters = {
-          TopicArn = aws_sns_topic.servicenow_notifications.arn
-          Subject  = "SLA Breach Warning"
+          TopicArn    = aws_sns_topic.servicenow_notifications.arn
+          Subject     = "SLA Breach Warning"
           "Message.$" = "States.Format('Incident {} is at risk of SLA breach', $.incident.number)"
         }
         Next = "EscalateImmediately"
@@ -205,9 +205,9 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::bedrock:invokeAgent"
         Parameters = {
-          AgentId      = try(module.bedrock_agents["knowledge"].agent_id, "")
-          AgentAliasId = try(module.bedrock_agents["knowledge"].agent_aliases["production"].agent_alias_id, "")
-          SessionId    = ".$$.Execution.Name"
+          AgentId       = try(module.bedrock_agents["knowledge"].agent_id, "")
+          AgentAliasId  = try(module.bedrock_agents["knowledge"].agent_aliases["production"].agent_alias_id, "")
+          SessionId     = ".$$.Execution.Name"
           "InputText.$" = "States.Format('Create knowledge article from resolved incident: {}', States.JsonToString($.incident))"
         }
         ResultPath = "$.knowledge"
@@ -218,8 +218,8 @@ resource "aws_sfn_state_machine" "incident_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::sns:publish"
         Parameters = {
-          TopicArn = aws_sns_topic.servicenow_notifications.arn
-          Subject  = "Incident Workflow Error"
+          TopicArn    = aws_sns_topic.servicenow_notifications.arn
+          Subject     = "Incident Workflow Error"
           "Message.$" = "States.Format('Error in incident workflow: {}', $.error.Cause)"
         }
         Next = "Fail"
@@ -273,9 +273,9 @@ resource "aws_sfn_state_machine" "change_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::bedrock:invokeAgent"
         Parameters = {
-          AgentId      = try(module.bedrock_agents["change"].agent_id, "")
-          AgentAliasId = try(module.bedrock_agents["change"].agent_aliases["production"].agent_alias_id, "")
-          SessionId    = ".$$.Execution.Name"
+          AgentId       = try(module.bedrock_agents["change"].agent_id, "")
+          AgentAliasId  = try(module.bedrock_agents["change"].agent_aliases["production"].agent_alias_id, "")
+          SessionId     = ".$$.Execution.Name"
           "InputText.$" = "States.Format('Analyze this change request: {}', States.JsonToString($.change))"
         }
         ResultPath = "$.analysis"
@@ -307,7 +307,7 @@ resource "aws_sfn_state_machine" "change_workflow" {
       }
 
       RequireCABApproval = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::lambda:invoke.waitForTaskToken"
         Parameters = {
           FunctionName = aws_lambda_function.servicenow_integration.arn
@@ -331,7 +331,7 @@ resource "aws_sfn_state_machine" "change_workflow" {
       }
 
       RequireManagerApproval = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::lambda:invoke.waitForTaskToken"
         Parameters = {
           FunctionName = aws_lambda_function.servicenow_integration.arn
@@ -418,8 +418,8 @@ resource "aws_sfn_state_machine" "change_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::sns:publish"
         Parameters = {
-          TopicArn = aws_sns_topic.servicenow_notifications.arn
-          Subject  = "Change Approval Timeout"
+          TopicArn    = aws_sns_topic.servicenow_notifications.arn
+          Subject     = "Change Approval Timeout"
           "Message.$" = "States.Format('Change {} approval timed out', $.change.number)"
         }
         Next = "ChangeRejected"
@@ -440,8 +440,8 @@ resource "aws_sfn_state_machine" "change_workflow" {
         Type     = "Task"
         Resource = "arn:aws:states:::sns:publish"
         Parameters = {
-          TopicArn = aws_sns_topic.servicenow_notifications.arn
-          Subject  = "Change Workflow Error"
+          TopicArn    = aws_sns_topic.servicenow_notifications.arn
+          Subject     = "Change Workflow Error"
           "Message.$" = "States.Format('Error in change workflow: {}', $.error.Cause)"
         }
         Next = "Fail"

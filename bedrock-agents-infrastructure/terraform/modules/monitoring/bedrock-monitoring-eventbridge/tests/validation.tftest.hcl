@@ -3,10 +3,10 @@
 # ==============================================================================
 
 variables {
-  project_name = "validation-eventbridge"
-  environment  = "validation"
+  project_name     = "validation-eventbridge"
+  environment      = "validation"
   create_event_bus = true
-  tags = { Environment = "validation" }
+  tags             = { Environment = "validation" }
 }
 
 run "validate_outputs" {

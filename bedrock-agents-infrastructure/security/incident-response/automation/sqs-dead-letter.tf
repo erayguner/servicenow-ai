@@ -2,8 +2,8 @@
 # Captures failed incident response tasks for retry and analysis
 
 resource "aws_sqs_queue" "incident_response_dlq" {
-  name                      = "incident-response-dlq-${var.environment}"
-  message_retention_seconds = 1209600  # 14 days
+  name                       = "incident-response-dlq-${var.environment}"
+  message_retention_seconds  = 1209600 # 14 days
   visibility_timeout_seconds = 300
 
   tags = {
@@ -15,9 +15,9 @@ resource "aws_sqs_queue" "incident_response_dlq" {
 
 # Main incident response queue with DLQ
 resource "aws_sqs_queue" "incident_response_queue" {
-  name                      = "incident-response-queue-${var.environment}"
-  message_retention_seconds = 345600  # 4 days
-  visibility_timeout_seconds = 900     # 15 minutes
+  name                       = "incident-response-queue-${var.environment}"
+  message_retention_seconds  = 345600 # 4 days
+  visibility_timeout_seconds = 900    # 15 minutes
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.incident_response_dlq.arn
@@ -65,7 +65,7 @@ resource "aws_cloudwatch_metric_alarm" "queue_age" {
   namespace           = "AWS/SQS"
   period              = "300"
   statistic           = "Maximum"
-  threshold           = "3600"  # 1 hour
+  threshold           = "3600" # 1 hour
   alarm_description   = "Alert when incident response messages are older than 1 hour"
   treat_missing_data  = "notBreaching"
 
@@ -106,9 +106,9 @@ resource "aws_cloudwatch_dashboard" "incident_response_dlq" {
       {
         type = "log"
         properties = {
-          query   = "fields @timestamp, @message | filter @message like /ERROR|FAILED/ | stats count() as failures by bin(5m)"
-          region  = var.aws_region
-          title   = "Failed Incident Responses"
+          query        = "fields @timestamp, @message | filter @message like /ERROR|FAILED/ | stats count() as failures by bin(5m)"
+          region       = var.aws_region
+          title        = "Failed Incident Responses"
           logGroupName = "/aws/incident-response/main"
         }
       }
@@ -177,7 +177,7 @@ resource "aws_cloudwatch_event_rule" "response_failure" {
     source      = ["aws.events"]
     detail-type = ["Step Functions Execution State Change"]
     detail = {
-      status = ["FAILED", "TIMED_OUT", "ABORTED"]
+      status          = ["FAILED", "TIMED_OUT", "ABORTED"]
       stateMachineArn = [var.step_functions_state_machine_arn]
     }
   })
@@ -199,10 +199,10 @@ resource "aws_lambda_function" "dlq_processor" {
 
   environment {
     variables = {
-      DLQ_URL                    = aws_sqs_queue.incident_response_dlq.url
-      INCIDENT_RESPONSE_TOPIC    = var.incident_response_topic_arn
-      INCIDENT_TRACKING_TABLE    = var.incident_tracking_table
-      ENVIRONMENT                = var.environment
+      DLQ_URL                 = aws_sqs_queue.incident_response_dlq.url
+      INCIDENT_RESPONSE_TOPIC = var.incident_response_topic_arn
+      INCIDENT_TRACKING_TABLE = var.incident_tracking_table
+      ENVIRONMENT             = var.environment
     }
   }
 

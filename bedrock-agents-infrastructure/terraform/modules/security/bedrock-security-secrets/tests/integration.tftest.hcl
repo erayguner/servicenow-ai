@@ -7,12 +7,12 @@ variables {
   environment  = "integration"
   secrets = {
     integration_key = {
-      description = "Integration key"
+      description   = "Integration key"
       secret_string = "int-key-123"
     }
   }
   kms_key_id = "arn:aws:kms:us-east-1:123456789012:key/12345"
-  tags = { Environment = "integration" }
+  tags       = { Environment = "integration" }
 }
 
 run "verify_kms_integration" {

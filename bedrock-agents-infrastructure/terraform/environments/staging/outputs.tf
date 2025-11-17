@@ -64,9 +64,9 @@ output "orchestrator_endpoint" {
 output "orchestrator_status" {
   description = "Orchestrator configuration status"
   value = {
-    max_agents      = module.agent_orchestrator.max_agents
-    auto_scaling    = module.agent_orchestrator.auto_scaling_enabled
-    current_agents  = module.agent_orchestrator.current_agent_count
+    max_agents     = module.agent_orchestrator.max_agents
+    auto_scaling   = module.agent_orchestrator.auto_scaling_enabled
+    current_agents = module.agent_orchestrator.current_agent_count
   }
 }
 
@@ -79,10 +79,10 @@ output "load_testing_endpoint" {
 output "testing_configuration" {
   description = "Testing configuration details"
   value = {
-    load_testing_enabled     = var.enable_load_testing
-    chaos_testing_enabled    = var.enable_chaos_testing
-    ab_testing_enabled       = var.enable_ab_testing
-    synthetic_monitoring     = var.enable_synthetic_monitoring
+    load_testing_enabled  = var.enable_load_testing
+    chaos_testing_enabled = var.enable_chaos_testing
+    ab_testing_enabled    = var.enable_ab_testing
+    synthetic_monitoring  = var.enable_synthetic_monitoring
   }
 }
 
@@ -110,8 +110,8 @@ output "monitoring_dashboards" {
   description = "CloudWatch dashboard URLs"
   value = {
     agent_performance = "https://console.aws.amazon.com/cloudwatch/home?region=${var.aws_region}#dashboards:name=${local.project}-agent-${local.environment}"
-    xray_traces      = "https://console.aws.amazon.com/xray/home?region=${var.aws_region}#/traces"
-    logs             = "https://console.aws.amazon.com/cloudwatch/home?region=${var.aws_region}#logsV2:log-groups/log-group/${module.bedrock_agent.cloudwatch_log_group}"
+    xray_traces       = "https://console.aws.amazon.com/xray/home?region=${var.aws_region}#/traces"
+    logs              = "https://console.aws.amazon.com/cloudwatch/home?region=${var.aws_region}#logsV2:log-groups/log-group/${module.bedrock_agent.cloudwatch_log_group}"
   }
 }
 
@@ -119,15 +119,15 @@ output "monitoring_dashboards" {
 output "api_endpoints" {
   description = "API endpoints for testing"
   value = {
-    agent_runtime     = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com"
-    knowledge_base    = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com/knowledgebases/${module.bedrock_agent.knowledge_base_id}"
-    orchestrator      = module.agent_orchestrator.api_endpoint
+    agent_runtime  = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com"
+    knowledge_base = "https://bedrock-agent-runtime.${var.aws_region}.amazonaws.com/knowledgebases/${module.bedrock_agent.knowledge_base_id}"
+    orchestrator   = module.agent_orchestrator.api_endpoint
   }
 }
 
 output "testing_guide" {
   description = "Staging testing guide"
-  value = <<-EOT
+  value       = <<-EOT
     Staging Environment Testing Guide:
 
     1. Functional Testing:

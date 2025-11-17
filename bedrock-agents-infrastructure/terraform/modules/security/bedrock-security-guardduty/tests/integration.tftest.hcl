@@ -3,11 +3,11 @@
 # ==============================================================================
 
 variables {
-  project_name = "integration-guardduty"
-  environment  = "integration"
+  project_name     = "integration-guardduty"
+  environment      = "integration"
   enable_guardduty = true
-  sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:guardduty-alerts"
-  tags = { Environment = "integration" }
+  sns_topic_arn    = "arn:aws:sns:us-east-1:123456789012:guardduty-alerts"
+  tags             = { Environment = "integration" }
 }
 
 run "verify_sns_integration" {

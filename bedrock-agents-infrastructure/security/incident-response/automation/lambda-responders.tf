@@ -11,7 +11,7 @@ resource "aws_lambda_function" "incident_logger" {
 
   environment {
     variables = {
-      LOG_GROUP = aws_cloudwatch_log_group.incident_response_logs.name
+      LOG_GROUP   = aws_cloudwatch_log_group.incident_response_logs.name
       ENVIRONMENT = var.environment
     }
   }
@@ -114,10 +114,10 @@ resource "aws_lambda_function" "stakeholder_notifier" {
 
   environment {
     variables = {
-      SECURITY_TOPIC_ARN            = var.security_team_topic_arn
-      INCIDENT_COMMANDER_TOPIC_ARN  = var.incident_commander_topic_arn
-      EXECUTIVE_ESCALATION_TOPIC    = var.executive_escalation_topic_arn
-      ENVIRONMENT                   = var.environment
+      SECURITY_TOPIC_ARN           = var.security_team_topic_arn
+      INCIDENT_COMMANDER_TOPIC_ARN = var.incident_commander_topic_arn
+      EXECUTIVE_ESCALATION_TOPIC   = var.executive_escalation_topic_arn
+      ENVIRONMENT                  = var.environment
     }
   }
 
@@ -130,7 +130,7 @@ resource "aws_lambda_function" "stakeholder_notifier" {
 
 # IAM Role for Lambda responder functions
 resource "aws_iam_role" "lambda_responder_role" {
-  name               = "incident-response-lambda-role-${var.environment}"
+  name = "incident-response-lambda-role-${var.environment}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -152,8 +152,8 @@ resource "aws_iam_role" "lambda_responder_role" {
 
 # IAM Policy for Lambda responder functions
 resource "aws_iam_role_policy" "lambda_responder_policy" {
-  name   = "incident-response-lambda-policy-${var.environment}"
-  role   = aws_iam_role.lambda_responder_role.id
+  name = "incident-response-lambda-policy-${var.environment}"
+  role = aws_iam_role.lambda_responder_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
