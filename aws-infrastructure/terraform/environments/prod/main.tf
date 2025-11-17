@@ -2,11 +2,11 @@
 # This is the AWS equivalent of the GCP production environment
 
 terraform {
-  required_version = ">= 1.6"
+  required_version = ">= 1.11.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 5.80"
     }
   }
 
