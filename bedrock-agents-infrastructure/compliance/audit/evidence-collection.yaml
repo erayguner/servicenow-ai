@@ -486,7 +486,7 @@ retrieval:
       - "ComplianceAuditor"
       - "CISO"
       - "LegalCounsel"
-      - "ExternalAuditor" (temporary, time-limited)
+      - "ExternalAuditor"  # temporary, time-limited
     mfa_required: true
     ip_restriction: "Corporate VPN only"
 
