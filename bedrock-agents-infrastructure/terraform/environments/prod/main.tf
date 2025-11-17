@@ -296,61 +296,65 @@ module "bedrock_agent_secondary" {
 }
 
 # Global Traffic Manager for multi-region routing
-module "global_traffic_manager" {
-  source = "../../modules/traffic-manager"
-
-  environment = local.environment
-  project     = local.project
-
-  # Primary and secondary endpoints
-  primary_agent_id   = module.bedrock_agent_primary.agent_id
-  secondary_agent_id = module.bedrock_agent_secondary.agent_id
-
-  primary_region   = local.regions.primary
-  secondary_region = local.regions.secondary
-
-  # Health check configuration
-  health_check_enabled   = true
-  health_check_interval  = 30
-  health_check_path      = "/health"
-  health_check_timeout   = 10
-  health_check_threshold = 3
-
-  # Routing policy
-  routing_policy = "latency" # or "failover", "geolocation"
-
-  # Failover configuration
-  enable_automatic_failover = true
-  failover_threshold        = 5 # failures before failover
-
-  tags = local.common_tags
-}
+# NOTE: Commented out - module not yet implemented
+# TODO: Create traffic-manager module for global load balancing and failover
+# module "global_traffic_manager" {
+#   source = "../../modules/traffic-manager"
+#
+#   environment = local.environment
+#   project     = local.project
+#
+#   # Primary and secondary endpoints
+#   primary_agent_id   = module.bedrock_agent_primary.agent_id
+#   secondary_agent_id = module.bedrock_agent_secondary.agent_id
+#
+#   primary_region   = local.regions.primary
+#   secondary_region = local.regions.secondary
+#
+#   # Health check configuration
+#   health_check_enabled      = true
+#   health_check_interval     = 30
+#   health_check_path         = "/health"
+#   health_check_timeout      = 10
+#   health_check_threshold    = 3
+#
+#   # Routing policy
+#   routing_policy = "latency"  # or "failover", "geolocation"
+#
+#   # Failover configuration
+#   enable_automatic_failover = true
+#   failover_threshold        = 5  # failures before failover
+#
+#   tags = local.common_tags
+# }
 
 # CloudWatch Synthetics for continuous monitoring
-module "synthetic_monitoring" {
-  source = "../../modules/synthetic-monitoring"
-
-  environment = local.environment
-  project     = local.project
-
-  # Canary configuration
-  canary_name     = "${local.project}-agent-canary-${local.environment}"
-  canary_schedule = "rate(5 minutes)"
-
-  # Endpoints to monitor
-  endpoints = [
-    module.bedrock_agent_primary.agent_endpoint,
-    module.bedrock_agent_secondary.agent_endpoint
-  ]
-
-  # Test scenarios
-  test_scenarios = var.synthetic_test_scenarios
-
-  # Alerting
-  alert_sns_topic_arn = var.alert_sns_topic_arn
-
-  tags = local.common_tags
-}
+# NOTE: Commented out - module not yet implemented
+# TODO: Create synthetic-monitoring module or use bedrock-monitoring-synthetics
+# module "synthetic_monitoring" {
+#   source = "../../modules/synthetic-monitoring"
+#
+#   environment = local.environment
+#   project     = local.project
+#
+#   # Canary configuration
+#   canary_name     = "${local.project}-agent-canary-${local.environment}"
+#   canary_schedule = "rate(5 minutes)"
+#
+#   # Endpoints to monitor
+#   endpoints = [
+#     module.bedrock_agent_primary.agent_endpoint,
+#     module.bedrock_agent_secondary.agent_endpoint
+#   ]
+#
+#   # Test scenarios
+#   test_scenarios = var.synthetic_test_scenarios
+#
+#   # Alerting
+#   alert_sns_topic_arn = var.alert_sns_topic_arn
+#
+#   tags = local.common_tags
+# }
 
 # ==============================================================================
 # Security Modules - Full Production Configuration

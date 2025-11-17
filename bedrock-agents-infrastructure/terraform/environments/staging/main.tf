@@ -176,27 +176,29 @@ module "bedrock_agent" {
 }
 
 # Additional module for testing orchestration
-module "agent_orchestrator" {
-  source = "../../modules/agent-orchestrator"
-
-  environment = local.environment
-  project     = local.project
-
-  # Primary agent
-  primary_agent_id = module.bedrock_agent.agent_id
-
-  # Orchestration configuration
-  max_agents          = 5
-  enable_auto_scaling = true
-  min_agents          = 2
-  max_agents_limit    = 10
-
-  # Testing configuration
-  enable_chaos_testing = var.enable_chaos_testing
-  enable_ab_testing    = var.enable_ab_testing
-
-  tags = local.common_tags
-}
+# NOTE: Commented out - module not yet implemented
+# TODO: Create agent-orchestrator module for advanced testing orchestration
+# module "agent_orchestrator" {
+#   source = "../../modules/agent-orchestrator"
+#
+#   environment = local.environment
+#   project     = local.project
+#
+#   # Primary agent
+#   primary_agent_id = module.bedrock_agent.agent_id
+#
+#   # Orchestration configuration
+#   max_agents            = 5
+#   enable_auto_scaling   = true
+#   min_agents            = 2
+#   max_agents_limit      = 10
+#
+#   # Testing configuration
+#   enable_chaos_testing  = var.enable_chaos_testing
+#   enable_ab_testing     = var.enable_ab_testing
+#
+#   tags = local.common_tags
+# }
 
 # ==============================================================================
 # Security Modules - Standard Configuration for Staging
