@@ -288,3 +288,243 @@ change_window = {
 # - Deployment Guide: https://wiki.example.com/deployment-guide
 # - Monitoring Guide: https://wiki.example.com/monitoring-guide
 # - Security Policies: https://wiki.example.com/security-policies
+
+# ==============================================================================
+# SECURITY MODULE CONFIGURATION
+# ==============================================================================
+
+# KMS Key Administrators (Production Security Team)
+kms_key_admin_arns = [
+  "arn:aws:iam::123456789012:role/ProductionSecurityAdmin",
+  "arn:aws:iam::123456789012:role/ComplianceTeam",
+  "arn:aws:iam::123456789012:role/InfrastructureAdmin"
+]
+
+# KMS Grant Role ARNs (for cross-service access)
+kms_grant_role_arns = [
+  # "arn:aws:iam::123456789012:role/BackupService",
+  # "arn:aws:iam::123456789012:role/MonitoringService"
+]
+
+# DynamoDB Tables for Lambda Access
+dynamodb_table_arns = [
+  "arn:aws:dynamodb:us-east-1:123456789012:table/servicenow-sessions-prod",
+  "arn:aws:dynamodb:us-east-1:123456789012:table/servicenow-cache-prod",
+  "arn:aws:dynamodb:us-east-1:123456789012:table/servicenow-audit-prod"
+]
+
+# Cross-Account Access (for backup/monitoring accounts)
+enable_cross_account_access = true
+trusted_account_ids = [
+  # "098765432109",  # Backup account
+  # "098765432108",  # Monitoring account
+]
+cross_account_external_id = "REPLACE_WITH_SECURE_EXTERNAL_ID"  # Store in AWS Secrets Manager
+
+# WAF Configuration - IP Filtering
+waf_blocked_ips = [
+  # Add known malicious IPs or ranges
+  # "192.0.2.0/24",
+  # "198.51.100.0/24",
+]
+
+waf_allowed_ips = [
+  # Corporate network ranges (if using IP whitelisting)
+  # "203.0.113.0/24",  # Corporate HQ
+  # "198.51.100.0/24",  # Remote office
+  # "192.0.2.0/24",    # VPN gateway
+]
+
+# WAF Geo-blocking (Block high-risk countries)
+waf_blocked_countries = [
+  # "CN",  # China
+  # "RU",  # Russia
+  # "KP",  # North Korea
+  # "IR",  # Iran
+  # "SY",  # Syria
+]
+
+# API Key Requirements (Production API Security)
+require_api_key = true
+api_key_value   = "REPLACE_WITH_SECURE_API_KEY"  # Store in AWS Secrets Manager
+
+# API Gateway ARNs for WAF Association
+api_gateway_arn_primary   = "arn:aws:apigateway:us-east-1::/restapis/abc123xyz456"
+api_gateway_arn_secondary = "arn:aws:apigateway:us-west-2::/restapis/def456uvw789"
+
+# GuardDuty Configuration
+enable_guardduty_org_config = true  # Enable if using AWS Organizations
+threat_intel_location       = "s3://servicenow-ai-security-prod/threat-intel/malicious-ips.txt"
+trusted_ip_set_location     = "s3://servicenow-ai-security-prod/threat-intel/trusted-ips.txt"
+guardduty_processor_zip_path = "./lambda/guardduty-findings-processor.zip"
+
+# Critical Alerts SNS Topic (for high-severity findings)
+critical_alert_sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:critical-security-alerts"
+
+# Compliance Frameworks
+enable_pci_compliance  = true  # Enable if processing payment data
+enable_nist_compliance = true  # Enable for government compliance
+
+# Security Hub Organization Configuration
+enable_security_hub_org_config = true  # Enable if using AWS Organizations
+
+# ==============================================================================
+# MONITORING MODULE CONFIGURATION
+# ==============================================================================
+
+# Lambda Functions to Monitor (Production Functions)
+lambda_function_names = [
+  "servicenow-actions-prod",
+  "servicenow-processor-prod",
+  "servicenow-integrations-prod",
+  "servicenow-analytics-prod",
+  "servicenow-notifications-prod",
+  "servicenow-workflows-prod"
+]
+
+# Step Functions State Machines
+step_function_arns = [
+  "arn:aws:states:us-east-1:123456789012:stateMachine:servicenow-incident-workflow-prod",
+  "arn:aws:states:us-east-1:123456789012:stateMachine:servicenow-change-workflow-prod",
+  "arn:aws:states:us-east-1:123456789012:stateMachine:servicenow-approval-workflow-prod"
+]
+
+# API Gateway REST APIs to Monitor
+api_gateway_ids = [
+  "abc123xyz456",  # Primary API
+  "def456uvw789"   # Secondary API
+]
+
+# Alert Email Addresses (Distribution Lists)
+alert_email_addresses = [
+  "prod-ops-team@example.com",
+  "platform-engineering@example.com",
+  "sre-team@example.com",
+  "security-team@example.com"
+]
+
+# Bedrock Agent Endpoints for Synthetic Monitoring
+bedrock_agent_endpoints_primary = [
+  "https://bedrock-agent-runtime.us-east-1.amazonaws.com/agents/AGENT_ID_PRIMARY/agentAliases/ALIAS_ID",
+  "https://api-gateway.us-east-1.amazonaws.com/prod/bedrock-agent"
+]
+
+bedrock_agent_endpoints_secondary = [
+  "https://bedrock-agent-runtime.us-west-2.amazonaws.com/agents/AGENT_ID_SECONDARY/agentAliases/ALIAS_ID",
+  "https://api-gateway.us-west-2.amazonaws.com/prod/bedrock-agent"
+]
+
+# CloudTrail Configuration
+enable_mfa_delete        = true   # Require MFA to delete CloudTrail logs
+enable_organization_trail = true  # Enable if using AWS Organizations
+
+# AWS Config Configuration
+config_custom_rules = [
+  # Add custom compliance rules
+  # {
+  #   name        = "bedrock-encryption-enabled"
+  #   description = "Ensure all Bedrock resources use encryption"
+  #   source      = "custom-rule-lambda-arn"
+  # }
+]
+
+enable_config_aggregator    = true
+config_aggregator_accounts = [
+  # "098765432109",  # Development account
+  # "098765432108",  # Staging account
+]
+
+# CloudWatch Synthetics VPC Configuration (for private endpoints)
+enable_synthetics_vpc = false  # Set to true if testing private endpoints
+synthetics_vpc_id     = ""     # VPC ID if testing private endpoints
+synthetics_subnet_ids = []     # Private subnet IDs for canaries
+
+# ==============================================================================
+# COST ESTIMATE - PRODUCTION WITH FULL SECURITY & MONITORING
+# ==============================================================================
+# 
+# AGENT INFRASTRUCTURE (Multi-Region HA):
+# - Bedrock Agents (8 instances, provisioned): ~$800-1200/month
+# - OpenSearch Provisioned: ~$400-600/month
+# - Lambda (provisioned capacity): ~$150-250/month
+# - Step Functions: ~$50-100/month
+# 
+# SECURITY MODULES:
+# - GuardDuty (full protections, multi-region): ~$150-250/month
+# - Security Hub (all standards): ~$50-80/month
+# - WAF (advanced rules, multi-region): ~$100-150/month
+# - Shield Advanced (optional): ~$3000/month
+# - KMS (multi-region, rotation): ~$10-15/month
+# - Secrets Manager (rotation, replicas): ~$10-20/month
+# 
+# MONITORING MODULES:
+# - CloudWatch (comprehensive, multi-region): ~$200-300/month
+# - X-Ray (100% sampling): ~$100-150/month
+# - CloudTrail (multi-region, insights): ~$50-75/month
+# - Config (all rules, aggregator): ~$30-50/month
+# - EventBridge (cross-region): ~$20-30/month
+# - Synthetics (multi-location, frequent): ~$50-75/month
+# 
+# STORAGE & TRANSFER:
+# - S3 (versioning, replication): ~$100-200/month
+# - Data transfer (multi-region): ~$100-300/month
+# - Backup storage: ~$50-100/month
+# 
+# TOTAL ESTIMATED COST:
+# - Without Shield Advanced: ~$2,420-3,945/month (~$29,000-47,000/year)
+# - With Shield Advanced: ~$5,420-6,945/month (~$65,000-83,000/year)
+# 
+# NOTE: Costs vary based on:
+# - Request volume and data processing
+# - Multi-region data transfer
+# - GuardDuty findings volume
+# - CloudWatch log ingestion
+# - X-Ray trace sampling rate
+# - Synthetics test frequency
+# 
+# COST OPTIMIZATION RECOMMENDATIONS:
+# - Use Savings Plans for predictable workloads
+# - Enable S3 Intelligent-Tiering
+# - Review CloudWatch log retention policies
+# - Optimize X-Ray sampling rates after baseline
+# - Use Reserved Capacity for OpenSearch
+# - Enable Cost Anomaly Detection
+
+# ==============================================================================
+# COMPLIANCE & AUDIT COMMANDS
+# ==============================================================================
+
+# View Security Hub compliance score:
+# aws securityhub get-findings-summary --region us-east-1
+
+# Export GuardDuty findings:
+# aws guardduty list-findings --detector-id <detector-id> --output json > guardduty-findings.json
+
+# Check WAF block rate:
+# aws wafv2 get-web-acl-for-resource --resource-arn <api-arn> --scope REGIONAL
+
+# View CloudTrail audit logs:
+# aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=InvokeAgent
+
+# Check Config compliance:
+# aws configservice describe-compliance-by-config-rule
+
+# Export all monitoring dashboards:
+# aws cloudwatch list-dashboards --region us-east-1
+
+# ==============================================================================
+# DISASTER RECOVERY & BACKUP
+# ==============================================================================
+
+# Backup retention: 30 days
+# RTO (Recovery Time Objective): < 1 hour
+# RPO (Recovery Point Objective): < 5 minutes
+#
+# Failover procedure:
+# 1. Verify secondary region health
+# 2. Update Route 53 DNS records
+# 3. Activate secondary Bedrock agents
+# 4. Validate traffic routing
+# 5. Monitor performance metrics
+#
+# Runbook: https://wiki.example.com/bedrock-dr-runbook

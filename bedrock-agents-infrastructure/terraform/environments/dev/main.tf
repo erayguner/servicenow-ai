@@ -152,7 +152,332 @@ module "bedrock_agent" {
   tags = local.common_tags
 }
 
+# ==============================================================================
+# Security Modules - Minimal Configuration for Dev
+# ==============================================================================
+
+# KMS Module - Encryption keys
+module "security_kms" {
+  source = "../../modules/security/bedrock-security-kms"
+
+  project_name = local.project
+  environment  = local.environment
+  aws_region   = var.aws_region
+
+  # Minimal KMS configuration for dev
+  enable_key_rotation      = false  # Disabled for cost savings
+  enable_multi_region      = false
+  deletion_window_in_days  = 7      # Short window for dev
+
+  # IAM role ARNs that need KMS access
+  iam_role_arns = [
+    module.bedrock_agent.agent_role_arn
+  ]
+
+  # Key admin ARNs
+  key_admin_arns = var.kms_key_admin_arns
+
+  # Grant role ARNs
+  grant_role_arns = []
+
+  # CloudTrail log group (will be created by CloudTrail module)
+  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
+
+  # SNS topic for alerts (will use monitoring SNS topic)
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  kms_error_threshold = 10
+
+  tags = local.common_tags
+}
+
+# IAM Module - Security roles and policies
+module "security_iam" {
+  source = "../../modules/security/bedrock-security-iam"
+
+  project_name = local.project
+  environment  = local.environment
+  aws_region   = var.aws_region
+
+  # Permission boundary - disabled for dev
+  enable_permission_boundary = false
+  max_session_duration       = 3600
+
+  allowed_regions = [var.aws_region]
+
+  # Bedrock models
+  allowed_bedrock_models = [
+    "arn:aws:bedrock:*::foundation-model/anthropic.claude-*"
+  ]
+
+  # Knowledge base ARNs
+  knowledge_base_arns = [
+    module.bedrock_agent.knowledge_base_arn
+  ]
+
+  # DynamoDB and KMS
+  dynamodb_table_arns = []
+  kms_key_arns = [
+    module.security_kms.bedrock_data_key_arn,
+    module.security_kms.secrets_key_arn
+  ]
+
+  # Step Functions - disabled for dev
+  enable_step_functions = false
+
+  # Cross-account access - disabled for dev
+  enable_cross_account_access = false
+
+  # CloudTrail log group
+  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
+
+  # SNS topic
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  unauthorized_calls_threshold = 10
+
+  tags = local.common_tags
+}
+
+# GuardDuty Module - Threat detection (disabled for dev to save costs)
+# Uncomment if threat detection is needed in dev
+# module "security_guardduty" {
+#   source = "../../modules/security/bedrock-security-guardduty"
+#
+#   project_name = local.project
+#   environment  = local.environment
+#
+#   finding_publishing_frequency = "ONE_HOUR"
+#
+#   # Minimal protections for dev
+#   enable_s3_protection      = false
+#   enable_eks_protection     = false
+#   enable_lambda_protection  = false
+#   enable_rds_protection     = false
+#   enable_malware_protection = false
+#
+#   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+#   kms_key_arn   = module.security_kms.bedrock_data_key_arn
+#
+#   log_retention_days = 7
+#
+#   tags = local.common_tags
+# }
+
+# Security Hub - Disabled for dev to save costs
+# Uncomment if compliance monitoring is needed
+# module "security_hub" {
+#   source = "../../modules/security/bedrock-security-hub"
+#
+#   project_name = local.project
+#   environment  = local.environment
+#
+#   enable_cis_standard = false
+#   enable_pci_dss      = false
+#   enable_aws_foundational = true
+#
+#   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+#
+#   tags = local.common_tags
+# }
+
+# WAF Module - Disabled for dev
+# Uncomment if API protection is needed
+# module "security_waf" {
+#   source = "../../modules/security/bedrock-security-waf"
+#
+#   project_name = local.project
+#   environment  = local.environment
+#
+#   waf_scope  = "REGIONAL"
+#   rate_limit = 5000  # Higher limit for dev testing
+#
+#   enable_waf_logging = false
+#   sns_topic_arn      = module.monitoring_cloudwatch.sns_topic_arn
+#
+#   tags = local.common_tags
+# }
+
+# Secrets Manager Module - Basic secrets encryption
+module "security_secrets" {
+  source = "../../modules/security/bedrock-security-secrets"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # KMS key for secrets encryption
+  kms_key_id = module.security_kms.secrets_key_id
+
+  # Rotation disabled for dev
+  enable_rotation    = false
+  rotation_days      = 90
+
+  # Recovery window
+  recovery_window_in_days = 7
+
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  tags = local.common_tags
+}
+
+# ==============================================================================
+# Monitoring Modules - Basic Configuration for Dev
+# ==============================================================================
+
+# CloudWatch Module - Dashboards and alarms
+module "monitoring_cloudwatch" {
+  source = "../../modules/monitoring/bedrock-monitoring-cloudwatch"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # Bedrock agent monitoring
+  bedrock_agent_id       = module.bedrock_agent.agent_id
+  bedrock_agent_alias_id = module.bedrock_agent.agent_alias_id
+
+  # Lambda functions (if any)
+  lambda_function_names = var.lambda_function_names
+
+  # Step Functions (if any)
+  step_function_state_machine_arns = []
+
+  # API Gateway (if any)
+  api_gateway_ids = []
+
+  # SNS configuration
+  create_sns_topic        = true
+  sns_email_subscriptions = var.alert_email != "" ? [var.alert_email] : []
+
+  # Alarms - relaxed thresholds for dev
+  bedrock_error_rate_threshold           = 10  # Higher tolerance
+  bedrock_invocation_latency_threshold   = 60000  # 60 seconds
+  bedrock_throttle_threshold             = 20
+  lambda_error_rate_threshold            = 10
+  lambda_duration_threshold              = 30000
+  lambda_throttles_threshold             = 10
+
+  # Anomaly detection - disabled for dev
+  enable_anomaly_detection = false
+  enable_composite_alarms  = false
+
+  # Dashboard
+  create_dashboard = true
+  dashboard_name   = "${local.project}-${local.environment}-bedrock"
+
+  # Log groups
+  log_group_names = [
+    "/aws/bedrock/agents/${local.project}-${local.environment}"
+  ]
+
+  # KMS encryption
+  kms_key_id = module.security_kms.bedrock_data_key_id
+
+  tags = local.common_tags
+}
+
+# X-Ray Module - Disabled for dev to save costs
+# Uncomment if distributed tracing is needed
+# module "monitoring_xray" {
+#   source = "../../modules/monitoring/bedrock-monitoring-xray"
+#
+#   project_name = local.project
+#   environment  = local.environment
+#
+#   enable_insights       = false
+#   enable_sampling_rules = true
+#   sampling_rate         = 0.1  # Sample 10% of requests
+#
+#   tags = local.common_tags
+# }
+
+# CloudTrail Module - Basic audit logging
+module "monitoring_cloudtrail" {
+  source = "../../modules/monitoring/bedrock-monitoring-cloudtrail"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # S3 bucket for CloudTrail logs
+  create_s3_bucket = true
+  s3_bucket_name   = "${local.project}-cloudtrail-${local.environment}"
+
+  # KMS encryption
+  kms_key_id = module.security_kms.bedrock_data_key_id
+
+  # CloudWatch Logs integration
+  enable_cloudwatch_logs = true
+  log_retention_days     = 7
+
+  # Event selectors - basic for dev
+  enable_management_events = true
+  enable_data_events       = false
+
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  tags = local.common_tags
+}
+
+# Config Module - Disabled for dev
+# Uncomment if compliance tracking is needed
+# module "monitoring_config" {
+#   source = "../../modules/monitoring/bedrock-monitoring-config"
+#
+#   project_name = local.project
+#   environment  = local.environment
+#
+#   delivery_frequency = "TwentyFour_Hours"
+#   s3_bucket_name     = "${local.project}-config-${local.environment}"
+#
+#   kms_key_id    = module.security_kms.bedrock_data_key_id
+#   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+#
+#   tags = local.common_tags
+# }
+
+# EventBridge Module - Basic event-driven monitoring
+module "monitoring_eventbridge" {
+  source = "../../modules/monitoring/bedrock-monitoring-eventbridge"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # Event patterns for Bedrock
+  enable_bedrock_events = true
+
+  # Targets
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  # Event bus
+  create_custom_event_bus = false
+
+  tags = local.common_tags
+}
+
+# Synthetics Module - Disabled for dev
+# Uncomment if endpoint testing is needed
+# module "monitoring_synthetics" {
+#   source = "../../modules/monitoring/bedrock-monitoring-synthetics"
+#
+#   project_name = local.project
+#   environment  = local.environment
+#
+#   # Canary configuration
+#   canary_name     = "${local.project}-agent-canary-${local.environment}"
+#   canary_schedule = "rate(30 minutes)"  # Less frequent for dev
+#
+#   # Endpoints to test
+#   endpoints = var.bedrock_agent_endpoints
+#
+#   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+#
+#   tags = local.common_tags
+# }
+
+# ==============================================================================
 # Outputs
+# ==============================================================================
+
+# Bedrock Agent Outputs
 output "agent_id" {
   description = "Bedrock agent ID"
   value       = module.bedrock_agent.agent_id
@@ -176,4 +501,46 @@ output "knowledge_base_id" {
 output "cloudwatch_log_group" {
   description = "CloudWatch log group name"
   value       = module.bedrock_agent.cloudwatch_log_group
+}
+
+# Security Outputs
+output "kms_bedrock_data_key_arn" {
+  description = "ARN of the KMS key for Bedrock data encryption"
+  value       = module.security_kms.bedrock_data_key_arn
+}
+
+output "kms_secrets_key_arn" {
+  description = "ARN of the KMS key for secrets encryption"
+  value       = module.security_kms.secrets_key_arn
+}
+
+output "bedrock_agent_execution_role_arn" {
+  description = "ARN of the Bedrock agent execution role"
+  value       = module.security_iam.bedrock_agent_execution_role_arn
+}
+
+output "lambda_execution_role_arn" {
+  description = "ARN of the Lambda execution role"
+  value       = module.security_iam.lambda_execution_role_arn
+}
+
+# Monitoring Outputs
+output "monitoring_dashboard_name" {
+  description = "Name of the CloudWatch monitoring dashboard"
+  value       = module.monitoring_cloudwatch.dashboard_name
+}
+
+output "monitoring_sns_topic_arn" {
+  description = "ARN of the monitoring SNS topic"
+  value       = module.monitoring_cloudwatch.sns_topic_arn
+}
+
+output "cloudtrail_log_group" {
+  description = "CloudTrail log group name"
+  value       = module.monitoring_cloudtrail.log_group_name
+}
+
+output "cloudtrail_s3_bucket" {
+  description = "S3 bucket for CloudTrail logs"
+  value       = module.monitoring_cloudtrail.s3_bucket_name
 }

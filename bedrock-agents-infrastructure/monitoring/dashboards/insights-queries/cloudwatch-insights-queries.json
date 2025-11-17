@@ -1,0 +1,112 @@
+{
+  "insightsQueries": [
+    {
+      "id": "agent-performance-summary",
+      "name": "Agent Performance Summary",
+      "description": "Summary of agent performance metrics by agent type",
+      "query": "fields @timestamp, agent_id, agent_type, @duration, status, error_type\n| stats count() as invocation_count, avg(@duration) as avg_latency_ms, max(@duration) as max_latency_ms, pct(@duration, 99) as p99_latency_ms, sum(case when status='ERROR' then 1 else 0 end) as error_count by agent_type, agent_id\n| sort invocation_count desc"
+    },
+    {
+      "id": "error-analysis",
+      "name": "Error Analysis and Root Causes",
+      "description": "Detailed error analysis with stack traces and error types",
+      "query": "fields @timestamp, error_type, error_message, stack_trace, agent_id, request_id\n| filter error_type like /Error/\n| stats count() as error_count by error_type, agent_id\n| sort error_count desc"
+    },
+    {
+      "id": "token-usage-analysis",
+      "name": "Token Usage and Cost Analysis",
+      "description": "Analyze token consumption and estimated costs",
+      "query": "fields @timestamp, agent_id, input_tokens, output_tokens, model_id\n| stats sum(input_tokens) as total_input_tokens, sum(output_tokens) as total_output_tokens, count() as request_count by agent_id, model_id\n| fields agent_id, model_id, total_input_tokens, total_output_tokens, request_count, (total_input_tokens * 0.0005 + total_output_tokens * 0.0015) as estimated_cost_usd\n| sort estimated_cost_usd desc"
+    },
+    {
+      "id": "knowledge-base-performance",
+      "name": "Knowledge Base Query Performance",
+      "description": "Performance metrics for knowledge base retrieval operations",
+      "query": "fields @timestamp, request_id, kb_query_latency, documents_retrieved, retrieval_score\n| filter ispresent(kb_query_latency)\n| stats avg(kb_query_latency) as avg_latency_ms, max(kb_query_latency) as max_latency_ms, pct(kb_query_latency, 95) as p95_latency_ms, avg(documents_retrieved) as avg_docs_retrieved by bin(5m)\n| sort @timestamp desc"
+    },
+    {
+      "id": "authentication-audit",
+      "name": "Authentication and Authorization Audit",
+      "description": "Track authentication attempts and authorization failures",
+      "query": "fields @timestamp, sourceIPAddress, userAgent, authenticationResult, principalId\n| stats count() as total_auth_attempts, sum(case when authenticationResult='FAILED' then 1 else 0 end) as failed_attempts, sum(case when authenticationResult='SUCCESS' then 1 else 0 end) as successful_attempts by sourceIPAddress, principalId\n| fields sourceIPAddress, principalId, total_auth_attempts, failed_attempts, successful_attempts\n| sort failed_attempts desc"
+    },
+    {
+      "id": "api-gateway-metrics",
+      "name": "API Gateway Request Analysis",
+      "description": "Detailed API Gateway request metrics and response codes",
+      "query": "fields @timestamp, httpMethod, resourcePath, status, @duration, errorMessage\n| stats count() as request_count, avg(@duration) as avg_latency_ms, max(@duration) as max_latency_ms by httpMethod, resourcePath, status\n| sort request_count desc"
+    },
+    {
+      "id": "lambda-cold-starts",
+      "name": "Lambda Cold Start Detection",
+      "description": "Identify and analyze Lambda cold start occurrences",
+      "query": "fields @timestamp, @initDuration, @duration, @billedDuration\n| filter ispresent(@initDuration)\n| stats count() as cold_start_count, avg(@duration) as avg_duration, avg(@initDuration) as avg_init_duration by bin(1h)\n| sort @timestamp desc"
+    },
+    {
+      "id": "concurrency-analysis",
+      "name": "Concurrent Execution Analysis",
+      "description": "Track concurrent execution patterns and peak load",
+      "query": "fields @timestamp, request_id, function_name\n| stats count() as concurrent_count by @timestamp, function_name\n| sort concurrent_count desc\n| limit 100"
+    },
+    {
+      "id": "step-functions-execution",
+      "name": "Step Functions Execution Analysis",
+      "description": "Analyze Step Functions workflow execution performance",
+      "query": "fields @timestamp, executionArn, status, @duration, stateMachineArn\n| stats count() as execution_count, sum(case when status='FAILED' then 1 else 0 end) as failed_count, avg(@duration) as avg_duration_ms, max(@duration) as max_duration_ms by stateMachineArn, status\n| sort execution_count desc"
+    },
+    {
+      "id": "dynamodb-performance",
+      "name": "DynamoDB Operation Performance",
+      "description": "Track DynamoDB read/write latency and throttling",
+      "query": "fields @timestamp, operation, table_name, @duration, consumed_capacity\n| stats count() as operation_count, avg(@duration) as avg_latency_ms, sum(consumed_capacity) as total_capacity_consumed by operation, table_name\n| sort operation_count desc"
+    },
+    {
+      "id": "opensearch-queries",
+      "name": "OpenSearch Query Performance",
+      "description": "Monitor OpenSearch query latency and hit counts",
+      "query": "fields @timestamp, query_text, query_type, @duration, total_hits\n| stats count() as query_count, avg(@duration) as avg_latency_ms, max(@duration) as max_latency_ms, avg(total_hits) as avg_results by query_type\n| sort query_count desc"
+    },
+    {
+      "id": "cost-analysis",
+      "name": "Daily Cost Analysis",
+      "description": "Breakdown of costs by service and agent type",
+      "query": "fields @timestamp, service_name, agent_type, estimated_cost\n| filter ispresent(estimated_cost)\n| stats sum(estimated_cost) as total_cost, count() as operation_count by service_name, agent_type\n| sort total_cost desc"
+    },
+    {
+      "id": "security-events",
+      "name": "Security Event Analysis",
+      "description": "Track and analyze security-related events",
+      "query": "fields @timestamp, eventName, sourceIPAddress, userIdentity, errorCode\n| filter eventName like /Delete|Modify|Put/ || errorCode like /Unauthorized|Forbidden/\n| stats count() as event_count by eventName, sourceIPAddress, userIdentity\n| sort event_count desc"
+    },
+    {
+      "id": "latency-distribution",
+      "name": "Latency Distribution Percentiles",
+      "description": "Analyze latency distribution across different percentiles",
+      "query": "fields @duration\n| filter @duration > 0\n| stats pct(@duration, 50) as p50, pct(@duration, 75) as p75, pct(@duration, 90) as p90, pct(@duration, 95) as p95, pct(@duration, 99) as p99, pct(@duration, 99.9) as p999 by bin(1m)"
+    },
+    {
+      "id": "throughput-analysis",
+      "name": "Request Throughput Analysis",
+      "description": "Track request throughput and identify peak times",
+      "query": "fields @timestamp, request_id\n| stats count() as request_count by bin(1m)\n| fields @timestamp, request_count\n| sort @timestamp desc"
+    },
+    {
+      "id": "resource-utilization",
+      "name": "Resource Utilization Summary",
+      "description": "Monitor memory usage, CPU, and disk utilization",
+      "query": "fields @timestamp, @memoryUsed, @maxMemoryUsed, function_name\n| stats avg(@memoryUsed) as avg_memory_mb, max(@maxMemoryUsed) as max_memory_mb by function_name\n| sort max_memory_mb desc"
+    },
+    {
+      "id": "agent-interaction-flow",
+      "name": "Agent Interaction Flow Analysis",
+      "description": "Trace the flow of interactions between agents",
+      "query": "fields @timestamp, request_id, source_agent, target_agent, interaction_type, status\n| stats count() as interaction_count, sum(case when status='ERROR' then 1 else 0 end) as error_count by source_agent, target_agent, interaction_type\n| sort interaction_count desc"
+    },
+    {
+      "id": "compliance-violations",
+      "name": "Compliance Violation Detection",
+      "description": "Track compliance check violations and failed audits",
+      "query": "fields @timestamp, compliance_check_id, check_status, resource_type, resource_id, violation_reason\n| filter check_status='FAILED'\n| stats count() as violation_count by compliance_check_id, resource_type, violation_reason\n| sort violation_count desc"
+    }
+  ]
+}

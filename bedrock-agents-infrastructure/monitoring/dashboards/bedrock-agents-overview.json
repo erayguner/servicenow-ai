@@ -1,0 +1,325 @@
+{
+  "DashboardName": "BedrockAgentsOverview",
+  "DashboardBody": {
+    "widgets": [
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "InvocationCount",
+              {
+                "stat": "Sum",
+                "label": "Total Invocations"
+              }
+            ],
+            [
+              ".",
+              "InvocationLatency",
+              {
+                "stat": "Average",
+                "label": "Avg Latency (ms)"
+              }
+            ],
+            [
+              ".",
+              "InvocationLatencyP99",
+              {
+                "stat": "Average",
+                "label": "P99 Latency (ms)"
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Agent Invocation Metrics",
+          "yAxis": {
+            "left": {
+              "min": 0
+            }
+          }
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "InvocationSuccess",
+              {
+                "stat": "Sum",
+                "label": "Successful Invocations"
+              }
+            ],
+            [
+              ".",
+              "InvocationError",
+              {
+                "stat": "Sum",
+                "label": "Failed Invocations"
+              }
+            ],
+            [
+              {
+                "expression": "(m1 / (m1 + m2)) * 100",
+                "label": "Success Rate %",
+                "id": "e1"
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Success/Error Rates"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 6,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "InputTokens",
+              {
+                "stat": "Sum",
+                "label": "Input Tokens"
+              }
+            ],
+            [
+              ".",
+              "OutputTokens",
+              {
+                "stat": "Sum",
+                "label": "Output Tokens"
+              }
+            ],
+            [
+              {
+                "expression": "(m1 + m2) * 0.00015",
+                "label": "Est. Cost ($)",
+                "id": "e1"
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Token Usage & Costs"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 6,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Lambda",
+              "Invocations",
+              {
+                "stat": "Sum",
+                "label": "Lambda Invocations",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ],
+            [
+              ".",
+              "Duration",
+              {
+                "stat": "Average",
+                "label": "Avg Duration (ms)",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ],
+            [
+              ".",
+              "Errors",
+              {
+                "stat": "Sum",
+                "label": "Lambda Errors",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Lambda Function Performance"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 12,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/States",
+              "ExecutionsFailed",
+              {
+                "stat": "Sum",
+                "label": "Failed Executions"
+              }
+            ],
+            [
+              ".",
+              "ExecutionsSucceeded",
+              {
+                "stat": "Sum",
+                "label": "Successful Executions"
+              }
+            ],
+            [
+              ".",
+              "ExecutionTime",
+              {
+                "stat": "Average",
+                "label": "Avg Execution Time (ms)"
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Step Functions Execution"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 8,
+        "y": 12,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/APIGateway",
+              "Count",
+              {
+                "stat": "Sum",
+                "label": "API Requests",
+                "dimensions": {
+                  "ApiName": "BedrockAgentAPI"
+                }
+              }
+            ],
+            [
+              ".",
+              "4XXError",
+              {
+                "stat": "Sum",
+                "label": "4XX Errors",
+                "dimensions": {
+                  "ApiName": "BedrockAgentAPI"
+                }
+              }
+            ],
+            [
+              ".",
+              "5XXError",
+              {
+                "stat": "Sum",
+                "label": "5XX Errors",
+                "dimensions": {
+                  "ApiName": "BedrockAgentAPI"
+                }
+              }
+            ],
+            [
+              ".",
+              "Latency",
+              {
+                "stat": "Average",
+                "label": "Avg Latency (ms)",
+                "dimensions": {
+                  "ApiName": "BedrockAgentAPI"
+                }
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "API Gateway Metrics"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 16,
+        "y": 12,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "KnowledgeBaseQueryCount",
+              {
+                "stat": "Sum",
+                "label": "KB Queries"
+              }
+            ],
+            [
+              ".",
+              "KnowledgeBaseRetrievalLatency",
+              {
+                "stat": "Average",
+                "label": "Avg Retrieval Latency (ms)"
+              }
+            ],
+            [
+              ".",
+              "KnowledgeBaseDocumentsProcessed",
+              {
+                "stat": "Sum",
+                "label": "Documents Processed"
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Knowledge Base Performance"
+        }
+      },
+      {
+        "type": "log",
+        "x": 0,
+        "y": 18,
+        "width": 24,
+        "height": 6,
+        "properties": {
+          "query": "fields @timestamp, @message, agent_id, status, latency\n| stats count() as request_count, avg(latency) as avg_latency by agent_id, status\n| sort request_count desc",
+          "region": "us-east-1",
+          "title": "Agent Activity Summary",
+          "queryId": "agent-activity-summary"
+        }
+      }
+    ]
+  }
+}

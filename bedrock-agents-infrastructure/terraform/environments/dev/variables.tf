@@ -82,3 +82,29 @@ variable "test_data_enabled" {
   type        = bool
   default     = true
 }
+
+# ==============================================================================
+# Security Module Variables
+# ==============================================================================
+
+variable "kms_key_admin_arns" {
+  description = "List of IAM role/user ARNs that can administer KMS keys"
+  type        = list(string)
+  default     = []
+}
+
+variable "lambda_function_names" {
+  description = "List of Lambda function names to monitor"
+  type        = list(string)
+  default     = []
+}
+
+# ==============================================================================
+# Monitoring Module Variables
+# ==============================================================================
+
+variable "bedrock_agent_endpoints" {
+  description = "List of Bedrock agent endpoints for synthetic monitoring"
+  type        = list(string)
+  default     = []
+}

@@ -114,3 +114,120 @@ compliance_framework = "sox"
 # Target RPS: 50
 # Duration: 30 minutes
 # Expected latency: < 3 seconds
+
+# ==============================================================================
+# Security Module Configuration
+# ==============================================================================
+
+# KMS Key Administrators
+kms_key_admin_arns = [
+  "arn:aws:iam::123456789012:role/SecurityAdmin",
+  "arn:aws:iam::123456789012:role/InfrastructureAdmin"
+]
+
+# DynamoDB Tables
+dynamodb_table_arns = [
+  # "arn:aws:dynamodb:us-east-1:123456789012:table/servicenow-sessions-staging",
+  # "arn:aws:dynamodb:us-east-1:123456789012:table/servicenow-cache-staging"
+]
+
+# WAF IP Filtering
+waf_blocked_ips = [
+  # "192.0.2.0/24",  # Example blocked range
+]
+
+waf_allowed_ips = [
+  # "203.0.113.0/24",  # Example corporate network
+]
+
+# WAF Geo-blocking
+waf_blocked_countries = [
+  # "CN",  # China
+  # "RU",  # Russia
+  # "KP",  # North Korea
+]
+
+# API Gateway ARN for WAF
+api_gateway_arn = ""  # Will be populated after API Gateway creation
+
+# ==============================================================================
+# Monitoring Module Configuration
+# ==============================================================================
+
+# Lambda Functions to Monitor
+lambda_function_names = [
+  "servicenow-actions-staging",
+  "servicenow-processor-staging",
+  "servicenow-integrations-staging"
+]
+
+# Step Functions to Monitor
+step_function_arns = [
+  # "arn:aws:states:us-east-1:123456789012:stateMachine:servicenow-workflow-staging"
+]
+
+# API Gateway IDs to Monitor
+api_gateway_ids = [
+  # "abc123def456"
+]
+
+# Bedrock Agent Endpoints for Synthetic Monitoring
+bedrock_agent_endpoints = [
+  # "https://bedrock-agent-runtime.us-east-1.amazonaws.com/agents/AGENT_ID/agentAliases/ALIAS_ID"
+]
+
+# ==============================================================================
+# Cost Estimate with Full Security & Monitoring
+# ==============================================================================
+# AGENT INFRASTRUCTURE:
+# - Bedrock Agent (3 instances): ~$150-250/month
+# - OpenSearch Serverless: ~$80-120/month
+# - Lambda executions: ~$20-40/month
+#
+# SECURITY MODULES:
+# - GuardDuty (with protections): ~$30-50/month
+# - Security Hub: ~$10-20/month
+# - WAF (with managed rules): ~$20-35/month
+# - KMS (with rotation): ~$3-5/month
+# - Secrets Manager (with rotation): ~$2-4/month
+#
+# MONITORING MODULES:
+# - CloudWatch (dashboards, logs, alarms): ~$40-60/month
+# - X-Ray (enhanced tracing): ~$15-25/month
+# - CloudTrail (multi-event): ~$10-15/month
+# - Config (compliance tracking): ~$5-10/month
+# - EventBridge: ~$5/month
+# - Synthetics (canaries): ~$10-15/month
+#
+# STORAGE & TRANSFER:
+# - S3 storage: ~$15-25/month
+# - Data transfer: ~$10-25/month
+#
+# Total: ~$425-700/month
+#
+# NOTE: All security and monitoring modules are enabled in staging
+# This provides full testing coverage before production deployment
+
+# ==============================================================================
+# Security Commands
+# ==============================================================================
+# View GuardDuty findings:
+# aws guardduty list-findings --detector-id <detector-id>
+#
+# Check Security Hub score:
+# aws securityhub get-findings-summary
+#
+# View WAF metrics:
+# aws wafv2 get-web-acl-for-resource --resource-arn <api-gateway-arn>
+
+# ==============================================================================
+# Monitoring Commands
+# ==============================================================================
+# View CloudWatch dashboard:
+# https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=servicenow-ai-staging-bedrock
+#
+# View X-Ray traces:
+# aws xray get-trace-summaries --start-time <start> --end-time <end>
+#
+# View CloudTrail events:
+# aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=InvokeAgent

@@ -140,3 +140,71 @@ variable "compliance_framework" {
     error_message = "Compliance framework must be one of: sox, pci, hipaa, none"
   }
 }
+
+# ==============================================================================
+# Security Module Variables
+# ==============================================================================
+
+variable "kms_key_admin_arns" {
+  description = "List of IAM role/user ARNs that can administer KMS keys"
+  type        = list(string)
+  default     = []
+}
+
+variable "dynamodb_table_arns" {
+  description = "List of DynamoDB table ARNs for Lambda access"
+  type        = list(string)
+  default     = []
+}
+
+variable "waf_blocked_ips" {
+  description = "List of IP addresses to block in WAF (CIDR notation)"
+  type        = list(string)
+  default     = []
+}
+
+variable "waf_allowed_ips" {
+  description = "List of IP addresses to allow in WAF (CIDR notation)"
+  type        = list(string)
+  default     = []
+}
+
+variable "waf_blocked_countries" {
+  description = "List of country codes to block (ISO 3166-1 alpha-2)"
+  type        = list(string)
+  default     = []
+}
+
+variable "api_gateway_arn" {
+  description = "ARN of the API Gateway to associate with WAF"
+  type        = string
+  default     = ""
+}
+
+# ==============================================================================
+# Monitoring Module Variables
+# ==============================================================================
+
+variable "lambda_function_names" {
+  description = "List of Lambda function names to monitor"
+  type        = list(string)
+  default     = []
+}
+
+variable "step_function_arns" {
+  description = "List of Step Functions state machine ARNs to monitor"
+  type        = list(string)
+  default     = []
+}
+
+variable "api_gateway_ids" {
+  description = "List of API Gateway REST API IDs to monitor"
+  type        = list(string)
+  default     = []
+}
+
+variable "bedrock_agent_endpoints" {
+  description = "List of Bedrock agent endpoints for synthetic monitoring"
+  type        = list(string)
+  default     = []
+}

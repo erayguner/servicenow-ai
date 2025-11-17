@@ -1,0 +1,546 @@
+# SOC 2 Type II Compliance Framework for Amazon Bedrock Agents
+# Trust Services Criteria Mapping
+
+framework:
+  name: "SOC 2 Type II"
+  version: "2017"
+  description: "Service Organization Control 2 - Type II attestation requirements"
+  scope: "Amazon Bedrock Agents Infrastructure"
+
+trust_service_criteria:
+
+  # CC1: Control Environment
+  security:
+    CC1.1:
+      control: "Entity demonstrates commitment to integrity and ethical values"
+      requirements:
+        - code_of_conduct_enforcement
+        - security_awareness_training
+        - background_checks
+      aws_mappings:
+        - service: "AWS IAM"
+          checks:
+            - iam_password_policy_enforced
+            - mfa_enabled_for_all_users
+            - root_account_mfa_enabled
+        - service: "AWS Organizations"
+          checks:
+            - scp_enforced_organization_wide
+
+    CC1.2:
+      control: "Board exercises oversight of system development and operation"
+      requirements:
+        - quarterly_security_reviews
+        - change_management_approval
+        - audit_committee_oversight
+      aws_mappings:
+        - service: "AWS Config"
+          checks:
+            - config_enabled_all_regions
+            - config_recording_all_resources
+        - service: "CloudTrail"
+          checks:
+            - cloudtrail_enabled_all_regions
+            - cloudtrail_log_file_validation
+
+    CC1.3:
+      control: "Management establishes structures, reporting lines, authorities"
+      requirements:
+        - documented_roles_responsibilities
+        - segregation_of_duties
+        - least_privilege_access
+      aws_mappings:
+        - service: "AWS IAM"
+          checks:
+            - iam_role_separation
+            - admin_access_restricted
+        - service: "Bedrock"
+          checks:
+            - bedrock_agent_iam_least_privilege
+            - bedrock_knowledge_base_access_restricted
+
+    CC1.4:
+      control: "Entity demonstrates commitment to competence"
+      requirements:
+        - training_programs
+        - certification_requirements
+        - performance_evaluations
+      aws_mappings:
+        - service: "AWS Training"
+          checks:
+            - aws_certification_current
+            - security_training_completed
+
+    CC1.5:
+      control: "Entity holds individuals accountable"
+      requirements:
+        - performance_metrics
+        - accountability_measures
+        - disciplinary_procedures
+      aws_mappings:
+        - service: "CloudTrail"
+          checks:
+            - user_activity_logged
+            - api_call_tracking
+        - service: "CloudWatch"
+          checks:
+            - anomaly_detection_enabled
+
+  # CC2: Communication and Information
+  CC2.1:
+    control: "Entity obtains or generates relevant quality information"
+    requirements:
+      - data_quality_controls
+      - information_validation
+      - source_verification
+    aws_mappings:
+      - service: "Bedrock"
+        checks:
+          - bedrock_knowledge_base_validation
+          - data_source_integrity_checks
+      - service: "S3"
+        checks:
+          - s3_versioning_enabled
+          - s3_object_lock_enabled
+
+  CC2.2:
+    control: "Entity internally communicates information"
+    requirements:
+      - internal_communication_channels
+      - incident_notification_procedures
+      - policy_dissemination
+    aws_mappings:
+      - service: "SNS"
+        checks:
+          - sns_topics_configured
+          - alert_subscriptions_active
+      - service: "EventBridge"
+        checks:
+          - event_rules_configured
+
+  CC2.3:
+    control: "Entity communicates with external parties"
+    requirements:
+      - customer_communication_procedures
+      - vendor_communication_protocols
+      - regulatory_reporting
+    aws_mappings:
+      - service: "Security Hub"
+        checks:
+          - security_hub_enabled
+          - findings_exported
+      - service: "GuardDuty"
+        checks:
+          - guardduty_findings_published
+
+  # CC3: Risk Assessment
+  CC3.1:
+    control: "Entity specifies objectives with sufficient clarity"
+    requirements:
+      - documented_security_objectives
+      - risk_tolerance_defined
+      - control_objectives_mapped
+    aws_mappings:
+      - service: "Security Hub"
+        checks:
+          - security_standards_enabled
+          - compliance_standards_mapped
+
+  CC3.2:
+    control: "Entity identifies and analyzes risk"
+    requirements:
+      - threat_modeling
+      - vulnerability_assessments
+      - risk_analysis_procedures
+    aws_mappings:
+      - service: "Inspector"
+        checks:
+          - inspector_scanning_enabled
+          - vulnerability_assessments_scheduled
+      - service: "GuardDuty"
+        checks:
+          - threat_detection_enabled
+          - ml_anomaly_detection_active
+
+  CC3.3:
+    control: "Entity considers potential for fraud"
+    requirements:
+      - fraud_risk_assessment
+      - anti_fraud_controls
+      - monitoring_procedures
+    aws_mappings:
+      - service: "CloudTrail"
+        checks:
+          - unusual_api_activity_monitored
+          - failed_authentication_tracked
+      - service: "Bedrock"
+        checks:
+          - bedrock_agent_activity_monitored
+          - suspicious_invocations_detected
+
+  CC3.4:
+    control: "Entity identifies and assesses changes"
+    requirements:
+      - change_management_process
+      - impact_assessments
+      - change_approval_workflows
+    aws_mappings:
+      - service: "Config"
+        checks:
+          - config_change_tracking
+          - configuration_snapshots_enabled
+      - service: "CloudFormation"
+        checks:
+          - drift_detection_enabled
+          - stack_changes_reviewed
+
+  # CC4: Monitoring Activities
+  CC4.1:
+    control: "Entity selects, develops, and performs ongoing evaluations"
+    requirements:
+      - continuous_monitoring
+      - control_effectiveness_testing
+      - automated_assessments
+    aws_mappings:
+      - service: "Config"
+        rules:
+          - bedrock-agent-encryption-check
+          - bedrock-iam-least-privilege
+          - bedrock-logging-enabled
+      - service: "Security Hub"
+        checks:
+          - automated_compliance_checks
+          - control_status_monitoring
+
+  CC4.2:
+    control: "Entity evaluates and communicates deficiencies"
+    requirements:
+      - deficiency_identification
+      - remediation_tracking
+      - management_reporting
+    aws_mappings:
+      - service: "Security Hub"
+        checks:
+          - findings_aggregation
+          - severity_classification
+      - service: "Systems Manager"
+        checks:
+          - patch_compliance_tracked
+          - remediation_automation_enabled
+
+  # CC5: Control Activities
+  CC5.1:
+    control: "Entity selects and develops control activities"
+    requirements:
+      - control_design
+      - control_implementation
+      - control_documentation
+    aws_mappings:
+      - service: "Config"
+        checks:
+          - custom_rules_deployed
+          - conformance_packs_applied
+      - service: "Bedrock"
+        checks:
+          - bedrock_guardrails_configured
+          - agent_input_validation
+
+  CC5.2:
+    control: "Entity develops general control activities over technology"
+    requirements:
+      - access_controls
+      - change_management
+      - backup_procedures
+    aws_mappings:
+      - service: "IAM"
+        checks:
+          - iam_policies_reviewed_quarterly
+          - unused_credentials_removed
+      - service: "Backup"
+        checks:
+          - backup_plans_configured
+          - backup_vault_encrypted
+
+  CC5.3:
+    control: "Entity deploys control activities through policies"
+    requirements:
+      - policy_documentation
+      - policy_enforcement
+      - policy_review_procedures
+    aws_mappings:
+      - service: "Organizations"
+        checks:
+          - scps_enforced
+          - policy_compliance_monitored
+
+  # CC6: Logical and Physical Access Controls
+  CC6.1:
+    control: "Entity implements logical access security controls"
+    requirements:
+      - authentication_mechanisms
+      - authorization_controls
+      - session_management
+    aws_mappings:
+      - service: "IAM"
+        checks:
+          - mfa_required_privileged_users
+          - password_policy_compliant
+      - service: "Cognito"
+        checks:
+          - user_pool_mfa_configured
+          - advanced_security_enabled
+      - service: "Bedrock"
+        checks:
+          - bedrock_agent_iam_authentication
+          - api_key_rotation_enabled
+
+  CC6.2:
+    control: "Entity implements physical access controls"
+    requirements:
+      - data_center_access_controls
+      - physical_security_measures
+      - visitor_management
+    aws_mappings:
+      - service: "AWS"
+        checks:
+          - shared_responsibility_model_acknowledged
+          - aws_facility_controls_verified
+
+  CC6.3:
+    control: "Entity authorizes access based on approved credentials"
+    requirements:
+      - credential_provisioning
+      - access_reviews
+      - privileged_access_management
+    aws_mappings:
+      - service: "IAM"
+        checks:
+          - access_analyzer_enabled
+          - unused_access_removed
+      - service: "SSO"
+        checks:
+          - sso_configured
+          - permission_sets_reviewed
+
+  CC6.6:
+    control: "Entity removes access when appropriate"
+    requirements:
+      - access_termination_procedures
+      - periodic_access_reviews
+      - orphaned_account_detection
+    aws_mappings:
+      - service: "IAM"
+        checks:
+          - inactive_users_disabled
+          - credential_expiration_enforced
+      - service: "Config"
+        rules:
+          - iam-user-unused-credentials-check
+
+  CC6.7:
+    control: "Entity restricts access to resources"
+    requirements:
+      - network_segmentation
+      - data_classification
+      - encryption_at_rest
+    aws_mappings:
+      - service: "VPC"
+        checks:
+          - security_groups_restrictive
+          - nacls_configured
+      - service: "Bedrock"
+        checks:
+          - bedrock_knowledge_base_encrypted
+          - bedrock_model_access_restricted
+      - service: "KMS"
+        checks:
+          - kms_key_rotation_enabled
+          - customer_managed_keys_used
+
+  CC6.8:
+    control: "Entity restricts transmission, movement, and removal"
+    requirements:
+      - data_transfer_controls
+      - encryption_in_transit
+      - data_loss_prevention
+    aws_mappings:
+      - service: "S3"
+        checks:
+          - s3_bucket_ssl_requests_only
+          - s3_block_public_access
+      - service: "API Gateway"
+        checks:
+          - api_gateway_ssl_configured
+          - waf_enabled
+
+  # CC7: System Operations
+  CC7.1:
+    control: "Entity monitors system components"
+    requirements:
+      - performance_monitoring
+      - capacity_management
+      - availability_tracking
+    aws_mappings:
+      - service: "CloudWatch"
+        checks:
+          - metrics_collection_enabled
+          - alarms_configured
+      - service: "Bedrock"
+        checks:
+          - bedrock_agent_invocation_metrics
+          - knowledge_base_query_monitoring
+
+  CC7.2:
+    control: "Entity evaluates processing integrity"
+    requirements:
+      - data_validation
+      - error_handling
+      - transaction_completeness
+    aws_mappings:
+      - service: "Bedrock"
+        checks:
+          - bedrock_agent_output_validation
+          - guardrails_accuracy_checks
+      - service: "Step Functions"
+        checks:
+          - execution_logging_enabled
+          - error_handling_configured
+
+  CC7.3:
+    control: "Entity monitors for changes that could impact internal control"
+    requirements:
+      - configuration_monitoring
+      - drift_detection
+      - baseline_management
+    aws_mappings:
+      - service: "Config"
+        checks:
+          - config_rules_compliance_tracked
+          - configuration_changes_alerted
+
+  CC7.4:
+    control: "Entity responds to system failures"
+    requirements:
+      - incident_response_procedures
+      - disaster_recovery_plans
+      - business_continuity
+    aws_mappings:
+      - service: "Backup"
+        checks:
+          - backup_recovery_tested
+          - rpo_rto_defined
+      - service: "EventBridge"
+        checks:
+          - failure_events_captured
+          - automated_remediation_configured
+
+  CC7.5:
+    control: "Entity identifies, develops, and deploys change management"
+    requirements:
+      - change_approval_process
+      - testing_procedures
+      - rollback_capabilities
+    aws_mappings:
+      - service: "CodePipeline"
+        checks:
+          - deployment_approvals_required
+          - rollback_procedures_documented
+      - service: "CloudFormation"
+        checks:
+          - change_sets_reviewed
+          - stack_policies_configured
+
+# Automated Compliance Monitoring
+automation:
+  aws_config_rules:
+    - rule_name: "soc2-bedrock-encryption"
+      description: "Ensure Bedrock resources use encryption"
+      source: "AWS_MANAGED"
+      identifier: "ENCRYPTED_VOLUMES"
+
+    - rule_name: "soc2-iam-password-policy"
+      description: "Enforce IAM password policy"
+      source: "AWS_MANAGED"
+      identifier: "IAM_PASSWORD_POLICY"
+
+    - rule_name: "soc2-cloudtrail-enabled"
+      description: "Ensure CloudTrail is enabled"
+      source: "AWS_MANAGED"
+      identifier: "CLOUD_TRAIL_ENABLED"
+
+  cloudwatch_alarms:
+    - alarm_name: "soc2-unauthorized-api-calls"
+      metric: "UnauthorizedAPICalls"
+      threshold: 5
+      evaluation_periods: 1
+
+    - alarm_name: "soc2-root-account-usage"
+      metric: "RootAccountUsage"
+      threshold: 1
+      evaluation_periods: 1
+
+  security_hub_standards:
+    - "AWS Foundational Security Best Practices"
+    - "CIS AWS Foundations Benchmark"
+
+# Evidence Collection
+evidence_requirements:
+  - type: "Screenshots"
+    frequency: "Monthly"
+    items:
+      - "AWS Config compliance dashboard"
+      - "Security Hub findings summary"
+      - "IAM credential report"
+
+  - type: "Reports"
+    frequency: "Quarterly"
+    items:
+      - "Access review results"
+      - "Vulnerability scan reports"
+      - "Incident response summary"
+
+  - type: "Logs"
+    retention: "365 days"
+    items:
+      - "CloudTrail logs"
+      - "VPC Flow Logs"
+      - "Bedrock agent invocation logs"
+
+# Remediation Procedures
+remediation:
+  critical_findings:
+    - finding: "Root account without MFA"
+      procedure: "Enable MFA immediately, notify security team"
+      sla: "4 hours"
+
+    - finding: "Public S3 bucket containing sensitive data"
+      procedure: "Block public access, review access logs, notify DPO"
+      sla: "1 hour"
+
+    - finding: "Bedrock agent with overly permissive IAM role"
+      procedure: "Apply least privilege, audit recent invocations"
+      sla: "24 hours"
+
+  high_findings:
+    - finding: "Missing encryption on Bedrock knowledge base"
+      procedure: "Enable encryption, migrate data if necessary"
+      sla: "72 hours"
+
+    - finding: "CloudTrail logging disabled"
+      procedure: "Re-enable logging, investigate gap period"
+      sla: "24 hours"
+
+# Audit Trail Requirements
+audit_trail:
+  retention_period: "7 years"
+  log_types:
+    - cloudtrail_management_events
+    - cloudtrail_data_events
+    - bedrock_agent_invocations
+    - iam_credential_usage
+    - config_configuration_changes
+  integrity_controls:
+    - log_file_validation: true
+    - log_encryption: true
+    - log_replication: true
+    - tamper_detection: true

@@ -1,0 +1,160 @@
+{
+  "criticalAlarms": [
+    {
+      "AlarmName": "BedrockAgentOrchestrationFailure",
+      "AlarmDescription": "Critical: Agent orchestration workflow experiencing failures",
+      "MetricName": "ExecutionsFailed",
+      "Namespace": "AWS/States",
+      "Statistic": "Sum",
+      "Period": 60,
+      "EvaluationPeriods": 1,
+      "Threshold": 10,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "TreatMissingData": "notBreaching",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:critical-alerts",
+        "arn:aws:autoscaling:us-east-1:123456789012:trigger:a1b2c3d4-5678-9012-abcd-ef1234567890:autoScalingGroupName/BedrockAgentASG:policyName/scale-up-policy"
+      ],
+      "OKActions": [
+        "arn:aws:sns:us-east-1:123456789012:critical-alerts"
+      ]
+    },
+    {
+      "AlarmName": "DatabaseConnectionFailure",
+      "AlarmDescription": "Critical: Unable to connect to DynamoDB database",
+      "MetricName": "ConsumedWriteCapacityUnits",
+      "Namespace": "AWS/DynamoDB",
+      "Dimensions": [
+        {
+          "Name": "TableName",
+          "Value": "BedrockAgentState"
+        }
+      ],
+      "Statistic": "Sum",
+      "Period": 60,
+      "EvaluationPeriods": 2,
+      "Threshold": 0,
+      "ComparisonOperator": "LessThanOrEqualToThreshold",
+      "TreatMissingData": "breaching",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:critical-alerts",
+        "arn:aws:lambda:us-east-1:123456789012:function:incident-response-handler"
+      ]
+    },
+    {
+      "AlarmName": "KnowledgeBaseUnavailable",
+      "AlarmDescription": "Critical: Knowledge base not responding to queries",
+      "MetricName": "HealthyHostCount",
+      "Namespace": "AWS/OpenSearch",
+      "Statistic": "Average",
+      "Period": 60,
+      "EvaluationPeriods": 1,
+      "Threshold": 0,
+      "ComparisonOperator": "LessThanOrEqualToThreshold",
+      "TreatMissingData": "breaching",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:critical-alerts"
+      ]
+    },
+    {
+      "AlarmName": "APIEndpointDown",
+      "AlarmDescription": "Critical: API Gateway endpoint unavailable",
+      "MetricName": "Count",
+      "Namespace": "AWS/APIGateway",
+      "Dimensions": [
+        {
+          "Name": "ApiName",
+          "Value": "BedrockAgentAPI"
+        }
+      ],
+      "Statistic": "Sum",
+      "Period": 60,
+      "EvaluationPeriods": 1,
+      "Threshold": 0,
+      "ComparisonOperator": "LessThanOrEqualToThreshold",
+      "TreatMissingData": "breaching",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:critical-alerts",
+        "arn:aws:lambda:us-east-1:123456789012:function:incident-response-handler"
+      ]
+    },
+    {
+      "AlarmName": "SecurityGroupBreached",
+      "AlarmDescription": "Critical: Potential security breach detected - GuardDuty critical findings",
+      "MetricName": "FindingsCount",
+      "Namespace": "AWS/GuardDuty",
+      "Dimensions": [
+        {
+          "Name": "Severity",
+          "Value": "HIGH"
+        }
+      ],
+      "Statistic": "Sum",
+      "Period": 300,
+      "EvaluationPeriods": 1,
+      "Threshold": 5,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:security-alerts",
+        "arn:aws:lambda:us-east-1:123456789012:function:security-response-handler"
+      ]
+    },
+    {
+      "AlarmName": "ComplianceViolation",
+      "AlarmDescription": "Critical: Compliance rule violation detected",
+      "MetricName": "ComplianceByConfigRule",
+      "Namespace": "AWS/Config",
+      "Dimensions": [
+        {
+          "Name": "ComplianceType",
+          "Value": "NON_COMPLIANT"
+        }
+      ],
+      "Statistic": "Sum",
+      "Period": 300,
+      "EvaluationPeriods": 1,
+      "Threshold": 10,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:compliance-alerts",
+        "arn:aws:lambda:us-east-1:123456789012:function:compliance-remediation-handler"
+      ]
+    },
+    {
+      "AlarmName": "UnauthorizedDataAccess",
+      "AlarmDescription": "Critical: Unauthorized access attempts detected",
+      "MetricName": "FailedAuthenticationAttempts",
+      "Namespace": "AWS/IAM",
+      "Statistic": "Sum",
+      "Period": 300,
+      "EvaluationPeriods": 1,
+      "Threshold": 50,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:security-alerts",
+        "arn:aws:lambda:us-east-1:123456789012:function:security-investigation-handler"
+      ]
+    },
+    {
+      "AlarmName": "RolloutFailure",
+      "AlarmDescription": "Critical: Application rollout/deployment failed",
+      "MetricName": "UnhealthyHostCount",
+      "Namespace": "AWS/ApplicationELB",
+      "Dimensions": [
+        {
+          "Name": "TargetGroup",
+          "Value": "bedrock-agents-targets"
+        }
+      ],
+      "Statistic": "Sum",
+      "Period": 60,
+      "EvaluationPeriods": 2,
+      "Threshold": 1,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:critical-alerts",
+        "arn:aws:lambda:us-east-1:123456789012:function:deployment-rollback-handler"
+      ]
+    }
+  ]
+}

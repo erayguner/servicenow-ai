@@ -1,0 +1,245 @@
+{
+  "Comment": "Collect forensic evidence from incident",
+  "StartAt": "IdentifyEvidenceSources",
+  "States": {
+    "IdentifyEvidenceSources": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-identify-evidence-sources",
+      "Parameters": {
+        "incidentType.$": "$.incidentType",
+        "affectedResources.$": "$.affectedResources"
+      },
+      "Next": "CollectEvidenceParallel",
+      "ResultPath": "$.evidenceSources"
+    },
+    "CollectEvidenceParallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "CollectCloudTrailLogs",
+          "States": {
+            "CollectCloudTrailLogs": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-cloudtrail-logs",
+              "Parameters": {
+                "incidentId.$": "$.incidentId",
+                "affectedResources.$": "$.affectedResources",
+                "timeRange.$": "$.timeRange"
+              },
+              "Next": "StoreCloudTrailEvidence"
+            },
+            "StoreCloudTrailEvidence": {
+              "Type": "Task",
+              "Resource": "arn:aws:s3:${AWS_REGION}:${AWS_ACCOUNT_ID}:bucket/incident-evidence/*",
+              "Parameters": {
+                "Bucket": "${EVIDENCE_BUCKET}",
+                "Key.$": "States.Format('incidents/{}/cloudtrail-logs.json', $.incidentId)",
+                "Body.$": "$.logs"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CollectVPCFlowLogs",
+          "States": {
+            "CollectVPCFlowLogs": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-vpc-flow-logs",
+              "Parameters": {
+                "incidentId.$": "$.incidentId",
+                "vpcIds.$": "$.affectedResources.vpcIds",
+                "timeRange.$": "$.timeRange"
+              },
+              "Next": "StoreVPCFlowEvidence"
+            },
+            "StoreVPCFlowEvidence": {
+              "Type": "Task",
+              "Resource": "arn:aws:s3:${AWS_REGION}:${AWS_ACCOUNT_ID}:bucket/incident-evidence/*",
+              "Parameters": {
+                "Bucket": "${EVIDENCE_BUCKET}",
+                "Key.$": "States.Format('incidents/{}/vpc-flow-logs.log', $.incidentId)",
+                "Body.$": "$.logs"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CollectApplicationLogs",
+          "States": {
+            "CollectApplicationLogs": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-app-logs",
+              "Parameters": {
+                "incidentId.$": "$.incidentId",
+                "logGroups.$": "$.affectedResources.logGroups",
+                "timeRange.$": "$.timeRange"
+              },
+              "Next": "StoreApplicationEvidence"
+            },
+            "StoreApplicationEvidence": {
+              "Type": "Task",
+              "Resource": "arn:aws:s3:${AWS_REGION}:${AWS_ACCOUNT_ID}:bucket/incident-evidence/*",
+              "Parameters": {
+                "Bucket": "${EVIDENCE_BUCKET}",
+                "Key.$": "States.Format('incidents/{}/application-logs.json', $.incidentId)",
+                "Body.$": "$.logs"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CollectDatabaseLogs",
+          "States": {
+            "CollectDatabaseLogs": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-db-logs",
+              "Parameters": {
+                "incidentId.$": "$.incidentId",
+                "databases.$": "$.affectedResources.databases",
+                "timeRange.$": "$.timeRange"
+              },
+              "Next": "StoreDatabaseEvidence"
+            },
+            "StoreDatabaseEvidence": {
+              "Type": "Task",
+              "Resource": "arn:aws:s3:${AWS_REGION}:${AWS_ACCOUNT_ID}:bucket/incident-evidence/*",
+              "Parameters": {
+                "Bucket": "${EVIDENCE_BUCKET}",
+                "Key.$": "States.Format('incidents/{}/database-logs.json', $.incidentId)",
+                "Body.$": "$.logs"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CollectIAMLogs",
+          "States": {
+            "CollectIAMLogs": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-iam-logs",
+              "Parameters": {
+                "incidentId.$": "$.incidentId",
+                "timeRange.$": "$.timeRange"
+              },
+              "Next": "StoreIAMEvidence"
+            },
+            "StoreIAMEvidence": {
+              "Type": "Task",
+              "Resource": "arn:aws:s3:${AWS_REGION}:${AWS_ACCOUNT_ID}:bucket/incident-evidence/*",
+              "Parameters": {
+                "Bucket": "${EVIDENCE_BUCKET}",
+                "Key.$": "States.Format('incidents/{}/iam-logs.json', $.incidentId)",
+                "Body.$": "$.logs"
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "CollectResourceSnapshots"
+    },
+    "CollectResourceSnapshots": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-resource-snapshots",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "affectedResources.$": "$.affectedResources"
+      },
+      "Next": "CollectNetworkCapture",
+      "ResultPath": "$.snapshotInfo"
+    },
+    "CollectNetworkCapture": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-network-capture",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "affectedResources.$": "$.affectedResources",
+        "duration": 3600
+      },
+      "Next": "CollectMemoryDumps",
+      "ResultPath": "$.networkCapture",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "CollectMemoryDumps": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-collect-memory-dumps",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "affectedInstances.$": "$.affectedResources.instances"
+      },
+      "Next": "CreateEvidenceManifest",
+      "ResultPath": "$.memoryDumps"
+    },
+    "CreateEvidenceManifest": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-create-evidence-manifest",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "evidenceItems.$": "$"
+      },
+      "Next": "VerifyEvidenceIntegrity"
+    },
+    "VerifyEvidenceIntegrity": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-verify-evidence-integrity",
+      "Parameters": {
+        "incidentId.$": "$.incidentId"
+      },
+      "Next": "LockEvidenceStorage"
+    },
+    "LockEvidenceStorage": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-lock-evidence-storage",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "bucketName": "${EVIDENCE_BUCKET}"
+      },
+      "Next": "DocumentChainOfCustody"
+    },
+    "DocumentChainOfCustody": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-document-chain-of-custody",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "collectionTime.$": "$$.State.EnteredTime",
+        "evidence.$": "$"
+      },
+      "Next": "LogEvidenceCollection"
+    },
+    "LogEvidenceCollection": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-event",
+      "Parameters": {
+        "eventType": "EVIDENCE_COLLECTED",
+        "incidentId.$": "$.incidentId",
+        "timestamp.$": "$$.State.EnteredTime",
+        "details.$": "$"
+      },
+      "Next": "NotifyForensicsTeam"
+    },
+    "NotifyForensicsTeam": {
+      "Type": "Task",
+      "Resource": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:forensics-team-topic",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:forensics-team-topic",
+        "Subject": "Evidence Collection Complete",
+        "Message.$": "States.JsonToString($)"
+      },
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

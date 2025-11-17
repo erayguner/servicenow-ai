@@ -1,0 +1,702 @@
+# HIPAA Compliance Framework for Amazon Bedrock Agents
+# Health Insurance Portability and Accountability Act
+
+framework:
+  name: "HIPAA"
+  version: "Final Rule 2013"
+  description: "Health Insurance Portability and Accountability Act Security and Privacy Rules"
+  scope: "Amazon Bedrock Agents handling Protected Health Information (PHI)"
+  effective_date: "2013-09-23"
+
+safeguards:
+
+  # Administrative Safeguards (164.308)
+  administrative:
+
+    164.308_a_1:
+      title: "Security Management Process"
+      implementation: "Required"
+
+      164.308_a_1_i:
+        standard: "Risk Analysis"
+        implementation: "Required"
+        description: "Conduct accurate and thorough assessment of potential risks"
+        aws_mappings:
+          - service: "Security Hub"
+            checks:
+              - security_standards_enabled
+              - aws_foundational_security_enabled
+              - findings_aggregated_cross_region
+          - service: "Inspector"
+            checks:
+              - continuous_scanning_enabled
+              - network_reachability_assessed
+              - package_vulnerabilities_scanned
+          - service: "GuardDuty"
+            checks:
+              - threat_detection_enabled
+              - malware_protection_enabled
+              - kubernetes_protection_enabled
+
+      164.308_a_1_ii_A:
+        standard: "Risk Management"
+        implementation: "Required"
+        description: "Implement security measures to reduce risks to reasonable level"
+        aws_mappings:
+          - service: "Config"
+            checks:
+              - remediation_actions_configured
+              - automatic_remediation_enabled
+          - service: "Systems Manager"
+            checks:
+              - patch_manager_configured
+              - automation_documents_deployed
+          - service: "Bedrock"
+            checks:
+              - bedrock_guardrails_configured
+              - content_filtering_enabled
+              - pii_detection_enabled
+
+      164.308_a_1_ii_B:
+        standard: "Sanction Policy"
+        implementation: "Required"
+        description: "Apply appropriate sanctions against workforce members"
+        aws_mappings:
+          - service: "CloudTrail"
+            checks:
+              - user_activity_monitored
+              - policy_violations_logged
+          - service: "IAM"
+            checks:
+              - access_revocation_procedures
+              - termination_workflows_documented
+
+      164.308_a_1_ii_C:
+        standard: "Information System Activity Review"
+        implementation: "Required"
+        description: "Implement procedures to regularly review activity records"
+        aws_mappings:
+          - service: "CloudWatch"
+            checks:
+              - log_groups_retention_configured
+              - metric_filters_configured
+              - dashboards_configured
+          - service: "Bedrock"
+            checks:
+              - bedrock_invocation_logs_enabled
+              - bedrock_model_invocation_logged
+              - knowledge_base_query_logged
+
+    164.308_a_2:
+      title: "Assigned Security Responsibility"
+      implementation: "Required"
+      description: "Identify security official responsible for security policies"
+      aws_mappings:
+        - service: "IAM"
+          checks:
+            - security_officer_role_defined
+            - ciso_responsibilities_documented
+        - service: "Organizations"
+          checks:
+            - security_ou_configured
+            - delegated_administrator_assigned
+
+    164.308_a_3:
+      title: "Workforce Security"
+      implementation: "Required"
+
+      164.308_a_3_i:
+        standard: "Authorization and/or Supervision"
+        implementation: "Addressable"
+        description: "Implement procedures for authorization and supervision"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - role_based_access_control
+              - least_privilege_enforced
+              - approval_workflows_configured
+          - service: "SSO"
+            checks:
+              - permission_sets_defined
+              - group_based_access_management
+
+      164.308_a_3_ii_A:
+        standard: "Workforce Clearance Procedure"
+        implementation: "Addressable"
+        description: "Determine access authorization for workforce members"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - background_check_integration
+              - access_approval_documented
+
+      164.308_a_3_ii_B:
+        standard: "Termination Procedures"
+        implementation: "Addressable"
+        description: "Implement procedures for terminating access"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - automated_deprovisioning
+              - access_keys_rotated_on_termination
+              - session_tokens_revoked
+          - service: "SSO"
+            checks:
+              - sso_access_removed
+
+    164.308_a_4:
+      title: "Information Access Management"
+      implementation: "Required"
+
+      164.308_a_4_i:
+        standard: "Isolating Health Care Clearinghouse Functions"
+        implementation: "Required"
+        description: "Implement policies for authorizing access to ePHI"
+        aws_mappings:
+          - service: "Bedrock"
+            checks:
+              - bedrock_phi_workloads_isolated
+              - separate_knowledge_bases_per_function
+          - service: "VPC"
+            checks:
+              - network_segmentation_implemented
+              - phi_subnets_isolated
+
+      164.308_a_4_ii_A:
+        standard: "Access Authorization"
+        implementation: "Addressable"
+        description: "Implement policies for granting access to ePHI"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - attribute_based_access_control
+              - resource_based_policies_configured
+          - service: "Bedrock"
+            checks:
+              - bedrock_agent_access_policies
+              - knowledge_base_access_restricted
+
+      164.308_a_4_ii_B:
+        standard: "Access Establishment and Modification"
+        implementation: "Addressable"
+        description: "Implement policies for establishing and modifying access"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - access_change_workflows
+              - access_reviews_quarterly
+          - service: "Access Analyzer"
+            checks:
+              - external_access_findings
+              - unused_access_identified
+
+      164.308_a_4_ii_C:
+        standard: "Access Removal"
+        implementation: "Addressable"
+        description: "Implement policies for access termination"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - inactive_users_disabled
+              - credential_expiration_enforced
+
+    164.308_a_5:
+      title: "Security Awareness and Training"
+      implementation: "Required"
+
+      164.308_a_5_i:
+        standard: "Security Reminders"
+        implementation: "Addressable"
+        description: "Periodic security updates and reminders"
+        aws_mappings:
+          - service: "SNS"
+            checks:
+              - security_awareness_notifications
+
+      164.308_a_5_ii_A:
+        standard: "Protection from Malicious Software"
+        implementation: "Addressable"
+        description: "Procedures for guarding against malicious software"
+        aws_mappings:
+          - service: "GuardDuty"
+            checks:
+              - malware_protection_enabled
+              - malicious_ip_detection
+          - service: "Inspector"
+            checks:
+              - vulnerability_scanning_enabled
+
+      164.308_a_5_ii_B:
+        standard: "Log-in Monitoring"
+        implementation: "Addressable"
+        description: "Procedures for monitoring log-in attempts"
+        aws_mappings:
+          - service: "CloudTrail"
+            checks:
+              - console_login_failures_monitored
+              - api_authentication_failures_logged
+          - service: "CloudWatch"
+            alarms:
+              - unauthorized_api_calls
+              - failed_console_logins
+
+      164.308_a_5_ii_C:
+        standard: "Password Management"
+        implementation: "Addressable"
+        description: "Procedures for password creation and safeguarding"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - password_policy_compliant
+              - password_minimum_length_14
+              - password_complexity_required
+              - password_reuse_prevention
+
+    164.308_a_6:
+      title: "Security Incident Procedures"
+      implementation: "Required"
+
+      164.308_a_6_i:
+        standard: "Response and Reporting"
+        implementation: "Required"
+        description: "Identify and respond to suspected security incidents"
+        aws_mappings:
+          - service: "Security Hub"
+            checks:
+              - custom_actions_configured
+              - incident_workflow_automation
+          - service: "EventBridge"
+            checks:
+              - security_incident_rules
+              - automated_response_configured
+          - service: "Bedrock"
+            checks:
+              - bedrock_abuse_detection
+              - anomalous_invocations_alerted
+
+    164.308_a_7:
+      title: "Contingency Plan"
+      implementation: "Required"
+
+      164.308_a_7_i:
+        standard: "Data Backup Plan"
+        implementation: "Required"
+        description: "Establish procedures to create and maintain retrievable copies"
+        aws_mappings:
+          - service: "Backup"
+            checks:
+              - backup_plan_configured
+              - backup_vault_encrypted
+              - cross_region_backup_enabled
+          - service: "Bedrock"
+            checks:
+              - bedrock_knowledge_base_backup
+              - bedrock_agent_configuration_backup
+          - service: "S3"
+            checks:
+              - versioning_enabled
+              - replication_configured
+
+      164.308_a_7_ii_A:
+        standard: "Disaster Recovery Plan"
+        implementation: "Required"
+        description: "Establish procedures to restore lost data"
+        aws_mappings:
+          - service: "Backup"
+            checks:
+              - disaster_recovery_tested
+              - rto_rpo_defined
+          - service: "Route53"
+            checks:
+              - health_checks_configured
+              - failover_routing_configured
+
+      164.308_a_7_ii_B:
+        standard: "Emergency Mode Operation Plan"
+        implementation: "Required"
+        description: "Enable continuation of critical business processes"
+        aws_mappings:
+          - service: "Auto Scaling"
+            checks:
+              - scaling_policies_configured
+          - service: "Multi-Region"
+            checks:
+              - multi_region_deployment
+
+      164.308_a_7_ii_C:
+        standard: "Testing and Revision Procedures"
+        implementation: "Addressable"
+        description: "Implement procedures for periodic testing"
+        aws_mappings:
+          - service: "Backup"
+            checks:
+              - restore_testing_scheduled
+              - annual_dr_drill_documented
+
+      164.308_a_7_ii_D:
+        standard: "Applications and Data Criticality Analysis"
+        implementation: "Addressable"
+        description: "Assess relative criticality of applications and data"
+        aws_mappings:
+          - service: "Tags"
+            checks:
+              - criticality_tags_applied
+              - phi_data_tagged
+
+    164.308_a_8:
+      title: "Evaluation"
+      implementation: "Required"
+      description: "Perform periodic technical and non-technical evaluation"
+      aws_mappings:
+        - service: "Config"
+          checks:
+            - compliance_evaluation_scheduled
+            - conformance_packs_assessed
+        - service: "Audit Manager"
+          checks:
+            - hipaa_assessment_configured
+            - evidence_collected_automatically
+
+  # Physical Safeguards (164.310)
+  physical:
+
+    164.310_a_1:
+      title: "Facility Access Controls"
+      implementation: "Required"
+      description: "Limit physical access to facilities while ensuring authorized access"
+      aws_mappings:
+        - service: "AWS"
+          checks:
+            - shared_responsibility_model_documented
+            - aws_facility_controls_verified
+        - service: "Direct Connect"
+          checks:
+            - physical_connection_security_documented
+
+    164.310_b:
+      title: "Workstation Use"
+      implementation: "Required"
+      description: "Implement policies for workstation use and security"
+      aws_mappings:
+        - service: "WorkSpaces"
+          checks:
+            - workspaces_encrypted
+            - access_control_configured
+
+    164.310_c:
+      title: "Workstation Security"
+      implementation: "Required"
+      description: "Implement physical safeguards for workstations"
+      aws_mappings:
+        - service: "WorkSpaces"
+          checks:
+            - device_compliance_enforced
+
+    164.310_d_1:
+      title: "Device and Media Controls"
+      implementation: "Required"
+      description: "Implement policies for device receipt and removal"
+      aws_mappings:
+        - service: "S3"
+          checks:
+            - mfa_delete_enabled
+            - object_lock_configured
+        - service: "EBS"
+          checks:
+            - ebs_snapshot_encryption
+            - ebs_volume_deletion_protection
+
+  # Technical Safeguards (164.312)
+  technical:
+
+    164.312_a_1:
+      title: "Access Control"
+      implementation: "Required"
+      description: "Implement technical policies to allow only authorized access"
+
+      164.312_a_2_i:
+        standard: "Unique User Identification"
+        implementation: "Required"
+        description: "Assign unique identifier for identifying and tracking user identity"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - no_shared_credentials
+              - unique_user_per_person
+          - service: "SSO"
+            checks:
+              - identity_center_configured
+              - external_identity_provider_integrated
+
+      164.312_a_2_ii:
+        standard: "Emergency Access Procedure"
+        implementation: "Required"
+        description: "Establish procedures for obtaining ePHI during emergency"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - break_glass_accounts_configured
+              - emergency_access_documented
+          - service: "CloudTrail"
+            checks:
+              - emergency_access_logged
+
+      164.312_a_2_iii:
+        standard: "Automatic Logoff"
+        implementation: "Addressable"
+        description: "Implement electronic procedure for session termination"
+        aws_mappings:
+          - service: "IAM"
+            checks:
+              - session_duration_limited
+              - sts_session_timeout_configured
+          - service: "API Gateway"
+            checks:
+              - api_throttling_configured
+
+      164.312_a_2_iv:
+        standard: "Encryption and Decryption"
+        implementation: "Addressable"
+        description: "Implement mechanism to encrypt and decrypt ePHI"
+        aws_mappings:
+          - service: "KMS"
+            checks:
+              - cmk_for_phi_encryption
+              - key_rotation_enabled
+          - service: "Bedrock"
+            checks:
+              - bedrock_knowledge_base_encrypted
+              - bedrock_model_data_encrypted
+          - service: "S3"
+            checks:
+              - s3_default_encryption_enabled
+              - s3_bucket_key_enabled
+
+    164.312_b:
+      title: "Audit Controls"
+      implementation: "Required"
+      description: "Implement hardware, software to record and examine activity"
+      aws_mappings:
+        - service: "CloudTrail"
+          checks:
+            - cloudtrail_enabled_all_regions
+            - log_file_validation_enabled
+            - cloudtrail_logs_encrypted
+        - service: "CloudWatch Logs"
+          checks:
+            - log_retention_365_days_minimum
+            - log_group_encryption_enabled
+        - service: "Bedrock"
+          checks:
+            - bedrock_model_invocation_logging
+            - bedrock_agent_trace_enabled
+            - bedrock_knowledge_base_logs
+        - service: "VPC"
+          checks:
+            - vpc_flow_logs_enabled
+            - flow_logs_to_cloudwatch
+
+    164.312_c_1:
+      title: "Integrity"
+      implementation: "Required"
+      description: "Implement policies to ensure ePHI is not improperly altered"
+
+      164.312_c_2:
+        standard: "Mechanism to Authenticate ePHI"
+        implementation: "Addressable"
+        description: "Implement electronic mechanisms to corroborate ePHI not altered"
+        aws_mappings:
+          - service: "S3"
+            checks:
+              - s3_versioning_enabled
+              - s3_object_lock_enabled
+          - service: "CloudTrail"
+            checks:
+              - log_file_validation_enabled
+          - service: "Bedrock"
+            checks:
+              - bedrock_knowledge_base_versioning
+              - data_integrity_checks_enabled
+
+    164.312_d:
+      title: "Person or Entity Authentication"
+      implementation: "Required"
+      description: "Implement procedures to verify person/entity seeking access"
+      aws_mappings:
+        - service: "IAM"
+          checks:
+            - mfa_enabled_console_access
+            - mfa_enabled_api_access
+        - service: "Cognito"
+          checks:
+            - advanced_security_features_enabled
+            - adaptive_authentication_configured
+        - service: "Bedrock"
+          checks:
+            - bedrock_api_authentication_required
+            - iam_authentication_enforced
+
+    164.312_e_1:
+      title: "Transmission Security"
+      implementation: "Required"
+      description: "Implement technical measures to guard against unauthorized access"
+
+      164.312_e_2_i:
+        standard: "Integrity Controls"
+        implementation: "Addressable"
+        description: "Implement security measures to ensure ePHI not improperly modified"
+        aws_mappings:
+          - service: "API Gateway"
+            checks:
+              - request_validation_enabled
+              - message_integrity_verification
+          - service: "ALB"
+            checks:
+              - drop_invalid_headers_enabled
+
+      164.312_e_2_ii:
+        standard: "Encryption"
+        implementation: "Addressable"
+        description: "Implement mechanism to encrypt ePHI during transmission"
+        aws_mappings:
+          - service: "ALB"
+            checks:
+              - https_listener_configured
+              - tls_1_2_minimum_enforced
+          - service: "API Gateway"
+            checks:
+              - endpoint_configuration_private
+              - mutual_tls_authentication
+          - service: "Bedrock"
+            checks:
+              - bedrock_api_tls_enforced
+              - vpc_endpoint_encryption_enforced
+          - service: "S3"
+            checks:
+              - s3_bucket_ssl_requests_only
+          - service: "CloudFront"
+            checks:
+              - viewer_protocol_policy_https
+              - field_level_encryption_configured
+
+# Breach Notification Rule (164.400-414)
+breach_notification:
+
+  discovery:
+    procedures:
+      - automated_monitoring
+      - incident_detection_tools
+      - user_reporting_mechanism
+    aws_mappings:
+      - service: "GuardDuty"
+        checks:
+          - findings_severity_high_critical
+      - service: "Macie"
+        checks:
+          - phi_discovery_jobs_scheduled
+          - sensitive_data_findings
+
+  assessment:
+    risk_factors:
+      - nature_extent_of_phi
+      - unauthorized_person_identity
+      - phi_actually_acquired
+      - extent_risk_mitigated
+    timeline: "60 days from discovery"
+
+  notification:
+    individual_notification:
+      timeline: "60 days from discovery"
+      methods:
+        - written_notice_first_class_mail
+        - email_if_individual_agreed
+      aws_mappings:
+        - service: "SES"
+          checks:
+            - email_notification_templates
+        - service: "SNS"
+          checks:
+            - notification_topics_configured
+
+    media_notification:
+      threshold: "500+ residents same state/jurisdiction"
+      timeline: "60 days from discovery"
+
+    hhs_notification:
+      threshold_immediate: "500+ individuals"
+      timeline_immediate: "60 days from discovery"
+      threshold_annual: "< 500 individuals"
+      timeline_annual: "Within 60 days of year end"
+
+# Business Associate Agreements
+baa_requirements:
+  aws_baa:
+    required: true
+    services_covered:
+      - "Amazon Bedrock"
+      - "AWS Lambda"
+      - "Amazon S3"
+      - "Amazon DynamoDB"
+      - "AWS KMS"
+      - "Amazon CloudWatch"
+      - "AWS CloudTrail"
+    execution_status: "Required before processing PHI"
+
+  permitted_uses:
+    - data_aggregation
+    - administration
+    - management
+
+  required_provisions:
+    - implement_appropriate_safeguards
+    - report_security_incidents
+    - ensure_subcontractor_compliance
+    - make_phi_available_to_individuals
+    - account_for_phi_disclosures
+    - make_internal_practices_available
+    - return_or_destroy_phi_at_termination
+
+# Automated Compliance Monitoring
+automation:
+  aws_config_rules:
+    - rule_name: "hipaa-bedrock-encryption-enabled"
+      source: "CUSTOM"
+      lambda_arn: "arn:aws:lambda:region:account:function:hipaa-bedrock-encryption-check"
+
+    - rule_name: "hipaa-cloudtrail-encryption-enabled"
+      source: "AWS_MANAGED"
+      identifier: "CLOUD_TRAIL_ENCRYPTION_ENABLED"
+
+    - rule_name: "hipaa-kms-cmk-not-scheduled-for-deletion"
+      source: "AWS_MANAGED"
+      identifier: "KMS_CMK_NOT_SCHEDULED_FOR_DELETION"
+
+  cloudwatch_alarms:
+    - alarm_name: "hipaa-phi-access-unusual-pattern"
+      metric: "PHIAccessCount"
+      threshold: "Anomaly detection"
+
+    - alarm_name: "hipaa-encryption-key-disabled"
+      metric: "KMSKeyState"
+      threshold: "State != Enabled"
+
+# Evidence Collection
+evidence_requirements:
+  documentation:
+    - policies_and_procedures
+    - risk_analysis_results
+    - risk_management_plan
+    - sanction_policy
+    - workforce_training_records
+    - business_associate_agreements
+    - breach_notification_procedures
+
+  technical_evidence:
+    - config_compliance_reports
+    - cloudtrail_logs_phi_access
+    - encryption_verification
+    - backup_restore_test_results
+    - vulnerability_scan_results
+    - access_review_documentation
+
+  retention_period: "6 years from creation or last effective date"

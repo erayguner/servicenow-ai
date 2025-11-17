@@ -1,0 +1,333 @@
+{
+  "DashboardName": "BedrockComplianceDashboard",
+  "DashboardBody": {
+    "widgets": [
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Config",
+              "ComplianceScore",
+              {
+                "stat": "Average",
+                "label": "Overall Compliance Score %"
+              }
+            ],
+            [
+              "AWS/SecurityHub",
+              "ComplianceScore",
+              {
+                "stat": "Average",
+                "label": "Security Hub Score %"
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Overall Compliance Health"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Config",
+              "ComplianceByConfigRule",
+              {
+                "stat": "Sum",
+                "label": "Compliant Rules",
+                "dimensions": {
+                  "ComplianceType": "COMPLIANT"
+                }
+              }
+            ],
+            [
+              ".",
+              "ComplianceByConfigRule",
+              {
+                "stat": "Sum",
+                "label": "Non-Compliant Rules",
+                "dimensions": {
+                  "ComplianceType": "NON_COMPLIANT"
+                }
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "AWS Config Rule Compliance"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 6,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "EncryptedStorageBytes",
+              {
+                "stat": "Sum",
+                "label": "Encrypted Storage"
+              }
+            ],
+            [
+              ".",
+              "UnencryptedStorageBytes",
+              {
+                "stat": "Sum",
+                "label": "Unencrypted Storage"
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Data Encryption Coverage"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 8,
+        "y": 6,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Backup",
+              "BackupJobsCompleted",
+              {
+                "stat": "Sum",
+                "label": "Successful Backups"
+              }
+            ],
+            [
+              ".",
+              "BackupJobsFailed",
+              {
+                "stat": "Sum",
+                "label": "Failed Backups"
+              }
+            ],
+            [
+              ".",
+              "RecoveryPointsRestored",
+              {
+                "stat": "Sum",
+                "label": "Successful Restores"
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Backup Compliance"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 16,
+        "y": 6,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Systems Manager",
+              "ComplianceItems",
+              {
+                "stat": "Sum",
+                "label": "Compliant Instances",
+                "dimensions": {
+                  "ComplianceType": "COMPLIANT"
+                }
+              }
+            ],
+            [
+              ".",
+              "ComplianceItems",
+              {
+                "stat": "Sum",
+                "label": "Non-Compliant Instances",
+                "dimensions": {
+                  "ComplianceType": "NON_COMPLIANT"
+                }
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Patch Compliance"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 12,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/CloudTrail",
+              "CloudTrailEnabled",
+              {
+                "stat": "Sum",
+                "label": "CloudTrail Trails Enabled"
+              }
+            ],
+            [
+              ".",
+              "LogFileValidationEnabled",
+              {
+                "stat": "Sum",
+                "label": "Log Validation Enabled"
+              }
+            ],
+            [
+              ".",
+              "AllEventsLogged",
+              {
+                "stat": "Sum",
+                "label": "All Events Captured"
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Audit Logging"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 12,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/CloudFormation",
+              "StackUpdateRollbackCompleteCount",
+              {
+                "stat": "Sum",
+                "label": "Drift Detected Stacks"
+              }
+            ],
+            [
+              ".",
+              "StackDriftDetectionStatus",
+              {
+                "stat": "Average",
+                "label": "Stack Drift Detection Score"
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Infrastructure as Code Drift"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 18,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/AccessAnalyzer",
+              "FindingCount",
+              {
+                "stat": "Sum",
+                "label": "IAM Access Findings",
+                "dimensions": {
+                  "FindingType": "ExternalAccess"
+                }
+              }
+            ],
+            [
+              ".",
+              "FindingCount",
+              {
+                "stat": "Sum",
+                "label": "Unused Access Findings",
+                "dimensions": {
+                  "FindingType": "UnusedAccess"
+                }
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Access Compliance"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 18,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/NetworkFirewall",
+              "AllowedPackets",
+              {
+                "stat": "Sum",
+                "label": "Allowed Network Packets"
+              }
+            ],
+            [
+              ".",
+              "DroppedPackets",
+              {
+                "stat": "Sum",
+                "label": "Dropped Network Packets"
+              }
+            ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Network Security Policy"
+        }
+      },
+      {
+        "type": "log",
+        "x": 0,
+        "y": 24,
+        "width": 24,
+        "height": 6,
+        "properties": {
+          "query": "fields @timestamp, complianceCheckId, complianceStatus, resourceType, resourceId\n| stats count() as total_checks, sum(case when complianceStatus = 'COMPLIANT' then 1 else 0 end) as compliant_checks by resourceType\n| fields resourceType, compliant_checks, total_checks",
+          "region": "us-east-1",
+          "title": "Compliance Check Summary",
+          "queryId": "compliance-summary"
+        }
+      }
+    ]
+  }
+}

@@ -322,3 +322,223 @@ variable "operational_contacts" {
     slack_channel    = "#prod-alerts"
   }
 }
+
+# ==============================================================================
+# Security Module Variables
+# ==============================================================================
+
+variable "kms_key_admin_arns" {
+  description = "List of IAM role/user ARNs that can administer KMS keys"
+  type        = list(string)
+  default     = []
+}
+
+variable "kms_grant_role_arns" {
+  description = "List of IAM role ARNs that can use KMS keys via grants"
+  type        = list(string)
+  default     = []
+}
+
+variable "dynamodb_table_arns" {
+  description = "List of DynamoDB table ARNs for Lambda access"
+  type        = list(string)
+  default     = []
+}
+
+variable "enable_cross_account_access" {
+  description = "Enable cross-account IAM access"
+  type        = bool
+  default     = false
+}
+
+variable "trusted_account_ids" {
+  description = "List of trusted AWS account IDs for cross-account access"
+  type        = list(string)
+  default     = []
+}
+
+variable "cross_account_external_id" {
+  description = "External ID for cross-account access"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "waf_blocked_ips" {
+  description = "List of IP addresses to block in WAF (CIDR notation)"
+  type        = list(string)
+  default     = []
+}
+
+variable "waf_allowed_ips" {
+  description = "List of IP addresses to allow in WAF (CIDR notation)"
+  type        = list(string)
+  default     = []
+}
+
+variable "waf_blocked_countries" {
+  description = "List of country codes to block (ISO 3166-1 alpha-2)"
+  type        = list(string)
+  default     = []
+}
+
+variable "require_api_key" {
+  description = "Require API key header for requests"
+  type        = bool
+  default     = true
+}
+
+variable "api_key_value" {
+  description = "Expected value of the API key header"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "api_gateway_arn_primary" {
+  description = "ARN of the API Gateway to associate with WAF (primary region)"
+  type        = string
+  default     = ""
+}
+
+variable "api_gateway_arn_secondary" {
+  description = "ARN of the API Gateway to associate with WAF (secondary region)"
+  type        = string
+  default     = ""
+}
+
+variable "enable_guardduty_org_config" {
+  description = "Enable organization-wide GuardDuty configuration"
+  type        = bool
+  default     = false
+}
+
+variable "threat_intel_location" {
+  description = "S3 location of custom threat intelligence set"
+  type        = string
+  default     = ""
+}
+
+variable "trusted_ip_set_location" {
+  description = "S3 location of trusted IP set"
+  type        = string
+  default     = ""
+}
+
+variable "guardduty_processor_zip_path" {
+  description = "Path to Lambda function zip file for GuardDuty findings processor"
+  type        = string
+  default     = ""
+}
+
+variable "critical_alert_sns_topic_arn" {
+  description = "SNS topic ARN for critical security alerts"
+  type        = string
+  default     = ""
+}
+
+variable "enable_pci_compliance" {
+  description = "Enable PCI-DSS compliance framework in Security Hub"
+  type        = bool
+  default     = false
+}
+
+variable "enable_nist_compliance" {
+  description = "Enable NIST framework in Security Hub"
+  type        = bool
+  default     = false
+}
+
+variable "enable_security_hub_org_config" {
+  description = "Enable organization-wide Security Hub configuration"
+  type        = bool
+  default     = false
+}
+
+# ==============================================================================
+# Monitoring Module Variables
+# ==============================================================================
+
+variable "lambda_function_names" {
+  description = "List of Lambda function names to monitor"
+  type        = list(string)
+  default     = []
+}
+
+variable "step_function_arns" {
+  description = "List of Step Functions state machine ARNs to monitor"
+  type        = list(string)
+  default     = []
+}
+
+variable "api_gateway_ids" {
+  description = "List of API Gateway REST API IDs to monitor"
+  type        = list(string)
+  default     = []
+}
+
+variable "alert_email_addresses" {
+  description = "List of email addresses for monitoring alerts"
+  type        = list(string)
+  default     = []
+}
+
+variable "bedrock_agent_endpoints_primary" {
+  description = "List of Bedrock agent endpoints for synthetic monitoring (primary region)"
+  type        = list(string)
+  default     = []
+}
+
+variable "bedrock_agent_endpoints_secondary" {
+  description = "List of Bedrock agent endpoints for synthetic monitoring (secondary region)"
+  type        = list(string)
+  default     = []
+}
+
+variable "enable_mfa_delete" {
+  description = "Enable MFA delete for CloudTrail S3 bucket"
+  type        = bool
+  default     = true
+}
+
+variable "enable_organization_trail" {
+  description = "Enable organization-wide CloudTrail"
+  type        = bool
+  default     = false
+}
+
+variable "config_custom_rules" {
+  description = "List of custom AWS Config rules"
+  type        = list(any)
+  default     = []
+}
+
+variable "enable_config_aggregator" {
+  description = "Enable AWS Config aggregator"
+  type        = bool
+  default     = false
+}
+
+variable "config_aggregator_accounts" {
+  description = "List of AWS account IDs for Config aggregator"
+  type        = list(string)
+  default     = []
+}
+
+variable "enable_synthetics_vpc" {
+  description = "Enable VPC configuration for CloudWatch Synthetics"
+  type        = bool
+  default     = false
+}
+
+variable "synthetics_vpc_id" {
+  description = "VPC ID for CloudWatch Synthetics canaries"
+  type        = string
+  default     = ""
+}
+
+variable "synthetics_subnet_ids" {
+  description = "List of subnet IDs for CloudWatch Synthetics canaries"
+  type        = list(string)
+  default     = []
+}

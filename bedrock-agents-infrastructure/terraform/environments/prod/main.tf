@@ -352,7 +352,566 @@ module "synthetic_monitoring" {
   tags = local.common_tags
 }
 
+# ==============================================================================
+# Security Modules - Full Production Configuration
+# ==============================================================================
+
+# KMS Module - Encryption keys with multi-region support
+module "security_kms" {
+  source = "../../modules/security/bedrock-security-kms"
+
+  project_name = local.project
+  environment  = local.environment
+  aws_region   = local.regions.primary
+
+  # Production KMS configuration with multi-region
+  enable_key_rotation      = true   # Mandatory for production
+  enable_multi_region      = true   # Multi-region keys for DR
+  deletion_window_in_days  = 30     # Maximum protection
+
+  # IAM role ARNs that need KMS access
+  iam_role_arns = [
+    module.bedrock_agent_primary.agent_role_arn,
+    module.bedrock_agent_secondary.agent_role_arn
+  ]
+
+  # Key admin ARNs
+  key_admin_arns = var.kms_key_admin_arns
+
+  # Grant role ARNs for cross-account/service access
+  grant_role_arns = var.kms_grant_role_arns
+
+  # CloudTrail log group
+  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
+
+  # SNS topic for alerts
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  kms_error_threshold = 5  # Strict threshold for production
+
+  tags = local.common_tags
+}
+
+# IAM Module - Security roles with strict policies
+module "security_iam" {
+  source = "../../modules/security/bedrock-security-iam"
+
+  project_name = local.project
+  environment  = local.environment
+  aws_region   = local.regions.primary
+
+  # Permission boundary - mandatory for production
+  enable_permission_boundary = true
+  max_session_duration       = 43200  # 12 hours maximum
+
+  # All active regions
+  allowed_regions = [
+    local.regions.primary,
+    local.regions.secondary,
+    local.regions.dr
+  ]
+
+  # Bedrock models - production approved models only
+  allowed_bedrock_models = [
+    "arn:aws:bedrock:*::foundation-model/anthropic.claude-3-5-sonnet-20241022-v2:0",
+    "arn:aws:bedrock:*::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
+  ]
+
+  # Knowledge base ARNs
+  knowledge_base_arns = [
+    module.bedrock_agent_primary.knowledge_base_arn,
+    module.bedrock_agent_secondary.knowledge_base_arn
+  ]
+
+  # DynamoDB and KMS
+  dynamodb_table_arns = var.dynamodb_table_arns
+  kms_key_arns = [
+    module.security_kms.bedrock_data_key_arn,
+    module.security_kms.secrets_key_arn,
+    module.security_kms.s3_key_arn
+  ]
+
+  # Step Functions - enabled for orchestration
+  enable_step_functions = true
+
+  # Cross-account access for monitoring/backup accounts
+  enable_cross_account_access = var.enable_cross_account_access
+  trusted_account_ids         = var.trusted_account_ids
+  external_id                 = var.cross_account_external_id
+
+  # CloudTrail log group
+  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
+
+  # SNS topic
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  unauthorized_calls_threshold = 1  # Zero tolerance in production
+
+  tags = local.common_tags
+}
+
+# GuardDuty Module - Full threat detection
+module "security_guardduty" {
+  source = "../../modules/security/bedrock-security-guardduty"
+
+  project_name = local.project
+  environment  = local.environment
+
+  finding_publishing_frequency = "FIFTEEN_MINUTES"  # Real-time monitoring
+
+  # All protections enabled for production
+  enable_s3_protection      = true
+  enable_eks_protection     = true
+  enable_lambda_protection  = true
+  enable_rds_protection     = true
+  enable_malware_protection = true
+
+  # Advanced threat detection
+  enable_crypto_mining_detection = true
+  enable_organization_configuration = var.enable_guardduty_org_config
+
+  # Custom threat intelligence
+  custom_threat_intel_set_location = var.threat_intel_location
+  trusted_ip_set_location          = var.trusted_ip_set_location
+
+  # Findings processor Lambda
+  enable_findings_processor    = true
+  findings_processor_zip_path  = var.guardduty_processor_zip_path
+
+  sns_topic_arn              = module.monitoring_cloudwatch.sns_topic_arn
+  high_severity_sns_topic_arn = var.critical_alert_sns_topic_arn
+  kms_key_arn                = module.security_kms.bedrock_data_key_arn
+
+  log_retention_days = 90
+
+  findings_count_threshold = 1  # Alert on any finding
+
+  tags = local.common_tags
+}
+
+# Security Hub - Full compliance monitoring
+module "security_hub" {
+  source = "../../modules/security/bedrock-security-hub"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # All compliance standards enabled
+  enable_cis_standard         = true
+  enable_pci_dss              = var.enable_pci_compliance
+  enable_aws_foundational     = true
+  enable_nist_framework       = var.enable_nist_compliance
+
+  # Strict findings thresholds
+  critical_findings_threshold = 0  # Zero tolerance
+  high_findings_threshold     = 1
+
+  # Organization-wide configuration
+  enable_organization_configuration = var.enable_security_hub_org_config
+
+  # Automated remediation
+  enable_automated_remediation = true
+
+  sns_topic_arn              = module.monitoring_cloudwatch.sns_topic_arn
+  critical_sns_topic_arn     = var.critical_alert_sns_topic_arn
+
+  log_retention_days = 90
+
+  tags = local.common_tags
+}
+
+# WAF Module - Advanced API protection
+module "security_waf" {
+  source = "../../modules/security/bedrock-security-waf"
+
+  project_name = local.project
+  environment  = local.environment
+
+  waf_scope  = "REGIONAL"
+  rate_limit = 10000  # Production rate limit per 5 minutes
+
+  # AWS Managed Rules - strict configuration
+  enable_core_rule_exceptions = false
+  enable_anonymous_ip_list    = true
+
+  # IP filtering - production whitelist/blacklist
+  blocked_ip_addresses = var.waf_blocked_ips
+  allowed_ip_addresses = var.waf_allowed_ips
+
+  # Geo-blocking - block high-risk countries
+  blocked_countries = var.waf_blocked_countries
+
+  # API key validation
+  require_api_key_header = var.require_api_key
+  api_key_header_name    = "x-api-key"
+  api_key_header_value   = var.api_key_value
+
+  # Comprehensive logging
+  enable_waf_logging = true
+  log_retention_days = 90
+  kms_key_arn        = module.security_kms.bedrock_data_key_arn
+
+  # API Gateway association (primary region)
+  api_gateway_arn = var.api_gateway_arn_primary
+
+  # Strict alarms
+  sns_topic_arn                = module.monitoring_cloudwatch.sns_topic_arn
+  blocked_requests_threshold   = 1000
+  rate_limit_alarm_threshold   = 500
+
+  tags = local.common_tags
+}
+
+# WAF Module - Secondary region
+module "security_waf_secondary" {
+  source = "../../modules/security/bedrock-security-waf"
+
+  providers = {
+    aws = aws.secondary
+  }
+
+  project_name = local.project
+  environment  = "${local.environment}-secondary"
+
+  waf_scope  = "REGIONAL"
+  rate_limit = 10000
+
+  enable_core_rule_exceptions = false
+  enable_anonymous_ip_list    = true
+
+  blocked_ip_addresses = var.waf_blocked_ips
+  allowed_ip_addresses = var.waf_allowed_ips
+  blocked_countries    = var.waf_blocked_countries
+
+  enable_waf_logging = true
+  log_retention_days = 90
+  kms_key_arn        = module.security_kms.bedrock_data_key_arn
+
+  api_gateway_arn = var.api_gateway_arn_secondary
+
+  sns_topic_arn                = module.monitoring_cloudwatch.sns_topic_arn
+  blocked_requests_threshold   = 1000
+  rate_limit_alarm_threshold   = 500
+
+  tags = merge(local.common_tags, { Region = "secondary" })
+}
+
+# Secrets Manager Module - Production secrets with rotation
+module "security_secrets" {
+  source = "../../modules/security/bedrock-security-secrets"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # KMS key for secrets encryption
+  kms_key_id = module.security_kms.secrets_key_id
+
+  # Mandatory rotation for production
+  enable_rotation    = true
+  rotation_days      = 30  # Monthly rotation
+
+  # Extended recovery window for production
+  recovery_window_in_days = 30
+
+  # Replica secrets in secondary region
+  enable_replica = true
+  replica_regions = [local.regions.secondary, local.regions.dr]
+
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  tags = local.common_tags
+}
+
+# ==============================================================================
+# Monitoring Modules - Comprehensive Production Configuration
+# ==============================================================================
+
+# CloudWatch Module - Full observability
+module "monitoring_cloudwatch" {
+  source = "../../modules/monitoring/bedrock-monitoring-cloudwatch"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # Primary Bedrock agent monitoring
+  bedrock_agent_id       = module.bedrock_agent_primary.agent_id
+  bedrock_agent_alias_id = module.bedrock_agent_primary.agent_alias_id
+
+  # Lambda functions
+  lambda_function_names = var.lambda_function_names
+
+  # Step Functions
+  step_function_state_machine_arns = var.step_function_arns
+
+  # API Gateway
+  api_gateway_ids = var.api_gateway_ids
+
+  # SNS configuration - multiple topics
+  create_sns_topic        = true
+  sns_email_subscriptions = var.alert_email_addresses
+  alarm_sns_topic_arn     = var.critical_alert_sns_topic_arn
+
+  # Alarms - strict thresholds for production
+  bedrock_error_rate_threshold           = 1   # 1% error rate
+  bedrock_invocation_latency_threshold   = 2000  # 2 seconds
+  bedrock_throttle_threshold             = 5
+  lambda_error_rate_threshold            = 1
+  lambda_duration_threshold              = 5000
+  lambda_throttles_threshold             = 3
+  step_functions_failed_executions_threshold = 1
+  step_functions_timed_out_executions_threshold = 1
+  api_gateway_5xx_error_threshold        = 1
+  api_gateway_latency_threshold          = 2000
+
+  # Advanced monitoring features
+  enable_anomaly_detection = true
+  enable_composite_alarms  = true
+
+  # Production dashboard
+  create_dashboard = true
+  dashboard_name   = "${local.project}-${local.environment}-bedrock-prod"
+
+  # Comprehensive log groups
+  log_group_names = [
+    "/aws/bedrock/agents/${local.project}-${local.environment}",
+    "/aws/lambda/${local.project}-*",
+    "/aws/apigateway/${local.project}-*",
+    "/aws/states/${local.project}-*"
+  ]
+
+  # KMS encryption
+  kms_key_id = module.security_kms.bedrock_data_key_id
+
+  # Extended retention
+  retention_in_days = 90
+
+  tags = local.common_tags
+}
+
+# X-Ray Module - Full distributed tracing
+module "monitoring_xray" {
+  source = "../../modules/monitoring/bedrock-monitoring-xray"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # X-Ray configuration - full insights
+  enable_insights       = true
+  enable_sampling_rules = true
+  sampling_rate         = 1.0  # 100% sampling in production
+
+  # Active tracing
+  enable_active_tracing = true
+
+  # Service map
+  enable_service_map = true
+
+  # KMS encryption
+  kms_key_arn = module.security_kms.bedrock_data_key_arn
+
+  # SNS notifications for anomalies
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  # Retention
+  trace_retention_days = 30
+
+  tags = local.common_tags
+}
+
+# CloudTrail Module - Comprehensive audit logging
+module "monitoring_cloudtrail" {
+  source = "../../modules/monitoring/bedrock-monitoring-cloudtrail"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # S3 bucket for CloudTrail logs with versioning
+  create_s3_bucket = true
+  s3_bucket_name   = "${local.project}-cloudtrail-${local.environment}"
+  enable_versioning = true
+  enable_mfa_delete = var.enable_mfa_delete
+
+  # KMS encryption - mandatory
+  kms_key_id = module.security_kms.bedrock_data_key_id
+
+  # CloudWatch Logs integration
+  enable_cloudwatch_logs = true
+  log_retention_days     = 90
+
+  # Comprehensive event selectors
+  enable_management_events = true
+  enable_data_events       = true
+  enable_insights_events   = true
+
+  # Multi-region trail covering all regions
+  is_multi_region_trail = true
+
+  # Organization trail
+  is_organization_trail = var.enable_organization_trail
+
+  # Log file validation - mandatory for compliance
+  enable_log_file_validation = true
+
+  # SNS notifications for log delivery
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  tags = local.common_tags
+}
+
+# Config Module - Full compliance tracking
+module "monitoring_config" {
+  source = "../../modules/monitoring/bedrock-monitoring-config"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # Configuration recorder - continuous recording
+  enable_config_recorder = true
+  delivery_frequency     = "One_Hour"  # Frequent delivery for production
+
+  # S3 bucket for Config snapshots
+  create_s3_bucket = true
+  s3_bucket_name   = "${local.project}-config-${local.environment}"
+
+  # All AWS Config managed rules
+  enable_managed_rules = true
+
+  # Custom config rules
+  enable_custom_rules = true
+  custom_rules        = var.config_custom_rules
+
+  # Aggregator for multi-region/multi-account
+  enable_aggregator = var.enable_config_aggregator
+  aggregator_account_ids = var.config_aggregator_accounts
+  aggregator_regions     = [
+    local.regions.primary,
+    local.regions.secondary,
+    local.regions.dr
+  ]
+
+  # KMS encryption
+  kms_key_id    = module.security_kms.bedrock_data_key_id
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  tags = local.common_tags
+}
+
+# EventBridge Module - Advanced event-driven monitoring
+module "monitoring_eventbridge" {
+  source = "../../modules/monitoring/bedrock-monitoring-eventbridge"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # Comprehensive event patterns
+  enable_bedrock_events   = true
+  enable_lambda_events    = true
+  enable_security_events  = true
+  enable_health_events    = true
+  enable_compliance_events = true
+
+  # Multiple targets
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+  critical_sns_topic_arn = var.critical_alert_sns_topic_arn
+
+  # Custom event bus for application events
+  create_custom_event_bus = true
+  event_bus_name          = "${local.project}-${local.environment}-events"
+
+  # Event archive for compliance
+  enable_event_archive = true
+  archive_retention_days = 365  # 1 year retention
+
+  # Cross-region event routing
+  enable_cross_region_events = true
+  cross_region_targets = [
+    local.regions.secondary,
+    local.regions.dr
+  ]
+
+  tags = local.common_tags
+}
+
+# Synthetics Module - Comprehensive endpoint testing
+module "monitoring_synthetics" {
+  source = "../../modules/monitoring/bedrock-monitoring-synthetics"
+
+  project_name = local.project
+  environment  = local.environment
+
+  # Canary configuration - frequent testing
+  canary_name     = "${local.project}-agent-canary-${local.environment}"
+  canary_schedule = "rate(5 minutes)"  # Every 5 minutes
+
+  # Multiple endpoints across regions
+  endpoints = concat(
+    var.bedrock_agent_endpoints_primary,
+    var.bedrock_agent_endpoints_secondary
+  )
+
+  # Latest runtime
+  canary_runtime_version = "syn-nodejs-puppeteer-9.0"
+
+  # S3 bucket for artifacts
+  create_s3_bucket = true
+  s3_bucket_name   = "${local.project}-synthetics-${local.environment}"
+
+  # VPC configuration for private endpoints
+  enable_vpc = var.enable_synthetics_vpc
+  vpc_id     = var.synthetics_vpc_id
+  subnet_ids = var.synthetics_subnet_ids
+
+  # Strict alarms
+  success_rate_threshold = 99.9
+  duration_threshold     = 5000  # 5 seconds
+
+  # Multi-location testing
+  enable_multi_location = true
+  test_locations = [
+    "us-east-1",
+    "us-west-2",
+    "eu-west-1"
+  ]
+
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  tags = local.common_tags
+}
+
+# Synthetics Module - Secondary region
+module "monitoring_synthetics_secondary" {
+  source = "../../modules/monitoring/bedrock-monitoring-synthetics"
+
+  providers = {
+    aws = aws.secondary
+  }
+
+  project_name = local.project
+  environment  = "${local.environment}-secondary"
+
+  canary_name     = "${local.project}-agent-canary-${local.environment}-secondary"
+  canary_schedule = "rate(5 minutes)"
+
+  endpoints = var.bedrock_agent_endpoints_secondary
+
+  canary_runtime_version = "syn-nodejs-puppeteer-9.0"
+
+  create_s3_bucket = true
+  s3_bucket_name   = "${local.project}-synthetics-${local.environment}-secondary"
+
+  success_rate_threshold = 99.9
+  duration_threshold     = 5000
+
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  tags = merge(local.common_tags, { Region = "secondary" })
+}
+
+# ==============================================================================
 # Outputs
+# ==============================================================================
+
+# Bedrock Agent Outputs
 output "primary_agent_id" {
   description = "Primary Bedrock agent ID"
   value       = module.bedrock_agent_primary.agent_id
@@ -376,4 +935,118 @@ output "primary_agent_endpoint" {
 output "secondary_agent_endpoint" {
   description = "Secondary agent endpoint"
   value       = module.bedrock_agent_secondary.agent_endpoint
+}
+
+# Security Outputs
+output "kms_bedrock_data_key_arn" {
+  description = "ARN of the KMS key for Bedrock data encryption"
+  value       = module.security_kms.bedrock_data_key_arn
+}
+
+output "kms_secrets_key_arn" {
+  description = "ARN of the KMS key for secrets encryption"
+  value       = module.security_kms.secrets_key_arn
+}
+
+output "kms_s3_key_arn" {
+  description = "ARN of the KMS key for S3 encryption"
+  value       = module.security_kms.s3_key_arn
+}
+
+output "bedrock_agent_execution_role_arn" {
+  description = "ARN of the Bedrock agent execution role"
+  value       = module.security_iam.bedrock_agent_execution_role_arn
+}
+
+output "lambda_execution_role_arn" {
+  description = "ARN of the Lambda execution role"
+  value       = module.security_iam.lambda_execution_role_arn
+}
+
+output "guardduty_detector_id" {
+  description = "ID of the GuardDuty detector"
+  value       = module.security_guardduty.detector_id
+}
+
+output "security_hub_arn" {
+  description = "ARN of the Security Hub"
+  value       = module.security_hub.security_hub_arn
+}
+
+output "waf_web_acl_arn_primary" {
+  description = "ARN of the WAF Web ACL (primary region)"
+  value       = module.security_waf.web_acl_arn
+}
+
+output "waf_web_acl_arn_secondary" {
+  description = "ARN of the WAF Web ACL (secondary region)"
+  value       = module.security_waf_secondary.web_acl_arn
+}
+
+# Monitoring Outputs
+output "monitoring_dashboard_name" {
+  description = "Name of the CloudWatch monitoring dashboard"
+  value       = module.monitoring_cloudwatch.dashboard_name
+}
+
+output "monitoring_dashboard_url" {
+  description = "URL of the CloudWatch monitoring dashboard"
+  value       = "https://console.aws.amazon.com/cloudwatch/home?region=${local.regions.primary}#dashboards:name=${module.monitoring_cloudwatch.dashboard_name}"
+}
+
+output "monitoring_sns_topic_arn" {
+  description = "ARN of the monitoring SNS topic"
+  value       = module.monitoring_cloudwatch.sns_topic_arn
+}
+
+output "xray_group_name" {
+  description = "Name of the X-Ray group"
+  value       = module.monitoring_xray.group_name
+}
+
+output "cloudtrail_log_group" {
+  description = "CloudTrail log group name"
+  value       = module.monitoring_cloudtrail.log_group_name
+}
+
+output "cloudtrail_s3_bucket" {
+  description = "S3 bucket for CloudTrail logs"
+  value       = module.monitoring_cloudtrail.s3_bucket_name
+}
+
+output "config_recorder_name" {
+  description = "Name of the AWS Config recorder"
+  value       = module.monitoring_config.recorder_name
+}
+
+output "synthetics_canary_name_primary" {
+  description = "Name of the CloudWatch Synthetics canary (primary)"
+  value       = module.monitoring_synthetics.canary_name
+}
+
+output "synthetics_canary_name_secondary" {
+  description = "Name of the CloudWatch Synthetics canary (secondary)"
+  value       = module.monitoring_synthetics_secondary.canary_name
+}
+
+# Security Summary
+output "security_posture_summary" {
+  description = "Summary of security posture"
+  value = {
+    encryption = {
+      kms_rotation_enabled    = true
+      multi_region_keys       = true
+      secrets_rotation_enabled = true
+    }
+    threat_detection = {
+      guardduty_enabled    = true
+      security_hub_enabled = true
+      waf_enabled          = true
+    }
+    compliance = {
+      cloudtrail_enabled          = true
+      config_enabled              = true
+      log_file_validation_enabled = true
+    }
+  }
 }

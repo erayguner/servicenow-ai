@@ -1,0 +1,685 @@
+# Remediation Procedures for Compliance Findings
+# Amazon Bedrock Agents Infrastructure
+
+remediation_metadata:
+  version: "1.0"
+  last_updated: "2025-11-17"
+  scope: "Compliance findings remediation for Bedrock infrastructure"
+  responsibility: "Security Team, DevOps, Resource Owners"
+
+# Remediation Framework
+framework:
+
+  incident_classification:
+    critical:
+      severity_level: "P1"
+      examples:
+        - "Unencrypted RESTRICTED data discovered"
+        - "Public access to sensitive S3 bucket"
+        - "Data breach confirmed"
+        - "Root account credentials compromised"
+      response_time: "Immediate (< 1 hour)"
+      remediation_sla: "24 hours"
+      escalation: "CISO, CEO, Legal immediately"
+
+    high:
+      severity_level: "P2"
+      examples:
+        - "Encryption not using CMK (AWS-managed key)"
+        - "MFA not enabled for privileged user"
+        - "Logging disabled on production resource"
+        - "Backup failed for RESTRICTED data"
+      response_time: "< 4 hours"
+      remediation_sla: "7 days"
+      escalation: "CISO, Security Manager"
+
+    medium:
+      severity_level: "P3"
+      examples:
+        - "Access review overdue"
+        - "Security group overly permissive (non-critical resource)"
+        - "KMS key rotation disabled"
+        - "Non-compliant password policy"
+      response_time: "< 24 hours"
+      remediation_sla: "30 days"
+      escalation: "Security Team Lead"
+
+    low:
+      severity_level: "P4"
+      examples:
+        - "Resource tagging incomplete"
+        - "Documentation outdated"
+        - "Training completion delayed"
+      response_time: "< 72 hours"
+      remediation_sla: "90 days"
+      escalation: "Resource Owner"
+
+  remediation_workflow:
+    - step: 1
+      phase: "Detection"
+      actions:
+        - "Automated detection via AWS Config, Security Hub, or manual audit"
+        - "Finding logged in compliance tracking system"
+        - "Severity assessment and classification"
+
+    - step: 2
+      phase: "Notification"
+      actions:
+        - "Automated alert to security team (critical/high)"
+        - "Ticket created and assigned to resource owner"
+        - "CISO notification (critical findings)"
+
+    - step: 3
+      phase: "Analysis"
+      actions:
+        - "Root cause analysis performed"
+        - "Blast radius assessment (what's affected)"
+        - "Compliance impact assessment (GDPR, HIPAA, PCI, SOC2)"
+
+    - step: 4
+      phase: "Remediation Planning"
+      actions:
+        - "Remediation strategy documented"
+        - "Change request submitted (if production change)"
+        - "Rollback plan prepared"
+        - "Testing plan defined"
+
+    - step: 5
+      phase: "Remediation Execution"
+      actions:
+        - "Implement fix (manual or automated)"
+        - "Verify fix in non-production (if applicable)"
+        - "Deploy to production with approvals"
+        - "Document implementation details"
+
+    - step: 6
+      phase: "Verification"
+      actions:
+        - "Re-run compliance check"
+        - "Verify finding resolved"
+        - "Update compliance tracking system"
+
+    - step: 7
+      phase: "Documentation & Closure"
+      actions:
+        - "Document remediation in ticket"
+        - "Update runbooks and procedures"
+        - "Close ticket with approvals"
+        - "Lessons learned (if critical/high)"
+
+# Common Findings and Remediation Procedures
+
+remediation_procedures:
+
+  encryption_findings:
+
+    finding_id: "ENC-001"
+    finding: "Bedrock Knowledge Base Not Encrypted with CMK"
+    severity: "Critical"
+    compliance_impact: ["HIPAA", "PCI-DSS", "GDPR", "SOC2"]
+
+    immediate_actions:
+      - action: "Assess data classification of knowledge base"
+        priority: 1
+      - action: "If RESTRICTED data, immediately disable knowledge base"
+        priority: 2
+      - action: "Notify CISO and Data Owner"
+        priority: 3
+
+    remediation_steps:
+      - step: 1
+        description: "Create customer-managed KMS key (CMK) if not exists"
+        terraform_code: |
+          resource "aws_kms_key" "bedrock_cmk" {
+            description             = "KMS key for Bedrock knowledge base encryption"
+            deletion_window_in_days = 30
+            enable_key_rotation     = true
+          }
+
+          resource "aws_kms_alias" "bedrock_cmk" {
+            name          = "alias/bedrock-kb-${var.environment}"
+            target_key_id = aws_kms_key.bedrock_cmk.id
+          }
+
+      - step: 2
+        description: "Update knowledge base to use CMK"
+        cli_command: |
+          # Note: Bedrock knowledge base encryption is set at creation time
+          # Remediation requires:
+          # 1. Create new encrypted knowledge base with CMK
+          # 2. Re-ingest data sources
+          # 3. Update agent to use new knowledge base
+          # 4. Delete old unencrypted knowledge base
+
+          aws bedrock-agent create-knowledge-base \
+            --name "secure-kb-${KB_NAME}" \
+            --role-arn "${KB_ROLE_ARN}" \
+            --knowledge-base-configuration '{...}' \
+            --storage-configuration '{
+              "type": "OPENSEARCH_SERVERLESS",
+              "opensearchServerlessConfiguration": {
+                "collectionArn": "${COLLECTION_ARN}",
+                "vectorIndexName": "bedrock-index"
+              }
+            }'
+
+          # Configure OpenSearch Serverless encryption with CMK
+          aws opensearchserverless create-security-policy \
+            --name "encryption-policy-kb" \
+            --type encryption \
+            --policy '{
+              "Rules": [{
+                "ResourceType": "collection",
+                "Resource": ["collection/${COLLECTION_NAME}"]
+              }],
+              "AWSOwnedKey": false,
+              "KmsARN": "${KMS_KEY_ARN}"
+            }'
+
+      - step: 3
+        description: "Update data sources to point to new knowledge base"
+        validation: "Verify data ingestion successful"
+
+      - step: 4
+        description: "Update Bedrock agents to use new knowledge base ID"
+        rollback_plan: "Keep old KB active until new KB verified"
+
+      - step: 5
+        description: "Delete old unencrypted knowledge base"
+        safety_check: "Verify all agents migrated first"
+
+    verification:
+      - "Run AWS Config rule: bedrock-agent-encryption-check"
+      - "Manually verify KMS key is customer-managed and rotation enabled"
+      - "Test agent functionality with new knowledge base"
+
+    prevention:
+      - "Update IaC templates to enforce CMK encryption"
+      - "Implement AWS Config rule to prevent unencrypted KB creation"
+      - "Add to peer review checklist"
+
+  access_control_findings:
+
+    finding_id: "AC-001"
+    finding: "IAM Role Violates Least Privilege (Wildcard Permissions)"
+    severity: "High"
+    compliance_impact: ["SOC2", "PCI-DSS", "ISO27001"]
+
+    immediate_actions:
+      - action: "Assess if overly permissive permissions were exploited"
+        method: "Review CloudTrail logs for unusual activity"
+      - action: "If active exploitation suspected, disable role immediately"
+        command: "aws iam update-assume-role-policy (add Deny condition)"
+
+    remediation_steps:
+      - step: 1
+        description: "Analyze role's actual usage via IAM Access Analyzer"
+        cli_command: |
+          aws accessanalyzer list-findings \
+            --analyzer-arn ${ANALYZER_ARN} \
+            --filter '{"resource.id":{"eq":["${ROLE_ARN}"]}}'
+
+      - step: 2
+        description: "Create least-privilege policy based on actual usage"
+        terraform_code: |
+          resource "aws_iam_policy" "bedrock_agent_least_privilege" {
+            name        = "BedrockAgentLeastPrivilege"
+            description = "Least privilege policy for Bedrock agent"
+
+            policy = jsonencode({
+              Version = "2012-10-17"
+              Statement = [
+                {
+                  Sid    = "BedrockModelInvocation"
+                  Effect = "Allow"
+                  Action = [
+                    "bedrock:InvokeModel",
+                    "bedrock:InvokeModelWithResponseStream"
+                  ]
+                  Resource = [
+                    "arn:aws:bedrock:${var.region}::foundation-model/anthropic.claude-v2",
+                    "arn:aws:bedrock:${var.region}::foundation-model/amazon.titan-embed-text-v1"
+                  ]
+                },
+                {
+                  Sid    = "KnowledgeBaseAccess"
+                  Effect = "Allow"
+                  Action = [
+                    "bedrock:Retrieve",
+                    "bedrock:RetrieveAndGenerate"
+                  ]
+                  Resource = "arn:aws:bedrock:${var.region}:${var.account_id}:knowledge-base/${var.kb_id}"
+                },
+                {
+                  Sid    = "S3DataSourceReadOnly"
+                  Effect = "Allow"
+                  Action = [
+                    "s3:GetObject",
+                    "s3:ListBucket"
+                  ]
+                  Resource = [
+                    "arn:aws:s3:::bedrock-data-${var.environment}",
+                    "arn:aws:s3:::bedrock-data-${var.environment}/*"
+                  ]
+                },
+                {
+                  Sid    = "KMSDecrypt"
+                  Effect = "Allow"
+                  Action = [
+                    "kms:Decrypt",
+                    "kms:GenerateDataKey"
+                  ]
+                  Resource = "${aws_kms_key.bedrock_cmk.arn}"
+                  Condition = {
+                    StringEquals = {
+                      "kms:ViaService" = "bedrock.${var.region}.amazonaws.com"
+                    }
+                  }
+                }
+              ]
+            })
+          }
+
+      - step: 3
+        description: "Test new policy in non-production"
+        validation: "Verify agent functionality with restrictive policy"
+
+      - step: 4
+        description: "Apply new policy to production role"
+        change_management: "Submit change request with rollback plan"
+
+      - step: 5
+        description: "Remove overly permissive policy"
+        cli_command: |
+          aws iam detach-role-policy \
+            --role-name ${ROLE_NAME} \
+            --policy-arn arn:aws:iam::aws:policy/PowerUserAccess
+
+    verification:
+      - "Run AWS Config rule: bedrock-iam-least-privilege"
+      - "Use IAM Access Analyzer to verify no unused permissions"
+      - "Test all agent action groups with new policy"
+
+    prevention:
+      - "Implement IAM policy linting in CI/CD (cfn-lint, checkov)"
+      - "Require IAM policy peer review before merge"
+      - "Use IAM Access Analyzer policy generation for new roles"
+
+  logging_findings:
+
+    finding_id: "LOG-001"
+    finding: "Bedrock Model Invocation Logging Not Enabled"
+    severity: "High"
+    compliance_impact: ["SOC2", "HIPAA", "GDPR"]
+
+    immediate_actions:
+      - action: "Assess gap period (when was logging disabled?)"
+        method: "Check CloudTrail for PutModelInvocationLoggingConfiguration API calls"
+      - action: "If recent, review if sensitive data was processed without logging"
+
+    remediation_steps:
+      - step: 1
+        description: "Create CloudWatch log group with encryption"
+        terraform_code: |
+          resource "aws_cloudwatch_log_group" "bedrock_invocation_logs" {
+            name              = "/aws/bedrock/modelinvocations"
+            retention_in_days = 2557  # 7 years
+            kms_key_id        = aws_kms_key.cloudwatch_cmk.arn
+          }
+
+      - step: 2
+        description: "Create IAM role for Bedrock logging"
+        terraform_code: |
+          resource "aws_iam_role" "bedrock_logging" {
+            name = "BedrockModelInvocationLogging"
+
+            assume_role_policy = jsonencode({
+              Version = "2012-10-17"
+              Statement = [{
+                Effect = "Allow"
+                Principal = {
+                  Service = "bedrock.amazonaws.com"
+                }
+                Action = "sts:AssumeRole"
+              }]
+            })
+          }
+
+          resource "aws_iam_role_policy" "bedrock_logging" {
+            name = "BedrockLoggingPolicy"
+            role = aws_iam_role.bedrock_logging.id
+
+            policy = jsonencode({
+              Version = "2012-10-17"
+              Statement = [
+                {
+                  Effect = "Allow"
+                  Action = [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ]
+                  Resource = "${aws_cloudwatch_log_group.bedrock_invocation_logs.arn}:*"
+                }
+              ]
+            })
+          }
+
+      - step: 3
+        description: "Enable model invocation logging"
+        cli_command: |
+          aws bedrock put-model-invocation-logging-configuration \
+            --logging-config '{
+              "cloudWatchConfig": {
+                "logGroupName": "/aws/bedrock/modelinvocations",
+                "roleArn": "arn:aws:iam::${ACCOUNT_ID}:role/BedrockModelInvocationLogging",
+                "largeDataDeliveryS3Config": {
+                  "bucketName": "bedrock-large-logs-${ACCOUNT_ID}",
+                  "keyPrefix": "invocation-logs/"
+                }
+              },
+              "s3Config": {
+                "bucketName": "bedrock-logs-${ACCOUNT_ID}",
+                "keyPrefix": "model-invocations/"
+              },
+              "textDataDeliveryEnabled": true,
+              "imageDataDeliveryEnabled": true,
+              "embeddingDataDeliveryEnabled": true
+            }'
+
+      - step: 4
+        description: "Verify logging working"
+        test: "Invoke test model and verify log appears"
+        cli_command: |
+          aws bedrock-runtime invoke-model \
+            --model-id anthropic.claude-v2 \
+            --body '{"prompt": "Test logging", "max_tokens_to_sample": 100}' \
+            output.txt
+
+          # Wait 2 minutes, then check logs
+          aws logs filter-log-events \
+            --log-group-name /aws/bedrock/modelinvocations \
+            --start-time $(date -u -d '5 minutes ago' +%s)000
+
+    verification:
+      - "Run AWS Config rule: bedrock-logging-enabled"
+      - "Verify log entries appearing in CloudWatch"
+      - "Verify log group encrypted with CMK"
+
+    prevention:
+      - "Add logging configuration to Terraform modules"
+      - "Implement AWS Config rule to detect disabled logging"
+      - "Include logging verification in deployment checklist"
+
+  backup_findings:
+
+    finding_id: "BCR-001"
+    finding: "Knowledge Base Data Source Not Backed Up"
+    severity: "Critical"
+    compliance_impact: ["SOC2", "HIPAA"]
+
+    immediate_actions:
+      - action: "Immediately initiate manual backup"
+        urgency: "Within 1 hour"
+
+    remediation_steps:
+      - step: 1
+        description: "Enable S3 versioning on data source bucket"
+        cli_command: |
+          aws s3api put-bucket-versioning \
+            --bucket bedrock-data-${ENVIRONMENT} \
+            --versioning-configuration Status=Enabled
+
+      - step: 2
+        description: "Create AWS Backup vault with lock"
+        terraform_code: |
+          resource "aws_backup_vault" "bedrock_vault" {
+            name        = "bedrock-backup-vault-${var.environment}"
+            kms_key_arn = aws_kms_key.backup_cmk.arn
+          }
+
+          resource "aws_backup_vault_lock_configuration" "bedrock_vault" {
+            backup_vault_name   = aws_backup_vault.bedrock_vault.name
+            min_retention_days  = 2557  # 7 years
+            max_retention_days  = 3650  # 10 years
+            changeable_for_days = 3
+          }
+
+      - step: 3
+        description: "Create backup plan with cross-region copy"
+        terraform_code: |
+          resource "aws_backup_plan" "bedrock" {
+            name = "bedrock-backup-plan-${var.environment}"
+
+            rule {
+              rule_name         = "daily_backup_7year_retention"
+              target_vault_name = aws_backup_vault.bedrock_vault.name
+              schedule          = "cron(0 5 ? * * *)"  # 5 AM UTC daily
+
+              lifecycle {
+                cold_storage_after = 90
+                delete_after       = 2557  # 7 years
+              }
+
+              copy_action {
+                destination_vault_arn = aws_backup_vault.bedrock_vault_dr.arn
+                lifecycle {
+                  cold_storage_after = 90
+                  delete_after       = 2557
+                }
+              }
+            }
+          }
+
+          resource "aws_backup_selection" "bedrock_kb_data" {
+            name         = "bedrock-kb-data-sources"
+            plan_id      = aws_backup_plan.bedrock.id
+            iam_role_arn = aws_iam_role.backup_role.arn
+
+            selection_tag {
+              type  = "STRINGEQUALS"
+              key   = "BackupRequired"
+              value = "true"
+            }
+
+            selection_tag {
+              type  = "STRINGEQUALS"
+              key   = "Application"
+              value = "Bedrock"
+            }
+          }
+
+      - step: 4
+        description: "Tag resources for backup inclusion"
+        cli_command: |
+          aws s3api put-bucket-tagging \
+            --bucket bedrock-data-${ENVIRONMENT} \
+            --tagging 'TagSet=[{Key=BackupRequired,Value=true},{Key=Application,Value=Bedrock}]'
+
+      - step: 5
+        description: "Verify first backup completes successfully"
+        validation: "Check backup job status after scheduled time"
+
+    verification:
+      - "Run AWS Config rule: bedrock-knowledge-base-backup"
+      - "Verify backup jobs running daily"
+      - "Perform quarterly restore test"
+
+    prevention:
+      - "Add backup configuration to all IaC templates"
+      - "Require 'BackupRequired' tag for RESTRICTED/CONFIDENTIAL resources"
+      - "Automate backup verification in CI/CD"
+
+  network_security_findings:
+
+    finding_id: "NET-001"
+    finding: "Bedrock Accessed Without VPC Endpoint (Internet-Routable)"
+    severity: "Critical"
+    compliance_impact: ["PCI-DSS", "HIPAA", "SOC2"]
+
+    immediate_actions:
+      - action: "Block internet-routable Bedrock API calls via SCP"
+        urgency: "Immediate"
+        cli_command: |
+          aws organizations create-policy \
+            --name "DenyBedrockWithoutVPCEndpoint" \
+            --type SERVICE_CONTROL_POLICY \
+            --content '{
+              "Version": "2012-10-17",
+              "Statement": [{
+                "Effect": "Deny",
+                "Action": "bedrock:*",
+                "Resource": "*",
+                "Condition": {
+                  "StringNotEquals": {
+                    "aws:SourceVpce": "${VPC_ENDPOINT_ID}"
+                  }
+                }
+              }]
+            }'
+
+    remediation_steps:
+      - step: 1
+        description: "Create VPC endpoints for Bedrock services"
+        terraform_code: |
+          resource "aws_vpc_endpoint" "bedrock_runtime" {
+            vpc_id              = var.vpc_id
+            service_name        = "com.amazonaws.${var.region}.bedrock-runtime"
+            vpc_endpoint_type   = "Interface"
+            subnet_ids          = var.private_subnet_ids
+            security_group_ids  = [aws_security_group.bedrock_vpce.id]
+            private_dns_enabled = true
+          }
+
+          resource "aws_vpc_endpoint" "bedrock_agent" {
+            vpc_id              = var.vpc_id
+            service_name        = "com.amazonaws.${var.region}.bedrock-agent"
+            vpc_endpoint_type   = "Interface"
+            subnet_ids          = var.private_subnet_ids
+            security_group_ids  = [aws_security_group.bedrock_vpce.id]
+            private_dns_enabled = true
+          }
+
+          resource "aws_vpc_endpoint" "bedrock_agent_runtime" {
+            vpc_id              = var.vpc_id
+            service_name        = "com.amazonaws.${var.region}.bedrock-agent-runtime"
+            vpc_endpoint_type   = "Interface"
+            subnet_ids          = var.private_subnet_ids
+            security_group_ids  = [aws_security_group.bedrock_vpce.id]
+            private_dns_enabled = true
+          }
+
+          resource "aws_security_group" "bedrock_vpce" {
+            name        = "bedrock-vpc-endpoint-sg"
+            description = "Security group for Bedrock VPC endpoints"
+            vpc_id      = var.vpc_id
+
+            ingress {
+              description = "HTTPS from VPC"
+              from_port   = 443
+              to_port     = 443
+              protocol    = "tcp"
+              cidr_blocks = [var.vpc_cidr]
+            }
+
+            egress {
+              from_port   = 0
+              to_port     = 0
+              protocol    = "-1"
+              cidr_blocks = ["0.0.0.0/0"]
+            }
+          }
+
+      - step: 2
+        description: "Update application code to use VPC endpoint DNS"
+        note: "If private DNS enabled, no code changes needed"
+        alternative: "Use VPC endpoint URL explicitly"
+
+      - step: 3
+        description: "Deploy Lambda functions in VPC (if applicable)"
+        terraform_code: |
+          resource "aws_lambda_function" "bedrock_agent_action" {
+            # ... other config ...
+
+            vpc_config {
+              subnet_ids         = var.private_subnet_ids
+              security_group_ids = [aws_security_group.lambda_sg.id]
+            }
+          }
+
+      - step: 4
+        description: "Verify all Bedrock calls route through VPC endpoint"
+        cli_command: |
+          aws ec2 describe-vpc-endpoint-connections \
+            --filters Name=service-id,Values=${SERVICE_ID}
+
+          # Check CloudTrail for sourceVpce field
+          aws cloudtrail lookup-events \
+            --lookup-attributes AttributeKey=EventName,AttributeValue=InvokeModel \
+            --max-results 50 \
+            | jq '.Events[].CloudTrailEvent | fromjson | .sourceVPCEndpointId'
+
+    verification:
+      - "Run AWS Config rule: bedrock-network-isolation"
+      - "Verify VPC endpoint state: available"
+      - "Test Bedrock invocation from VPC"
+      - "Verify CloudTrail logs show sourceVpce"
+
+    prevention:
+      - "Enforce VPC endpoint usage via SCP"
+      - "Deploy all Bedrock resources in VPC from start"
+      - "Add VPC endpoint to reference architecture"
+
+# Escalation Matrix
+escalation:
+
+  level_1:
+    title: "Resource Owner"
+    findings: ["Low severity"]
+    response_time: "72 hours"
+    remediation_authority: "Can remediate independently"
+
+  level_2:
+    title: "Security Team Lead"
+    findings: ["Medium severity", "Overdue low severity"]
+    response_time: "24 hours"
+    remediation_authority: "Coordinate with resource owner"
+
+  level_3:
+    title: "CISO"
+    findings: ["High severity", "Overdue medium severity"]
+    response_time: "4 hours"
+    remediation_authority: "Approve expedited change requests"
+
+  level_4:
+    title: "Executive Leadership (CEO, Legal)"
+    findings: ["Critical severity", "Data breach", "Regulatory violation"]
+    response_time: "Immediate"
+    remediation_authority: "Emergency authority for all changes"
+
+# Continuous Improvement
+continuous_improvement:
+
+  lessons_learned_meetings:
+    frequency: "After every critical/high finding remediation"
+    attendees: ["Security Team", "DevOps", "Resource Owner", "CISO (critical only)"]
+    agenda:
+      - "Root cause analysis review"
+      - "Remediation effectiveness assessment"
+      - "Process improvements identified"
+      - "Preventive measures defined"
+
+  remediation_metrics:
+    tracked_kpis:
+      - "Mean Time to Detect (MTTD)"
+      - "Mean Time to Respond (MTTR)"
+      - "Mean Time to Remediate (MTTRem)"
+      - "Remediation SLA compliance rate"
+      - "Repeat findings rate"
+    review_frequency: "Monthly"
+    goal: "Continuous reduction in MTTD, MTTR, MTTRem"
+
+  automation_opportunities:
+    - "Auto-remediation for low-risk findings (e.g., tagging)"
+    - "Self-service remediation runbooks"
+    - "Terraform drift auto-correction"
+    - "Automated rollback on failed remediation"

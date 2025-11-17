@@ -1,0 +1,218 @@
+{
+  "Comment": "Notify stakeholders of incident status",
+  "StartAt": "DetermineIncidentSeverity",
+  "States": {
+    "DetermineIncidentSeverity": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-determine-severity",
+      "Parameters": {
+        "incidentType.$": "$.incidentType",
+        "affectedSystems.$": "$.affectedSystems"
+      },
+      "Next": "IdentifyStakeholders",
+      "ResultPath": "$.severityInfo"
+    },
+    "IdentifyStakeholders": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-identify-stakeholders",
+      "Parameters": {
+        "severity.$": "$.severityInfo.level",
+        "incidentType.$": "$.incidentType"
+      },
+      "Next": "PrepareNotifications",
+      "ResultPath": "$.stakeholders"
+    },
+    "PrepareNotifications": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-prepare-notifications",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "severity.$": "$.severityInfo.level",
+        "description.$": "$.description",
+        "status.$": "$.status"
+      },
+      "Next": "NotifyInParallel",
+      "ResultPath": "$.notifications"
+    },
+    "NotifyInParallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "NotifySecurityTeam",
+          "States": {
+            "NotifySecurityTeam": {
+              "Type": "Task",
+              "Resource": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:security-team-topic",
+              "Parameters": {
+                "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:security-team-topic",
+                "Subject.$": "States.Format('Incident {}: {}', $.incidentId, $.description)",
+                "Message.$": "States.JsonToString($.notifications.security)"
+              },
+              "Next": "LogSecurityNotification"
+            },
+            "LogSecurityNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-notification",
+              "Parameters": {
+                "recipientGroup": "SECURITY_TEAM",
+                "incidentId.$": "$.incidentId"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "NotifyIncidentCommander",
+          "States": {
+            "NotifyIncidentCommander": {
+              "Type": "Task",
+              "Resource": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:incident-commander-topic",
+              "Parameters": {
+                "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:incident-commander-topic",
+                "Subject.$": "States.Format('INCIDENT: {} - {}', $.severityInfo.level, $.description)",
+                "Message.$": "States.JsonToString($.notifications.commander)"
+              },
+              "Next": "LogCommanderNotification"
+            },
+            "LogCommanderNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-notification",
+              "Parameters": {
+                "recipientGroup": "INCIDENT_COMMANDER",
+                "incidentId.$": "$.incidentId"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "NotifyEngineeringLeads",
+          "States": {
+            "NotifyEngineeringLeads": {
+              "Type": "Task",
+              "Resource": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:engineering-leads-topic",
+              "Parameters": {
+                "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:engineering-leads-topic",
+                "Subject.$": "States.Format('Service Impact: {}', $.description)",
+                "Message.$": "States.JsonToString($.notifications.engineering)"
+              },
+              "Next": "LogEngineeringNotification"
+            },
+            "LogEngineeringNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-notification",
+              "Parameters": {
+                "recipientGroup": "ENGINEERING_LEADS",
+                "incidentId.$": "$.incidentId"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CheckCustomerImpact",
+          "States": {
+            "CheckCustomerImpact": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.affectedSystems.customerImpact",
+                  "BooleanEquals": true,
+                  "Next": "NotifyCustomers"
+                }
+              ],
+              "Default": "SkipCustomerNotification"
+            },
+            "NotifyCustomers": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-notify-customers",
+              "Parameters": {
+                "incidentId.$": "$.incidentId",
+                "affectedCustomers.$": "$.affectedSystems.customers",
+                "notification.$": "$.notifications.customer"
+              },
+              "Next": "LogCustomerNotification"
+            },
+            "LogCustomerNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-notification",
+              "Parameters": {
+                "recipientGroup": "CUSTOMERS",
+                "incidentId.$": "$.incidentId"
+              },
+              "End": true
+            },
+            "SkipCustomerNotification": {
+              "Type": "Pass",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CheckRegulatoryRequirement",
+          "States": {
+            "CheckRegulatoryRequirement": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.affectedSystems.regulatoryImpact",
+                  "BooleanEquals": true,
+                  "Next": "NotifyRegulators"
+                }
+              ],
+              "Default": "SkipRegulatoryNotification"
+            },
+            "NotifyRegulators": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-notify-regulators",
+              "Parameters": {
+                "incidentId.$": "$.incidentId",
+                "regulators.$": "$.affectedSystems.regulators"
+              },
+              "Next": "LogRegulatoryNotification"
+            },
+            "LogRegulatoryNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-notification",
+              "Parameters": {
+                "recipientGroup": "REGULATORS",
+                "incidentId.$": "$.incidentId"
+              },
+              "End": true
+            },
+            "SkipRegulatoryNotification": {
+              "Type": "Pass",
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "CreateIncidentTicket"
+    },
+    "CreateIncidentTicket": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-create-ticket",
+      "Parameters": {
+        "incidentId.$": "$.incidentId",
+        "severity.$": "$.severityInfo.level",
+        "description.$": "$.description",
+        "affectedSystems.$": "$.affectedSystems"
+      },
+      "Next": "LogNotificationCompletion"
+    },
+    "LogNotificationCompletion": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-event",
+      "Parameters": {
+        "eventType": "STAKEHOLDERS_NOTIFIED",
+        "incidentId.$": "$.incidentId",
+        "timestamp.$": "$$.State.EnteredTime",
+        "details.$": "$"
+      },
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}
