@@ -29,7 +29,7 @@ export async function getSecret(secretName: string): Promise<string> {
     logger.info({ secretName }, 'Secret retrieved successfully');
     return payload;
   } catch (error) {
-    logger.error({ secretName, error }, 'Failed to retrieve secret');
+    logger.error({}, 'Failed to retrieve secret');
     throw error;
   }
 }
