@@ -1,0 +1,260 @@
+{
+  "Comment": "Enable forensics mode for incident investigation",
+  "StartAt": "ValidateTarget",
+  "States": {
+    "ValidateTarget": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-validate-forensics-target",
+      "Parameters": {
+        "targetType.$": "$.targetType",
+        "targetId.$": "$.targetId"
+      },
+      "Next": "PreserveMutability",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "PreserveMutability": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-preserve-mutability",
+      "Parameters": {
+        "targetType.$": "$.targetType",
+        "targetId.$": "$.targetId"
+      },
+      "Next": "EnableAuditLogging",
+      "ResultPath": "$.mutabilityResult"
+    },
+    "EnableAuditLogging": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "EnableCloudTrail",
+          "States": {
+            "EnableCloudTrail": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-enable-cloudtrail",
+              "Parameters": {
+                "targetId.$": "$.targetId",
+                "forensicsMode": true
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "EnableVPCFlowLogs",
+          "States": {
+            "EnableVPCFlowLogs": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-enable-vpc-flow-logs",
+              "Parameters": {
+                "targetId.$": "$.targetId",
+                "trafficType": "ALL"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "EnableCloudWatchLogs",
+          "States": {
+            "EnableCloudWatchLogs": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-enable-cloudwatch-logs",
+              "Parameters": {
+                "targetId.$": "$.targetId",
+                "logRetention": 90
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "CaptureSystemState"
+    },
+    "CaptureSystemState": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "CaptureProcessList",
+          "States": {
+            "CaptureProcessList": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-capture-processes",
+              "Parameters": {
+                "targetId.$": "$.targetId",
+                "targetType.$": "$.targetType"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CaptureNetworkState",
+          "States": {
+            "CaptureNetworkState": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-capture-network",
+              "Parameters": {
+                "targetId.$": "$.targetId"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CaptureFileSystem",
+          "States": {
+            "CaptureFileSystem": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-capture-filesystem",
+              "Parameters": {
+                "targetId.$": "$.targetId",
+                "targetType.$": "$.targetType"
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "CaptureMemory"
+    },
+    "CaptureMemory": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-capture-memory",
+      "Parameters": {
+        "targetId.$": "$.targetId",
+        "targetType.$": "$.targetType"
+      },
+      "Next": "CreateForensicsSnapshot",
+      "ResultPath": "$.memoryCapture",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "CreateForensicsSnapshot": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-create-forensics-snapshot",
+      "Parameters": {
+        "targetId.$": "$.targetId",
+        "targetType.$": "$.targetType"
+      },
+      "Next": "LockResourceChanges",
+      "ResultPath": "$.snapshotInfo"
+    },
+    "LockResourceChanges": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-lock-resource",
+      "Parameters": {
+        "targetId.$": "$.targetId",
+        "reason": "FORENSICS_INVESTIGATION"
+      },
+      "Next": "ConfigureForensicsTools"
+    },
+    "ConfigureForensicsTools": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "EnableDetailedMonitoring",
+          "States": {
+            "EnableDetailedMonitoring": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-enable-monitoring",
+              "Parameters": {
+                "targetId.$": "$.targetId",
+                "detailLevel": "DETAILED"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "EnablePacketCapture",
+          "States": {
+            "EnablePacketCapture": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-enable-packet-capture",
+              "Parameters": {
+                "targetId.$": "$.targetId"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SetupForensicsStorage",
+          "States": {
+            "SetupForensicsStorage": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-setup-forensics-storage",
+              "Parameters": {
+                "targetId.$": "$.targetId"
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "LogForensicsMode"
+    },
+    "LogForensicsMode": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-event",
+      "Parameters": {
+        "eventType": "FORENSICS_MODE_ENABLED",
+        "targetId.$": "$.targetId",
+        "targetType.$": "$.targetType",
+        "timestamp.$": "$$.State.EnteredTime",
+        "details.$": "$"
+      },
+      "Next": "NotifyForensicsTeam"
+    },
+    "NotifyForensicsTeam": {
+      "Type": "Task",
+      "Resource": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:forensics-team-topic",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:forensics-team-topic",
+        "Subject": "Forensics Mode Enabled",
+        "Message.$": "States.JsonToString($)"
+      },
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

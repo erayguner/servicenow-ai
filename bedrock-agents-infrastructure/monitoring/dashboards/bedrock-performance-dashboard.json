@@ -1,0 +1,353 @@
+{
+  "DashboardName": "BedrockPerformanceDashboard",
+  "DashboardBody": {
+    "widgets": [
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Lambda",
+              "Duration",
+              {
+                "stat": "Average",
+                "label": "Avg Execution Time",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ],
+            [
+              "...",
+              {
+                "stat": "p99",
+                "label": "P99 Execution Time",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ],
+            [
+              "...",
+              {
+                "stat": "Maximum",
+                "label": "Max Execution Time",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Lambda Execution Time Distribution"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Lambda",
+              "ConcurrentExecutions",
+              {
+                "stat": "Maximum",
+                "label": "Peak Concurrent Executions",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ],
+            [
+              ".",
+              "Throttles",
+              {
+                "stat": "Sum",
+                "label": "Throttling Events",
+                "dimensions": {
+                  "FunctionName": "BedrockAgentOrchestrator"
+                }
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Lambda Concurrency & Throttling"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 6,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/States",
+              "ExecutionTime",
+              {
+                "stat": "Average",
+                "label": "Avg Step Function Duration"
+              }
+            ],
+            [
+              ".",
+              "ExecutionTime",
+              {
+                "stat": "p99",
+                "label": "P99 Duration"
+              }
+            ],
+            [
+              ".",
+              "ExecutionTime",
+              {
+                "stat": "Maximum",
+                "label": "Max Duration"
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Step Functions Execution Duration"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 6,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/APIGateway",
+              "Latency",
+              {
+                "stat": "Average",
+                "label": "Avg Latency",
+                "dimensions": {
+                  "ApiName": "BedrockAgentAPI"
+                }
+              }
+            ],
+            [
+              ".",
+              "Latency",
+              {
+                "stat": "p99",
+                "label": "P99 Latency",
+                "dimensions": {
+                  "ApiName": "BedrockAgentAPI"
+                }
+              }
+            ],
+            [
+              ".",
+              "Latency",
+              {
+                "stat": "Maximum",
+                "label": "Max Latency",
+                "dimensions": {
+                  "ApiName": "BedrockAgentAPI"
+                }
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "API Gateway Latency"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 12,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/DynamoDB",
+              "ConsumedWriteCapacityUnits",
+              {
+                "stat": "Sum",
+                "label": "Write Capacity Used",
+                "dimensions": {
+                  "TableName": "BedrockAgentState"
+                }
+              }
+            ],
+            [
+              ".",
+              "ConsumedReadCapacityUnits",
+              {
+                "stat": "Sum",
+                "label": "Read Capacity Used",
+                "dimensions": {
+                  "TableName": "BedrockAgentState"
+                }
+              }
+            ],
+            [
+              ".",
+              "UserErrors",
+              {
+                "stat": "Sum",
+                "label": "User Errors",
+                "dimensions": {
+                  "TableName": "BedrockAgentState"
+                }
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "DynamoDB Capacity & Errors"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 12,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/DynamoDB",
+              "ReadThrottleEvents",
+              {
+                "stat": "Sum",
+                "label": "Read Throttle Events",
+                "dimensions": {
+                  "TableName": "BedrockAgentState"
+                }
+              }
+            ],
+            [
+              ".",
+              "WriteThrottleEvents",
+              {
+                "stat": "Sum",
+                "label": "Write Throttle Events",
+                "dimensions": {
+                  "TableName": "BedrockAgentState"
+                }
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "DynamoDB Throttling Events"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 18,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/OpenSearch",
+              "IndexingRate",
+              {
+                "stat": "Average",
+                "label": "Indexing Rate (docs/sec)"
+              }
+            ],
+            [
+              ".",
+              "SearchRate",
+              {
+                "stat": "Average",
+                "label": "Search Rate (queries/sec)"
+              }
+            ],
+            [
+              ".",
+              "SearchLatency",
+              {
+                "stat": "Average",
+                "label": "Avg Search Latency (ms)"
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "OpenSearch Query Performance"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 18,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/OpenSearch",
+              "JVMMemoryPressure",
+              {
+                "stat": "Average",
+                "label": "JVM Memory Pressure %"
+              }
+            ],
+            [
+              ".",
+              "CPUUtilization",
+              {
+                "stat": "Average",
+                "label": "CPU Utilization %"
+              }
+            ],
+            [
+              ".",
+              "IndexingLatency",
+              {
+                "stat": "Average",
+                "label": "Indexing Latency (ms)"
+              }
+            ]
+          ],
+          "period": 60,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "OpenSearch Resource Utilization"
+        }
+      },
+      {
+        "type": "log",
+        "x": 0,
+        "y": 24,
+        "width": 24,
+        "height": 6,
+        "properties": {
+          "query": "fields @duration, @memoryUsed, @maxMemoryUsed, @billedDuration\n| stats avg(@duration) as avg_duration, max(@duration) as max_duration, avg(@memoryUsed) as avg_memory by bin(5m)",
+          "region": "us-east-1",
+          "title": "Lambda Performance Metrics Over Time",
+          "queryId": "lambda-performance-metrics"
+        }
+      }
+    ]
+  }
+}

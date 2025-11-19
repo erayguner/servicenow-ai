@@ -1,0 +1,565 @@
+{
+  "Comment": "ServiceNow Change Approval Workflow - Risk assessment, approval routing, and implementation tracking",
+  "StartAt": "ReceiveChangeRequest",
+  "States": {
+    "ReceiveChangeRequest": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Parameters": {
+        "TableName": "servicenow-changes",
+        "Item": {
+          "ChangeId": {
+            "S.$": "$.change.sys_id"
+          },
+          "Status": {
+            "S": "RECEIVED"
+          },
+          "Type": {
+            "S.$": "$.change.type"
+          },
+          "Priority": {
+            "S.$": "$.change.priority"
+          },
+          "CreatedAt": {
+            "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+          },
+          "PlannedStartDate": {
+            "S.$": "$.change.planned_start_date"
+          },
+          "PlannedEndDate": {
+            "S.$": "$.change.planned_end_date"
+          }
+        }
+      },
+      "ResultPath": "$.dbInsertResult",
+      "Next": "PerformRiskAssessment",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleReceiveError"
+        }
+      ]
+    },
+    "PerformRiskAssessment": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.riskAssessmentAgentId",
+        "AgentAliasId.$": "$.riskAssessmentAgentAliasId",
+        "SessionId.$": "$.change.sys_id",
+        "InputText": {
+          "Fn::Format": [
+            "Perform risk assessment for change request: Type={}, Priority={}, Description={}, AffectedServices={}, PlannedStart={}, PlannedEnd={}. Analyze potential risks, business impact, required approvals, and mitigation strategies.",
+            "$.change.type",
+            "$.change.priority",
+            "$.change.description",
+            "$.change.affected_services",
+            "$.change.planned_start_date",
+            "$.change.planned_end_date"
+          ]
+        }
+      },
+      "ResultPath": "$.riskAssessment",
+      "Next": "DetermineDynamicApprovalPath",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskStateAbortedAsStateInputNotSerializable"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleAssessmentError"
+        }
+      ]
+    },
+    "DetermineDynamicApprovalPath": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.riskAssessment.riskLevel",
+              "StringEquals": "CRITICAL"
+            },
+            {
+              "Variable": "$.change.priority",
+              "StringEquals": "1"
+            }
+          ],
+          "Next": "CriticalChangeApprovalPath"
+        },
+        {
+          "Variable": "$.riskAssessment.riskLevel",
+          "StringEquals": "HIGH",
+          "Next": "HighRiskApprovalPath"
+        },
+        {
+          "Variable": "$.riskAssessment.riskLevel",
+          "StringEquals": "MEDIUM",
+          "Next": "StandardApprovalPath"
+        }
+      ],
+      "Default": "LowRiskChangeApprovalPath"
+    },
+    "CriticalChangeApprovalPath": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "NotifyExecutiveSponsors",
+          "States": {
+            "NotifyExecutiveSponsors": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.executiveApprovalTopic",
+                "Subject": "CRITICAL: Change Approval Required - Executive Level",
+                "Message": {
+                  "Fn::Format": [
+                    "CRITICAL CHANGE REQUEST\n\nChange ID: {}\nType: {}\nPriority: P{}\nDescription: {}\n\nRisk Assessment: {}\n\nThis requires executive-level approval. Please review and approve.",
+                    "$.change.sys_id",
+                    "$.change.type",
+                    "$.change.priority",
+                    "$.change.description",
+                    "$.riskAssessment.output"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "WaitForExecutiveApproval",
+          "States": {
+            "WaitForExecutiveApproval": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
+              "Parameters": {
+                "QueueUrl.$": "$.approvalQueueUrl",
+                "MessageBody": {
+                  "changeId.$": "$.change.sys_id",
+                  "approvalLevel": "executive",
+                  "taskToken.$": "$$.Task.Token",
+                  "deadline": "2024-01-05T00:00:00Z"
+                }
+              },
+              "ResultPath": "$.executiveApproval",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "UpdateCriticalStatus",
+          "States": {
+            "UpdateCriticalStatus": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:updateItem",
+              "Parameters": {
+                "TableName": "servicenow-changes",
+                "Key": {
+                  "ChangeId": {
+                    "S.$": "$.change.sys_id"
+                  }
+                },
+                "AttributeUpdates": {
+                  "Status": {
+                    "Action": "PUT",
+                    "Value": {
+                      "S": "PENDING_EXECUTIVE_APPROVAL"
+                    }
+                  },
+                  "RiskLevel": {
+                    "Action": "PUT",
+                    "Value": {
+                      "S.$": "$.riskAssessment.riskLevel"
+                    }
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "ValidateExecutiveApproval"
+    },
+    "HighRiskApprovalPath": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "NotifyChangeAdvisoryBoard",
+          "States": {
+            "NotifyChangeAdvisoryBoard": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.cabApprovalTopic",
+                "Subject": "High-Risk Change Approval Required",
+                "Message": {
+                  "Fn::Format": [
+                    "High-Risk Change Request\n\nChange ID: {}\nType: {}\nDescription: {}\n\nRisk Analysis: {}\n\nPlease route through Change Advisory Board for approval.",
+                    "$.change.sys_id",
+                    "$.change.type",
+                    "$.change.description",
+                    "$.riskAssessment.output"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "WaitForCABApproval",
+          "States": {
+            "WaitForCABApproval": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
+              "Parameters": {
+                "QueueUrl.$": "$.approvalQueueUrl",
+                "MessageBody": {
+                  "changeId.$": "$.change.sys_id",
+                  "approvalLevel": "cab",
+                  "taskToken.$": "$$.Task.Token",
+                  "deadline": "2024-01-04T00:00:00Z"
+                }
+              },
+              "ResultPath": "$.cabApproval",
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "ValidateCABApproval"
+    },
+    "StandardApprovalPath": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
+      "Parameters": {
+        "QueueUrl.$": "$.approvalQueueUrl",
+        "MessageBody": {
+          "changeId.$": "$.change.sys_id",
+          "approvalLevel": "standard",
+          "taskToken.$": "$$.Task.Token",
+          "deadline": "2024-01-03T00:00:00Z",
+          "approvers.$": "$.riskAssessment.requiredApprovers"
+        }
+      },
+      "ResultPath": "$.standardApproval",
+      "Next": "ValidateStandardApproval"
+    },
+    "LowRiskChangeApprovalPath": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-auto-approve-change",
+        "Payload": {
+          "changeId.$": "$.change.sys_id",
+          "riskLevel": "LOW",
+          "autoApprover": "system"
+        }
+      },
+      "ResultPath": "$.autoApproval",
+      "Next": "ScheduleImplementation"
+    },
+    "ValidateExecutiveApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.executiveApproval.status",
+          "StringEquals": "approved",
+          "Next": "ScheduleImplementation"
+        }
+      ],
+      "Default": "ExecutiveApprovalDenied"
+    },
+    "ValidateCABApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.cabApproval.status",
+          "StringEquals": "approved",
+          "Next": "ScheduleImplementation"
+        }
+      ],
+      "Default": "CABApprovalDenied"
+    },
+    "ValidateStandardApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.standardApproval.status",
+          "StringEquals": "approved",
+          "Next": "ScheduleImplementation"
+        }
+      ],
+      "Default": "StandardApprovalDenied"
+    },
+    "ScheduleImplementation": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "CreateImplementationTicket",
+          "States": {
+            "CreateImplementationTicket": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "servicenow-create-implementation-ticket",
+                "Payload": {
+                  "changeId.$": "$.change.sys_id",
+                  "type.$": "$.change.type",
+                  "description.$": "$.change.description",
+                  "plannedStart.$": "$.change.planned_start_date",
+                  "plannedEnd.$": "$.change.planned_end_date",
+                  "assignmentGroup.$": "$.riskAssessment.implementationTeam"
+                }
+              },
+              "ResultPath": "$.implementationTicket",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "NotifyImplementationTeam",
+          "States": {
+            "NotifyImplementationTeam": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.implementationTeamTopic",
+                "Subject": "Approved Change Ready for Implementation",
+                "Message": {
+                  "Fn::Format": [
+                    "Change {} has been approved.\n\nType: {}\nPlanned Start: {}\nPlanned End: {}\n\nImplementation team assigned. Please begin implementation on schedule.",
+                    "$.change.sys_id",
+                    "$.change.type",
+                    "$.change.planned_start_date",
+                    "$.change.planned_end_date"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "UpdateApprovedStatus",
+          "States": {
+            "UpdateApprovedStatus": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:updateItem",
+              "Parameters": {
+                "TableName": "servicenow-changes",
+                "Key": {
+                  "ChangeId": {
+                    "S.$": "$.change.sys_id"
+                  }
+                },
+                "AttributeUpdates": {
+                  "Status": {
+                    "Action": "PUT",
+                    "Value": {
+                      "S": "APPROVED"
+                    }
+                  },
+                  "ApprovedAt": {
+                    "Action": "PUT",
+                    "Value": {
+                      "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+                    }
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "MonitorImplementation"
+    },
+    "MonitorImplementation": {
+      "Type": "Wait",
+      "SecondsPath": "$.implementationCheckInterval",
+      "Next": "CheckImplementationStatus"
+    },
+    "CheckImplementationStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-check-change-status",
+        "Payload": {
+          "changeId.$": "$.change.sys_id"
+        }
+      },
+      "ResultPath": "$.statusCheck",
+      "Next": "IsImplementationComplete"
+    },
+    "IsImplementationComplete": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.statusCheck.Payload.status",
+          "StringEquals": "implemented",
+          "Next": "UpdateCompleteStatus"
+        },
+        {
+          "Variable": "$.statusCheck.Payload.status",
+          "StringEquals": "closed",
+          "Next": "UpdateCompleteStatus"
+        }
+      ],
+      "Default": "ContinueMonitoring"
+    },
+    "ContinueMonitoring": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.statusCheck.Payload.hoursSinceApproval",
+          "NumericLessThan": 72,
+          "Next": "MonitorImplementation"
+        }
+      ],
+      "Default": "ImplementationTimeout"
+    },
+    "UpdateCompleteStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "servicenow-changes",
+        "Key": {
+          "ChangeId": {
+            "S.$": "$.change.sys_id"
+          }
+        },
+        "AttributeUpdates": {
+          "Status": {
+            "Action": "PUT",
+            "Value": {
+              "S": "CLOSED"
+            }
+          },
+          "CompletedAt": {
+            "Action": "PUT",
+            "Value": {
+              "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+            }
+          }
+        }
+      },
+      "Next": "NotifyCompletion"
+    },
+    "NotifyCompletion": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopic",
+        "Subject": "Change Implementation Complete",
+        "Message": {
+          "Fn::Format": [
+            "Change {} has been successfully implemented and closed.",
+            "$.change.sys_id"
+          ]
+        }
+      },
+      "Next": "Success"
+    },
+    "ExecutiveApprovalDenied": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-reject-change",
+        "Payload": {
+          "changeId.$": "$.change.sys_id",
+          "reason": "Executive approval denied"
+        }
+      },
+      "Next": "ApprovalDeniedFail"
+    },
+    "CABApprovalDenied": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-reject-change",
+        "Payload": {
+          "changeId.$": "$.change.sys_id",
+          "reason": "CAB approval denied"
+        }
+      },
+      "Next": "ApprovalDeniedFail"
+    },
+    "StandardApprovalDenied": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-reject-change",
+        "Payload": {
+          "changeId.$": "$.change.sys_id",
+          "reason": "Standard approval denied"
+        }
+      },
+      "Next": "ApprovalDeniedFail"
+    },
+    "ImplementationTimeout": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-escalate-change",
+        "Payload": {
+          "changeId.$": "$.change.sys_id",
+          "reason": "Implementation monitoring timeout after 72 hours"
+        }
+      },
+      "Next": "TimeoutFail"
+    },
+    "HandleReceiveError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Change Approval Workflow - Receive Error",
+        "Message.$": "$.error"
+      },
+      "Next": "ReceiveErrorFail"
+    },
+    "ReceiveErrorFail": {
+      "Type": "Fail",
+      "Error": "ChangeReceiveError",
+      "Cause": "Failed to receive and store change request"
+    },
+    "HandleAssessmentError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Change Approval Workflow - Risk Assessment Error",
+        "Message.$": "$.error"
+      },
+      "Next": "AssessmentErrorFail"
+    },
+    "AssessmentErrorFail": {
+      "Type": "Fail",
+      "Error": "RiskAssessmentError",
+      "Cause": "Failed to perform risk assessment"
+    },
+    "ApprovalDeniedFail": {
+      "Type": "Fail",
+      "Error": "ApprovalDenied",
+      "Cause": "Change approval was denied by approvers"
+    },
+    "TimeoutFail": {
+      "Type": "Fail",
+      "Error": "ImplementationTimeout",
+      "Cause": "Change implementation did not complete within expected timeframe"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

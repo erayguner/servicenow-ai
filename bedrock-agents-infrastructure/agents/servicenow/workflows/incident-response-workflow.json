@@ -1,0 +1,459 @@
+{
+  "Comment": "ServiceNow Incident Response Workflow - Automated incident handling with severity analysis and escalation",
+  "StartAt": "ReceiveIncidentWebhook",
+  "States": {
+    "ReceiveIncidentWebhook": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "servicenow-incidents",
+        "Key": {
+          "IncidentId": {
+            "S.$": "$.incident.sys_id"
+          }
+        },
+        "AttributeUpdates": {
+          "Status": {
+            "Action": "PUT",
+            "Value": {
+              "S": "RECEIVED"
+            }
+          },
+          "ReceivedAt": {
+            "Action": "PUT",
+            "Value": {
+              "N.$": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+            }
+          }
+        }
+      },
+      "ResultPath": "$.dbUpdateResult",
+      "Next": "InvokeIncidentManagerAgent",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleWebhookError"
+        }
+      ]
+    },
+    "InvokeIncidentManagerAgent": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.incidentManagerAgentId",
+        "AgentAliasId.$": "$.incidentManagerAgentAliasId",
+        "SessionId.$": "$.incident.sys_id",
+        "InputText": {
+          "Fn::Format": [
+            "Analyze incident: Title={}, Description={}, Caller={}, Impact={}, Urgency={}. Provide severity classification and initial analysis.",
+            "$.incident.short_description",
+            "$.incident.description",
+            "$.incident.caller_id.display_value",
+            "$.incident.impact",
+            "$.incident.urgency"
+          ]
+        }
+      },
+      "ResultPath": "$.incidentAnalysis",
+      "Next": "AnalyzeSeverity",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskStateAbortedAsStateInputNotSerializable"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleAgentError"
+        }
+      ]
+    },
+    "AnalyzeSeverity": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.incident.impact",
+          "StringEquals": "1",
+          "Next": "CriticalIncidentPath"
+        },
+        {
+          "Variable": "$.incident.impact",
+          "StringEquals": "2",
+          "Next": "HighIncidentPath"
+        }
+      ],
+      "Default": "MediumLowIncidentPath"
+    },
+    "CriticalIncidentPath": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "ImmediateEscalation",
+          "States": {
+            "ImmediateEscalation": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "servicenow-escalate-incident",
+                "Payload": {
+                  "incidentId.$": "$.incident.sys_id",
+                  "escalationLevel": "CRITICAL",
+                  "assignmentGroup": "Critical_Support_Team",
+                  "priority": "P1"
+                }
+              },
+              "ResultPath": "$.escalationResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "NotifyCriticalStakeholders",
+          "States": {
+            "NotifyCriticalStakeholders": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.criticalAlertTopic",
+                "Subject": "CRITICAL: ServiceNow Incident Detected",
+                "Message": {
+                  "Fn::Format": [
+                    "CRITICAL INCIDENT ALERT\n\nIncident ID: {}\nTitle: {}\nCaller: {}\nDescription: {}\nImmediate escalation initiated.\n\nAnalysis: {}",
+                    "$.incident.sys_id",
+                    "$.incident.short_description",
+                    "$.incident.caller_id.display_value",
+                    "$.incident.description",
+                    "$.incidentAnalysis.output"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "CreateIncidentTimeline",
+          "States": {
+            "CreateIncidentTimeline": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:updateItem",
+              "Parameters": {
+                "TableName": "servicenow-incidents",
+                "Key": {
+                  "IncidentId": {
+                    "S.$": "$.incident.sys_id"
+                  }
+                },
+                "AttributeUpdates": {
+                  "SeverityLevel": {
+                    "Action": "PUT",
+                    "Value": {
+                      "S": "CRITICAL"
+                    }
+                  },
+                  "EscalatedAt": {
+                    "Action": "PUT",
+                    "Value": {
+                      "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+                    }
+                  },
+                  "Status": {
+                    "Action": "PUT",
+                    "Value": {
+                      "S": "ESCALATED_CRITICAL"
+                    }
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "MonitorCriticalIncident"
+    },
+    "HighIncidentPath": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-auto-assign",
+        "Payload": {
+          "incidentId.$": "$.incident.sys_id",
+          "severity": "HIGH",
+          "autoAssign": true,
+          "assignmentGroup.$": "$.incidentAnalysis.recommendedGroup"
+        }
+      },
+      "ResultPath": "$.assignmentResult",
+      "Next": "NotifyAssignedTeam",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleAssignmentError"
+        }
+      ]
+    },
+    "MediumLowIncidentPath": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-auto-resolve-check",
+        "Payload": {
+          "incidentId.$": "$.incident.sys_id",
+          "description.$": "$.incident.description",
+          "category.$": "$.incident.category"
+        }
+      },
+      "ResultPath": "$.autoResolveCheck",
+      "Next": "CanAutoResolve"
+    },
+    "CanAutoResolve": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.autoResolveCheck.Payload.canResolve",
+          "BooleanEquals": true,
+          "Next": "AutoResolveIncident"
+        }
+      ],
+      "Default": "QueueForAssignment"
+    },
+    "AutoResolveIncident": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-resolve-incident",
+        "Payload": {
+          "incidentId.$": "$.incident.sys_id",
+          "resolution.$": "$.autoResolveCheck.Payload.suggestedResolution",
+          "resolutionNotes": "Auto-resolved by AI agent based on incident analysis"
+        }
+      },
+      "ResultPath": "$.resolutionResult",
+      "Next": "NotifyResolution"
+    },
+    "QueueForAssignment": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-queue-incident",
+        "Payload": {
+          "incidentId.$": "$.incident.sys_id",
+          "queue": "unassigned_incidents",
+          "priority": "MEDIUM"
+        }
+      },
+      "ResultPath": "$.queueResult",
+      "Next": "NotifyQueued"
+    },
+    "MonitorCriticalIncident": {
+      "Type": "Wait",
+      "Seconds": 300,
+      "Next": "CheckCriticalStatus"
+    },
+    "CheckCriticalStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-get-incident-status",
+        "Payload": {
+          "incidentId.$": "$.incident.sys_id"
+        }
+      },
+      "ResultPath": "$.statusCheck",
+      "Next": "IsCriticalResolved"
+    },
+    "IsCriticalResolved": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.statusCheck.Payload.status",
+          "StringEquals": "resolved",
+          "Next": "LogCriticalResolution"
+        },
+        {
+          "Variable": "$.statusCheck.Payload.status",
+          "StringEquals": "closed",
+          "Next": "LogCriticalResolution"
+        }
+      ],
+      "Default": "NotifyContinuedMonitoring"
+    },
+    "NotifyContinuedMonitoring": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.criticalAlertTopic",
+        "Subject": "Critical Incident Still Open - Escalation Required",
+        "Message": {
+          "Fn::Format": [
+            "Incident {} is still open after 5 minutes. Current status: {}. Escalation may be required.",
+            "$.incident.sys_id",
+            "$.statusCheck.Payload.status"
+          ]
+        }
+      },
+      "Next": "MonitorCriticalIncident"
+    },
+    "LogCriticalResolution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "servicenow-incidents",
+        "Key": {
+          "IncidentId": {
+            "S.$": "$.incident.sys_id"
+          }
+        },
+        "AttributeUpdates": {
+          "Status": {
+            "Action": "PUT",
+            "Value": {
+              "S": "RESOLVED"
+            }
+          },
+          "ResolvedAt": {
+            "Action": "PUT",
+            "Value": {
+              "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+            }
+          }
+        }
+      },
+      "Next": "Success"
+    },
+    "NotifyAssignedTeam": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.incidentNotificationTopic",
+        "Subject": "Incident Assigned",
+        "Message": {
+          "Fn::Format": [
+            "Incident {} has been auto-assigned. Title: {}. Assigned to: {}",
+            "$.incident.sys_id",
+            "$.incident.short_description",
+            "$.assignmentResult.Payload.assignedTo"
+          ]
+        }
+      },
+      "Next": "UpdateServiceNow"
+    },
+    "UpdateServiceNow": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-update-incident",
+        "Payload": {
+          "incidentId.$": "$.incident.sys_id",
+          "status": "assigned",
+          "assignedTo.$": "$.assignmentResult.Payload.assignedTo",
+          "metadata.$": "$.incidentAnalysis.output"
+        }
+      },
+      "ResultPath": "$.updateResult",
+      "Next": "Success"
+    },
+    "NotifyResolution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.incidentNotificationTopic",
+        "Subject": "Incident Auto-Resolved",
+        "Message": {
+          "Fn::Format": [
+            "Incident {} has been automatically resolved. Resolution: {}",
+            "$.incident.sys_id",
+            "$.resolutionResult.Payload.resolution"
+          ]
+        }
+      },
+      "Next": "UpdateResolvedIncident"
+    },
+    "UpdateResolvedIncident": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-update-incident",
+        "Payload": {
+          "incidentId.$": "$.incident.sys_id",
+          "status": "resolved",
+          "resolution.$": "$.resolutionResult.Payload.resolution",
+          "closeCode": "auto_resolved_by_ai"
+        }
+      },
+      "ResultPath": "$.updateResult",
+      "Next": "Success"
+    },
+    "NotifyQueued": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.incidentNotificationTopic",
+        "Subject": "Incident Queued for Review",
+        "Message": {
+          "Fn::Format": [
+            "Incident {} has been queued for manual review. Description: {}",
+            "$.incident.sys_id",
+            "$.incident.short_description"
+          ]
+        }
+      },
+      "Next": "Success"
+    },
+    "HandleWebhookError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Incident Response Workflow - Webhook Error",
+        "Message.$": "$.error"
+      },
+      "Next": "WebhookErrorFail"
+    },
+    "WebhookErrorFail": {
+      "Type": "Fail",
+      "Error": "WebhookProcessingError",
+      "Cause": "Failed to process incident webhook"
+    },
+    "HandleAgentError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Incident Response Workflow - Agent Error",
+        "Message.$": "$.error"
+      },
+      "Next": "AgentErrorFail"
+    },
+    "AgentErrorFail": {
+      "Type": "Fail",
+      "Error": "IncidentAnalysisError",
+      "Cause": "Failed to analyze incident with Bedrock agent"
+    },
+    "HandleAssignmentError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Incident Response Workflow - Assignment Error",
+        "Message.$": "$.error"
+      },
+      "Next": "AssignmentErrorFail"
+    },
+    "AssignmentErrorFail": {
+      "Type": "Fail",
+      "Error": "IncidentAssignmentError",
+      "Cause": "Failed to auto-assign incident"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

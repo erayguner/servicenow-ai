@@ -7,3 +7,9 @@ plugin "google" {
 config {
   call_module_type = "all"
 }
+
+# Disable unused declarations rule
+# Many variables are defined for future use or optional features
+rule "terraform_unused_declarations" {
+  enabled = false
+}

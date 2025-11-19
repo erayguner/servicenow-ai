@@ -1,0 +1,349 @@
+{
+  "DashboardName": "BedrockCostDashboard",
+  "DashboardBody": {
+    "widgets": [
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "EstimatedCostByAgent",
+              {
+                "stat": "Sum",
+                "label": "Bedrock API Costs",
+                "dimensions": {
+                  "AgentId": "All"
+                }
+              }
+            ],
+            [
+              "AWS/Lambda",
+              "EstimatedCost",
+              {
+                "stat": "Sum",
+                "label": "Lambda Costs"
+              }
+            ],
+            [
+              "AWS/DynamoDB",
+              "EstimatedCost",
+              {
+                "stat": "Sum",
+                "label": "DynamoDB Costs"
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Daily Service Costs"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "InputTokenCost",
+              {
+                "stat": "Sum",
+                "label": "Input Token Cost"
+              }
+            ],
+            [
+              ".",
+              "OutputTokenCost",
+              {
+                "stat": "Sum",
+                "label": "Output Token Cost"
+              }
+            ],
+            [
+              {
+                "expression": "(m1 + m2)",
+                "label": "Total Token Cost",
+                "id": "e1"
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Bedrock Token Costs"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 6,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Lambda",
+              "EstimatedInvocationCost",
+              {
+                "stat": "Sum",
+                "label": "Lambda Invocation Cost"
+              }
+            ],
+            [
+              ".",
+              "EstimatedComputeCost",
+              {
+                "stat": "Sum",
+                "label": "Lambda Compute Cost"
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Lambda Cost Breakdown"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 8,
+        "y": 6,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/DataTransfer",
+              "InternetOutCost",
+              {
+                "stat": "Sum",
+                "label": "Internet Egress Cost"
+              }
+            ],
+            [
+              ".",
+              "RegionToRegionCost",
+              {
+                "stat": "Sum",
+                "label": "Cross-Region Cost"
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Data Transfer Costs"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 16,
+        "y": 6,
+        "width": 8,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/S3",
+              "StorageCost",
+              {
+                "stat": "Average",
+                "label": "S3 Storage Cost"
+              }
+            ],
+            [
+              "AWS/EBS",
+              "StorageCost",
+              {
+                "stat": "Average",
+                "label": "EBS Storage Cost"
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Storage Costs"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 12,
+        "width": 24,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "EstimatedCostByAgent",
+              {
+                "stat": "Sum",
+                "label": "Agent: Orchestrator",
+                "dimensions": {
+                  "AgentId": "orchestrator"
+                }
+              }
+            ],
+            [
+              "...",
+              {
+                "stat": "Sum",
+                "label": "Agent: Search",
+                "dimensions": {
+                  "AgentId": "search"
+                }
+              }
+            ],
+            [
+              "...",
+              {
+                "stat": "Sum",
+                "label": "Agent: Analysis",
+                "dimensions": {
+                  "AgentId": "analysis"
+                }
+              }
+            ],
+            [
+              "...",
+              {
+                "stat": "Sum",
+                "label": "Agent: Execution",
+                "dimensions": {
+                  "AgentId": "execution"
+                }
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Cost by Agent Type"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 18,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              {
+                "expression": "m1 * 30",
+                "label": "Projected Monthly Bedrock Cost",
+                "id": "e1",
+                "visible": false
+              }
+            ],
+            [
+              {
+                "expression": "m2 * 30",
+                "label": "Projected Monthly Lambda Cost",
+                "id": "e2",
+                "visible": false
+              }
+            ],
+            [
+              {
+                "expression": "(e1 + e2 + m3 + m4) * 30",
+                "label": "Projected Monthly Total Cost",
+                "id": "total"
+              }
+            ],
+            [
+              "AWS/Bedrock",
+              "EstimatedCostByAgent",
+              {
+                "stat": "Sum",
+                "dimensions": {
+                  "AgentId": "All"
+                }
+              }
+            ],
+            [
+              "AWS/Lambda",
+              "EstimatedCost",
+              {
+                "stat": "Sum"
+              }
+            ],
+            [
+              "AWS/DynamoDB",
+              "EstimatedCost",
+              {
+                "stat": "Sum"
+              }
+            ],
+            [
+              "AWS/DataTransfer",
+              "InternetOutCost",
+              {
+                "stat": "Sum"
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Sum",
+          "region": "us-east-1",
+          "title": "Projected Monthly Spend"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 18,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [
+              "AWS/Bedrock",
+              "CostPerInvocation",
+              {
+                "stat": "Average",
+                "label": "Avg Cost per Invocation"
+              }
+            ],
+            [
+              ".",
+              "CostPerToken",
+              {
+                "stat": "Average",
+                "label": "Avg Cost per Token"
+              }
+            ]
+          ],
+          "period": 86400,
+          "stat": "Average",
+          "region": "us-east-1",
+          "title": "Unit Economics"
+        }
+      },
+      {
+        "type": "log",
+        "x": 0,
+        "y": 24,
+        "width": 24,
+        "height": 6,
+        "properties": {
+          "query": "fields @timestamp, agent_id, inputTokens, outputTokens, cost\n| stats sum(cost) as total_cost, sum(inputTokens) as total_input_tokens, sum(outputTokens) as total_output_tokens by agent_id\n| sort total_cost desc",
+          "region": "us-east-1",
+          "title": "Cost Analysis by Agent",
+          "queryId": "cost-by-agent"
+        }
+      }
+    ]
+  }
+}

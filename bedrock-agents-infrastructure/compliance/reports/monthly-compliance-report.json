@@ -1,0 +1,541 @@
+{
+  "reportMetadata": {
+    "reportName": "Monthly Compliance Report - Amazon Bedrock Agents Infrastructure",
+    "reportType": "Monthly Compliance Status",
+    "reportingPeriod": {
+      "startDate": "YYYY-MM-01",
+      "endDate": "YYYY-MM-30"
+    },
+    "generatedDate": "YYYY-MM-DD",
+    "generatedBy": "Automated Compliance Reporting System",
+    "version": "1.0",
+    "classification": "CONFIDENTIAL",
+    "distribution": [
+      "CISO",
+      "Compliance Team",
+      "Security Operations Manager",
+      "Executive Leadership"
+    ]
+  },
+  "executiveSummary": {
+    "overallComplianceScore": {
+      "score": 0,
+      "maxScore": 100,
+      "percentCompliant": 0.0,
+      "trend": "up|down|stable",
+      "changeFromLastMonth": 0.0
+    },
+    "complianceByFramework": [
+      {
+        "framework": "SOC 2 Type II",
+        "complianceScore": 0.0,
+        "totalControls": 0,
+        "compliantControls": 0,
+        "nonCompliantControls": 0,
+        "status": "Compliant|Non-Compliant|In Progress",
+        "criticalFindings": 0
+      },
+      {
+        "framework": "HIPAA",
+        "complianceScore": 0.0,
+        "totalControls": 0,
+        "compliantControls": 0,
+        "nonCompliantControls": 0,
+        "status": "Compliant|Non-Compliant|In Progress",
+        "criticalFindings": 0
+      },
+      {
+        "framework": "PCI DSS v4.0",
+        "complianceScore": 0.0,
+        "totalControls": 0,
+        "compliantControls": 0,
+        "nonCompliantControls": 0,
+        "status": "Compliant|Non-Compliant|In Progress",
+        "criticalFindings": 0
+      },
+      {
+        "framework": "GDPR",
+        "complianceScore": 0.0,
+        "totalControls": 0,
+        "compliantControls": 0,
+        "nonCompliantControls": 0,
+        "status": "Compliant|Non-Compliant|In Progress",
+        "criticalFindings": 0
+      },
+      {
+        "framework": "ISO/IEC 27001:2022",
+        "complianceScore": 0.0,
+        "totalControls": 0,
+        "compliantControls": 0,
+        "nonCompliantControls": 0,
+        "status": "Compliant|Non-Compliant|In Progress",
+        "criticalFindings": 0
+      }
+    ],
+    "keyFindings": [
+      {
+        "finding": "Critical finding summary",
+        "severity": "Critical|High|Medium|Low",
+        "affectedFrameworks": ["SOC2", "HIPAA"],
+        "status": "Open|In Progress|Resolved",
+        "dueDate": "YYYY-MM-DD"
+      }
+    ],
+    "riskSummary": {
+      "criticalRisks": 0,
+      "highRisks": 0,
+      "mediumRisks": 0,
+      "lowRisks": 0,
+      "overallRiskLevel": "Critical|High|Medium|Low"
+    }
+  },
+  "awsConfigCompliance": {
+    "summary": {
+      "totalRules": 0,
+      "compliantRules": 0,
+      "nonCompliantRules": 0,
+      "compliancePercentage": 0.0
+    },
+    "ruleResults": [
+      {
+        "ruleName": "bedrock-agent-encryption-check",
+        "description": "Ensures Bedrock agents and knowledge bases encrypted with CMK",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 0,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
+      },
+      {
+        "ruleName": "bedrock-iam-least-privilege",
+        "description": "Verifies Bedrock IAM roles follow least privilege principle",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 0,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "PCI-DSS", "ISO27001"]
+      },
+      {
+        "ruleName": "bedrock-logging-enabled",
+        "description": "Ensures Bedrock model invocation logging enabled",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 1,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "HIPAA", "GDPR", "ISO27001"]
+      },
+      {
+        "ruleName": "bedrock-knowledge-base-backup",
+        "description": "Verifies knowledge base data sources have backup with required retention",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 0,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "HIPAA", "ISO27001"]
+      },
+      {
+        "ruleName": "bedrock-network-isolation",
+        "description": "Ensures Bedrock accessed via VPC endpoints for RESTRICTED data",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 1,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
+      },
+      {
+        "ruleName": "cloudtrail-enabled",
+        "description": "CloudTrail enabled in all regions",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 1,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
+      },
+      {
+        "ruleName": "iam-user-mfa-enabled",
+        "description": "MFA enabled for all IAM users",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 0,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "HIPAA", "PCI-DSS", "ISO27001"]
+      },
+      {
+        "ruleName": "s3-bucket-public-read-prohibited",
+        "description": "S3 buckets prohibit public read access",
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT",
+        "totalResources": 0,
+        "compliantResources": 0,
+        "nonCompliantResources": 0,
+        "remediationRequired": false,
+        "affectedFrameworks": ["SOC2", "HIPAA", "PCI-DSS", "GDPR", "ISO27001"]
+      }
+    ]
+  },
+  "securityFindings": {
+    "summary": {
+      "totalFindings": 0,
+      "criticalFindings": 0,
+      "highFindings": 0,
+      "mediumFindings": 0,
+      "lowFindings": 0,
+      "informationalFindings": 0
+    },
+    "findingsBySource": [
+      {
+        "source": "AWS Security Hub",
+        "totalFindings": 0,
+        "findingsBySeverity": {
+          "CRITICAL": 0,
+          "HIGH": 0,
+          "MEDIUM": 0,
+          "LOW": 0,
+          "INFORMATIONAL": 0
+        },
+        "topFindings": [
+          {
+            "title": "Finding title",
+            "severity": "CRITICAL|HIGH|MEDIUM|LOW",
+            "resourceId": "arn:aws:...",
+            "description": "Brief description of finding",
+            "recommendation": "Recommended remediation action",
+            "status": "NEW|NOTIFIED|RESOLVED|SUPPRESSED",
+            "firstObserved": "YYYY-MM-DD",
+            "lastObserved": "YYYY-MM-DD"
+          }
+        ]
+      },
+      {
+        "source": "Amazon GuardDuty",
+        "totalFindings": 0,
+        "findingsBySeverity": {
+          "HIGH": 0,
+          "MEDIUM": 0,
+          "LOW": 0
+        },
+        "topFindings": []
+      },
+      {
+        "source": "Amazon Macie",
+        "totalFindings": 0,
+        "sensitiveDataFindings": {
+          "PII": 0,
+          "PHI": 0,
+          "PCI": 0,
+          "Credentials": 0
+        },
+        "topFindings": []
+      },
+      {
+        "source": "Amazon Inspector",
+        "totalFindings": 0,
+        "findingsBySeverity": {
+          "CRITICAL": 0,
+          "HIGH": 0,
+          "MEDIUM": 0,
+          "LOW": 0
+        },
+        "topFindings": []
+      }
+    ]
+  },
+  "accessManagement": {
+    "iamUsers": {
+      "totalUsers": 0,
+      "activeUsers": 0,
+      "inactiveUsers90Days": 0,
+      "usersWithMFA": 0,
+      "usersWithoutMFA": 0,
+      "mfaCompliancePercentage": 0.0
+    },
+    "iamRoles": {
+      "totalRoles": 0,
+      "bedrockRoles": 0,
+      "rolesViolatingLeastPrivilege": 0,
+      "rolesWithUnusedPermissions": 0
+    },
+    "accessReviews": {
+      "restrictedDataAccessReview": {
+        "lastReviewDate": "YYYY-MM-DD",
+        "status": "Completed|Overdue|In Progress",
+        "usersReviewed": 0,
+        "accessRevoked": 0
+      },
+      "confidentialDataAccessReview": {
+        "lastReviewDate": "YYYY-MM-DD",
+        "status": "Completed|Overdue|In Progress",
+        "usersReviewed": 0,
+        "accessRevoked": 0
+      }
+    },
+    "privilegedAccessMonitoring": {
+      "rootAccountUsage": {
+        "loginCount": 0,
+        "apiCallCount": 0,
+        "complianceStatus": "COMPLIANT|NON_COMPLIANT"
+      },
+      "breakGlassAccountUsage": {
+        "usageCount": 0,
+        "incidents": []
+      }
+    }
+  },
+  "encryptionCompliance": {
+    "kmsKeys": {
+      "totalKeys": 0,
+      "customerManagedKeys": 0,
+      "awsManagedKeys": 0,
+      "keysWithRotationEnabled": 0,
+      "keysWithoutRotation": 0,
+      "rotationCompliancePercentage": 0.0
+    },
+    "encryptionAtRest": {
+      "bedrockKnowledgeBases": {
+        "total": 0,
+        "encryptedWithCMK": 0,
+        "encryptedWithAWSKey": 0,
+        "unencrypted": 0,
+        "compliancePercentage": 0.0
+      },
+      "s3Buckets": {
+        "total": 0,
+        "encryptedWithCMK": 0,
+        "encryptedWithAWSKey": 0,
+        "unencrypted": 0,
+        "compliancePercentage": 0.0
+      },
+      "rdsDatabases": {
+        "total": 0,
+        "encryptedWithCMK": 0,
+        "encryptedWithAWSKey": 0,
+        "unencrypted": 0,
+        "compliancePercentage": 0.0
+      }
+    },
+    "encryptionInTransit": {
+      "bedrockApiCalls": {
+        "totalCalls": 0,
+        "callsViaTLS": 0,
+        "callsWithoutTLS": 0,
+        "compliancePercentage": 100.0
+      },
+      "vpcEndpoints": {
+        "totalEndpoints": 0,
+        "bedrockEndpoints": 0,
+        "endpointsWithPrivateDNS": 0,
+        "compliancePercentage": 0.0
+      }
+    }
+  },
+  "loggingAndMonitoring": {
+    "cloudTrail": {
+      "enabled": true,
+      "multiRegion": true,
+      "logFileValidation": true,
+      "logsEncrypted": true,
+      "logRetentionDays": 2557,
+      "complianceStatus": "COMPLIANT|NON_COMPLIANT"
+    },
+    "bedrockInvocationLogging": {
+      "enabled": true,
+      "logGroupEncrypted": true,
+      "textDataDeliveryEnabled": true,
+      "logRetentionDays": 2557,
+      "complianceStatus": "COMPLIANT|NON_COMPLIANT"
+    },
+    "vpcFlowLogs": {
+      "enabled": true,
+      "logsEncrypted": true,
+      "logRetentionDays": 365,
+      "complianceStatus": "COMPLIANT|NON_COMPLIANT"
+    },
+    "threatDetection": {
+      "guardDutyEnabled": true,
+      "macieEnabled": true,
+      "securityHubEnabled": true,
+      "inspectorEnabled": true
+    }
+  },
+  "backupAndRecovery": {
+    "backupCompliance": {
+      "bedrockDataSources": {
+        "totalDataSources": 0,
+        "backedUp": 0,
+        "notBackedUp": 0,
+        "compliancePercentage": 0.0
+      },
+      "backupJobs": {
+        "successfulBackups": 0,
+        "failedBackups": 0,
+        "successRate": 0.0
+      }
+    },
+    "restoreTesting": {
+      "lastTestDate": "YYYY-MM-DD",
+      "testStatus": "Passed|Failed|Overdue",
+      "rto": "X hours",
+      "rpo": "Y hours",
+      "targetRTO": "4 hours",
+      "targetRPO": "1 hour"
+    }
+  },
+  "incidentManagement": {
+    "incidentSummary": {
+      "totalIncidents": 0,
+      "criticalIncidents": 0,
+      "highIncidents": 0,
+      "mediumIncidents": 0,
+      "lowIncidents": 0,
+      "resolvedIncidents": 0,
+      "openIncidents": 0
+    },
+    "incidentsByType": [
+      {
+        "type": "Data Breach",
+        "count": 0,
+        "averageResolutionTime": "X hours"
+      },
+      {
+        "type": "Unauthorized Access",
+        "count": 0,
+        "averageResolutionTime": "X hours"
+      },
+      {
+        "type": "Malware/Ransomware",
+        "count": 0,
+        "averageResolutionTime": "X hours"
+      },
+      {
+        "type": "Configuration Error",
+        "count": 0,
+        "averageResolutionTime": "X hours"
+      }
+    ],
+    "breachNotifications": {
+      "gdprNotifications": 0,
+      "hipaaNotifications": 0,
+      "stateLawNotifications": 0,
+      "notificationTimeliness": "Compliant|Non-Compliant"
+    },
+    "incidentResponseMetrics": {
+      "meanTimeToDetect": "X minutes",
+      "meanTimeToRespond": "Y minutes",
+      "meanTimeToResolve": "Z hours"
+    }
+  },
+  "trainingAndAwareness": {
+    "securityTraining": {
+      "totalEmployees": 0,
+      "completedTraining": 0,
+      "pendingTraining": 0,
+      "completionRate": 0.0,
+      "targetRate": 100.0
+    },
+    "complianceTraining": {
+      "gdprTraining": {
+        "totalRequired": 0,
+        "completed": 0,
+        "completionRate": 0.0
+      },
+      "hipaaTraining": {
+        "totalRequired": 0,
+        "completed": 0,
+        "completionRate": 0.0
+      },
+      "pciDssTraining": {
+        "totalRequired": 0,
+        "completed": 0,
+        "completionRate": 0.0
+      }
+    }
+  },
+  "vulnerabilityManagement": {
+    "vulnerabilitySummary": {
+      "totalVulnerabilities": 0,
+      "criticalVulnerabilities": 0,
+      "highVulnerabilities": 0,
+      "mediumVulnerabilities": 0,
+      "lowVulnerabilities": 0
+    },
+    "patchManagement": {
+      "totalInstances": 0,
+      "compliantInstances": 0,
+      "nonCompliantInstances": 0,
+      "patchComplianceRate": 0.0
+    },
+    "remediationMetrics": {
+      "criticalRemediationSLA": "24 hours",
+      "criticalMeanTimeToRemediate": "X hours",
+      "highRemediationSLA": "7 days",
+      "highMeanTimeToRemediate": "Y days"
+    }
+  },
+  "remediationTracking": {
+    "openFindings": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "overdueRemediations": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "remediatedThisMonth": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "averageRemediationTime": {
+      "critical": "X hours",
+      "high": "Y days",
+      "medium": "Z days",
+      "low": "W days"
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "High|Medium|Low",
+      "recommendation": "Specific recommendation text",
+      "rationale": "Why this is important",
+      "estimatedEffort": "Hours or story points",
+      "targetCompletionDate": "YYYY-MM-DD"
+    }
+  ],
+  "upcomingActivities": [
+    {
+      "activity": "Quarterly access review for CONFIDENTIAL data",
+      "dueDate": "YYYY-MM-DD",
+      "owner": "Security Team"
+    },
+    {
+      "activity": "Quarterly restore test",
+      "dueDate": "YYYY-MM-DD",
+      "owner": "DevOps Team"
+    },
+    {
+      "activity": "Annual penetration testing",
+      "dueDate": "YYYY-MM-DD",
+      "owner": "External Auditor"
+    }
+  ],
+  "appendices": {
+    "a_aws_config_detailed_report": "Link to detailed AWS Config compliance report",
+    "b_security_hub_findings": "Link to Security Hub findings export",
+    "c_incident_log": "Link to detailed incident log",
+    "d_evidence_repository": "s3://compliance-evidence/monthly-reports/YYYY-MM/"
+  }
+}

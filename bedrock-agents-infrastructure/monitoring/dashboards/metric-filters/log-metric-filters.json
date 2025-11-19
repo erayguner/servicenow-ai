@@ -1,0 +1,173 @@
+{
+  "metricFilters": [
+    {
+      "filterName": "AgentInvocationCount",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, level = \"INFO\", msg = \"Agent invocation\", ...]",
+      "metricTransformations": [
+        {
+          "metricName": "AgentInvocationCount",
+          "metricNamespace": "BedrockAgents",
+          "metricValue": "1",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "AgentInvocationLatency",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, level = \"INFO\", msg = \"Agent invocation completed\", latency = *]",
+      "metricTransformations": [
+        {
+          "metricName": "AgentInvocationLatency",
+          "metricNamespace": "BedrockAgents",
+          "metricValue": "$latency",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "AgentErrors",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, level = \"ERROR\", ...]",
+      "metricTransformations": [
+        {
+          "metricName": "AgentErrorCount",
+          "metricNamespace": "BedrockAgents",
+          "metricValue": "1",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "TokenUsageInput",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, ..., input_tokens = *]",
+      "metricTransformations": [
+        {
+          "metricName": "InputTokenCount",
+          "metricNamespace": "BedrockAgents",
+          "metricValue": "$input_tokens",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "TokenUsageOutput",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, ..., output_tokens = *]",
+      "metricTransformations": [
+        {
+          "metricName": "OutputTokenCount",
+          "metricNamespace": "BedrockAgents",
+          "metricValue": "$output_tokens",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "KnowledgeBaseQueries",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, ..., action = \"KNOWLEDGE_BASE_QUERY\", ...]",
+      "metricTransformations": [
+        {
+          "metricName": "KnowledgeBaseQueryCount",
+          "metricNamespace": "BedrockAgents",
+          "metricValue": "1",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "KnowledgeBaseLatency",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, ..., action = \"KNOWLEDGE_BASE_QUERY\", latency = *]",
+      "metricTransformations": [
+        {
+          "metricName": "KnowledgeBaseLatency",
+          "metricNamespace": "BedrockAgents",
+          "metricValue": "$latency",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "AuthenticationFailures",
+      "logGroupName": "/aws/apigateway/bedrock-agent-api",
+      "filterPattern": "[timestamp, ..., status = \"401\" || status = \"403\"]",
+      "metricTransformations": [
+        {
+          "metricName": "AuthenticationFailureCount",
+          "metricNamespace": "BedrockAgents/Security",
+          "metricValue": "1",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "APIGateway4XXErrors",
+      "logGroupName": "/aws/apigateway/bedrock-agent-api",
+      "filterPattern": "[timestamp, ..., status >= 400 && status < 500]",
+      "metricTransformations": [
+        {
+          "metricName": "APIClientErrorCount",
+          "metricNamespace": "BedrockAgents/API",
+          "metricValue": "1",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "APIGateway5XXErrors",
+      "logGroupName": "/aws/apigateway/bedrock-agent-api",
+      "filterPattern": "[timestamp, ..., status >= 500]",
+      "metricTransformations": [
+        {
+          "metricName": "APIServerErrorCount",
+          "metricNamespace": "BedrockAgents/API",
+          "metricValue": "1",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "DynamoDBWriteErrors",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, ..., error_type = \"DynamoDBError\", ...]",
+      "metricTransformations": [
+        {
+          "metricName": "DynamoDBWriteErrorCount",
+          "metricNamespace": "BedrockAgents/Database",
+          "metricValue": "1",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "OpenSearchQueryLatency",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, ..., search_latency = *]",
+      "metricTransformations": [
+        {
+          "metricName": "SearchQueryLatency",
+          "metricNamespace": "BedrockAgents/Search",
+          "metricValue": "$search_latency",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "filterName": "CostTracking",
+      "logGroupName": "/aws/lambda/bedrock-agent-orchestrator",
+      "filterPattern": "[timestamp, request_id, ..., estimated_cost = *]",
+      "metricTransformations": [
+        {
+          "metricName": "EstimatedCost",
+          "metricNamespace": "BedrockAgents/Costs",
+          "metricValue": "$estimated_cost",
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

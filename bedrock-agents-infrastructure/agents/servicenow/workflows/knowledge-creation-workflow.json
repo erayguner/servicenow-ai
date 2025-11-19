@@ -1,0 +1,294 @@
+{
+  "Comment": "ServiceNow Knowledge Creation Workflow - Auto KB article creation from resolved incidents",
+  "StartAt": "MonitorResolvedIncidents",
+  "States": {
+    "MonitorResolvedIncidents": {
+      "Type": "Wait",
+      "Seconds": 3600,
+      "Next": "QueryRecentlyResolvedIncidents"
+    },
+    "QueryRecentlyResolvedIncidents": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-query-resolved-incidents",
+        "Payload": {
+          "timeWindowHours": 1,
+          "excludeAlreadyDocumented": true,
+          "maxResults": 10
+        }
+      },
+      "ResultPath": "$.recentIncidents",
+      "Next": "CheckIfIncidentsFound"
+    },
+    "CheckIfIncidentsFound": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.recentIncidents.Payload.count",
+          "NumericGreaterThan": 0,
+          "Next": "ProcessIncidentsForKB"
+        }
+      ],
+      "Default": "MonitorResolvedIncidents"
+    },
+    "ProcessIncidentsForKB": {
+      "Type": "Map",
+      "ItemsPath": "$.recentIncidents.Payload.incidents",
+      "MaxConcurrency": 3,
+      "Iterator": {
+        "StartAt": "ExtractSolutionSteps",
+        "States": {
+          "ExtractSolutionSteps": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::bedrock:invokeAgent",
+            "Parameters": {
+              "AgentId.$": "$.knowledgeCuratorAgentId",
+              "AgentAliasId.$": "$.knowledgeCuratorAgentAliasId",
+              "SessionId.$": "$.incident.sys_id",
+              "InputText": {
+                "Fn::Format": [
+                  "Extract solution steps from resolved incident:\n\nIncident: {}\nTitle: {}\nDescription: {}\nResolution: {}\nCategory: {}\n\nProvide: Clear title, problem description, symptoms, step-by-step solution, troubleshooting tips, and prevention measures.",
+                  "$.incident.sys_id",
+                  "$.incident.short_description",
+                  "$.incident.description",
+                  "$.incident.resolution_notes",
+                  "$.incident.category"
+                ]
+              }
+            },
+            "ResultPath": "$.solutionExtraction",
+            "Next": "ValidateSolutionQuality",
+            "Retry": [
+              {
+                "ErrorEquals": ["States.TaskStateAbortedAsStateInputNotSerializable"],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
+            "Catch": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "ResultPath": "$.extractionError",
+                "Next": "SkipIncident"
+              }
+            ]
+          },
+          "ValidateSolutionQuality": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "servicenow-validate-kb-quality",
+              "Payload": {
+                "incidentId.$": "$.incident.sys_id",
+                "extractedContent.$": "$.solutionExtraction.output",
+                "minQualityScore": 0.75
+              }
+            },
+            "ResultPath": "$.qualityValidation",
+            "Next": "IsQualityAcceptable"
+          },
+          "IsQualityAcceptable": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.qualityValidation.Payload.qualityScore",
+                "NumericGreaterThanEquals": 0.75,
+                "Next": "CreateKBArticleFromIncident"
+              }
+            ],
+            "Default": "EnhanceContent"
+          },
+          "EnhanceContent": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::bedrock:invokeAgent",
+            "Parameters": {
+              "AgentId.$": "$.knowledgeCuratorAgentId",
+              "AgentAliasId.$": "$.knowledgeCuratorAgentAliasId",
+              "SessionId.$": "$.incident.sys_id",
+              "InputText": {
+                "Fn::Format": [
+                  "Improve the KB article draft to meet quality standards.\n\nOriginal content:\n{}\n\nQuality issues: {}\n\nPlease enhance with better structure, clearer steps, and more comprehensive information.",
+                  "$.solutionExtraction.output",
+                  "$.qualityValidation.Payload.issues"
+                ]
+              }
+            },
+            "ResultPath": "$.enhancedContent",
+            "Next": "CreateKBArticleFromIncident"
+          },
+          "CreateKBArticleFromIncident": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "servicenow-create-kb-from-incident",
+              "Payload": {
+                "incidentId.$": "$.incident.sys_id",
+                "title.$": "$.solutionExtraction.title",
+                "content": {
+                  "Fn::Format": [
+                    "{}",
+                    "States.JsonToString(States.JsonMerge($.solutionExtraction, $.enhancedContent))"
+                  ]
+                },
+                "category.$": "$.incident.category",
+                "subcategory.$": "$.incident.subcategory",
+                "keywords.$": "$.incident.keywords",
+                "visibility": "internal",
+                "status": "draft"
+              }
+            },
+            "ResultPath": "$.kbCreation",
+            "Next": "LinkIncidentToKB"
+          },
+          "LinkIncidentToKB": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "servicenow-link-incident-to-kb",
+              "Payload": {
+                "incidentId.$": "$.incident.sys_id",
+                "kbArticleId.$": "$.kbCreation.Payload.articleId",
+                "relationshipType": "resolved_by"
+              }
+            },
+            "ResultPath": "$.linkResult",
+            "Next": "NotifyKBTeamForReview"
+          },
+          "NotifyKBTeamForReview": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::sns:publish",
+            "Parameters": {
+              "TopicArn.$": "$.kbReviewTopic",
+              "Subject": "New KB Article Ready for Review",
+              "Message": {
+                "Fn::Format": [
+                  "New KB article created from incident {}.\n\nArticle ID: {}\nTitle: {}\nCategory: {}\n\nPlease review, enhance if needed, and publish.",
+                  "$.incident.sys_id",
+                  "$.kbCreation.Payload.articleId",
+                  "$.solutionExtraction.title",
+                  "$.incident.category"
+                ]
+              }
+            },
+            "Next": "RecordKBCreation"
+          },
+          "RecordKBCreation": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:updateItem",
+            "Parameters": {
+              "TableName": "servicenow-kb-creation-log",
+              "Key": {
+                "KBArticleId": {
+                  "S.$": "$.kbCreation.Payload.articleId"
+                }
+              },
+              "AttributeUpdates": {
+                "IncidentId": {
+                  "Action": "PUT",
+                  "Value": {
+                    "S.$": "$.incident.sys_id"
+                  }
+                },
+                "CreatedAt": {
+                  "Action": "PUT",
+                  "Value": {
+                    "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+                  }
+                },
+                "Status": {
+                  "Action": "PUT",
+                  "Value": {
+                    "S": "PENDING_REVIEW"
+                  }
+                },
+                "QualityScore": {
+                  "Action": "PUT",
+                  "Value": {
+                    "N.$": "States.JsonToString($.qualityValidation.Payload.qualityScore)"
+                  }
+                }
+              }
+            },
+            "End": true
+          },
+          "SkipIncident": {
+            "Type": "Pass",
+            "Result": {
+              "skipped": true,
+              "reason": "Failed to extract solution"
+            },
+            "End": true
+          }
+        }
+      },
+      "ResultPath": "$.kbProcessingResults",
+      "Next": "SummarizeCreationResults"
+    },
+    "SummarizeCreationResults": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-summarize-kb-creation",
+        "Payload": {
+          "results.$": "$.kbProcessingResults",
+          "totalIncidents.$": "$.recentIncidents.Payload.count"
+        }
+      },
+      "ResultPath": "$.summaryResult",
+      "Next": "NotifyCreationSummary"
+    },
+    "NotifyCreationSummary": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.managementTopic",
+        "Subject": "KB Article Creation Summary",
+        "Message": {
+          "Fn::Format": [
+            "KB Article Creation Workflow Summary\n\nIncidents Processed: {}\nArticles Created: {}\nArticles Skipped: {}\nAverage Quality Score: {}\n\nDetails: {}",
+            "$.recentIncidents.Payload.count",
+            "$.summaryResult.Payload.created",
+            "$.summaryResult.Payload.skipped",
+            "$.summaryResult.Payload.avgQualityScore",
+            "$.summaryResult.Payload.summary"
+          ]
+        }
+      },
+      "Next": "RecordWorkflowExecution"
+    },
+    "RecordWorkflowExecution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Parameters": {
+        "TableName": "servicenow-kb-workflow-executions",
+        "Item": {
+          "ExecutionId": {
+            "S.$": "$$.Execution.Name"
+          },
+          "ExecutedAt": {
+            "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+          },
+          "IncidentsProcessed": {
+            "N.$": "States.JsonToString($.recentIncidents.Payload.count)"
+          },
+          "ArticlesCreated": {
+            "N.$": "States.JsonToString($.summaryResult.Payload.created)"
+          },
+          "AverageQualityScore": {
+            "N.$": "States.JsonToString($.summaryResult.Payload.avgQualityScore)"
+          },
+          "Status": {
+            "S": "COMPLETED"
+          }
+        }
+      },
+      "Next": "ContinueMonitoring"
+    },
+    "ContinueMonitoring": {
+      "Type": "Pass",
+      "Next": "MonitorResolvedIncidents"
+    }
+  }
+}

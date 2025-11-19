@@ -1,0 +1,447 @@
+{
+  "Comment": "ServiceNow Problem Investigation Workflow - Link incidents, root cause analysis, and KB article creation",
+  "StartAt": "ReceiveProblemRequest",
+  "States": {
+    "ReceiveProblemRequest": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Parameters": {
+        "TableName": "servicenow-problems",
+        "Item": {
+          "ProblemId": {
+            "S.$": "$.problem.sys_id"
+          },
+          "Status": {
+            "S": "RECEIVED"
+          },
+          "Title": {
+            "S.$": "$.problem.short_description"
+          },
+          "CreatedAt": {
+            "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+          },
+          "ReportedByIncidents": {
+            "SS.$": "$.linkedIncidentIds"
+          }
+        }
+      },
+      "ResultPath": "$.dbInsertResult",
+      "Next": "FetchRelatedIncidents",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleReceiveError"
+        }
+      ]
+    },
+    "FetchRelatedIncidents": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-fetch-related-incidents",
+        "Payload": {
+          "problemId.$": "$.problem.sys_id",
+          "linkedIncidentIds.$": "$.linkedIncidentIds",
+          "description.$": "$.problem.short_description"
+        }
+      },
+      "ResultPath": "$.relatedIncidents",
+      "Next": "AnalyzeIncidentPatterns"
+    },
+    "AnalyzeIncidentPatterns": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.problemResolverAgentId",
+        "AgentAliasId.$": "$.problemResolverAgentAliasId",
+        "SessionId.$": "$.problem.sys_id",
+        "InputText": {
+          "Fn::Format": [
+            "Analyze problem: Title={}, Description={}. Related incidents: {}. Identify patterns, common factors, affected components, and potential root causes.",
+            "$.problem.short_description",
+            "$.problem.description",
+            "$.relatedIncidents.Payload.incidentsJson"
+          ]
+        }
+      },
+      "ResultPath": "$.problemAnalysis",
+      "Next": "ExtractRootCauses",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskStateAbortedAsStateInputNotSerializable"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleAnalysisError"
+        }
+      ]
+    },
+    "ExtractRootCauses": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "CallTreeAnalysis",
+          "States": {
+            "CallTreeAnalysis": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "servicenow-analyze-call-tree",
+                "Payload": {
+                  "problemId.$": "$.problem.sys_id",
+                  "incidents.$": "$.relatedIncidents.Payload.incidents",
+                  "agentAnalysis.$": "$.problemAnalysis.output"
+                }
+              },
+              "ResultPath": "$.callTreeAnalysis",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "IdentifyAffectedCIs",
+          "States": {
+            "IdentifyAffectedCIs": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "servicenow-identify-affected-cis",
+                "Payload": {
+                  "problemId.$": "$.problem.sys_id",
+                  "incidents.$": "$.relatedIncidents.Payload.incidents",
+                  "description.$": "$.problem.description"
+                }
+              },
+              "ResultPath": "$.affectedCIs",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SearchHistoricalProblems",
+          "States": {
+            "SearchHistoricalProblems": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "servicenow-search-historical-problems",
+                "Payload": {
+                  "description.$": "$.problem.short_description",
+                  "affectedServices.$": "$.problem.affected_services",
+                  "maxResults": 5
+                }
+              },
+              "ResultPath": "$.historicalProblems",
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "DetermineFinalRootCause"
+    },
+    "DetermineFinalRootCause": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-determine-root-cause",
+        "Payload": {
+          "problemId.$": "$.problem.sys_id",
+          "analysis.$": "$.problemAnalysis.output",
+          "callTree.$": "$.callTreeAnalysis.Payload",
+          "affectedCIs.$": "$.affectedCIs.Payload",
+          "historical.$": "$.historicalProblems.Payload"
+        }
+      },
+      "ResultPath": "$.rootCauseAnalysis",
+      "Next": "UpdateProblemWithRootCause"
+    },
+    "UpdateProblemWithRootCause": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "servicenow-problems",
+        "Key": {
+          "ProblemId": {
+            "S.$": "$.problem.sys_id"
+          }
+        },
+        "AttributeUpdates": {
+          "RootCause": {
+            "Action": "PUT",
+            "Value": {
+              "S.$": "$.rootCauseAnalysis.Payload.rootCause"
+            }
+          },
+          "RootCauseCategory": {
+            "Action": "PUT",
+            "Value": {
+              "S.$": "$.rootCauseAnalysis.Payload.category"
+            }
+          },
+          "Status": {
+            "Action": "PUT",
+            "Value": {
+              "S": "ROOT_CAUSE_IDENTIFIED"
+            }
+          },
+          "AffectedCIs": {
+            "Action": "PUT",
+            "Value": {
+              "SS.$": "$.affectedCIs.Payload.cis"
+            }
+          }
+        }
+      },
+      "Next": "GenerateKBArticleDraft"
+    },
+    "GenerateKBArticleDraft": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.knowledgeCuratorAgentId",
+        "AgentAliasId.$": "$.knowledgeCuratorAgentAliasId",
+        "SessionId.$": "$.problem.sys_id",
+        "InputText": {
+          "Fn::Format": [
+            "Create a comprehensive KB article draft for this problem.\n\nProblem: {}\nRoot Cause: {}\nAffected Components: {}\n\nInclude: Title, Problem Description, Root Cause Explanation, Symptoms, Solution Steps, Prevention Measures, and References to related incidents.",
+            "$.problem.short_description",
+            "$.rootCauseAnalysis.Payload.rootCause",
+            "$.affectedCIs.Payload.cisJson"
+          ]
+        }
+      },
+      "ResultPath": "$.kbArticleDraft",
+      "Next": "CreateKBArticle",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskStateAbortedAsStateInputNotSerializable"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleKBError"
+        }
+      ]
+    },
+    "CreateKBArticle": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-create-kb-article",
+        "Payload": {
+          "problemId.$": "$.problem.sys_id",
+          "articleTitle.$": "$.kbArticleDraft.title",
+          "articleContent.$": "$.kbArticleDraft.output",
+          "rootCause.$": "$.rootCauseAnalysis.Payload.rootCause",
+          "affectedCIs.$": "$.affectedCIs.Payload.cis",
+          "relatedIncidents.$": "$.linkedIncidentIds",
+          "status": "draft"
+        }
+      },
+      "ResultPath": "$.kbArticleCreation",
+      "Next": "LinkIncidentsToKBArticle"
+    },
+    "LinkIncidentsToKBArticle": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-link-incidents-to-kb",
+        "Payload": {
+          "kbArticleId.$": "$.kbArticleCreation.Payload.articleId",
+          "incidentIds.$": "$.linkedIncidentIds"
+        }
+      },
+      "ResultPath": "$.linkingResult",
+      "Next": "NotifyKBArticleCreated"
+    },
+    "NotifyKBArticleCreated": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.kbManagementTopic",
+        "Subject": "New KB Article Created - Requires Review",
+        "Message": {
+          "Fn::Format": [
+            "New KB article has been created from problem analysis.\n\nProblem ID: {}\nArticle ID: {}\nRoot Cause: {}\n\nTitle: {}\n\nPlease review and publish the article.",
+            "$.problem.sys_id",
+            "$.kbArticleCreation.Payload.articleId",
+            "$.rootCauseAnalysis.Payload.rootCause",
+            "$.kbArticleDraft.title"
+          ]
+        }
+      },
+      "Next": "LinkProblmToIncidents"
+    },
+    "LinkProblmToIncidents": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-link-problem-to-incidents",
+        "Payload": {
+          "problemId.$": "$.problem.sys_id",
+          "incidentIds.$": "$.linkedIncidentIds"
+        }
+      },
+      "ResultPath": "$.problemLinking",
+      "Next": "UpdateProblemStatus"
+    },
+    "UpdateProblemStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "servicenow-problems",
+        "Key": {
+          "ProblemId": {
+            "S.$": "$.problem.sys_id"
+          }
+        },
+        "AttributeUpdates": {
+          "Status": {
+            "Action": "PUT",
+            "Value": {
+              "S": "KB_ARTICLE_CREATED"
+            }
+          },
+          "KBArticleId": {
+            "Action": "PUT",
+            "Value": {
+              "S.$": "$.kbArticleCreation.Payload.articleId"
+            }
+          },
+          "InvestigationCompletedAt": {
+            "Action": "PUT",
+            "Value": {
+              "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+            }
+          }
+        }
+      },
+      "Next": "CreatePermanentFix"
+    },
+    "CreatePermanentFix": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-create-permanent-fix",
+        "Payload": {
+          "problemId.$": "$.problem.sys_id",
+          "rootCause.$": "$.rootCauseAnalysis.Payload.rootCause",
+          "affectedCIs.$": "$.affectedCIs.Payload.cis",
+          "suggestedFix.$": "$.rootCauseAnalysis.Payload.suggestedFix",
+          "priority": "MEDIUM"
+        }
+      },
+      "ResultPath": "$.permanentFixCreation",
+      "Next": "NotifyStakeholders"
+    },
+    "NotifyStakeholders": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "NotifyIncidentOwners",
+          "States": {
+            "NotifyIncidentOwners": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.incidentOwnersTopic",
+                "Subject": "Problem Investigation Complete",
+                "Message": {
+                  "Fn::Format": [
+                    "Problem investigation is complete.\n\nProblem ID: {}\nRoot Cause: {}\n\nA permanent fix has been initiated. KB article is available for reference.",
+                    "$.problem.sys_id",
+                    "$.rootCauseAnalysis.Payload.rootCause"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "NotifyChangeManagement",
+          "States": {
+            "NotifyChangeManagement": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.changeManagementTopic",
+                "Subject": "New Permanent Fix Request",
+                "Message": {
+                  "Fn::Format": [
+                    "A permanent fix has been created for problem {}.\n\nFix ID: {}\nAffected Services: {}\n\nPlease review and schedule implementation.",
+                    "$.problem.sys_id",
+                    "$.permanentFixCreation.Payload.fixId",
+                    "$.affectedCIs.Payload.cisJson"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "Success"
+    },
+    "HandleReceiveError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Problem Investigation Workflow - Receive Error",
+        "Message.$": "$.error"
+      },
+      "Next": "ReceiveErrorFail"
+    },
+    "ReceiveErrorFail": {
+      "Type": "Fail",
+      "Error": "ProblemReceiveError",
+      "Cause": "Failed to receive and store problem request"
+    },
+    "HandleAnalysisError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Problem Investigation Workflow - Analysis Error",
+        "Message.$": "$.error"
+      },
+      "Next": "AnalysisErrorFail"
+    },
+    "AnalysisErrorFail": {
+      "Type": "Fail",
+      "Error": "ProblemAnalysisError",
+      "Cause": "Failed to analyze problem patterns"
+    },
+    "HandleKBError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Problem Investigation Workflow - KB Article Creation Error",
+        "Message.$": "$.error"
+      },
+      "Next": "KBErrorFail"
+    },
+    "KBErrorFail": {
+      "Type": "Fail",
+      "Error": "KBArticleCreationError",
+      "Cause": "Failed to create KB article"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

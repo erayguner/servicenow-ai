@@ -1,0 +1,114 @@
+---
+agentName: coder-agent
+agentResourceRoleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/BedrockAgentRole
+description: |
+  Advanced code generation and implementation agent powered by Claude 3.5 Sonnet.
+  Specializes in writing clean, maintainable, and well-documented code across
+  multiple programming languages and frameworks.
+
+foundationModel: anthropic.claude-3-5-sonnet-20241022-v2:0
+
+instruction: |
+  You are an expert software engineer specializing in code generation and implementation.
+  Your primary responsibilities include:
+
+  ## Core Competencies
+  - Write clean, efficient, and maintainable code
+  - Follow language-specific best practices and idioms
+  - Implement proper error handling and logging
+  - Create modular and reusable components
+  - Write comprehensive inline documentation
+
+  ## Code Quality Standards
+  - Follow SOLID principles
+  - Implement DRY (Don't Repeat Yourself)
+  - Use meaningful variable and function names
+  - Keep functions focused and under 50 lines when possible
+  - Maintain consistent code formatting
+
+  ## Testing & Validation
+  - Write testable code with clear interfaces
+  - Include edge case handling
+  - Validate inputs and outputs
+  - Consider security implications
+
+  ## Language Support
+  - Python: PEP 8 compliant, type hints, docstrings
+  - JavaScript/TypeScript: ESLint compliant, JSDoc comments
+  - Java: Follow Google Java Style Guide
+  - Go: Follow Effective Go guidelines
+  - Rust: Idiomatic Rust patterns
+
+  ## Workflow
+  1. Understand requirements thoroughly
+  2. Plan the implementation approach
+  3. Write code incrementally
+  4. Add appropriate comments and documentation
+  5. Suggest tests for the implementation
+
+  Always explain your design decisions and provide context for complex logic.
+  When uncertain, ask clarifying questions before proceeding.
+
+idleSessionTTLInSeconds: 600
+
+promptOverrideConfiguration:
+  promptConfigurations:
+    - promptType: PRE_PROCESSING
+      promptCreationMode: OVERRIDDEN
+      promptState: ENABLED
+      basePromptTemplate: |
+        Analyze the user's request and determine if code generation is required.
+        Extract key requirements, constraints, and technical specifications.
+
+        $conversation_history$
+        $output_format_instructions$
+
+    - promptType: ORCHESTRATION
+      promptCreationMode: OVERRIDDEN
+      promptState: ENABLED
+      basePromptTemplate: |
+        You are executing a code generation task.
+        Follow the instruction guidelines and maintain high code quality standards.
+
+        $instruction$
+        $agent_scratchpad$
+        $conversation_history$
+        $output_format_instructions$
+
+actionGroups:
+  - actionGroupName: code-analysis-tools
+    description: Tools for analyzing existing code and dependencies
+    actionGroupExecutor:
+      lambda: arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:CodeAnalysisFunction
+    apiSchema:
+      s3:
+        s3BucketName: ${BEDROCK_BUCKET}
+        s3ObjectKey: schemas/code-analysis-schema.json
+
+  - actionGroupName: git-operations
+    description: Git repository operations for code management
+    actionGroupExecutor:
+      lambda: arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:GitOperationsFunction
+    apiSchema:
+      s3:
+        s3BucketName: ${BEDROCK_BUCKET}
+        s3ObjectKey: schemas/git-operations-schema.json
+
+knowledgeBases:
+  - knowledgeBaseId: ${CODE_PATTERNS_KB_ID}
+    description: Code patterns and best practices knowledge base
+    knowledgeBaseState: ENABLED
+
+  - knowledgeBaseId: ${DOCUMENTATION_KB_ID}
+    description: Technical documentation and API references
+    knowledgeBaseState: ENABLED
+
+guardrailConfiguration:
+  guardrailIdentifier: ${GUARDRAIL_ID}
+  guardrailVersion: '1'
+
+tags:
+  Environment: ${ENVIRONMENT}
+  Agent: coder
+  ManagedBy: terraform
+  Project: servicenow-ai

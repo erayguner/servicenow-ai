@@ -1,0 +1,380 @@
+{
+  "Comment": "ServiceNow Ticket Triage Workflow - Intelligent ticket routing, prioritization, and auto-resolution",
+  "StartAt": "ReceiveNewTicket",
+  "States": {
+    "ReceiveNewTicket": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Parameters": {
+        "TableName": "servicenow-tickets",
+        "Item": {
+          "TicketId": {
+            "S.$": "$.ticket.sys_id"
+          },
+          "Status": {
+            "S": "RECEIVED"
+          },
+          "Category": {
+            "S.$": "$.ticket.category"
+          },
+          "Subcategory": {
+            "S.$": "$.ticket.subcategory"
+          },
+          "CreatedAt": {
+            "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+          },
+          "Priority": {
+            "S.$": "$.ticket.priority"
+          }
+        }
+      },
+      "ResultPath": "$.dbInsertResult",
+      "Next": "InvokeTicketAnalyzerAgent",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleReceiveError"
+        }
+      ]
+    },
+    "InvokeTicketAnalyzerAgent": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.ticketAnalyzerAgentId",
+        "AgentAliasId.$": "$.ticketAnalyzerAgentAliasId",
+        "SessionId.$": "$.ticket.sys_id",
+        "InputText": {
+          "Fn::Format": [
+            "Analyze support ticket: Category={}, Subcategory={}, Title={}, Description={}, Caller={}, Priority={}. Provide categorization, priority analysis, urgency assessment, and suggested resolution approach.",
+            "$.ticket.category",
+            "$.ticket.subcategory",
+            "$.ticket.short_description",
+            "$.ticket.description",
+            "$.ticket.caller_id.display_value",
+            "$.ticket.priority"
+          ]
+        }
+      },
+      "ResultPath": "$.ticketAnalysis",
+      "Next": "CategorizeTicket",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskStateAbortedAsStateInputNotSerializable"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "HandleAnalysisError"
+        }
+      ]
+    },
+    "CategorizeTicket": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-categorize-ticket",
+        "Payload": {
+          "ticketId.$": "$.ticket.sys_id",
+          "category.$": "$.ticket.category",
+          "description.$": "$.ticket.description",
+          "agentAnalysis.$": "$.ticketAnalysis.output"
+        }
+      },
+      "ResultPath": "$.categorizationResult",
+      "Next": "SearchKnowledgeBase"
+    },
+    "SearchKnowledgeBase": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "SearchFAQ",
+          "States": {
+            "SearchFAQ": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:retrieveAndGenerateQuery",
+              "Parameters": {
+                "Input": {
+                  "Text.$": "$.ticket.short_description"
+                },
+                "KnowledgeBaseId.$": "$.knowledgeBaseId",
+                "RetrievalConfiguration": {
+                  "VectorSearchConfiguration": {
+                    "NumberOfResults": 5
+                  }
+                }
+              },
+              "ResultPath": "$.faqResults",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SearchKBArticles",
+          "States": {
+            "SearchKBArticles": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "servicenow-search-knowledge-base",
+                "Payload": {
+                  "query.$": "$.ticket.short_description",
+                  "category.$": "$.ticket.category",
+                  "maxResults": 5
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "AnalyzeResolutionPossibility"
+    },
+    "AnalyzeResolutionPossibility": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.faqResults.output.length()",
+          "NumericGreaterThan": 0,
+          "Next": "EvaluateAutoResolution"
+        }
+      ],
+      "Default": "EvaluateAutoResolution"
+    },
+    "EvaluateAutoResolution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-evaluate-resolution",
+        "Payload": {
+          "ticketId.$": "$.ticket.sys_id",
+          "description.$": "$.ticket.description",
+          "category.$": "$.ticket.category",
+          "kbResults.$": "$.faqResults.output",
+          "agentAnalysis.$": "$.ticketAnalysis.output"
+        }
+      },
+      "ResultPath": "$.resolutionEvaluation",
+      "Next": "CanAutoResolveTicket"
+    },
+    "CanAutoResolveTicket": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.resolutionEvaluation.Payload.canResolve",
+          "BooleanEquals": true,
+          "Next": "AutoResolveTicket"
+        }
+      ],
+      "Default": "RoutTicketForAssignment"
+    },
+    "AutoResolveTicket": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "ResolveInServiceNow",
+          "States": {
+            "ResolveInServiceNow": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "servicenow-resolve-ticket",
+                "Payload": {
+                  "ticketId.$": "$.ticket.sys_id",
+                  "resolution.$": "$.resolutionEvaluation.Payload.solution",
+                  "source": "KB_AI_AUTO_RESOLVE",
+                  "kbArticleReference.$": "$.resolutionEvaluation.Payload.kbArticleId"
+                }
+              },
+              "ResultPath": "$.resolveResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "NotifyCallerResolved",
+          "States": {
+            "NotifyCallerResolved": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.ticketNotificationTopic",
+                "Subject": "Your Ticket Has Been Resolved",
+                "Message": {
+                  "Fn::Format": [
+                    "Ticket {} has been automatically resolved based on knowledge base articles.\n\nResolution: {}\n\nPlease reply if you need further assistance.",
+                    "$.ticket.sys_id",
+                    "$.resolutionEvaluation.Payload.solution"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "UpdateTicketStatus",
+          "States": {
+            "UpdateTicketStatus": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:updateItem",
+              "Parameters": {
+                "TableName": "servicenow-tickets",
+                "Key": {
+                  "TicketId": {
+                    "S.$": "$.ticket.sys_id"
+                  }
+                },
+                "AttributeUpdates": {
+                  "Status": {
+                    "Action": "PUT",
+                    "Value": {
+                      "S": "AUTO_RESOLVED"
+                    }
+                  },
+                  "ResolutionTime": {
+                    "Action": "PUT",
+                    "Value": {
+                      "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+                    }
+                  }
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "Success"
+    },
+    "RoutTicketForAssignment": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-route-ticket",
+        "Payload": {
+          "ticketId.$": "$.ticket.sys_id",
+          "category.$": "$.ticket.category",
+          "subcategory.$": "$.ticket.subcategory",
+          "priority.$": "$.ticket.priority",
+          "recommendedGroup.$": "$.ticketAnalysis.recommendedGroup",
+          "complexity.$": "$.resolutionEvaluation.Payload.complexity"
+        }
+      },
+      "ResultPath": "$.routingResult",
+      "Next": "AssignTicketToGroup"
+    },
+    "AssignTicketToGroup": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "servicenow-assign-ticket",
+        "Payload": {
+          "ticketId.$": "$.ticket.sys_id",
+          "assignmentGroup.$": "$.routingResult.Payload.assignmentGroup",
+          "assignedTo.$": "$.routingResult.Payload.assignedTechnician",
+          "priority.$": "$.routingResult.Payload.adjustedPriority"
+        }
+      },
+      "ResultPath": "$.assignmentResult",
+      "Next": "NotifyAssignedTechnician"
+    },
+    "NotifyAssignedTechnician": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.assignmentNotificationTopic",
+        "Subject": "New Ticket Assigned",
+        "Message": {
+          "Fn::Format": [
+            "Ticket {} has been assigned to you.\n\nTitle: {}\nCategory: {}\nPriority: {}\n\nDescription: {}",
+            "$.ticket.sys_id",
+            "$.ticket.short_description",
+            "$.ticket.category",
+            "$.assignmentResult.Payload.priority",
+            "$.ticket.description"
+          ]
+        }
+      },
+      "Next": "UpdateAssignmentStatus"
+    },
+    "UpdateAssignmentStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "servicenow-tickets",
+        "Key": {
+          "TicketId": {
+            "S.$": "$.ticket.sys_id"
+          }
+        },
+        "AttributeUpdates": {
+          "Status": {
+            "Action": "PUT",
+            "Value": {
+              "S": "ASSIGNED"
+            }
+          },
+          "AssignedTo": {
+            "Action": "PUT",
+            "Value": {
+              "S.$": "$.assignmentResult.Payload.assignedTechnician"
+            }
+          },
+          "AssignmentGroup": {
+            "Action": "PUT",
+            "Value": {
+              "S.$": "$.assignmentResult.Payload.assignmentGroup"
+            }
+          },
+          "AssignedAt": {
+            "Action": "PUT",
+            "Value": {
+              "N": "States.JsonToString(States.ArrayGetItem(States.StringSplit(States.JsonToString(States.JsonToString($.timestamp)), '.'), 0))"
+            }
+          }
+        }
+      },
+      "Next": "Success"
+    },
+    "HandleReceiveError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Ticket Triage Workflow - Receive Error",
+        "Message.$": "$.error"
+      },
+      "Next": "ReceiveErrorFail"
+    },
+    "ReceiveErrorFail": {
+      "Type": "Fail",
+      "Error": "TicketReceiveError",
+      "Cause": "Failed to receive and store ticket"
+    },
+    "HandleAnalysisError": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.errorTopic",
+        "Subject": "Ticket Triage Workflow - Analysis Error",
+        "Message.$": "$.error"
+      },
+      "Next": "AnalysisErrorFail"
+    },
+    "AnalysisErrorFail": {
+      "Type": "Fail",
+      "Error": "TicketAnalysisError",
+      "Cause": "Failed to analyze ticket with Bedrock agent"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

@@ -1,0 +1,542 @@
+# Evidence Collection Automation for Compliance Audits
+# Amazon Bedrock Agents Infrastructure
+
+collection_metadata:
+  version: '1.0'
+  last_updated: '2025-11-17'
+  automation_framework: 'AWS Lambda + EventBridge'
+  evidence_storage: 'S3 with versioning and encryption'
+
+# Evidence Categories
+evidence_categories:
+  aws_config_compliance:
+    description: 'AWS Config compliance reports and configuration snapshots'
+    collection_frequency: 'Daily'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'AWS Config API'
+        automation: 'Lambda function scheduled daily'
+        output_format: 'JSON'
+
+    evidence_items:
+      - name: 'Bedrock Agent Encryption Compliance'
+        aws_config_rule: 'bedrock-agent-encryption-check'
+        collection_command: 'aws configservice describe-compliance-by-config-rule --config-rule-names bedrock-agent-encryption-check'
+        storage_path: 's3://compliance-evidence/aws-config/bedrock-encryption/'
+
+      - name: 'IAM Least Privilege Compliance'
+        aws_config_rule: 'bedrock-iam-least-privilege'
+        collection_command: 'aws configservice describe-compliance-by-config-rule --config-rule-names bedrock-iam-least-privilege'
+        storage_path: 's3://compliance-evidence/aws-config/iam-least-privilege/'
+
+      - name: 'Bedrock Logging Enabled'
+        aws_config_rule: 'bedrock-logging-enabled'
+        collection_command: 'aws configservice describe-compliance-by-config-rule --config-rule-names bedrock-logging-enabled'
+        storage_path: 's3://compliance-evidence/aws-config/logging/'
+
+      - name: 'Knowledge Base Backup Compliance'
+        aws_config_rule: 'bedrock-knowledge-base-backup'
+        collection_command: 'aws configservice describe-compliance-by-config-rule --config-rule-names bedrock-knowledge-base-backup'
+        storage_path: 's3://compliance-evidence/aws-config/backups/'
+
+      - name: 'Network Isolation Compliance'
+        aws_config_rule: 'bedrock-network-isolation'
+        collection_command: 'aws configservice describe-compliance-by-config-rule --config-rule-names bedrock-network-isolation'
+        storage_path: 's3://compliance-evidence/aws-config/network/'
+
+      - name: 'Configuration Snapshots'
+        collection_command: 'aws configservice get-resource-config-history --resource-type AWS::Bedrock::KnowledgeBase'
+        collection_frequency: 'Weekly'
+        storage_path: 's3://compliance-evidence/config-snapshots/'
+
+  cloudtrail_logs:
+    description: 'CloudTrail audit logs for all API activity'
+    collection_frequency: 'Continuous'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'CloudTrail to S3'
+        automation: 'CloudTrail service automatic delivery'
+        output_format: 'JSON (gzip compressed)'
+
+    evidence_items:
+      - name: 'Management Events'
+        trail_name: 'bedrock-management-trail'
+        s3_bucket: 's3://cloudtrail-logs-bedrock/AWSLogs/{account-id}/CloudTrail/'
+        log_file_validation: true
+        encryption: 'KMS CMK'
+
+      - name: 'Data Events - S3'
+        trail_name: 'bedrock-data-trail'
+        event_selectors:
+          - read_write_type: 'All'
+            include_management_events: false
+            data_resources:
+              - type: 'AWS::S3::Object'
+                values: ['arn:aws:s3:::bedrock-*/*']
+
+      - name: 'Data Events - Lambda'
+        trail_name: 'bedrock-data-trail'
+        event_selectors:
+          - read_write_type: 'All'
+            include_management_events: false
+            data_resources:
+              - type: 'AWS::Lambda::Function'
+                values: ['arn:aws:lambda:*:*:function:bedrock-*']
+
+      - name: 'Bedrock API Calls'
+        filter_pattern: '{ $.eventSource = bedrock.amazonaws.com || $.eventSource = bedrock-agent.amazonaws.com || $.eventSource = bedrock-agent-runtime.amazonaws.com }'
+        analysis_tool: 'CloudWatch Insights'
+        storage_path: 's3://compliance-evidence/cloudtrail-filtered/bedrock-api/'
+
+  bedrock_invocation_logs:
+    description: 'Bedrock model invocation and agent execution logs'
+    collection_frequency: 'Continuous'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'CloudWatch Logs'
+        automation: 'Bedrock model invocation logging'
+        output_format: 'JSON'
+        encryption: 'KMS CMK'
+
+    evidence_items:
+      - name: 'Model Invocation Logs'
+        log_group: '/aws/bedrock/modelinvocations'
+        log_stream: 'bedrock-agent-*'
+        retention_days: 2557 # 7 years
+        storage_path: 's3://compliance-evidence/bedrock-logs/invocations/'
+        export_frequency: 'Weekly'
+
+      - name: 'Agent Trace Logs'
+        log_group: '/aws/bedrock/agent-traces'
+        retention_days: 2557
+        storage_path: 's3://compliance-evidence/bedrock-logs/agent-traces/'
+        export_frequency: 'Weekly'
+
+      - name: 'Sensitive Data Access Logs'
+        log_group: '/aws/bedrock/modelinvocations'
+        filter_pattern: '[timestamp, request_id, classification=RESTRICTED || classification=CONFIDENTIAL]'
+        analysis_tool: 'CloudWatch Log Insights'
+        alert_on_access: true
+
+  security_monitoring:
+    description: 'Security monitoring findings and alerts'
+    collection_frequency: 'Daily'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'Security Hub API'
+        automation: 'Lambda function scheduled daily'
+        output_format: 'JSON'
+
+    evidence_items:
+      - name: 'Security Hub Findings'
+        collection_command: 'aws securityhub get-findings'
+        filters:
+          - compliance_status: ['FAILED', 'WARNING']
+          - severity: ['HIGH', 'CRITICAL']
+        storage_path: 's3://compliance-evidence/security-hub/findings/'
+
+      - name: 'GuardDuty Findings'
+        collection_command: 'aws guardduty list-findings --detector-id {detector-id}'
+        severity_filter: ['High', 'Medium']
+        storage_path: 's3://compliance-evidence/guardduty/findings/'
+
+      - name: 'Macie Findings - Sensitive Data'
+        collection_command: 'aws macie2 list-findings'
+        finding_type:
+          [
+            'SensitiveData:S3Object/Personal',
+            'SensitiveData:S3Object/Financial',
+            'SensitiveData:S3Object/Credentials',
+          ]
+        storage_path: 's3://compliance-evidence/macie/findings/'
+
+      - name: 'Inspector Findings'
+        collection_command: 'aws inspector2 list-findings'
+        severity_filter: ['CRITICAL', 'HIGH']
+        storage_path: 's3://compliance-evidence/inspector/findings/'
+
+  iam_access_reports:
+    description: 'IAM access reports for access reviews'
+    collection_frequency: 'Monthly'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'IAM API and Access Analyzer'
+        automation: 'Lambda function scheduled monthly'
+        output_format: 'CSV and JSON'
+
+    evidence_items:
+      - name: 'IAM Credential Report'
+        collection_command: 'aws iam generate-credential-report && aws iam get-credential-report'
+        storage_path: 's3://compliance-evidence/iam/credential-reports/'
+        analysis:
+          - unused_credentials_90_days
+          - mfa_enabled_status
+          - access_key_age
+
+      - name: 'IAM Access Analyzer Findings'
+        collection_command: 'aws accessanalyzer list-findings --analyzer-arn {analyzer-arn}'
+        finding_types: ['ExternalAccess', 'UnusedAccess']
+        storage_path: 's3://compliance-evidence/iam/access-analyzer/'
+
+      - name: 'Role Usage Report'
+        collection_command: 'aws iam get-service-last-accessed-details'
+        scope: 'Bedrock-related IAM roles'
+        storage_path: 's3://compliance-evidence/iam/role-usage/'
+
+      - name: 'User Access Review'
+        collection_method: 'Custom Lambda function'
+        data_sources:
+          - IAM users and roles
+          - CloudTrail activity logs
+          - Resource access patterns
+        output_format: 'CSV report for Data Owners'
+        storage_path: 's3://compliance-evidence/iam/access-reviews/'
+
+  encryption_verification:
+    description: 'Encryption configuration and key management evidence'
+    collection_frequency: 'Weekly'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'KMS and service-specific APIs'
+        automation: 'Lambda function scheduled weekly'
+        output_format: 'JSON'
+
+    evidence_items:
+      - name: 'KMS Key Inventory'
+        collection_command: 'aws kms list-keys && aws kms describe-key'
+        details_collected:
+          - key_id
+          - key_manager (CUSTOMER vs AWS)
+          - key_state
+          - key_rotation_enabled
+          - key_policy
+        storage_path: 's3://compliance-evidence/kms/key-inventory/'
+
+      - name: 'S3 Bucket Encryption Status'
+        collection_command: 'aws s3api get-bucket-encryption'
+        scope: 'All buckets with bedrock-* prefix'
+        storage_path: 's3://compliance-evidence/encryption/s3/'
+
+      - name: 'RDS Encryption Status'
+        collection_command: 'aws rds describe-db-instances'
+        attributes: ['StorageEncrypted', 'KmsKeyId']
+        storage_path: 's3://compliance-evidence/encryption/rds/'
+
+      - name: 'CloudWatch Logs Encryption'
+        collection_command: 'aws logs describe-log-groups'
+        attributes: ['kmsKeyId', 'retentionInDays']
+        storage_path: 's3://compliance-evidence/encryption/cloudwatch/'
+
+  backup_verification:
+    description: 'Backup configuration and restore testing evidence'
+    collection_frequency: 'Weekly'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'AWS Backup API and custom restore testing'
+        automation: 'Lambda function and scheduled restore tests'
+        output_format: 'JSON and test reports'
+
+    evidence_items:
+      - name: 'Backup Plan Configuration'
+        collection_command: 'aws backup list-backup-plans && aws backup get-backup-plan'
+        storage_path: 's3://compliance-evidence/backup/plans/'
+
+      - name: 'Backup Job Status'
+        collection_command: 'aws backup list-backup-jobs'
+        status_filter: ['COMPLETED', 'FAILED']
+        storage_path: 's3://compliance-evidence/backup/job-status/'
+
+      - name: 'Recovery Point Inventory'
+        collection_command: 'aws backup list-recovery-points-by-backup-vault'
+        backup_vault: 'bedrock-backup-vault'
+        storage_path: 's3://compliance-evidence/backup/recovery-points/'
+
+      - name: 'Restore Test Results'
+        collection_method: 'Quarterly automated restore test'
+        test_procedure:
+          - select_random_recovery_point
+          - restore_to_test_environment
+          - verify_data_integrity
+          - measure_rto_rpo
+        storage_path: 's3://compliance-evidence/backup/restore-tests/'
+
+  incident_response:
+    description: 'Incident response logs and post-mortems'
+    collection_frequency: 'As incidents occur'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'Manual collection and ticketing system integration'
+        automation: 'Semi-automated with incident management system'
+        output_format: 'PDF and JSON'
+
+    evidence_items:
+      - name: 'Incident Reports'
+        source: 'Incident management system'
+        required_fields:
+          - incident_id
+          - incident_type
+          - severity
+          - detection_time
+          - response_time
+          - resolution_time
+          - root_cause_analysis
+          - lessons_learned
+        storage_path: 's3://compliance-evidence/incidents/reports/'
+
+      - name: 'Breach Notifications'
+        source: 'Legal and privacy team records'
+        notification_types: ['GDPR', 'HIPAA', 'PCI-DSS', 'State laws']
+        storage_path: 's3://compliance-evidence/incidents/breach-notifications/'
+
+      - name: 'Forensic Evidence'
+        source: 'Forensic investigation tools'
+        evidence_types:
+          - cloudtrail_logs
+          - memory_dumps
+          - disk_snapshots
+          - network_captures
+        storage_path: 's3://forensic-evidence/' # Separate bucket with stricter access
+        chain_of_custody: required
+
+  policy_and_training:
+    description: 'Policy documents and training records'
+    collection_frequency: 'Annual (or upon policy update)'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'Manual collection from document management system'
+        automation: 'Semi-automated with LMS integration'
+        output_format: 'PDF'
+
+    evidence_items:
+      - name: 'Information Security Policies'
+        policies:
+          - data_classification_policy
+          - encryption_policy
+          - access_control_policy
+          - incident_response_policy
+          - backup_retention_policy
+        version_control: required
+        approval_signatures: required
+        storage_path: 's3://compliance-evidence/policies/'
+
+      - name: 'Training Completion Records'
+        source: 'Learning Management System (LMS)'
+        training_types:
+          - security_awareness
+          - gdpr_privacy
+          - hipaa_compliance
+          - pci_dss_awareness
+        required_fields:
+          - employee_id
+          - training_name
+          - completion_date
+          - test_score
+          - certificate
+        storage_path: 's3://compliance-evidence/training/'
+
+      - name: 'Risk Assessments'
+        assessment_types:
+          - annual_risk_assessment
+          - privacy_impact_assessment_dpia
+          - vendor_risk_assessment
+        storage_path: 's3://compliance-evidence/risk-assessments/'
+
+  third_party_attestations:
+    description: 'Third-party certifications and attestations'
+    collection_frequency: 'Annual (or upon renewal)'
+    retention_period: '7 years'
+
+    collection_methods:
+      - method: 'Manual collection from vendors'
+        automation: 'Vendor management system integration'
+        output_format: 'PDF'
+
+    evidence_items:
+      - name: 'AWS Compliance Reports'
+        reports:
+          - aws_soc2_type_ii
+          - aws_iso_27001_certificate
+          - aws_iso_27017_certificate
+          - aws_iso_27018_certificate
+          - aws_pci_dss_aoc
+        source: 'AWS Artifact'
+        storage_path: 's3://compliance-evidence/third-party/aws/'
+
+      - name: 'AWS Business Associate Agreement (BAA)'
+        document: 'AWS BAA for HIPAA'
+        renewal: 'As needed'
+        storage_path: 's3://compliance-evidence/third-party/baa/'
+
+      - name: 'AWS Data Processing Addendum (DPA)'
+        document: 'AWS DPA for GDPR'
+        renewal: 'As needed'
+        storage_path: 's3://compliance-evidence/third-party/dpa/'
+
+# Automation Configuration
+automation:
+  lambda_functions:
+    - name: 'evidence-collector-config'
+      description: 'Collects AWS Config compliance reports daily'
+      schedule: 'cron(0 6 * * ? *)' # 6 AM UTC daily
+      runtime: 'python3.12'
+      timeout: 300
+      memory: 512
+      iam_role: 'arn:aws:iam::ACCOUNT:role/EvidenceCollectionRole'
+      environment_variables:
+        EVIDENCE_BUCKET: 'compliance-evidence'
+        RETENTION_DAYS: '2557'
+
+    - name: 'evidence-collector-cloudtrail'
+      description: 'Exports CloudTrail logs to compliance evidence bucket'
+      schedule: 'cron(0 2 ? * SUN *)' # Weekly on Sunday 2 AM UTC
+      runtime: 'python3.12'
+      timeout: 900
+      memory: 1024
+
+    - name: 'evidence-collector-iam'
+      description: 'Generates IAM access reports monthly'
+      schedule: 'cron(0 8 1 * ? *)' # 1st of month 8 AM UTC
+      runtime: 'python3.12'
+      timeout: 600
+      memory: 512
+
+    - name: 'evidence-collector-security'
+      description: 'Collects Security Hub and GuardDuty findings'
+      schedule: 'cron(0 10 * * ? *)' # Daily 10 AM UTC
+      runtime: 'python3.12'
+      timeout: 300
+      memory: 512
+
+  eventbridge_rules:
+    - name: 'evidence-collection-daily'
+      description: 'Triggers daily evidence collection'
+      schedule: 'cron(0 6 * * ? *)'
+      targets:
+        - lambda_function: 'evidence-collector-config'
+        - lambda_function: 'evidence-collector-security'
+
+    - name: 'evidence-collection-monthly'
+      description: 'Triggers monthly evidence collection'
+      schedule: 'cron(0 8 1 * ? *)'
+      targets:
+        - lambda_function: 'evidence-collector-iam'
+
+  s3_bucket_configuration:
+    bucket_name: 'compliance-evidence-{account-id}-{region}'
+    versioning: enabled
+    encryption:
+      type: 'aws:kms'
+      kms_key_id: 'arn:aws:kms:region:account:key/evidence-cmk'
+    lifecycle_policy:
+      - id: 'transition-to-glacier'
+        transition_days: 90
+        storage_class: 'GLACIER'
+      - id: 'transition-to-deep-archive'
+        transition_days: 365
+        storage_class: 'DEEP_ARCHIVE'
+      - id: 'delete-after-retention'
+        expiration_days: 2557 # 7 years
+    object_lock:
+      enabled: true
+      mode: 'COMPLIANCE'
+      retention_years: 7
+    access_logging:
+      enabled: true
+      target_bucket: 'compliance-evidence-logs'
+
+# Evidence Validation
+validation:
+  integrity_checks:
+    - method: 'SHA-256 hash'
+      application: 'All evidence files on collection'
+      storage: 'Hash stored in evidence metadata'
+
+    - method: 'S3 Object Lock'
+      application: 'Prevent tampering or deletion'
+      retention: '7 years'
+
+    - method: 'CloudTrail Log File Validation'
+      application: 'Validate CloudTrail log integrity'
+      verification: 'Digital signature validation'
+
+  chain_of_custody:
+    required_for: ['Forensic evidence', 'Incident investigation logs']
+    fields:
+      - evidence_id
+      - collection_timestamp
+      - collected_by (IAM user/role)
+      - evidence_hash
+      - storage_location
+      - access_log_reference
+      - integrity_verification_status
+
+# Evidence Retrieval
+retrieval:
+  access_control:
+    iam_policy: 'ComplianceEvidenceReadOnly'
+    allowed_roles:
+      - 'ComplianceAuditor'
+      - 'CISO'
+      - 'LegalCounsel'
+      - 'ExternalAuditor' # temporary, time-limited
+    mfa_required: true
+    ip_restriction: 'Corporate VPN only'
+
+  search_and_indexing:
+    tool: 'AWS Athena'
+    glue_catalog: 'compliance_evidence_catalog'
+    searchable_fields:
+      - evidence_type
+      - collection_date
+      - compliance_framework
+      - aws_config_rule
+      - resource_id
+      - finding_severity
+
+  export_format:
+    formats: ['JSON', 'CSV', 'PDF']
+    encryption: 'Required for export'
+    delivery_method: 'Secure S3 pre-signed URL or encrypted email'
+
+# Compliance Reporting
+reporting:
+  automated_reports:
+    - name: 'Monthly Compliance Dashboard'
+      frequency: 'Monthly'
+      format: 'HTML and PDF'
+      distribution: ['CISO', 'Compliance Team', 'Executive Leadership']
+      content:
+        - config_compliance_summary
+        - security_findings_summary
+        - access_review_status
+        - incident_summary
+        - training_completion_rate
+
+    - name: 'Quarterly Audit Report'
+      frequency: 'Quarterly'
+      format: 'PDF with evidence annexes'
+      distribution: ['Board of Directors', 'External Auditor']
+      content:
+        - compliance_score_by_framework
+        - control_effectiveness_assessment
+        - risk_register_updates
+        - remediation_tracking
+
+    - name: 'Annual Compliance Certification'
+      frequency: 'Annual'
+      format: 'PDF with executive summary'
+      distribution: ['Regulators', 'Customers (on request)']
+      content:
+        - soc2_type_ii_report
+        - iso_27001_certification
+        - hipaa_compliance_statement
+        - gdpr_compliance_attestation

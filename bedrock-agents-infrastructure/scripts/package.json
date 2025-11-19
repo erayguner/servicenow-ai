@@ -1,0 +1,45 @@
+{
+  "name": "bedrock-agents-infrastructure-scripts",
+  "version": "1.0.0",
+  "description": "Deployment and operational scripts for Bedrock agents infrastructure",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "./deploy.sh",
+    "setup-kb": "./setup-knowledge-base.sh",
+    "invoke": "./invoke-agent.sh",
+    "orchestrate": "./orchestrate-workflow.sh",
+    "cleanup": "./cleanup.sh",
+    "setup-monitoring": "./monitoring/setup-dashboards.sh",
+    "export-metrics": "./monitoring/export-metrics.sh",
+    "cost-analysis": "./monitoring/cost-analysis.sh"
+  },
+  "keywords": [
+    "bedrock",
+    "agents",
+    "infrastructure",
+    "aws",
+    "deployment"
+  ],
+  "author": "Bedrock Agents Team",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.1400.0",
+    "aws-cli": "^1.27.0"
+  },
+  "devDependencies": {
+    "shellcheck": "^1.1.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/bedrock-agents-infrastructure.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/bedrock-agents-infrastructure/issues"
+  },
+  "homepage": "https://github.com/yourusername/bedrock-agents-infrastructure#readme"
+}
