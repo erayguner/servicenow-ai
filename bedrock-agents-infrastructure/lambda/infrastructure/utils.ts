@@ -139,7 +139,7 @@ export async function deployToKubernetes(
   ecsClient: ECSClient,
   options: KubernetesDeployOptions
 ): Promise<KubernetesDeployment> {
-  const { clusterName, namespace, manifestPath, manifestContent, deploymentType, replicas, image, environment } = options;
+  const { clusterName, namespace, manifestPath, manifestContent, deploymentType, replicas, image } = options;
 
   console.log(`Deploying to Kubernetes: ${clusterName}/${namespace}`);
 
