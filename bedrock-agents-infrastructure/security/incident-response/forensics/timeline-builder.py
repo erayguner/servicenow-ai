@@ -18,15 +18,20 @@ from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class TimelineBuilder:
     """Builds incident timeline from forensic data."""
 
-    def __init__(self, incident_id: str, start_time: datetime, end_time: Optional[datetime] = None):
+    def __init__(
+        self,
+        incident_id: str,
+        start_time: datetime,
+        end_time: Optional[datetime] = None,
+    ):
         """
         Initialize timeline builder.
 
@@ -40,10 +45,10 @@ class TimelineBuilder:
         self.end_time = end_time or datetime.utcnow()
 
         # Initialize AWS clients
-        self.cloudtrail = boto3.client('cloudtrail')
-        self.cloudwatch = boto3.client('logs')
-        self.ec2 = boto3.client('ec2')
-        self.rds = boto3.client('rds')
+        self.cloudtrail = boto3.client("cloudtrail")
+        self.cloudwatch = boto3.client("logs")
+        self.ec2 = boto3.client("ec2")
+        self.rds = boto3.client("rds")
 
         # Timeline events storage
         self.events = []
@@ -55,28 +60,35 @@ class TimelineBuilder:
         events = []
 
         try:
-            paginator = self.cloudtrail.get_paginator('lookup_events')
+            paginator = self.cloudtrail.get_paginator("lookup_events")
             page_iterator = paginator.paginate(
-                StartTime=self.start_time,
-                EndTime=self.end_time
+                StartTime=self.start_time, EndTime=self.end_time
             )
 
             for page in page_iterator:
-                for event in page.get('Events', []):
+                for event in page.get("Events", []):
                     try:
                         # Parse event JSON
-                        event_data = json.loads(event.get('CloudTrailEvent', '{}'))
+                        event_data = json.loads(event.get("CloudTrailEvent", "{}"))
 
                         timeline_event = {
-                            'timestamp': event['EventTime'].isoformat() if hasattr(event['EventTime'], 'isoformat') else str(event['EventTime']),
-                            'source': 'CloudTrail',
-                            'event_type': event.get('EventName'),
-                            'principal': event.get('Username'),
-                            'source_ip': event_data.get('sourceIPAddress'),
-                            'resource_type': event_data.get('requestParameters', {}).get('resource'),
-                            'action': event.get('EventName'),
-                            'status': 'Success' if event.get('CloudTrailEvent') else 'Unknown',
-                            'raw_event': event_data
+                            "timestamp": (
+                                event["EventTime"].isoformat()
+                                if hasattr(event["EventTime"], "isoformat")
+                                else str(event["EventTime"])
+                            ),
+                            "source": "CloudTrail",
+                            "event_type": event.get("EventName"),
+                            "principal": event.get("Username"),
+                            "source_ip": event_data.get("sourceIPAddress"),
+                            "resource_type": event_data.get(
+                                "requestParameters", {}
+                            ).get("resource"),
+                            "action": event.get("EventName"),
+                            "status": (
+                                "Success" if event.get("CloudTrailEvent") else "Unknown"
+                            ),
+                            "raw_event": event_data,
                         }
 
                         events.append(timeline_event)
@@ -100,17 +112,17 @@ class TimelineBuilder:
         try:
             if vpc_ids is None:
                 vpcs = self.ec2.describe_vpcs()
-                vpc_ids = [vpc['VpcId'] for vpc in vpcs.get('Vpcs', [])]
+                vpc_ids = [vpc["VpcId"] for vpc in vpcs.get("Vpcs", [])]
 
             for vpc_id in vpc_ids:
                 try:
                     # Get flow logs
                     flow_logs_response = self.ec2.describe_flow_logs(
-                        Filter=[{'Name': 'resource-id', 'Values': [vpc_id]}]
+                        Filter=[{"Name": "resource-id", "Values": [vpc_id]}]
                     )
 
-                    for fl in flow_logs_response.get('FlowLogs', []):
-                        log_group = fl.get('LogGroupName')
+                    for fl in flow_logs_response.get("FlowLogs", []):
+                        log_group = fl.get("LogGroupName")
                         if log_group:
                             start_time = int(self.start_time.timestamp() * 1000)
                             end_time = int(self.end_time.timestamp() * 1000)
@@ -125,17 +137,19 @@ class TimelineBuilder:
                                 logGroupName=log_group,
                                 startTime=start_time,
                                 endTime=end_time,
-                                queryString=query
+                                queryString=query,
                             )
 
                             # Note: In production, would poll for results
-                            events.append({
-                                'timestamp': datetime.utcnow().isoformat(),
-                                'source': 'VPC Flow Logs',
-                                'vpc_id': vpc_id,
-                                'query_id': response['queryId'],
-                                'log_group': log_group
-                            })
+                            events.append(
+                                {
+                                    "timestamp": datetime.utcnow().isoformat(),
+                                    "source": "VPC Flow Logs",
+                                    "vpc_id": vpc_id,
+                                    "query_id": response["queryId"],
+                                    "log_group": log_group,
+                                }
+                            )
 
                 except Exception as e:
                     logger.warning(f"Error parsing flow logs for {vpc_id}: {e}")
@@ -145,7 +159,9 @@ class TimelineBuilder:
 
         return events
 
-    def parse_cloudwatch_logs(self, log_groups: Optional[List[str]] = None) -> List[Dict]:
+    def parse_cloudwatch_logs(
+        self, log_groups: Optional[List[str]] = None
+    ) -> List[Dict]:
         """Parse CloudWatch logs into timeline format."""
         logger.info("Parsing CloudWatch logs")
 
@@ -153,10 +169,12 @@ class TimelineBuilder:
 
         try:
             if log_groups is None:
-                paginator = self.cloudwatch.get_paginator('describe_log_groups')
+                paginator = self.cloudwatch.get_paginator("describe_log_groups")
                 log_groups = []
                 for page in paginator.paginate():
-                    log_groups.extend([lg['logGroupName'] for lg in page.get('logGroups', [])])
+                    log_groups.extend(
+                        [lg["logGroupName"] for lg in page.get("logGroups", [])]
+                    )
 
             for log_group in log_groups:
                 try:
@@ -176,15 +194,17 @@ class TimelineBuilder:
                         logGroupName=log_group,
                         startTime=start_time,
                         endTime=end_time,
-                        queryString=query
+                        queryString=query,
                     )
 
-                    events.append({
-                        'timestamp': datetime.utcnow().isoformat(),
-                        'source': 'CloudWatch',
-                        'log_group': log_group,
-                        'query_id': response['queryId']
-                    })
+                    events.append(
+                        {
+                            "timestamp": datetime.utcnow().isoformat(),
+                            "source": "CloudWatch",
+                            "log_group": log_group,
+                            "query_id": response["queryId"],
+                        }
+                    )
 
                 except Exception as e:
                     logger.warning(f"Error querying {log_group}: {e}")
@@ -207,14 +227,14 @@ class TimelineBuilder:
         logger.info(f"Correlating {len(events)} events")
 
         # Sort by timestamp
-        sorted_events = sorted(events, key=lambda x: x.get('timestamp', ''))
+        sorted_events = sorted(events, key=lambda x: x.get("timestamp", ""))
 
         # Group by source IP and time window (5 min)
         correlations = defaultdict(list)
 
         for event in sorted_events:
-            source_ip = event.get('source_ip')
-            timestamp = event.get('timestamp')
+            source_ip = event.get("source_ip")
+            timestamp = event.get("timestamp")
 
             if source_ip and timestamp:
                 correlations[source_ip].append(event)
@@ -222,11 +242,11 @@ class TimelineBuilder:
         # Add correlation info
         correlated = []
         for event in sorted_events:
-            source_ip = event.get('source_ip')
+            source_ip = event.get("source_ip")
 
             if source_ip in correlations:
-                event['related_events'] = len(correlations[source_ip]) - 1
-                event['source_ip_activity'] = len(correlations[source_ip])
+                event["related_events"] = len(correlations[source_ip]) - 1
+                event["source_ip_activity"] = len(correlations[source_ip])
 
             correlated.append(event)
 
@@ -270,17 +290,17 @@ class TimelineBuilder:
 
         # Build timeline output
         timeline = {
-            'incident_id': self.incident_id,
-            'timeline_period': {
-                'start': self.start_time.isoformat(),
-                'end': self.end_time.isoformat(),
-                'duration_seconds': (self.end_time - self.start_time).total_seconds()
+            "incident_id": self.incident_id,
+            "timeline_period": {
+                "start": self.start_time.isoformat(),
+                "end": self.end_time.isoformat(),
+                "duration_seconds": (self.end_time - self.start_time).total_seconds(),
             },
-            'total_events': len(correlated_events),
-            'events_by_source': self._count_by_source(correlated_events),
-            'timeline': correlated_events,
-            'analysis': analysis,
-            'generated_time': datetime.utcnow().isoformat()
+            "total_events": len(correlated_events),
+            "events_by_source": self._count_by_source(correlated_events),
+            "timeline": correlated_events,
+            "analysis": analysis,
+            "generated_time": datetime.utcnow().isoformat(),
         }
 
         return timeline
@@ -289,42 +309,48 @@ class TimelineBuilder:
         """Count events by source."""
         counts = defaultdict(int)
         for event in events:
-            source = event.get('source', 'Unknown')
+            source = event.get("source", "Unknown")
             counts[source] += 1
         return dict(counts)
 
     def analyze_patterns(self, events: List[Dict]) -> Dict:
         """Analyze event patterns for insights."""
         analysis = {
-            'top_principals': defaultdict(int),
-            'top_source_ips': defaultdict(int),
-            'top_event_types': defaultdict(int),
-            'suspicious_patterns': []
+            "top_principals": defaultdict(int),
+            "top_source_ips": defaultdict(int),
+            "top_event_types": defaultdict(int),
+            "suspicious_patterns": [],
         }
 
         for event in events:
             # Count by principal
-            principal = event.get('principal', 'Unknown')
-            analysis['top_principals'][principal] += 1
+            principal = event.get("principal", "Unknown")
+            analysis["top_principals"][principal] += 1
 
             # Count by source IP
-            source_ip = event.get('source_ip', 'Unknown')
+            source_ip = event.get("source_ip", "Unknown")
             if source_ip:
-                analysis['top_source_ips'][source_ip] += 1
+                analysis["top_source_ips"][source_ip] += 1
 
             # Count by event type
-            event_type = event.get('event_type', 'Unknown')
-            analysis['top_event_types'][event_type] += 1
+            event_type = event.get("event_type", "Unknown")
+            analysis["top_event_types"][event_type] += 1
 
         # Find top items
-        analysis['top_principals'] = dict(
-            sorted(analysis['top_principals'].items(), key=lambda x: x[1], reverse=True)[:5]
+        analysis["top_principals"] = dict(
+            sorted(
+                analysis["top_principals"].items(), key=lambda x: x[1], reverse=True
+            )[:5]
         )
-        analysis['top_source_ips'] = dict(
-            sorted(analysis['top_source_ips'].items(), key=lambda x: x[1], reverse=True)[:5]
+        analysis["top_source_ips"] = dict(
+            sorted(
+                analysis["top_source_ips"].items(), key=lambda x: x[1], reverse=True
+            )[:5]
         )
-        analysis['top_event_types'] = dict(
-            sorted(analysis['top_event_types'].items(), key=lambda x: x[1], reverse=True)[:10]
+        analysis["top_event_types"] = dict(
+            sorted(
+                analysis["top_event_types"].items(), key=lambda x: x[1], reverse=True
+            )[:10]
         )
 
         return dict(analysis)
@@ -333,7 +359,7 @@ class TimelineBuilder:
         """Export timeline to file."""
         timeline = self.build_timeline()
 
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(timeline, f, indent=2, default=str)
 
         logger.info(f"Timeline exported to {output_file}")
@@ -343,20 +369,24 @@ class TimelineBuilder:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Build incident timeline from forensic data'
+        description="Build incident timeline from forensic data"
     )
-    parser.add_argument('--incident-id', required=True, help='Incident identifier')
-    parser.add_argument('--start-time', required=True, help='Timeline start time (ISO format)')
-    parser.add_argument('--end-time', help='Timeline end time (ISO format, now if not specified)')
-    parser.add_argument('--output-file', default='timeline.json', help='Output file')
+    parser.add_argument("--incident-id", required=True, help="Incident identifier")
+    parser.add_argument(
+        "--start-time", required=True, help="Timeline start time (ISO format)"
+    )
+    parser.add_argument(
+        "--end-time", help="Timeline end time (ISO format, now if not specified)"
+    )
+    parser.add_argument("--output-file", default="timeline.json", help="Output file")
 
     args = parser.parse_args()
 
     # Parse times
-    start_time = datetime.fromisoformat(args.start_time.replace('Z', '+00:00'))
+    start_time = datetime.fromisoformat(args.start_time.replace("Z", "+00:00"))
     end_time = None
     if args.end_time:
-        end_time = datetime.fromisoformat(args.end_time.replace('Z', '+00:00'))
+        end_time = datetime.fromisoformat(args.end_time.replace("Z", "+00:00"))
 
     # Build timeline
     builder = TimelineBuilder(args.incident_id, start_time, end_time)
@@ -365,5 +395,5 @@ def main():
     print(f"Timeline created: {output_file}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

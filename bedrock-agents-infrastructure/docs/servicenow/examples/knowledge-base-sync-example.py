@@ -23,6 +23,7 @@ from dataclasses import dataclass
 @dataclass
 class IncidentResolution:
     """Represents a resolved incident"""
+
     sys_id: str
     number: str
     short_description: str
@@ -38,8 +39,13 @@ class IncidentResolution:
 class KnowledgeBaseSynchronizer:
     """Synchronizes and optimizes the ServiceNow Knowledge Base"""
 
-    def __init__(self, servicenow_url: str, username: str, api_token: str,
-                 aws_region: str = 'us-east-1'):
+    def __init__(
+        self,
+        servicenow_url: str,
+        username: str,
+        api_token: str,
+        aws_region: str = "us-east-1",
+    ):
         """
         Initialize KB synchronizer
 
@@ -49,20 +55,22 @@ class KnowledgeBaseSynchronizer:
             api_token: API token
             aws_region: AWS region for Bedrock
         """
-        self.servicenow_url = servicenow_url.rstrip('/')
-        self.bedrock = boto3.client('bedrock-runtime', region_name=aws_region)
-        self.model_id = 'anthropic.claude-3-5-sonnet-20241022-v2:0'
+        self.servicenow_url = servicenow_url.rstrip("/")
+        self.bedrock = boto3.client("bedrock-runtime", region_name=aws_region)
+        self.model_id = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 
         # Setup authentication
         credentials = f"{username}:{api_token}"
         encoded = base64.b64encode(credentials.encode()).decode()
         self.headers = {
-            'Authorization': f'Basic {encoded}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            "Authorization": f"Basic {encoded}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
         }
 
-    def get_recently_resolved_incidents(self, days: int = 7, limit: int = 50) -> List[IncidentResolution]:
+    def get_recently_resolved_incidents(
+        self, days: int = 7, limit: int = 50
+    ) -> List[IncidentResolution]:
         """
         Get recently resolved incidents
 
@@ -78,29 +86,33 @@ class KnowledgeBaseSynchronizer:
         # Query for resolved incidents from last N days
         query = f"state=7^resolved_onONLAST{days}@days^ORDERBYDESCresolved_on"
         params = {
-            'sysparm_query': query,
-            'sysparm_limit': limit,
-            'sysparm_fields': 'sys_id,number,short_description,description,resolution_notes,category,state,created_on,resolved_on,resolved_by'
+            "sysparm_query": query,
+            "sysparm_limit": limit,
+            "sysparm_fields": "sys_id,number,short_description,description,resolution_notes,category,state,created_on,resolved_on,resolved_by",
         }
 
         try:
-            response = requests.get(url, headers=self.headers, params=params, timeout=15)
+            response = requests.get(
+                url, headers=self.headers, params=params, timeout=15
+            )
             response.raise_for_status()
 
             incidents = []
-            for data in response.json()['result']:
-                incidents.append(IncidentResolution(
-                    sys_id=data['sys_id'],
-                    number=data['number'],
-                    short_description=data['short_description'],
-                    description=data['description'],
-                    resolution_notes=data.get('resolution_notes', ''),
-                    category=data.get('category', 'Other'),
-                    state=data['state'],
-                    created_on=data['created_on'],
-                    resolved_on=data['resolved_on'],
-                    resolved_by=data['resolved_by']
-                ))
+            for data in response.json()["result"]:
+                incidents.append(
+                    IncidentResolution(
+                        sys_id=data["sys_id"],
+                        number=data["number"],
+                        short_description=data["short_description"],
+                        description=data["description"],
+                        resolution_notes=data.get("resolution_notes", ""),
+                        category=data.get("category", "Other"),
+                        state=data["state"],
+                        created_on=data["created_on"],
+                        resolved_on=data["resolved_on"],
+                        resolved_by=data["resolved_by"],
+                    )
+                )
 
             return incidents
 
@@ -108,7 +120,9 @@ class KnowledgeBaseSynchronizer:
             print(f"Error retrieving resolved incidents: {e}")
             return []
 
-    def search_kb_for_duplicates(self, article_title: str, keywords: List[str]) -> List[Dict]:
+    def search_kb_for_duplicates(
+        self, article_title: str, keywords: List[str]
+    ) -> List[Dict]:
         """
         Search for existing KB articles that might be duplicates
 
@@ -122,25 +136,30 @@ class KnowledgeBaseSynchronizer:
         url = f"{self.servicenow_url}/api/now/table/kb_knowledge"
 
         # Search for articles with similar keywords
-        query_terms = ' OR '.join(f"CONTAINS(short_description,'{kw}')" for kw in keywords[:3])
+        query_terms = " OR ".join(
+            f"CONTAINS(short_description,'{kw}')" for kw in keywords[:3]
+        )
         query = f"({query_terms})^workflow_state=published"
         params = {
-            'sysparm_query': query,
-            'sysparm_limit': 10,
-            'sysparm_fields': 'sys_id,number,short_description,text'
+            "sysparm_query": query,
+            "sysparm_limit": 10,
+            "sysparm_fields": "sys_id,number,short_description,text",
         }
 
         try:
-            response = requests.get(url, headers=self.headers, params=params, timeout=10)
+            response = requests.get(
+                url, headers=self.headers, params=params, timeout=10
+            )
             response.raise_for_status()
-            return response.json()['result']
+            return response.json()["result"]
 
         except requests.RequestException as e:
             print(f"Error searching for duplicate KB articles: {e}")
             return []
 
-    def generate_kb_article(self, incident: IncidentResolution,
-                           existing_articles: List[Dict]) -> Dict:
+    def generate_kb_article(
+        self, incident: IncidentResolution, existing_articles: List[Dict]
+    ) -> Dict:
         """
         Generate a KB article from incident resolution using Bedrock
 
@@ -154,7 +173,9 @@ class KnowledgeBaseSynchronizer:
         # Build context about existing articles
         existing_context = "Existing KB articles on similar topics:\n"
         for article in existing_articles:
-            existing_context += f"- {article['number']}: {article['short_description']}\n"
+            existing_context += (
+                f"- {article['number']}: {article['short_description']}\n"
+            )
 
         if not existing_articles:
             existing_context += "- No existing articles found on this topic\n"
@@ -225,36 +246,36 @@ RESPOND AS JSON:
         try:
             response = self.bedrock.invoke_model(
                 modelId=self.model_id,
-                contentType='application/json',
-                accept='application/json',
-                body=json.dumps({
-                    'messages': [{'role': 'user', 'content': prompt}],
-                    'max_tokens': 2000
-                })
+                contentType="application/json",
+                accept="application/json",
+                body=json.dumps(
+                    {
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 2000,
+                    }
+                ),
             )
 
-            result = json.loads(response['body'].read())
-            content = result['content'][0]['text']
+            result = json.loads(response["body"].read())
+            content = result["content"][0]["text"]
 
             # Extract JSON from response
             import re
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+
+            json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 article = json.loads(json_match.group())
             else:
-                article = {'error': 'Could not parse response'}
+                article = {"error": "Could not parse response"}
 
-            article['source_incident'] = incident.number
-            article['source_incident_id'] = incident.sys_id
-            article['generated_at'] = datetime.now().isoformat()
+            article["source_incident"] = incident.number
+            article["source_incident_id"] = incident.sys_id
+            article["generated_at"] = datetime.now().isoformat()
 
             return article
 
         except Exception as e:
-            return {
-                'source_incident': incident.number,
-                'error': str(e)
-            }
+            return {"source_incident": incident.number, "error": str(e)}
 
     def publish_kb_article(self, article_content: Dict) -> Tuple[bool, str]:
         """
@@ -269,13 +290,13 @@ RESPOND AS JSON:
         url = f"{self.servicenow_url}/api/now/table/kb_knowledge"
 
         kb_data = {
-            'short_description': article_content['title'],
-            'text': article_content['solution'],
-            'category': article_content.get('category', 'General'),
-            'kb_category': 'How-To',
-            'workflow_state': 'draft',  # Draft first for review
-            'meta': ', '.join(article_content.get('keywords', [])),
-            'author': 'Bedrock-Integration'
+            "short_description": article_content["title"],
+            "text": article_content["solution"],
+            "category": article_content.get("category", "General"),
+            "kb_category": "How-To",
+            "workflow_state": "draft",  # Draft first for review
+            "meta": ", ".join(article_content.get("keywords", [])),
+            "author": "Bedrock-Integration",
         }
 
         # Add full content as text
@@ -303,14 +324,16 @@ RESPOND AS JSON:
 {chr(10).join(f"- {s}" for s in article_content.get('affected_systems', []))}
 """
 
-        kb_data['text'] = full_text
+        kb_data["text"] = full_text
 
         try:
-            response = requests.post(url, headers=self.headers, json=kb_data, timeout=10)
+            response = requests.post(
+                url, headers=self.headers, json=kb_data, timeout=10
+            )
             response.raise_for_status()
 
-            result = response.json()['result']
-            return True, result['sys_id']
+            result = response.json()["result"]
+            return True, result["sys_id"]
 
         except requests.RequestException as e:
             return False, str(e)
@@ -329,18 +352,20 @@ RESPOND AS JSON:
         url = f"{self.servicenow_url}/api/now/table/incident"
         query = f"created_onONLAST{max_days}@days^state=7"
         params = {
-            'sysparm_query': query,
-            'sysparm_limit': 500,
-            'sysparm_fields': 'category,short_description'
+            "sysparm_query": query,
+            "sysparm_limit": 500,
+            "sysparm_fields": "category,short_description",
         }
 
         incidents_by_category = {}
         try:
-            response = requests.get(url, headers=self.headers, params=params, timeout=15)
+            response = requests.get(
+                url, headers=self.headers, params=params, timeout=15
+            )
             response.raise_for_status()
 
-            for incident in response.json()['result']:
-                category = incident.get('category', 'Other')
+            for incident in response.json()["result"]:
+                category = incident.get("category", "Other")
                 if category not in incidents_by_category:
                     incidents_by_category[category] = []
                 incidents_by_category[category].append(incident)
@@ -351,17 +376,16 @@ RESPOND AS JSON:
         # Get KB article count by category
         kb_by_category = {}
         url = f"{self.servicenow_url}/api/now/table/kb_knowledge"
-        params = {
-            'sysparm_limit': 500,
-            'sysparm_fields': 'category'
-        }
+        params = {"sysparm_limit": 500, "sysparm_fields": "category"}
 
         try:
-            response = requests.get(url, headers=self.headers, params=params, timeout=15)
+            response = requests.get(
+                url, headers=self.headers, params=params, timeout=15
+            )
             response.raise_for_status()
 
-            for article in response.json()['result']:
-                category = article.get('category', 'Other')
+            for article in response.json()["result"]:
+                category = article.get("category", "Other")
                 kb_by_category[category] = kb_by_category.get(category, 0) + 1
 
         except requests.RequestException as e:
@@ -373,18 +397,20 @@ RESPOND AS JSON:
             kb_count = kb_by_category.get(category, 0)
             incident_count = len(incidents)
             coverage[category] = {
-                'incidents': incident_count,
-                'kb_articles': kb_count,
-                'coverage_ratio': kb_count / incident_count if incident_count > 0 else 0,
-                'gaps': incident_count - kb_count
+                "incidents": incident_count,
+                "kb_articles": kb_count,
+                "coverage_ratio": (
+                    kb_count / incident_count if incident_count > 0 else 0
+                ),
+                "gaps": incident_count - kb_count,
             }
 
         return {
-            'analysis_date': datetime.now().isoformat(),
-            'days_analyzed': max_days,
-            'coverage_by_category': coverage,
-            'total_incidents': sum(c['incidents'] for c in coverage.values()),
-            'total_kb_articles': sum(c['kb_articles'] for c in coverage.values())
+            "analysis_date": datetime.now().isoformat(),
+            "days_analyzed": max_days,
+            "coverage_by_category": coverage,
+            "total_incidents": sum(c["incidents"] for c in coverage.values()),
+            "total_kb_articles": sum(c["kb_articles"] for c in coverage.values()),
         }
 
 
@@ -392,15 +418,13 @@ def main():
     """Main example: KB synchronization"""
 
     # Configuration
-    SERVICENOW_INSTANCE = 'https://your-instance.service-now.com'
-    SERVICENOW_USERNAME = 'servicenow_bedrock_api'
-    SERVICENOW_API_TOKEN = 'your-api-token'
+    SERVICENOW_INSTANCE = "https://your-instance.service-now.com"
+    SERVICENOW_USERNAME = "servicenow_bedrock_api"
+    SERVICENOW_API_TOKEN = "your-api-token"
 
     print("Initializing Knowledge Base synchronizer...")
     synchronizer = KnowledgeBaseSynchronizer(
-        SERVICENOW_INSTANCE,
-        SERVICENOW_USERNAME,
-        SERVICENOW_API_TOKEN
+        SERVICENOW_INSTANCE, SERVICENOW_USERNAME, SERVICENOW_API_TOKEN
     )
 
     # Step 1: Analyze KB coverage
@@ -409,8 +433,10 @@ def main():
     print(f"   Total incidents (90 days): {coverage['total_incidents']}")
     print(f"   Total KB articles: {coverage['total_kb_articles']}")
     print("   Coverage by category:")
-    for category, stats in coverage['coverage_by_category'].items():
-        print(f"     {category}: {stats['kb_articles']}/{stats['incidents']} ({stats['coverage_ratio']:.0%})")
+    for category, stats in coverage["coverage_by_category"].items():
+        print(
+            f"     {category}: {stats['kb_articles']}/{stats['incidents']} ({stats['coverage_ratio']:.0%})"
+        )
 
     # Step 2: Get recently resolved incidents
     print("\n2. Retrieving recently resolved incidents...")
@@ -422,17 +448,21 @@ def main():
     generated_articles = []
 
     for i, incident in enumerate(incidents, 1):
-        print(f"   [{i}/{len(incidents)}] Processing {incident.number}: {incident.short_description}")
+        print(
+            f"   [{i}/{len(incidents)}] Processing {incident.number}: {incident.short_description}"
+        )
 
         # Check for duplicates
         keywords = incident.short_description.split()[:3]
-        existing = synchronizer.search_kb_for_duplicates(incident.short_description, keywords)
+        existing = synchronizer.search_kb_for_duplicates(
+            incident.short_description, keywords
+        )
 
         # Generate article
         article = synchronizer.generate_kb_article(incident, existing)
         generated_articles.append(article)
 
-        if 'error' not in article:
+        if "error" not in article:
             # Publish article
             success, article_id = synchronizer.publish_kb_article(article)
             if success:
@@ -444,7 +474,7 @@ def main():
 
     # Step 4: Generate report
     print("\n4. Generating report...")
-    successful = len([a for a in generated_articles if 'error' not in a])
+    successful = len([a for a in generated_articles if "error" not in a])
     report = f"""
 KNOWLEDGE BASE SYNCHRONIZATION REPORT
 {'=' * 50}
@@ -458,7 +488,7 @@ SUMMARY:
 GENERATED ARTICLES:
 """
     for article in generated_articles:
-        if 'error' not in article:
+        if "error" not in article:
             report += f"\n- {article['title']}\n"
             report += f"  Quality Score: {article.get('quality_score', 0):.0%}\n"
             report += f"  Keywords: {', '.join(article.get('keywords', [])[:5])}\n"
@@ -466,16 +496,20 @@ GENERATED ARTICLES:
     print(report)
 
     # Save report
-    output_file = 'kb_sync_report.json'
-    with open(output_file, 'w') as f:
-        json.dump({
-            'coverage_analysis': coverage,
-            'generated_articles': generated_articles,
-            'report': report,
-            'timestamp': datetime.now().isoformat()
-        }, f, indent=2)
+    output_file = "kb_sync_report.json"
+    with open(output_file, "w") as f:
+        json.dump(
+            {
+                "coverage_analysis": coverage,
+                "generated_articles": generated_articles,
+                "report": report,
+                "timestamp": datetime.now().isoformat(),
+            },
+            f,
+            indent=2,
+        )
     print(f"\nReport saved to {output_file}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

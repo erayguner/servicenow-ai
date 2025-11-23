@@ -16,7 +16,7 @@ from pathlib import Path
 class KnowledgeBaseClient:
     """Client for Bedrock Knowledge Base operations."""
 
-    def __init__(self, knowledge_base_id: str, region: str = 'us-east-1'):
+    def __init__(self, knowledge_base_id: str, region: str = "us-east-1"):
         """
         Initialize knowledge base client.
 
@@ -25,13 +25,11 @@ class KnowledgeBaseClient:
             region: AWS region
         """
         self.knowledge_base_id = knowledge_base_id
-        self.client = boto3.client('bedrock-agent-runtime', region_name=region)
-        self.bedrock_agent = boto3.client('bedrock-agent', region_name=region)
+        self.client = boto3.client("bedrock-agent-runtime", region_name=region)
+        self.bedrock_agent = boto3.client("bedrock-agent", region_name=region)
 
     def retrieve_documents(
-        self,
-        query: str,
-        max_results: int = 5
+        self, query: str, max_results: int = 5
     ) -> List[Dict[str, Any]]:
         """
         Retrieve documents from knowledge base.
@@ -49,25 +47,25 @@ class KnowledgeBaseClient:
         try:
             response = self.client.retrieve(
                 knowledgeBaseId=self.knowledge_base_id,
-                retrievalQuery={
-                    'text': query
-                },
+                retrievalQuery={"text": query},
                 retrievalConfiguration={
-                    'vectorSearchConfiguration': {
-                        'numberOfResults': max_results,
-                        'overrideSearchType': 'HYBRID'  # Hybrid search
+                    "vectorSearchConfiguration": {
+                        "numberOfResults": max_results,
+                        "overrideSearchType": "HYBRID",  # Hybrid search
                     }
-                }
+                },
             )
 
             results = []
-            for i, result in enumerate(response.get('retrievalResults', []), 1):
+            for i, result in enumerate(response.get("retrievalResults", []), 1):
                 doc_info = {
-                    'rank': i,
-                    'content': result['content']['text'],
-                    'score': result.get('score', 0),
-                    'location': result.get('location', {}).get('s3Location', {}).get('uri', 'Unknown'),
-                    'metadata': result.get('metadata', {})
+                    "rank": i,
+                    "content": result["content"]["text"],
+                    "score": result.get("score", 0),
+                    "location": result.get("location", {})
+                    .get("s3Location", {})
+                    .get("uri", "Unknown"),
+                    "metadata": result.get("metadata", {}),
                 }
                 results.append(doc_info)
 
@@ -82,11 +80,7 @@ class KnowledgeBaseClient:
             print(f"Error retrieving documents: {e}")
             return []
 
-    def retrieve_with_agent(
-        self,
-        agent_id: str,
-        query: str
-    ) -> str:
+    def retrieve_with_agent(self, agent_id: str, query: str) -> str:
         """
         Use an agent to query the knowledge base.
 
@@ -103,22 +97,20 @@ class KnowledgeBaseClient:
         print(f"\nQuerying with agent: {agent_id}")
         print(f"Query: {query}")
 
-        bedrock_runtime = boto3.client('bedrock-agent-runtime')
+        bedrock_runtime = boto3.client("bedrock-agent-runtime")
 
         response = bedrock_runtime.invoke_agent(
             agentId=agent_id,
-            agentAliasId='PROD',
-            sessionId='kb-query-session',
-            inputText=query
+            agentAliasId="PROD",
+            sessionId="kb-query-session",
+            inputText=query,
         )
 
         print(f"Agent Response: {response['output']}")
-        return response['output']
+        return response["output"]
 
     def upload_documents(
-        self,
-        document_paths: List[str],
-        data_source_id: str
+        self, document_paths: List[str], data_source_id: str
     ) -> Dict[str, Any]:
         """
         Upload documents to knowledge base.
@@ -133,19 +125,15 @@ class KnowledgeBaseClient:
         print(f"\nUploading {len(document_paths)} documents")
 
         # Upload to S3 first
-        s3 = boto3.client('s3')
-        bucket_name = f'knowledge-base-{self.knowledge_base_id}'
+        s3 = boto3.client("s3")
+        bucket_name = f"knowledge-base-{self.knowledge_base_id}"
 
         for doc_path in document_paths:
             file_name = Path(doc_path).name
             print(f"Uploading: {file_name}")
 
             try:
-                s3.upload_file(
-                    doc_path,
-                    bucket_name,
-                    f'documents/{file_name}'
-                )
+                s3.upload_file(doc_path, bucket_name, f"documents/{file_name}")
                 print(f"  Success: s3://{bucket_name}/documents/{file_name}")
             except Exception as e:
                 print(f"  Error: {e}")
@@ -155,16 +143,15 @@ class KnowledgeBaseClient:
 
         try:
             response = self.bedrock_agent.start_ingestion_job(
-                knowledgeBaseId=self.knowledge_base_id,
-                dataSourceId=data_source_id
+                knowledgeBaseId=self.knowledge_base_id, dataSourceId=data_source_id
             )
 
-            ingestion_job = response['ingestionJob']
+            ingestion_job = response["ingestionJob"]
 
             return {
-                'job_id': ingestion_job['ingestionJobId'],
-                'status': ingestion_job['status'],
-                'started_at': ingestion_job.get('createdAt', '')
+                "job_id": ingestion_job["ingestionJobId"],
+                "status": ingestion_job["status"],
+                "started_at": ingestion_job.get("createdAt", ""),
             }
 
         except Exception as e:
@@ -172,9 +159,7 @@ class KnowledgeBaseClient:
             return {}
 
     def get_ingestion_status(
-        self,
-        data_source_id: str,
-        ingestion_job_id: str
+        self, data_source_id: str, ingestion_job_id: str
     ) -> Dict[str, Any]:
         """
         Get status of an ingestion job.
@@ -192,16 +177,22 @@ class KnowledgeBaseClient:
             response = self.bedrock_agent.get_ingestion_job(
                 knowledgeBaseId=self.knowledge_base_id,
                 dataSourceId=data_source_id,
-                ingestionJobId=ingestion_job_id
+                ingestionJobId=ingestion_job_id,
             )
 
-            job = response['ingestionJob']
+            job = response["ingestionJob"]
 
             status_info = {
-                'status': job['status'],
-                'document_count': job.get('statistics', {}).get('numberOfDocumentsScanned', 0),
-                'failed_count': job.get('statistics', {}).get('numberOfDocumentsFailed', 0),
-                'success_count': job.get('statistics', {}).get('numberOfDocumentsIndexed', 0)
+                "status": job["status"],
+                "document_count": job.get("statistics", {}).get(
+                    "numberOfDocumentsScanned", 0
+                ),
+                "failed_count": job.get("statistics", {}).get(
+                    "numberOfDocumentsFailed", 0
+                ),
+                "success_count": job.get("statistics", {}).get(
+                    "numberOfDocumentsIndexed", 0
+                ),
             }
 
             print(f"Status: {status_info['status']}")
@@ -216,10 +207,7 @@ class KnowledgeBaseClient:
             return {}
 
     def search_with_filters(
-        self,
-        query: str,
-        metadata_filters: Dict[str, Any] = None,
-        max_results: int = 5
+        self, query: str, metadata_filters: Dict[str, Any] = None, max_results: int = 5
     ) -> List[Dict[str, Any]]:
         """
         Retrieve documents with metadata filters.
@@ -240,29 +228,33 @@ class KnowledgeBaseClient:
             # Note: Filter syntax depends on your knowledge base configuration
             response = self.client.retrieve(
                 knowledgeBaseId=self.knowledge_base_id,
-                retrievalQuery={
-                    'text': query
-                },
+                retrievalQuery={"text": query},
                 retrievalConfiguration={
-                    'vectorSearchConfiguration': {
-                        'numberOfResults': max_results,
-                        'filter': {
-                            'equals': {
-                                'key': 'metadata.source',
-                                'value': metadata_filters.get('source', '')
+                    "vectorSearchConfiguration": {
+                        "numberOfResults": max_results,
+                        "filter": (
+                            {
+                                "equals": {
+                                    "key": "metadata.source",
+                                    "value": metadata_filters.get("source", ""),
+                                }
                             }
-                        } if metadata_filters else None
+                            if metadata_filters
+                            else None
+                        ),
                     }
-                }
+                },
             )
 
             results = []
-            for result in response.get('retrievalResults', []):
-                results.append({
-                    'content': result['content']['text'],
-                    'score': result.get('score', 0),
-                    'metadata': result.get('metadata', {})
-                })
+            for result in response.get("retrievalResults", []):
+                results.append(
+                    {
+                        "content": result["content"]["text"],
+                        "score": result.get("score", 0),
+                        "metadata": result.get("metadata", {}),
+                    }
+                )
 
             print(f"Found {len(results)} matching documents")
             return results
@@ -272,9 +264,7 @@ class KnowledgeBaseClient:
             return []
 
     def semantic_search(
-        self,
-        query: str,
-        similarity_threshold: float = 0.7
+        self, query: str, similarity_threshold: float = 0.7
     ) -> List[Dict[str, Any]]:
         """
         Perform semantic search for conceptually similar documents.
@@ -293,10 +283,7 @@ class KnowledgeBaseClient:
         results = self.retrieve_documents(query, max_results=10)
 
         # Filter by threshold
-        filtered = [
-            r for r in results
-            if r['score'] >= similarity_threshold
-        ]
+        filtered = [r for r in results if r["score"] >= similarity_threshold]
 
         print(f"Found {len(filtered)} documents above threshold")
         return filtered
@@ -310,28 +297,22 @@ def demonstrate_rag_workflow():
     1. Retrieve documents from knowledge base
     2. Use retrieved docs with agent for better responses
     """
-    print("="*60)
+    print("=" * 60)
     print("RAG WORKFLOW DEMONSTRATION")
-    print("="*60)
+    print("=" * 60)
 
     # Initialize client
-    kb_client = KnowledgeBaseClient(
-        knowledge_base_id='YOUR_KNOWLEDGE_BASE_ID'
-    )
+    kb_client = KnowledgeBaseClient(knowledge_base_id="YOUR_KNOWLEDGE_BASE_ID")
 
     # Step 1: Retrieve relevant documents
     query = "How do I create a ServiceNow incident through API?"
-    documents = kb_client.retrieve_documents(
-        query=query,
-        max_results=3
-    )
+    documents = kb_client.retrieve_documents(query=query, max_results=3)
 
     if documents:
         # Step 2: Format retrieved context
-        context = "\n\n".join([
-            f"Document {doc['rank']}:\n{doc['content']}"
-            for doc in documents
-        ])
+        context = "\n\n".join(
+            [f"Document {doc['rank']}:\n{doc['content']}" for doc in documents]
+        )
 
         # Step 3: Send to agent with context
         agent_query = f"""Based on the following documents, {query}
@@ -352,20 +333,18 @@ def demonstrate_chunk_search():
     """
     Demonstrate retrieving specific chunks/passages from documents.
     """
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("CHUNK/PASSAGE RETRIEVAL")
-    print("="*60)
+    print("=" * 60)
 
-    kb_client = KnowledgeBaseClient(
-        knowledge_base_id='YOUR_KNOWLEDGE_BASE_ID'
-    )
+    kb_client = KnowledgeBaseClient(knowledge_base_id="YOUR_KNOWLEDGE_BASE_ID")
 
     # Search for specific information
     queries = [
         "ServiceNow API authentication",
         "Incident creation workflow",
         "CMDB configuration",
-        "Change management process"
+        "Change management process",
     ]
 
     results = {}
@@ -377,32 +356,27 @@ def demonstrate_chunk_search():
     # Aggregate results
     print(f"\n{'-'*60}")
     print(f"Total queries: {len(queries)}")
-    print(f"Total unique documents: {len(set(str(d) for docs in results.values() for d in docs))}")
+    print(
+        f"Total unique documents: {len(set(str(d) for docs in results.values() for d in docs))}"
+    )
 
 
 def demonstrate_knowledge_update():
     """
     Demonstrate updating knowledge base with new documents.
     """
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("KNOWLEDGE BASE UPDATE")
-    print("="*60)
+    print("=" * 60)
 
-    kb_client = KnowledgeBaseClient(
-        knowledge_base_id='YOUR_KNOWLEDGE_BASE_ID'
-    )
+    kb_client = KnowledgeBaseClient(knowledge_base_id="YOUR_KNOWLEDGE_BASE_ID")
 
     # Create sample documents
-    sample_docs = [
-        'document1.pdf',
-        'document2.txt',
-        'document3.md'
-    ]
+    sample_docs = ["document1.pdf", "document2.txt", "document3.md"]
 
     # Upload documents
     job_info = kb_client.upload_documents(
-        document_paths=sample_docs,
-        data_source_id='YOUR_DATA_SOURCE_ID'
+        document_paths=sample_docs, data_source_id="YOUR_DATA_SOURCE_ID"
     )
 
     if job_info:
@@ -411,34 +385,31 @@ def demonstrate_knowledge_update():
 
         # Check status
         import time
+
         time.sleep(5)
 
         status = kb_client.get_ingestion_status(
-            data_source_id='YOUR_DATA_SOURCE_ID',
-            ingestion_job_id=job_info['job_id']
+            data_source_id="YOUR_DATA_SOURCE_ID", ingestion_job_id=job_info["job_id"]
         )
 
 
 def main():
     """Main function demonstrating knowledge base usage."""
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("BEDROCK KNOWLEDGE BASE EXAMPLES")
-    print("="*60)
+    print("=" * 60)
 
     # Example 1: Simple retrieval
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXAMPLE 1: SIMPLE DOCUMENT RETRIEVAL")
-    print("="*60)
+    print("=" * 60)
 
-    kb_client = KnowledgeBaseClient(
-        knowledge_base_id='YOUR_KNOWLEDGE_BASE_ID'
-    )
+    kb_client = KnowledgeBaseClient(knowledge_base_id="YOUR_KNOWLEDGE_BASE_ID")
 
     try:
         documents = kb_client.retrieve_documents(
-            query="How to reset password",
-            max_results=3
+            query="How to reset password", max_results=3
         )
 
         if documents:
@@ -449,14 +420,13 @@ def main():
         print(f"Error: {e}")
 
     # Example 2: Semantic search
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXAMPLE 2: SEMANTIC SEARCH")
-    print("="*60)
+    print("=" * 60)
 
     try:
         results = kb_client.semantic_search(
-            query="User account management",
-            similarity_threshold=0.7
+            query="User account management", similarity_threshold=0.7
         )
         print(f"Found {len(results)} semantically similar documents")
 
@@ -464,9 +434,9 @@ def main():
         print(f"Error: {e}")
 
     # Example 3: RAG workflow
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXAMPLE 3: RAG WORKFLOW")
-    print("="*60)
+    print("=" * 60)
 
     try:
         demonstrate_rag_workflow()

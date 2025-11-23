@@ -17,10 +17,10 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class MemoryDumpManager:
     """Manages memory dump collection for forensics."""
@@ -31,16 +31,12 @@ class MemoryDumpManager:
         self.timestamp = datetime.utcnow().isoformat()
 
         # Initialize AWS clients
-        self.ec2 = boto3.client('ec2')
-        self.ssm = boto3.client('ssm')
-        self.lambda_client = boto3.client('lambda')
-        self.cloudwatch = boto3.client('logs')
+        self.ec2 = boto3.client("ec2")
+        self.ssm = boto3.client("ssm")
+        self.lambda_client = boto3.client("lambda")
+        self.cloudwatch = boto3.client("logs")
 
-        self.dumps = {
-            'ec2_memory': [],
-            'lambda_memory': [],
-            'process_dumps': []
-        }
+        self.dumps = {"ec2_memory": [], "lambda_memory": [], "process_dumps": []}
 
     def dump_ec2_memory(self, instance_id: str) -> Dict:
         """
@@ -57,65 +53,63 @@ class MemoryDumpManager:
         try:
             # Verify instance exists and is running
             response = self.ec2.describe_instances(InstanceIds=[instance_id])
-            instance = response['Reservations'][0]['Instances'][0]
-            state = instance['State']['Name']
+            instance = response["Reservations"][0]["Instances"][0]
+            state = instance["State"]["Name"]
 
-            if state != 'running':
-                logger.warning(f"Instance {instance_id} is not running (state: {state})")
+            if state != "running":
+                logger.warning(
+                    f"Instance {instance_id} is not running (state: {state})"
+                )
                 return {
-                    'status': 'skipped',
-                    'instance_id': instance_id,
-                    'reason': f'Instance state is {state}'
+                    "status": "skipped",
+                    "instance_id": instance_id,
+                    "reason": f"Instance state is {state}",
                 }
 
             # Use core dump if available, otherwise use crash dump
             commands = [
-                'mkdir -p /tmp/forensics',
-                'cd /tmp/forensics',
+                "mkdir -p /tmp/forensics",
+                "cd /tmp/forensics",
                 # Try to trigger core dump
-                'ulimit -c unlimited',
+                "ulimit -c unlimited",
                 # Get process list for targeting
-                'ps auxww > processes.txt',
+                "ps auxww > processes.txt",
                 # Dump specific high-privilege processes
-                'for pid in $(pgrep -u root | head -20); do gcore -o core-$pid $pid 2>/dev/null; done',
+                "for pid in $(pgrep -u root | head -20); do gcore -o core-$pid $pid 2>/dev/null; done",
                 # If crash dump available
-                'if [ -f /var/crash/dmesg* ]; then cat /var/crash/dmesg* > system-crash.log; fi',
+                "if [ -f /var/crash/dmesg* ]; then cat /var/crash/dmesg* > system-crash.log; fi",
                 # Get kernel logs
-                'dmesg > kernel-messages.log',
+                "dmesg > kernel-messages.log",
                 # Get memory info
-                'cat /proc/meminfo > meminfo.txt',
-                'cat /proc/slabinfo > slabinfo.txt',
+                "cat /proc/meminfo > meminfo.txt",
+                "cat /proc/slabinfo > slabinfo.txt",
                 # Package everything
-                f'tar czf /tmp/memory-dump-{self.incident_id}.tar.gz .',
-                f'aws s3 cp /tmp/memory-dump-{self.incident_id}.tar.gz s3://incident-evidence/{self.incident_id}/'
+                f"tar czf /tmp/memory-dump-{self.incident_id}.tar.gz .",
+                f"aws s3 cp /tmp/memory-dump-{self.incident_id}.tar.gz s3://incident-evidence/{self.incident_id}/",
             ]
 
             response = self.ssm.send_command(
                 InstanceIds=[instance_id],
-                DocumentName='AWS-RunShellScript',
-                Parameters={'command': commands}
+                DocumentName="AWS-RunShellScript",
+                Parameters={"command": commands},
             )
 
             dump_info = {
-                'status': 'initiated',
-                'instance_id': instance_id,
-                'command_id': response['Command']['CommandId'],
-                'instance_type': instance.get('InstanceType'),
-                'private_ip': instance['PrivateIpAddress'],
-                'initiated_time': datetime.utcnow().isoformat()
+                "status": "initiated",
+                "instance_id": instance_id,
+                "command_id": response["Command"]["CommandId"],
+                "instance_type": instance.get("InstanceType"),
+                "private_ip": instance["PrivateIpAddress"],
+                "initiated_time": datetime.utcnow().isoformat(),
             }
 
-            self.dumps['ec2_memory'].append(dump_info)
+            self.dumps["ec2_memory"].append(dump_info)
 
             return dump_info
 
         except Exception as e:
             logger.error(f"Error dumping EC2 memory: {e}")
-            return {
-                'status': 'error',
-                'instance_id': instance_id,
-                'error': str(e)
-            }
+            return {"status": "error", "instance_id": instance_id, "error": str(e)}
 
     def dump_lambda_memory(self, function_names: List[str]) -> Dict:
         """
@@ -127,7 +121,9 @@ class MemoryDumpManager:
         Returns:
             Dictionary with Lambda memory dump results
         """
-        logger.info(f"Capturing memory dumps from {len(function_names)} Lambda functions")
+        logger.info(
+            f"Capturing memory dumps from {len(function_names)} Lambda functions"
+        )
 
         dumps = []
 
@@ -137,10 +133,10 @@ class MemoryDumpManager:
 
                 # Get function configuration
                 func_config = self.lambda_client.get_function(FunctionName=func_name)
-                func_info = func_config['Configuration']
+                func_info = func_config["Configuration"]
 
                 # Get recent invocations from CloudWatch
-                log_group = f'/aws/lambda/{func_name}'
+                log_group = f"/aws/lambda/{func_name}"
 
                 try:
                     # Query for recent executions
@@ -156,44 +152,38 @@ class MemoryDumpManager:
                         logGroupName=log_group,
                         startTime=int((datetime.utcnow().timestamp() - 3600)),
                         endTime=int(datetime.utcnow().timestamp()),
-                        queryString=query
+                        queryString=query,
                     )
 
                     dump_info = {
-                        'status': 'captured',
-                        'function_name': func_name,
-                        'configured_memory': func_info.get('MemorySize'),
-                        'handler': func_info.get('Handler'),
-                        'runtime': func_info.get('Runtime'),
-                        'timeout': func_info.get('Timeout'),
-                        'query_id': response['queryId']
+                        "status": "captured",
+                        "function_name": func_name,
+                        "configured_memory": func_info.get("MemorySize"),
+                        "handler": func_info.get("Handler"),
+                        "runtime": func_info.get("Runtime"),
+                        "timeout": func_info.get("Timeout"),
+                        "query_id": response["queryId"],
                     }
 
                 except Exception as e:
                     logger.warning(f"Error querying CloudWatch for {func_name}: {e}")
                     dump_info = {
-                        'status': 'partial',
-                        'function_name': func_name,
-                        'configured_memory': func_info.get('MemorySize'),
-                        'warning': 'CloudWatch query failed'
+                        "status": "partial",
+                        "function_name": func_name,
+                        "configured_memory": func_info.get("MemorySize"),
+                        "warning": "CloudWatch query failed",
                     }
 
-                self.dumps['lambda_memory'].append(dump_info)
+                self.dumps["lambda_memory"].append(dump_info)
                 dumps.append(dump_info)
 
             except Exception as e:
                 logger.error(f"Error capturing Lambda memory: {e}")
-                dumps.append({
-                    'function_name': func_name,
-                    'status': 'error',
-                    'error': str(e)
-                })
+                dumps.append(
+                    {"function_name": func_name, "status": "error", "error": str(e)}
+                )
 
-        return {
-            'status': 'success',
-            'functions_captured': len(dumps),
-            'dumps': dumps
-        }
+        return {"status": "success", "functions_captured": len(dumps), "dumps": dumps}
 
     def dump_process_memory(self, instance_id: str, process_names: List[str]) -> Dict:
         """
@@ -206,82 +196,87 @@ class MemoryDumpManager:
         Returns:
             Dictionary with process dump results
         """
-        logger.info(f"Dumping memory for {len(process_names)} processes on {instance_id}")
+        logger.info(
+            f"Dumping memory for {len(process_names)} processes on {instance_id}"
+        )
 
         try:
             commands = [
-                'mkdir -p /tmp/forensics/process-dumps',
-                'cd /tmp/forensics/process-dumps'
+                "mkdir -p /tmp/forensics/process-dumps",
+                "cd /tmp/forensics/process-dumps",
             ]
 
             for proc_name in process_names:
-                commands.extend([
-                    f'# Dumping {proc_name}',
-                    f'pids=$(pgrep {proc_name})',
-                    'for pid in $pids; do',
-                    f'  echo "Dumping PID: $pid"',
-                    f'  # Get process memory map',
-                    f'  cat /proc/$pid/maps > maps-$pid.txt',
-                    f'  # Get process environ',
-                    f'  cat /proc/$pid/environ | tr \\0 \\n > environ-$pid.txt',
-                    f'  # Get open files',
-                    f'  ls -la /proc/$pid/fd > files-$pid.txt 2>&1',
-                    f'  # Get memory stats',
-                    f'  cat /proc/$pid/status > status-$pid.txt',
-                    f'  # Core dump if gcore available',
-                    f'  gcore -o core-$pid $pid 2>/dev/null',
-                    'done'
-                ])
+                commands.extend(
+                    [
+                        f"# Dumping {proc_name}",
+                        f"pids=$(pgrep {proc_name})",
+                        "for pid in $pids; do",
+                        f'  echo "Dumping PID: $pid"',
+                        f"  # Get process memory map",
+                        f"  cat /proc/$pid/maps > maps-$pid.txt",
+                        f"  # Get process environ",
+                        f"  cat /proc/$pid/environ | tr \\0 \\n > environ-$pid.txt",
+                        f"  # Get open files",
+                        f"  ls -la /proc/$pid/fd > files-$pid.txt 2>&1",
+                        f"  # Get memory stats",
+                        f"  cat /proc/$pid/status > status-$pid.txt",
+                        f"  # Core dump if gcore available",
+                        f"  gcore -o core-$pid $pid 2>/dev/null",
+                        "done",
+                    ]
+                )
 
-            commands.extend([
-                f'tar czf /tmp/process-dumps-{self.incident_id}.tar.gz .',
-                f'aws s3 cp /tmp/process-dumps-{self.incident_id}.tar.gz s3://incident-evidence/{self.incident_id}/'
-            ])
+            commands.extend(
+                [
+                    f"tar czf /tmp/process-dumps-{self.incident_id}.tar.gz .",
+                    f"aws s3 cp /tmp/process-dumps-{self.incident_id}.tar.gz s3://incident-evidence/{self.incident_id}/",
+                ]
+            )
 
             response = self.ssm.send_command(
                 InstanceIds=[instance_id],
-                DocumentName='AWS-RunShellScript',
-                Parameters={'command': commands}
+                DocumentName="AWS-RunShellScript",
+                Parameters={"command": commands},
             )
 
             dump_info = {
-                'status': 'initiated',
-                'instance_id': instance_id,
-                'processes': process_names,
-                'command_id': response['Command']['CommandId'],
-                'initiated_time': datetime.utcnow().isoformat()
+                "status": "initiated",
+                "instance_id": instance_id,
+                "processes": process_names,
+                "command_id": response["Command"]["CommandId"],
+                "initiated_time": datetime.utcnow().isoformat(),
             }
 
-            self.dumps['process_dumps'].append(dump_info)
+            self.dumps["process_dumps"].append(dump_info)
 
             return dump_info
 
         except Exception as e:
             logger.error(f"Error dumping process memory: {e}")
-            return {
-                'status': 'error',
-                'instance_id': instance_id,
-                'error': str(e)
-            }
+            return {"status": "error", "instance_id": instance_id, "error": str(e)}
 
     def create_dump_manifest(self) -> Dict:
         """Create manifest of all memory dumps."""
         manifest = {
-            'incident_id': self.incident_id,
-            'manifest_time': datetime.utcnow().isoformat(),
-            'dumps': self.dumps,
-            'summary': {
-                'ec2_instances_dumped': len(self.dumps['ec2_memory']),
-                'lambda_functions_dumped': len(self.dumps['lambda_memory']),
-                'processes_dumped': len(self.dumps['process_dumps'])
-            }
+            "incident_id": self.incident_id,
+            "manifest_time": datetime.utcnow().isoformat(),
+            "dumps": self.dumps,
+            "summary": {
+                "ec2_instances_dumped": len(self.dumps["ec2_memory"]),
+                "lambda_functions_dumped": len(self.dumps["lambda_memory"]),
+                "processes_dumped": len(self.dumps["process_dumps"]),
+            },
         }
 
         return manifest
 
-    def dump_all(self, instance_ids: Optional[List[str]] = None,
-                function_names: Optional[List[str]] = None,
-                process_names: Optional[List[str]] = None) -> Dict:
+    def dump_all(
+        self,
+        instance_ids: Optional[List[str]] = None,
+        function_names: Optional[List[str]] = None,
+        process_names: Optional[List[str]] = None,
+    ) -> Dict:
         """
         Collect all memory dumps.
 
@@ -296,32 +291,30 @@ class MemoryDumpManager:
         logger.info(f"Starting memory dump collection for incident {self.incident_id}")
 
         results = {
-            'incident_id': self.incident_id,
-            'start_time': datetime.utcnow().isoformat(),
-            'dumps': {}
+            "incident_id": self.incident_id,
+            "start_time": datetime.utcnow().isoformat(),
+            "dumps": {},
         }
 
         if instance_ids:
-            results['dumps']['ec2_memory'] = []
+            results["dumps"]["ec2_memory"] = []
             for iid in instance_ids:
-                results['dumps']['ec2_memory'].append(
-                    self.dump_ec2_memory(iid)
-                )
+                results["dumps"]["ec2_memory"].append(self.dump_ec2_memory(iid))
 
             # Dump specific processes if provided
             if process_names:
-                results['dumps']['process_memory'] = []
+                results["dumps"]["process_memory"] = []
                 for iid in instance_ids:
-                    results['dumps']['process_memory'].append(
+                    results["dumps"]["process_memory"].append(
                         self.dump_process_memory(iid, process_names)
                     )
 
         if function_names:
-            results['dumps']['lambda_memory'] = self.dump_lambda_memory(function_names)
+            results["dumps"]["lambda_memory"] = self.dump_lambda_memory(function_names)
 
         # Create manifest
-        results['manifest'] = self.create_dump_manifest()
-        results['end_time'] = datetime.utcnow().isoformat()
+        results["manifest"] = self.create_dump_manifest()
+        results["end_time"] = datetime.utcnow().isoformat()
 
         logger.info(f"Memory dump collection initiated for incident {self.incident_id}")
 
@@ -330,20 +323,20 @@ class MemoryDumpManager:
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description='Dump memory for incident forensics'
+    parser = argparse.ArgumentParser(description="Dump memory for incident forensics")
+    parser.add_argument("--incident-id", required=True, help="Incident identifier")
+    parser.add_argument("--instance-ids", help="Comma-separated EC2 instance IDs")
+    parser.add_argument(
+        "--function-names", help="Comma-separated Lambda function names"
     )
-    parser.add_argument('--incident-id', required=True, help='Incident identifier')
-    parser.add_argument('--instance-ids', help='Comma-separated EC2 instance IDs')
-    parser.add_argument('--function-names', help='Comma-separated Lambda function names')
-    parser.add_argument('--process-names', help='Comma-separated process names to dump')
+    parser.add_argument("--process-names", help="Comma-separated process names to dump")
 
     args = parser.parse_args()
 
     # Parse comma-separated arguments
-    instance_ids = args.instance_ids.split(',') if args.instance_ids else None
-    function_names = args.function_names.split(',') if args.function_names else None
-    process_names = args.process_names.split(',') if args.process_names else None
+    instance_ids = args.instance_ids.split(",") if args.instance_ids else None
+    function_names = args.function_names.split(",") if args.function_names else None
+    process_names = args.process_names.split(",") if args.process_names else None
 
     # Run dump
     manager = MemoryDumpManager(args.incident_id)
@@ -353,5 +346,5 @@ def main():
     print(json.dumps(results, indent=2, default=str))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
