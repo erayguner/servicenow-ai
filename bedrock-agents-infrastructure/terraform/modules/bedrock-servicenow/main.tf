@@ -1,6 +1,14 @@
-# Data sources
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
+# ==============================================================================
+# Shared Data Sources
+# ==============================================================================
+
+module "shared_data" {
+  source = "../_shared/data-sources"
+}
+
+# ==============================================================================
+# Resource Identifiers
+# ==============================================================================
 
 # Generate unique identifier for resources
 resource "random_id" "suffix" {

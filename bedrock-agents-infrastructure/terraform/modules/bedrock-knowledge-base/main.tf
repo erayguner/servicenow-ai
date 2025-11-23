@@ -1,3 +1,15 @@
+# ==============================================================================
+# Shared Data Sources
+# ==============================================================================
+
+module "shared_data" {
+  source = "../_shared/data-sources"
+}
+
+# ==============================================================================
+# Storage Resources
+# ==============================================================================
+
 # S3 Bucket for Documents
 resource "aws_s3_bucket" "documents" {
   count  = var.create_s3_bucket ? 1 : 0
@@ -128,7 +140,7 @@ resource "aws_opensearchserverless_access_policy" "data_access" {
       ]
       Principal = [
         aws_iam_role.knowledge_base.arn,
-        data.aws_caller_identity.current.arn
+        module.shared_data.caller_arn
       ]
     }
   ])
@@ -185,13 +197,13 @@ data "aws_iam_policy_document" "knowledge_base_trust" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceAccount"
-      values   = [data.aws_caller_identity.current.account_id]
+      values   = [module.shared_data.account_id]
     }
 
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"]
+      values   = ["arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:knowledge-base/*"]
     }
   }
 }
@@ -247,7 +259,7 @@ data "aws_iam_policy_document" "knowledge_base_permissions" {
         "kms:Decrypt",
         "kms:GenerateDataKey"
       ]
-      resources = ["arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}"]
+      resources = ["arn:aws:kms:${module.shared_data.region_name}:${module.shared_data.account_id}:key/${var.kms_key_id}"]
     }
   }
 }
@@ -335,9 +347,5 @@ resource "aws_bedrockagent_data_source" "this" {
 locals {
   collection_name     = var.opensearch_collection_name != null ? var.opensearch_collection_name : "${var.knowledge_base_name}-collection"
   s3_bucket_arn       = var.create_s3_bucket ? aws_s3_bucket.documents[0].arn : var.existing_s3_bucket_arn
-  embedding_model_arn = var.embedding_model_arn != null ? var.embedding_model_arn : "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/${var.embedding_model_id}"
+  embedding_model_arn = var.embedding_model_arn != null ? var.embedding_model_arn : "arn:aws:bedrock:${module.shared_data.region_name}::foundation-model/${var.embedding_model_id}"
 }
-
-# Data sources
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
