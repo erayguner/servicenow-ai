@@ -15,7 +15,6 @@ import boto3
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-import os
 from pathlib import Path
 
 # Configure logging

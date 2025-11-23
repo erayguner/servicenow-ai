@@ -7,9 +7,7 @@ for retrieval-augmented generation (RAG) workflows.
 """
 
 import boto3
-import json
 from typing import List, Dict, Any
-import os
 from pathlib import Path
 
 
@@ -171,7 +169,7 @@ class KnowledgeBaseClient:
         Returns:
             Job status information
         """
-        print(f"\nChecking ingestion status...")
+        print("\nChecking ingestion status...")
 
         try:
             response = self.bedrock_agent.get_ingestion_job(
@@ -220,7 +218,7 @@ class KnowledgeBaseClient:
         Returns:
             Filtered retrieval results
         """
-        print(f"\nSearching with filters")
+        print("\nSearching with filters")
         print(f"Query: {query}")
         print(f"Filters: {metadata_filters}")
 
@@ -276,7 +274,7 @@ class KnowledgeBaseClient:
         Returns:
             Semantically similar documents
         """
-        print(f"\nPerforming semantic search")
+        print("\nPerforming semantic search")
         print(f"Query: {query}")
         print(f"Similarity threshold: {similarity_threshold}")
 
@@ -315,14 +313,8 @@ def demonstrate_rag_workflow():
         )
 
         # Step 3: Send to agent with context
-        agent_query = f"""Based on the following documents, {query}
 
-Context:
-{context}
-
-Please provide a comprehensive answer based on these documents."""
-
-        print(f"\nSending context-enhanced query to agent...")
+        print("\nSending context-enhanced query to agent...")
         print(f"Context length: {len(context)} characters")
 
         # In production, invoke your agent with this enhanced query
@@ -388,7 +380,7 @@ def demonstrate_knowledge_update():
 
         time.sleep(5)
 
-        status = kb_client.get_ingestion_status(
+        kb_client.get_ingestion_status(
             data_source_id="YOUR_DATA_SOURCE_ID", ingestion_job_id=job_info["job_id"]
         )
 

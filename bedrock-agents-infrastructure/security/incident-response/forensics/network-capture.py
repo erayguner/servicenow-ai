@@ -15,7 +15,6 @@ import boto3
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-import subprocess
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -62,11 +61,9 @@ class NetworkCaptureManager:
         try:
             # Check if instance has SSM agent
             response = self.ec2.describe_instances(InstanceIds=[instance_id])
-            instance = response["Reservations"][0]["Instances"][0]
+            response["Reservations"][0]["Instances"][0]
 
             # Build tcpdump command
-            filter_args = f'"{filter_expr}"' if filter_expr else ""
-            tcpdump_cmd = f"sudo tcpdump -i any -s0 -w /tmp/pcap-{self.incident_id}.pcap -G {duration} -W 1 {filter_args}"
 
             # Execute via SSM Session Manager
             try:

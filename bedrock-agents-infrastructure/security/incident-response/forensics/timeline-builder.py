@@ -13,8 +13,8 @@ import argparse
 import json
 import boto3
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Optional
 from collections import defaultdict
 
 logging.basicConfig(

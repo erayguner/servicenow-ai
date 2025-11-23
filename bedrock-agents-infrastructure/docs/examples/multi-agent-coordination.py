@@ -211,11 +211,11 @@ class MultiAgentOrchestrator:
             Result from selected specialist
         """
         print(f"\n{'='*60}")
-        print(f"CONDITIONAL WORKFLOW")
+        print("CONDITIONAL WORKFLOW")
         print(f"{'='*60}")
 
         # Step 1: Router decides
-        print(f"\n[Step 1] Router analysis...")
+        print("\n[Step 1] Router analysis...")
         router_response = self.invoke_agent(
             router_agent,
             f"Analyze this task and decide which agent should handle it: {task}\n\n"

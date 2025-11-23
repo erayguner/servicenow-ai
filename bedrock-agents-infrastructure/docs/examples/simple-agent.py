@@ -7,7 +7,6 @@ a Bedrock agent for a simple task.
 """
 
 import boto3
-import json
 import uuid
 from typing import Dict, Any
 

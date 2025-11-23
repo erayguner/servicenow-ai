@@ -67,7 +67,7 @@ def evaluate_knowledge_base_encryption(configuration_item, require_cmk):
     Evaluate encryption configuration for Bedrock Knowledge Base
     """
     resource_id = configuration_item.get("resourceId")
-    resource_arn = configuration_item.get("ARN")
+    configuration_item.get("ARN")
 
     try:
         # Get knowledge base details
@@ -146,7 +146,7 @@ def evaluate_knowledge_base_encryption(configuration_item, require_cmk):
             else:
                 return {
                     "compliance_type": "NON_COMPLIANT",
-                    "annotation": f"Knowledge base is encrypted with AWS-managed key, not customer-managed key (CMK)",
+                    "annotation": "Knowledge base is encrypted with AWS-managed key, not customer-managed key (CMK)",
                 }
         else:
             # Just check if encrypted (any key type acceptable)
@@ -171,7 +171,7 @@ def evaluate_agent_encryption(configuration_item, require_cmk):
 
     try:
         # Get agent details
-        agent_details = bedrock_agent.get_agent(agentId=resource_id)
+        bedrock_agent.get_agent(agentId=resource_id)
 
         # Get action groups
         action_groups_response = bedrock_agent.list_agent_action_groups(
@@ -233,7 +233,7 @@ def check_opensearch_serverless_encryption(collection_arn):
     try:
         opensearch_serverless = boto3.client("opensearchserverless")
 
-        collection_id = collection_arn.split("/")[-1]
+        collection_arn.split("/")[-1]
         collection_name = collection_arn.split("/")[-1]  # Simplified, may need parsing
 
         # Get collection details
@@ -243,7 +243,7 @@ def check_opensearch_serverless_encryption(collection_arn):
         if not collections:
             return None
 
-        collection = collections[0]
+        collections[0]
 
         # OpenSearch Serverless uses encryption by default
         # Check security policy for encryption configuration

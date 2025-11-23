@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     """
     Main Lambda handler for AWS Config custom rule evaluation
     """
-    invoking_event = json.loads(event["invokingEvent"])
+    json.loads(event["invokingEvent"])
     rule_parameters = json.loads(event.get("ruleParameters", "{}"))
 
     # This rule evaluates account-level VPC endpoint configuration

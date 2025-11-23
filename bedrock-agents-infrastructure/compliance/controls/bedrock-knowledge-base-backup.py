@@ -62,7 +62,7 @@ def evaluate_knowledge_base_backup(configuration_item, min_retention_days):
     Evaluate backup configuration for Bedrock Knowledge Base
     """
     resource_id = configuration_item.get("resourceId")
-    resource_arn = configuration_item.get("ARN")
+    configuration_item.get("ARN")
 
     try:
         # Get knowledge base details
@@ -123,7 +123,7 @@ def evaluate_knowledge_base_backup(configuration_item, min_retention_days):
                 )
                 if not rds_backup_configured:
                     violations.append(
-                        f"RDS vector database does not have automated backups with required retention"
+                        "RDS vector database does not have automated backups with required retention"
                     )
 
         # Check OpenSearch Serverless (automatic backups are managed by AWS)

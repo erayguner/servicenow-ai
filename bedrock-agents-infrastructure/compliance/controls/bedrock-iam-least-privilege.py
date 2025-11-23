@@ -179,7 +179,7 @@ def evaluate_bedrock_role(role_name, rule_parameters):
                 "annotation": f"Least privilege violations: {'; '.join(violations)}",
             }
         else:
-            annotation = f"Role follows least privilege principle"
+            annotation = "Role follows least privilege principle"
             if has_conditions:
                 annotation += " with conditional access"
             return {"compliance_type": "COMPLIANT", "annotation": annotation}

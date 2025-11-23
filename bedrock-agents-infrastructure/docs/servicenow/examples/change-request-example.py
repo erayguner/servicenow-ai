@@ -16,7 +16,7 @@ import boto3
 import requests
 import base64
 from typing import Dict, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from dataclasses import dataclass
 
 
@@ -169,7 +169,7 @@ class ChangeRiskAssessment:
             start = datetime.fromisoformat(change.planned_start_date)
             end = datetime.fromisoformat(change.planned_end_date)
             duration_minutes = int((end - start).total_seconds() / 60)
-        except:
+        except (ValueError, TypeError, AttributeError):
             duration_minutes = 0
 
         prompt = f"""
@@ -365,7 +365,7 @@ RECOMMENDED MITIGATIONS:
         url = f"{self.servicenow_url}/api/now/table/change_request/{change_id}"
 
         update_data = {
-            "work_notes": f"Risk Assessment Completed:\n"
+            "work_notes": "Risk Assessment Completed:\n"
             + f"Risk Score: {assessment.get('overall_risk_score', 'N/A')}/100\n"
             + f"Risk Level: {assessment.get('risk_level', 'N/A')}\n"
             + f"CAB Required: {'Yes' if assessment.get('cab_required') else 'No'}\n\n"

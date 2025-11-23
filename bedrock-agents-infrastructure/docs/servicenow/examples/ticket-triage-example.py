@@ -12,7 +12,6 @@ Prerequisites:
 """
 
 import json
-import asyncio
 import boto3
 from typing import List, Dict, Tuple
 from concurrent.futures import ThreadPoolExecutor
@@ -60,7 +59,7 @@ class TicketTriageSystem:
         url = f"{self.servicenow_config['instance_url']}/api/now/table/incident"
 
         # Query for incidents in "New" state without assignment
-        query = f"state=1^categoryEMPTY^ORDERBYDESCcreated_on"
+        query = "state=1^categoryEMPTY^ORDERBYDESCcreated_on"
         params = {
             "sysparm_query": query,
             "sysparm_limit": limit,
@@ -198,7 +197,7 @@ RESPOND AS JSON:
             "category": triage_result.get("category", ""),
             "assignment_group": triage_result.get("assignment_group", ""),
             "priority": triage_result.get("priority", 3),
-            "work_notes": f"Automated Triage:\n"
+            "work_notes": "Automated Triage:\n"
             + f"Category: {triage_result.get('category')}\n"
             + f"First Step: {triage_result.get('first_step')}\n"
             + f"Confidence: {triage_result.get('confidence', 0):.0%}\n"
@@ -359,7 +358,7 @@ def main():
     print(report)
 
     # Print summary
-    print(f"\nTriaging complete:")
+    print("\nTriaging complete:")
     print(f"  Successful: {len([r for r in results if 'error' not in r])}")
     print(f"  Errors: {len(errors)}")
 

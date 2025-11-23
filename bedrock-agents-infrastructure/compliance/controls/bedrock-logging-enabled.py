@@ -16,7 +16,7 @@ def lambda_handler(event, context):
     """
     Main Lambda handler for AWS Config custom rule evaluation
     """
-    invoking_event = json.loads(event["invokingEvent"])
+    json.loads(event["invokingEvent"])
     rule_parameters = json.loads(event.get("ruleParameters", "{}"))
 
     # This rule evaluates account-level logging configuration
@@ -93,7 +93,7 @@ def evaluate_bedrock_logging(rule_parameters):
                     # Verify S3 bucket encryption
                     s3 = boto3.client("s3")
                     try:
-                        encryption = s3.get_bucket_encryption(Bucket=bucket_name)
+                        s3.get_bucket_encryption(Bucket=bucket_name)
                         # Bucket has encryption
                     except s3.exceptions.NoSuchBucketEncryption:
                         violations.append(
@@ -112,8 +112,8 @@ def evaluate_bedrock_logging(rule_parameters):
                     )
 
             # Check embedding data delivery
-            embedding_data_delivery = logging_config.get("embeddingDataDeliveryEnabled")
-            image_data_delivery = logging_config.get("imageDataDeliveryEnabled")
+            logging_config.get("embeddingDataDeliveryEnabled")
+            logging_config.get("imageDataDeliveryEnabled")
 
         # If violations found, non-compliant
         if violations:

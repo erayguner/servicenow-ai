@@ -15,7 +15,6 @@ import boto3
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional
-from pathlib import Path
 import time
 
 logging.basicConfig(
@@ -280,7 +279,7 @@ class ResourceSnapshotManager:
                         self.s3.put_bucket_versioning(
                             Bucket=bucket, VersioningConfiguration={"Status": "Enabled"}
                         )
-                    except:
+                    except Exception:
                         pass
 
                     # Tag bucket for forensics
@@ -295,7 +294,7 @@ class ResourceSnapshotManager:
                                 ]
                             },
                         )
-                    except:
+                    except Exception:
                         pass
 
                     # Get object count for reference
