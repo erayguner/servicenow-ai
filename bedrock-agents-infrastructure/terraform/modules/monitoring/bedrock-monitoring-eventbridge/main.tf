@@ -385,4 +385,3 @@ data "aws_cloudwatch_event_bus" "default" {
 }
 
 data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}

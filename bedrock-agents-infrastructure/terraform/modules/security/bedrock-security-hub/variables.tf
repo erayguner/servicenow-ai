@@ -152,15 +152,3 @@ variable "failed_compliance_threshold" {
   type        = number
   default     = 5
 }
-
-variable "alarm_evaluation_periods" {
-  description = "Number of periods to evaluate for alarms"
-  type        = number
-  default     = 1
-}
-
-variable "alarm_period" {
-  description = "Period in seconds for alarm evaluation"
-  type        = number
-  default     = 300
-}

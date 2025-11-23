@@ -84,12 +84,6 @@ variable "enable_compliance_rules" {
   default     = true
 }
 
-variable "enable_remediation" {
-  description = "Enable automatic remediation"
-  type        = bool
-  default     = false
-}
-
 variable "resource_types" {
   description = "List of AWS resource types to record"
   type        = list(string)

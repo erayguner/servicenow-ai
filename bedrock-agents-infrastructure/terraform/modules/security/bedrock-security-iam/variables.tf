@@ -155,14 +155,3 @@ variable "enable_abac" {
   type        = bool
   default     = true
 }
-
-variable "abac_tag_keys" {
-  description = "List of tag keys used for ABAC"
-  type        = list(string)
-  default = [
-    "Project",
-    "Environment",
-    "Owner",
-    "CostCenter"
-  ]
-}

@@ -167,15 +167,3 @@ variable "rate_limit_alarm_threshold" {
   type        = number
   default     = 500
 }
-
-variable "alarm_evaluation_periods" {
-  description = "Number of periods to evaluate for alarms"
-  type        = number
-  default     = 2
-}
-
-variable "alarm_period" {
-  description = "Period in seconds for alarm evaluation"
-  type        = number
-  default     = 300
-}

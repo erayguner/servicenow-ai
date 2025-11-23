@@ -202,15 +202,3 @@ variable "secrets_access_threshold" {
   type        = number
   default     = 100
 }
-
-variable "alarm_evaluation_periods" {
-  description = "Number of periods to evaluate for alarms"
-  type        = number
-  default     = 1
-}
-
-variable "alarm_period" {
-  description = "Period in seconds for alarm evaluation"
-  type        = number
-  default     = 300
-}

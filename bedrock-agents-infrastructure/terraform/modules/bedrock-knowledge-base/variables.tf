@@ -32,12 +32,6 @@ variable "vector_dimension" {
   }
 }
 
-variable "normalize_embeddings" {
-  description = "Whether to normalize embeddings"
-  type        = bool
-  default     = true
-}
-
 variable "opensearch_collection_name" {
   description = "Name of the OpenSearch Serverless collection"
   type        = string
@@ -163,12 +157,6 @@ variable "enable_vpc_configuration" {
 
 variable "vpc_subnet_ids" {
   description = "List of VPC subnet IDs for OpenSearch Serverless"
-  type        = list(string)
-  default     = []
-}
-
-variable "vpc_security_group_ids" {
-  description = "List of VPC security group IDs for OpenSearch Serverless"
   type        = list(string)
   default     = []
 }

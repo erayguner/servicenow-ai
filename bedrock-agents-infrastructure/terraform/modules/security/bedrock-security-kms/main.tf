@@ -503,4 +503,3 @@ resource "aws_cloudwatch_metric_alarm" "kms_key_deletion" {
 # ==============================================================================
 
 data "aws_caller_identity" "current" {}
-data "aws_partition" "current" {}

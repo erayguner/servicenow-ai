@@ -97,37 +97,3 @@ variable "kms_error_threshold" {
   type        = number
   default     = 10
 }
-
-# ==============================================================================
-# Key Policy Configuration
-# ==============================================================================
-
-variable "allow_bedrock_service" {
-  description = "Allow Bedrock service to use KMS keys"
-  type        = bool
-  default     = true
-}
-
-variable "allow_lambda_service" {
-  description = "Allow Lambda service to use KMS keys"
-  type        = bool
-  default     = true
-}
-
-variable "allow_cloudwatch_logs" {
-  description = "Allow CloudWatch Logs to use KMS keys"
-  type        = bool
-  default     = true
-}
-
-variable "allow_s3_service" {
-  description = "Allow S3 service to use KMS keys"
-  type        = bool
-  default     = true
-}
-
-variable "allow_secrets_manager" {
-  description = "Allow Secrets Manager to use KMS keys"
-  type        = bool
-  default     = true
-}

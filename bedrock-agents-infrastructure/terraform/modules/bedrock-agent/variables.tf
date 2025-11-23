@@ -67,12 +67,6 @@ variable "action_groups" {
   default = []
 }
 
-variable "enable_user_input" {
-  description = "Whether to enable user input for the agent"
-  type        = bool
-  default     = true
-}
-
 variable "prompt_override_configuration" {
   description = "Prompt override configuration for the agent"
   type = object({

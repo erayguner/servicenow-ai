@@ -3,22 +3,10 @@ variable "orchestration_name" {
   type        = string
 }
 
-variable "description" {
-  description = "Description of the orchestration workflow"
-  type        = string
-  default     = ""
-}
-
 variable "agent_arns" {
   description = "List of Bedrock agent ARNs to orchestrate"
   type        = list(string)
   default     = []
-}
-
-variable "agent_aliases" {
-  description = "Map of agent ARNs to their alias IDs"
-  type        = map(string)
-  default     = {}
 }
 
 variable "state_machine_type" {
@@ -162,12 +150,6 @@ variable "timeout_seconds" {
     condition     = var.timeout_seconds > 0 && var.timeout_seconds <= 31536000
     error_message = "Timeout must be between 1 and 31536000 seconds (1 year)."
   }
-}
-
-variable "max_concurrency" {
-  description = "Maximum number of concurrent executions (for EXPRESS state machines)"
-  type        = number
-  default     = null
 }
 
 variable "kms_key_id" {

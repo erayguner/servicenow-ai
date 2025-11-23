@@ -150,18 +150,6 @@ variable "sns_topic_name" {
   default     = null
 }
 
-variable "enable_s3_data_events" {
-  description = "Enable S3 data events logging"
-  type        = bool
-  default     = true
-}
-
-variable "enable_lambda_data_events" {
-  description = "Enable Lambda data events logging"
-  type        = bool
-  default     = true
-}
-
 variable "s3_lifecycle_expiration_days" {
   description = "Number of days before CloudTrail logs expire in S3"
   type        = number

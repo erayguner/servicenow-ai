@@ -172,8 +172,6 @@ data "local_file" "api_schema" {
 
 # Locals
 locals {
-  lambda_arn = var.create_lambda_function ? aws_lambda_function.this[0].arn : var.existing_lambda_arn
-
   lambda_filename = var.lambda_source_code_inline != null ? data.archive_file.lambda[0].output_path : var.lambda_source_code_path
 
   lambda_source_hash = var.lambda_source_code_inline != null ? data.archive_file.lambda[0].output_base64sha256 : (
