@@ -1,0 +1,418 @@
+{
+  "Comment": "Adaptive Coordination Workflow - Dynamically selects coordination strategy based on task characteristics",
+  "StartAt": "AnalyzeTask",
+  "States": {
+    "AnalyzeTask": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.adaptiveCoordinatorAgentId",
+        "AgentAliasId.$": "$.adaptiveCoordinatorAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Analyze this task and recommend optimal coordination strategy:\n\nTask: {}\n\nTeam size: {}\n\nDeadline: {}\n\nProvide:\n1. Task complexity (1-10)\n2. Recommended strategy (hierarchical/mesh/hybrid/autonomous)\n3. Rationale",
+            "$.taskDescription",
+            "$.teamSize",
+            "$.deadline"
+          ]
+        }
+      },
+      "ResultPath": "$.analysisResult",
+      "Next": "SelectStrategy"
+    },
+    "SelectStrategy": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.analysisResult.recommendedStrategy",
+          "StringEquals": "hierarchical",
+          "Next": "HierarchicalWorkflow"
+        },
+        {
+          "Variable": "$.analysisResult.recommendedStrategy",
+          "StringEquals": "mesh",
+          "Next": "MeshWorkflow"
+        },
+        {
+          "Variable": "$.analysisResult.recommendedStrategy",
+          "StringEquals": "hybrid",
+          "Next": "HybridWorkflow"
+        },
+        {
+          "Variable": "$.analysisResult.recommendedStrategy",
+          "StringEquals": "autonomous",
+          "Next": "AutonomousWorkflow"
+        }
+      ],
+      "Default": "HybridWorkflow"
+    },
+    "HierarchicalWorkflow": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.hierarchicalCoordinatorAgentId",
+        "AgentAliasId.$": "$.hierarchicalCoordinatorAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Execute task using hierarchical coordination:\n\nTask: {}\n\nAnalysis: {}\n\nDelegation plan:\n1. Break down into subtasks\n2. Assign to specialized agents\n3. Monitor progress\n4. Ensure quality gates",
+            "$.taskDescription",
+            "$.analysisResult"
+          ]
+        }
+      },
+      "ResultPath": "$.executionResult",
+      "Next": "MonitorPerformance"
+    },
+    "MeshWorkflow": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "BroadcastTask",
+          "States": {
+            "BroadcastTask": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.meshCoordinatorAgentId",
+                "AgentAliasId.$": "$.meshCoordinatorAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Broadcast task to agent mesh for collaborative execution:\n\nTask: {}\n\nEnable:\n1. Peer-to-peer collaboration\n2. Consensus building\n3. Self-organization\n4. Collective problem-solving",
+                    "$.taskDescription"
+                  ]
+                }
+              },
+              "ResultPath": "$.meshBroadcastResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "FacilitateMesh",
+          "States": {
+            "FacilitateMesh": {
+              "Type": "Wait",
+              "Seconds": 5,
+              "Next": "CheckMeshProgress"
+            },
+            "CheckMeshProgress": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.meshCoordinatorAgentId",
+                "AgentAliasId.$": "$.meshCoordinatorAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": "Check mesh collaboration progress and facilitate as needed."
+              },
+              "ResultPath": "$.meshProgressResult",
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.executionResult",
+      "Next": "MonitorPerformance"
+    },
+    "HybridWorkflow": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync",
+      "Parameters": {
+        "StateMachineArn.$": "$.hybridWorkflowStateMachineArn",
+        "Input": {
+          "taskDescription.$": "$.taskDescription",
+          "analysisResult.$": "$.analysisResult",
+          "sessionId.$": "$.sessionId",
+          "hierarchicalCoordinatorAgentId.$": "$.hierarchicalCoordinatorAgentId",
+          "meshCoordinatorAgentId.$": "$.meshCoordinatorAgentId"
+        }
+      },
+      "ResultPath": "$.executionResult",
+      "Next": "MonitorPerformance"
+    },
+    "AutonomousWorkflow": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "AssignToAgent1",
+          "States": {
+            "AssignToAgent1": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.assignedAgents[0].agentId",
+                "AgentAliasId.$": "$.assignedAgents[0].agentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Execute autonomously:\n\nTask: {}\n\nMinimal coordination. Report when complete.",
+                    "$.assignedAgents[0].taskPortion"
+                  ]
+                }
+              },
+              "ResultPath": "$.agent1Result",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "AssignToAgent2",
+          "States": {
+            "AssignToAgent2": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.assignedAgents[1].agentId",
+                "AgentAliasId.$": "$.assignedAgents[1].agentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Execute autonomously:\n\nTask: {}\n\nMinimal coordination. Report when complete.",
+                    "$.assignedAgents[1].taskPortion"
+                  ]
+                }
+              },
+              "ResultPath": "$.agent2Result",
+              "End": true,
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.agent2Error",
+                  "Next": "Agent2NotAssigned"
+                }
+              ]
+            },
+            "Agent2NotAssigned": {
+              "Type": "Pass",
+              "Result": {
+                "status": "not_assigned"
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.executionResult",
+      "Next": "MonitorPerformance"
+    },
+    "MonitorPerformance": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.adaptiveCoordinatorAgentId",
+        "AgentAliasId.$": "$.adaptiveCoordinatorAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Monitor performance metrics:\n\nStrategy used: {}\n\nExecution results: {}\n\nAnalyze:\n1. Velocity (tasks/time)\n2. Quality (issues found)\n3. Collaboration effectiveness\n4. Recommend adaptations if needed",
+            "$.analysisResult.recommendedStrategy",
+            "$.executionResult"
+          ]
+        }
+      },
+      "ResultPath": "$.performanceAnalysis",
+      "Next": "CheckIfAdaptationNeeded"
+    },
+    "CheckIfAdaptationNeeded": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.performanceAnalysis.adaptationNeeded",
+          "BooleanEquals": true,
+          "Next": "AdaptStrategy"
+        }
+      ],
+      "Default": "ValidateResults"
+    },
+    "AdaptStrategy": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::bedrock:invokeAgent",
+      "Parameters": {
+        "AgentId.$": "$.adaptiveCoordinatorAgentId",
+        "AgentAliasId.$": "$.adaptiveCoordinatorAgentAliasId",
+        "SessionId.$": "$.sessionId",
+        "InputText": {
+          "Fn::Format": [
+            "Current strategy {} showing performance issues: {}\n\nRecommend and execute strategy switch.\n\nProvide:\n1. New strategy\n2. Rationale for switch\n3. Migration plan",
+            "$.analysisResult.recommendedStrategy",
+            "$.performanceAnalysis.issues"
+          ]
+        }
+      },
+      "ResultPath": "$.adaptationResult",
+      "Next": "NotifyStrategyChange"
+    },
+    "NotifyStrategyChange": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "Adaptive Coordination - Strategy Changed",
+        "Message": {
+          "originalStrategy.$": "$.analysisResult.recommendedStrategy",
+          "newStrategy.$": "$.adaptationResult.newStrategy",
+          "rationale.$": "$.adaptationResult.rationale",
+          "performanceIssues.$": "$.performanceAnalysis.issues"
+        }
+      },
+      "Next": "SelectStrategy"
+    },
+    "ValidateResults": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "QualityValidation",
+          "States": {
+            "QualityValidation": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::bedrock:invokeAgent",
+              "Parameters": {
+                "AgentId.$": "$.reviewerAgentId",
+                "AgentAliasId.$": "$.reviewerAgentAliasId",
+                "SessionId.$": "$.sessionId",
+                "InputText": {
+                  "Fn::Format": [
+                    "Validate quality of results:\n\n{}",
+                    "$.executionResult"
+                  ]
+                }
+              },
+              "ResultPath": "$.qualityValidationResult",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "RecordLearnings",
+          "States": {
+            "RecordLearnings": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:putItem",
+              "Parameters": {
+                "TableName.$": "$.learningsTableName",
+                "Item": {
+                  "taskId": {
+                    "S.$": "$.sessionId"
+                  },
+                  "taskComplexity": {
+                    "N.$": "States.Format('{}', $.analysisResult.taskComplexity)"
+                  },
+                  "teamSize": {
+                    "N.$": "States.Format('{}', $.teamSize)"
+                  },
+                  "strategy": {
+                    "S.$": "$.analysisResult.recommendedStrategy"
+                  },
+                  "adapted": {
+                    "BOOL.$": "$.performanceAnalysis.adaptationNeeded"
+                  },
+                  "performance": {
+                    "M": {
+                      "velocity": {
+                        "N.$": "States.Format('{}', $.performanceAnalysis.velocity)"
+                      },
+                      "quality": {
+                        "N.$": "States.Format('{}', $.performanceAnalysis.qualityScore)"
+                      }
+                    }
+                  },
+                  "timestamp": {
+                    "S.$": "$$.State.EnteredTime"
+                  }
+                }
+              },
+              "ResultPath": "$.learningsRecorded",
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.validationResults",
+      "Next": "CheckValidation"
+    },
+    "CheckValidation": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.validationResults[0].qualityValidationResult.passed",
+          "BooleanEquals": true,
+          "Next": "Success"
+        }
+      ],
+      "Default": "ValidationFailed"
+    },
+    "ValidationFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn.$": "$.notificationTopicArn",
+        "Subject": "Adaptive Coordination - Validation Failed",
+        "Message": {
+          "strategy.$": "$.analysisResult.recommendedStrategy",
+          "validationIssues.$": "$.validationResults[0].qualityValidationResult.issues"
+        }
+      },
+      "Next": "FailDueToValidation"
+    },
+    "FailDueToValidation": {
+      "Type": "Fail",
+      "Error": "ValidationFailed",
+      "Cause": "Quality validation failed despite adaptive coordination"
+    },
+    "Success": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "StoreResults",
+          "States": {
+            "StoreResults": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:s3:putObject",
+              "Parameters": {
+                "Bucket.$": "$.artifactBucket",
+                "Key": {
+                  "Fn::Format": [
+                    "adaptive-coordination/{}/results.json",
+                    "$.sessionId"
+                  ]
+                },
+                "Body": {
+                  "analysis.$": "$.analysisResult",
+                  "execution.$": "$.executionResult",
+                  "performance.$": "$.performanceAnalysis",
+                  "validation.$": "$.validationResults",
+                  "adapted.$": "$.adaptationResult"
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "SendSuccessNotification",
+          "States": {
+            "SendSuccessNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn.$": "$.notificationTopicArn",
+                "Subject": "Adaptive Coordination - Successfully Completed",
+                "Message": {
+                  "Fn::Format": [
+                    "Task completed successfully using {} strategy. Session: {}",
+                    "$.analysisResult.recommendedStrategy",
+                    "$.sessionId"
+                  ]
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "End": true
+    }
+  }
+}

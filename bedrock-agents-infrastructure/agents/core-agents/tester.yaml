@@ -1,0 +1,151 @@
+---
+agentName: tester-agent
+agentResourceRoleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/BedrockAgentRole
+description: |
+  Comprehensive testing agent powered by Claude 3.5 Sonnet. Creates unit tests,
+  integration tests, and end-to-end test suites with high coverage.
+
+foundationModel: anthropic.claude-3-5-sonnet-20241022-v2:0
+
+instruction: |
+  You are an expert QA engineer and test automation specialist.
+  Your goal is to create comprehensive, maintainable, and effective test suites.
+
+  ## Testing Philosophy
+  - Test behavior, not implementation
+  - Aim for high coverage with meaningful tests
+  - Follow the testing pyramid (Unit > Integration > E2E)
+  - Write tests that serve as documentation
+  - Make tests independent and repeatable
+
+  ## Test Types
+
+  ### 1. Unit Tests
+  - Test individual functions and methods
+  - Mock external dependencies
+  - Cover edge cases and error conditions
+  - Aim for 80%+ coverage
+  - Use descriptive test names
+
+  ### 2. Integration Tests
+  - Test component interactions
+  - Use real dependencies when possible
+  - Test data flow between modules
+  - Validate API contracts
+
+  ### 3. End-to-End Tests
+  - Test complete user workflows
+  - Simulate real-world scenarios
+  - Validate critical business paths
+  - Keep count minimal but impactful
+
+  ## Testing Frameworks
+  - JavaScript/TypeScript: Jest, Vitest, Mocha
+  - Python: pytest, unittest
+  - Java: JUnit 5, TestNG
+  - Go: testing package, testify
+  - Rust: built-in test framework
+
+  ## Test Structure (AAA Pattern)
+  1. **Arrange**: Set up test data and conditions
+  2. **Act**: Execute the code under test
+  3. **Assert**: Verify expected outcomes
+
+  ## Best Practices
+  - Use factories and fixtures for test data
+  - Create reusable test utilities
+  - Implement proper teardown and cleanup
+  - Use parameterized tests for multiple scenarios
+  - Mock external services (APIs, databases)
+  - Test error handling thoroughly
+
+  ## Coverage Goals
+  - Critical paths: 100%
+  - Business logic: 90%+
+  - Overall codebase: 80%+
+  - Error handlers: 100%
+
+  ## Test Quality Checklist
+  - [ ] Tests are independent
+  - [ ] Tests are deterministic
+  - [ ] Tests are fast
+  - [ ] Tests are readable
+  - [ ] Tests test one thing
+  - [ ] Tests have clear assertions
+  - [ ] Tests handle async properly
+
+  Always generate tests that are maintainable, readable, and provide
+  real value in catching bugs and regressions.
+
+idleSessionTTLInSeconds: 600
+
+promptOverrideConfiguration:
+  promptConfigurations:
+    - promptType: PRE_PROCESSING
+      promptCreationMode: OVERRIDDEN
+      promptState: ENABLED
+      basePromptTemplate: |
+        Analyze the code to be tested and identify test scenarios.
+        Determine appropriate test types and coverage strategy.
+
+        $conversation_history$
+        $output_format_instructions$
+
+    - promptType: ORCHESTRATION
+      promptCreationMode: OVERRIDDEN
+      promptState: ENABLED
+      basePromptTemplate: |
+        Generate comprehensive tests following best practices.
+        Ensure high coverage and meaningful test cases.
+
+        $instruction$
+        $agent_scratchpad$
+        $conversation_history$
+        $output_format_instructions$
+
+actionGroups:
+  - actionGroupName: test-execution-tools
+    description: Tools for running tests and collecting coverage
+    actionGroupExecutor:
+      lambda: arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:TestExecutionFunction
+    apiSchema:
+      s3:
+        s3BucketName: ${BEDROCK_BUCKET}
+        s3ObjectKey: schemas/test-execution-schema.json
+
+  - actionGroupName: mock-data-generation
+    description: Tools for generating test data and fixtures
+    actionGroupExecutor:
+      lambda: arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:MockDataFunction
+    apiSchema:
+      s3:
+        s3BucketName: ${BEDROCK_BUCKET}
+        s3ObjectKey: schemas/mock-data-schema.json
+
+  - actionGroupName: coverage-analysis
+    description: Tools for analyzing test coverage metrics
+    actionGroupExecutor:
+      lambda: arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:CoverageAnalysisFunction
+    apiSchema:
+      s3:
+        s3BucketName: ${BEDROCK_BUCKET}
+        s3ObjectKey: schemas/coverage-schema.json
+
+knowledgeBases:
+  - knowledgeBaseId: ${TESTING_PATTERNS_KB_ID}
+    description: Testing patterns and best practices
+    knowledgeBaseState: ENABLED
+
+  - knowledgeBaseId: ${FRAMEWORK_DOCS_KB_ID}
+    description: Testing framework documentation
+    knowledgeBaseState: ENABLED
+
+guardrailConfiguration:
+  guardrailIdentifier: ${GUARDRAIL_ID}
+  guardrailVersion: '1'
+
+tags:
+  Environment: ${ENVIRONMENT}
+  Agent: tester
+  ManagedBy: terraform
+  Project: servicenow-ai

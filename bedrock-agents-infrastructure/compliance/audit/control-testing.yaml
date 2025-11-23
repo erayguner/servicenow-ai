@@ -1,0 +1,487 @@
+# Control Testing Procedures for Amazon Bedrock Agents Infrastructure
+# Version: 1.0
+# Purpose: Define testing procedures for security controls
+
+testing_metadata:
+  framework_version: '1.0'
+  last_updated: '2025-11-17'
+  testing_frequency: 'Quarterly minimum, continuous automated where possible'
+  testing_scope: 'All security controls in audit checklist'
+
+# Testing Methodologies
+methodologies:
+  automated_testing:
+    description: 'Continuous automated control testing via AWS Config and Security Hub'
+    frequency: 'Continuous (real-time)'
+    tools:
+      - AWS Config Rules
+      - AWS Security Hub
+      - Amazon GuardDuty
+      - Amazon Macie
+      - AWS Lambda (custom tests)
+
+  manual_testing:
+    description: 'Periodic manual testing by security team'
+    frequency: 'Quarterly'
+    personnel: 'Security Team, Internal Audit'
+
+  independent_testing:
+    description: 'Annual independent third-party testing'
+    frequency: 'Annual'
+    personnel: 'External Auditor, Penetration Testing Firm'
+
+# Control Test Procedures
+control_tests:
+  encryption_controls:
+    TC-ENC-001:
+      control_name: 'Bedrock Knowledge Base Encryption'
+      test_objective: 'Verify all knowledge bases encrypted with customer-managed KMS keys'
+      test_type: 'Automated'
+      test_frequency: 'Continuous'
+
+      automated_test:
+        aws_config_rule: 'bedrock-agent-encryption-check'
+        expected_result: 'COMPLIANT'
+        remediation_automatic: false
+        alert_on_failure: true
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'List all Bedrock knowledge bases'
+            command: 'aws bedrock-agent list-knowledge-bases'
+          - step: 2
+            action: 'For each knowledge base, verify encryption configuration'
+            command: 'aws bedrock-agent get-knowledge-base --knowledge-base-id {id}'
+          - step: 3
+            action: 'Verify KMS key is customer-managed (not AWS-managed)'
+            command: 'aws kms describe-key --key-id {key-id}'
+            expected_output: 'KeyManager: CUSTOMER'
+          - step: 4
+            action: 'Verify key rotation is enabled'
+            command: 'aws kms get-key-rotation-status --key-id {key-id}'
+            expected_output: 'KeyRotationEnabled: true'
+          - step: 5
+            action: 'Document findings'
+            output: 'Control testing evidence report'
+
+      sampling_methodology:
+        type: 'Census (100% coverage)'
+        justification: 'Critical control for RESTRICTED data'
+
+      evidence_collected:
+        - AWS Config compliance report screenshot
+        - Manual test procedure results
+        - KMS key configuration screenshots
+        - Knowledge base encryption verification
+
+    TC-ENC-002:
+      control_name: 'S3 Data Source Encryption'
+      test_objective: 'Verify S3 buckets containing Bedrock data encrypted with CMK'
+      test_type: 'Automated'
+      test_frequency: 'Continuous'
+
+      automated_test:
+        aws_config_rule: 's3-bucket-server-side-encryption-enabled'
+        expected_result: 'COMPLIANT'
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: "List S3 buckets with 'bedrock-' prefix"
+            command: 'aws s3api list-buckets | grep bedrock'
+          - step: 2
+            action: 'For each bucket, get encryption configuration'
+            command: 'aws s3api get-bucket-encryption --bucket {bucket-name}'
+            expected_output: 'SSEAlgorithm: aws:kms, KMSMasterKeyID: {customer-cmk-arn}'
+          - step: 3
+            action: 'Verify bucket policy enforces SSL/TLS'
+            command: 'aws s3api get-bucket-policy --bucket {bucket-name}'
+            expected_policy: 'Deny non-HTTPS requests'
+          - step: 4
+            action: 'Test unencrypted upload (should be blocked)'
+            command: 'aws s3 cp test.txt s3://{bucket}/test.txt --no-sse'
+            expected_result: 'Access Denied or encrypted automatically'
+
+      sampling_methodology:
+        type: 'Census (100% coverage)'
+
+    TC-ENC-003:
+      control_name: 'Encryption in Transit'
+      test_objective: 'Verify all Bedrock API calls use TLS 1.2+'
+      test_type: 'Automated + Manual'
+      test_frequency: 'Continuous automated, quarterly manual'
+
+      automated_test:
+        method: 'VPC Flow Logs analysis'
+        alert_on: 'Non-TLS traffic to Bedrock endpoints'
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'Verify VPC endpoints configured for Bedrock'
+            command: 'aws ec2 describe-vpc-endpoints --filters Name=service-name,Values=*bedrock*'
+            expected_output: 'State: available, PrivateDnsEnabled: true'
+          - step: 2
+            action: 'Test Bedrock API call with TLS verification'
+            command: 'aws bedrock-runtime invoke-model --model-id {id} --body {payload} --tls-min-version TLSv1_2'
+            expected_result: 'Successful invocation with TLS 1.2+'
+          - step: 3
+            action: 'Attempt connection with TLS 1.1 (should fail)'
+            command: 'openssl s_client -connect bedrock.{region}.amazonaws.com:443 -tls1_1'
+            expected_result: 'Connection refused or handshake failure'
+          - step: 4
+            action: 'Review CloudTrail logs for non-HTTPS API calls'
+            query: "SELECT * FROM cloudtrail WHERE eventName LIKE 'Invoke%' AND userAgent NOT LIKE '%https%'"
+            expected_result: 'Zero results'
+
+  access_control_tests:
+    TC-AC-001:
+      control_name: 'IAM Least Privilege'
+      test_objective: 'Verify Bedrock IAM roles follow least privilege'
+      test_type: 'Automated + Manual'
+      test_frequency: 'Continuous automated, quarterly manual'
+
+      automated_test:
+        aws_config_rule: 'bedrock-iam-least-privilege'
+        expected_result: 'COMPLIANT'
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'List all IAM roles with Bedrock permissions'
+            command: 'aws iam list-roles | grep -i bedrock'
+          - step: 2
+            action: 'For each role, retrieve attached policies'
+            command: 'aws iam list-attached-role-policies --role-name {role-name}'
+          - step: 3
+            action: 'Analyze policies for overly permissive actions'
+            checks:
+              - 'No wildcard (*) actions except List/Describe'
+              - 'No AdministratorAccess or PowerUserAccess policies'
+              - 'Resource ARNs specific (not *)'
+          - step: 4
+            action: 'Use IAM Access Analyzer to identify unused permissions'
+            command: "aws accessanalyzer list-findings --analyzer-arn {arn} --filter resource.type='AWS::IAM::Role'"
+            expected_result: 'Zero unused permissions findings'
+          - step: 5
+            action: 'Validate conditional access policies'
+            check: 'Verify IP restrictions, MFA requirements for RESTRICTED data'
+
+      sampling_methodology:
+        type: 'Census for production, 25% sample for dev/test'
+
+    TC-AC-002:
+      control_name: 'Multi-Factor Authentication'
+      test_objective: 'Verify MFA enabled for all users with RESTRICTED data access'
+      test_type: 'Automated'
+      test_frequency: 'Daily'
+
+      automated_test:
+        aws_config_rule: 'iam-user-mfa-enabled'
+        expected_result: 'COMPLIANT'
+
+      manual_test_procedure:
+        frequency: 'Monthly'
+        steps:
+          - step: 1
+            action: 'Generate IAM credential report'
+            command: 'aws iam generate-credential-report && aws iam get-credential-report'
+          - step: 2
+            action: 'Filter users without MFA'
+            analysis: 'mfa_active = false AND (console access OR API access to RESTRICTED resources)'
+            expected_result: 'Zero users'
+          - step: 3
+            action: 'Verify root account MFA'
+            method: 'Manual console check (root credentials needed)'
+            expected_result: 'MFA enabled with hardware token'
+          - step: 4
+            action: 'Test MFA enforcement'
+            test: 'Attempt console login without MFA'
+            expected_result: 'Login denied or MFA prompt required'
+
+  logging_and_monitoring_tests:
+    TC-LOG-001:
+      control_name: 'CloudTrail Logging'
+      test_objective: 'Verify CloudTrail enabled in all regions with log file validation'
+      test_type: 'Automated'
+      test_frequency: 'Continuous'
+
+      automated_test:
+        aws_config_rule: 'cloud-trail-enabled'
+        parameters:
+          - s3BucketName: 'cloudtrail-logs-bedrock'
+          - includeManagementEvents: true
+          - readWriteType: 'All'
+          - recordGlobalServiceEvents: true
+        expected_result: 'COMPLIANT'
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'List all CloudTrail trails'
+            command: 'aws cloudtrail describe-trails'
+          - step: 2
+            action: 'Verify multi-region trail configuration'
+            command: 'aws cloudtrail get-trail-status --name {trail-name}'
+            expected_output: 'IsLogging: true, IsMultiRegionTrail: true'
+          - step: 3
+            action: 'Verify log file validation enabled'
+            command: 'aws cloudtrail describe-trails'
+            expected_output: 'LogFileValidationEnabled: true'
+          - step: 4
+            action: 'Validate sample log file integrity'
+            command: 'aws cloudtrail validate-log-file-integrity --trail-arn {arn} --start-time {time}'
+            expected_result: 'All digests valid'
+          - step: 5
+            action: 'Test log delivery'
+            method: 'Perform test action, verify log appears in S3 within 15 minutes'
+            expected_result: 'Log file delivered and encrypted'
+
+    TC-LOG-002:
+      control_name: 'Bedrock Model Invocation Logging'
+      test_objective: 'Verify model invocation logging enabled with encryption'
+      test_type: 'Automated'
+      test_frequency: 'Continuous'
+
+      automated_test:
+        aws_config_rule: 'bedrock-logging-enabled'
+        expected_result: 'COMPLIANT'
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'Get Bedrock model invocation logging configuration'
+            command: 'aws bedrock get-model-invocation-logging-configuration'
+          - step: 2
+            action: 'Verify CloudWatch Logs configuration'
+            check: 'Log group name, role ARN, text data delivery enabled'
+          - step: 3
+            action: 'Verify log group encryption'
+            command: 'aws logs describe-log-groups --log-group-name-prefix /aws/bedrock'
+            expected_output: 'kmsKeyId present (not null)'
+          - step: 4
+            action: 'Test logging by invoking model'
+            command: 'aws bedrock-runtime invoke-model --model-id {id} --body {payload}'
+          - step: 5
+            action: 'Verify log entry created'
+            wait: '2 minutes'
+            command: "aws logs filter-log-events --log-group-name /aws/bedrock/modelinvocations --filter-pattern '{requestId}'"
+            expected_result: 'Log entry found with request/response logged'
+
+  backup_and_recovery_tests:
+    TC-BCR-001:
+      control_name: 'Backup Configuration'
+      test_objective: 'Verify AWS Backup configured with 7-year retention'
+      test_type: 'Automated + Manual'
+      test_frequency: 'Continuous automated, quarterly manual restore test'
+
+      automated_test:
+        aws_config_rule: 'bedrock-knowledge-base-backup'
+        expected_result: 'COMPLIANT'
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'List backup plans'
+            command: 'aws backup list-backup-plans'
+          - step: 2
+            action: 'Verify backup plan rules'
+            command: 'aws backup get-backup-plan --backup-plan-id {id}'
+            expected_output: 'DeleteAfterDays: 2557 (7 years)'
+          - step: 3
+            action: 'Verify backup selections include Bedrock resources'
+            command: 'aws backup list-backup-selections --backup-plan-id {id}'
+          - step: 4
+            action: 'Check recent backup job status'
+            command: 'aws backup list-backup-jobs --by-state COMPLETED --max-results 10'
+            expected_result: 'Daily backups successful'
+
+      restore_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'Select random recovery point (from previous week)'
+            command: 'aws backup list-recovery-points-by-backup-vault --backup-vault-name {vault}'
+          - step: 2
+            action: 'Initiate restore to test environment'
+            command: 'aws backup start-restore-job --recovery-point-arn {arn} --iam-role-arn {role} --metadata {params}'
+          - step: 3
+            action: 'Monitor restore job'
+            command: 'aws backup describe-restore-job --restore-job-id {id}'
+            expected_result: 'Status: COMPLETED'
+          - step: 4
+            action: 'Verify restored data integrity'
+            method: 'Compare checksums of sample files'
+            expected_result: 'MD5/SHA-256 hashes match'
+          - step: 5
+            action: 'Measure RTO (Recovery Time Objective)'
+            metric: 'Time from restore initiation to data accessible'
+            target: '< 4 hours for RESTRICTED data'
+          - step: 6
+            action: 'Document results'
+            output: 'Quarterly restore test report'
+
+  network_security_tests:
+    TC-NET-001:
+      control_name: 'VPC Endpoints for Bedrock'
+      test_objective: 'Verify Bedrock accessed via VPC endpoints (no internet routing)'
+      test_type: 'Automated + Manual'
+      test_frequency: 'Continuous automated, quarterly manual'
+
+      automated_test:
+        aws_config_rule: 'bedrock-network-isolation'
+        expected_result: 'COMPLIANT'
+
+      manual_test_procedure:
+        frequency: 'Quarterly'
+        steps:
+          - step: 1
+            action: 'List VPC endpoints for Bedrock services'
+            command: 'aws ec2 describe-vpc-endpoints --filters Name=service-name,Values=*bedrock*'
+            expected_output: 'At least one endpoint per Bedrock service (runtime, agent, agent-runtime)'
+          - step: 2
+            action: 'Verify endpoint state and configuration'
+            checks:
+              - 'State: available'
+              - 'VpcEndpointType: Interface'
+              - 'PrivateDnsEnabled: true'
+              - 'Subnets: private subnets only (no IGW route)'
+          - step: 3
+            action: 'Test Bedrock API call via VPC endpoint'
+            command: 'aws bedrock-runtime invoke-model --endpoint-url https://vpce-{id}.bedrock-runtime.{region}.vpce.amazonaws.com'
+            expected_result: 'Successful invocation'
+          - step: 4
+            action: 'Verify no public Bedrock API calls'
+            method: 'Review CloudTrail logs for sourceVpce field'
+            query: "SELECT * FROM cloudtrail WHERE eventSource LIKE '%bedrock%' AND sourceVpce IS NULL"
+            expected_result: 'Zero results for RESTRICTED resources'
+
+# Control Test Sampling
+sampling:
+  census_testing:
+    description: '100% testing of all instances'
+    applicable_controls:
+      - Encryption controls (RESTRICTED data)
+      - Backup controls (RESTRICTED data)
+      - IAM roles (production environment)
+      - VPC endpoints
+    justification: 'Critical controls for RESTRICTED data require complete coverage'
+
+  statistical_sampling:
+    description: 'Statistical sample for non-critical controls'
+    sample_size_calculation: 'Sample size = (Z^2 * p * (1-p)) / E^2'
+    parameters:
+      confidence_level: 95 # Z = 1.96
+      expected_error_rate: 5 # p = 0.05
+      margin_of_error: 3 # E = 0.03
+    applicable_controls:
+      - IAM users (development environment)
+      - S3 buckets (non-sensitive data)
+      - CloudWatch alarms
+
+  judgmental_sampling:
+    description: 'Targeted sampling of high-risk items'
+    applicable_controls:
+      - Recently created resources
+      - Resources with recent configuration changes
+      - Resources with previous compliance findings
+      - Resources handling RESTRICTED data
+
+# Test Execution and Documentation
+execution:
+  automated_test_execution:
+    trigger: 'AWS Config continuous evaluation'
+    notification: 'SNS topic on NON_COMPLIANT findings'
+    dashboard: 'AWS Security Hub compliance dashboard'
+
+  manual_test_execution:
+    responsibility: 'Security Team Lead'
+    documentation_required:
+      - Test procedures checklist
+      - Test results (pass/fail with evidence)
+      - Screenshots and command outputs
+      - Sampling methodology justification
+      - Exceptions noted with business justification
+      - Remediation plan for failures
+
+  test_result_classification:
+    pass: 'Control operating effectively, no exceptions'
+    pass_with_exceptions: 'Control operating effectively with documented exceptions'
+    fail: 'Control not operating effectively, remediation required'
+    not_tested: 'Control not tested (with justification)'
+
+# Remediation and Follow-up
+remediation:
+  severity_levels:
+    critical:
+      definition: 'Control failure affecting RESTRICTED data or compliance breach risk'
+      remediation_sla: '24 hours'
+      escalation: 'CISO immediate notification'
+
+    high:
+      definition: 'Control failure affecting CONFIDENTIAL data'
+      remediation_sla: '7 days'
+      escalation: 'Security team manager'
+
+    medium:
+      definition: 'Control failure affecting INTERNAL data'
+      remediation_sla: '30 days'
+      escalation: 'Resource owner'
+
+    low:
+      definition: 'Control weakness, no immediate risk'
+      remediation_sla: '90 days'
+      escalation: 'Resource owner'
+
+  remediation_tracking:
+    tool: 'Jira or ServiceNow'
+    workflow:
+      - step: 1
+        action: 'Create remediation ticket'
+        assign_to: 'Resource owner'
+      - step: 2
+        action: 'Document root cause analysis'
+        deadline: '5 days from finding'
+      - step: 3
+        action: 'Implement remediation'
+        deadline: 'Per severity SLA'
+      - step: 4
+        action: 'Re-test control'
+        performer: 'Security team'
+      - step: 5
+        action: 'Close ticket or escalate'
+        approval: 'Control owner'
+
+  follow_up_testing:
+    frequency: '30 days after remediation'
+    scope: 'Verify fix implemented and control operating effectively'
+    documentation: 'Follow-up test results appended to original finding'
+
+# Reporting
+reporting:
+  quarterly_control_testing_report:
+    audience: ['CISO', 'Compliance Team', 'Audit Committee']
+    contents:
+      - executive_summary
+      - control_test_results_summary
+      - findings_by_severity
+      - remediation_status
+      - trend_analysis
+      - recommendations
+
+  annual_control_effectiveness_report:
+    audience: ['Board of Directors', 'External Auditor']
+    contents:
+      - control_framework_overview
+      - control_test_results_year_to_date
+      - control_maturity_assessment
+      - risk_and_compliance_posture
+      - strategic_recommendations

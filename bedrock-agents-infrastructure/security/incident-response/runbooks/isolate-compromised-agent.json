@@ -1,0 +1,219 @@
+{
+  "Comment": "Isolate a compromised Bedrock agent from the infrastructure",
+  "StartAt": "ValidateInput",
+  "States": {
+    "ValidateInput": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-validate-input",
+      "Parameters": {
+        "agentId.$": "$.agentId",
+        "reason.$": "$.reason"
+      },
+      "Next": "GetAgentDetails",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "ValidationFailed"
+        }
+      ]
+    },
+    "GetAgentDetails": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-get-agent-details",
+      "Parameters": {
+        "agentId.$": "$.agentId"
+      },
+      "Next": "CreateSnapshot",
+      "ResultPath": "$.agentDetails",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "CreateSnapshot": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-create-snapshot",
+      "Parameters": {
+        "agentId.$": "$.agentId",
+        "agentDetails.$": "$.agentDetails",
+        "reason.$": "$.reason"
+      },
+      "Next": "ParallelContainment",
+      "ResultPath": "$.snapshotResult",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "ParallelContainment": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "RevokeNetworkAccess",
+          "States": {
+            "RevokeNetworkAccess": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-revoke-network-access",
+              "Parameters": {
+                "agentId.$": "$.agentId",
+                "agentDetails.$": "$.agentDetails"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "RevokeIAMAccess",
+          "States": {
+            "RevokeIAMAccess": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-revoke-iam-access",
+              "Parameters": {
+                "agentId.$": "$.agentId",
+                "agentDetails.$": "$.agentDetails"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "TerminateConnections",
+          "States": {
+            "TerminateConnections": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-terminate-connections",
+              "Parameters": {
+                "agentId.$": "$.agentId",
+                "agentDetails.$": "$.agentDetails"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "DisableAgent"
+    },
+    "DisableAgent": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-disable-agent",
+      "Parameters": {
+        "agentId.$": "$.agentId"
+      },
+      "Next": "VerifyIsolation",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "VerifyIsolation": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-verify-isolation",
+      "Parameters": {
+        "agentId.$": "$.agentId"
+      },
+      "Next": "LogIncident",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "LogIncident": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-event",
+      "Parameters": {
+        "eventType": "AGENT_ISOLATED",
+        "agentId.$": "$.agentId",
+        "reason.$": "$.reason",
+        "timestamp.$": "$$.State.EnteredTime",
+        "details.$": "$"
+      },
+      "Next": "NotifySecurityTeam"
+    },
+    "NotifySecurityTeam": {
+      "Type": "Task",
+      "Resource": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:incident-response-topic",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:incident-response-topic",
+        "Subject": "Agent Isolation Complete",
+        "Message.$": "States.JsonToString($)"
+      },
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "ValidationFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:incident-log-error",
+      "Parameters": {
+        "errorType": "VALIDATION_FAILED",
+        "message": "Input validation failed",
+        "details.$": "$"
+      },
+      "Next": "FailureNotification"
+    },
+    "FailureNotification": {
+      "Type": "Task",
+      "Resource": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:incident-response-topic",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:incident-response-topic",
+        "Subject": "Agent Isolation Failed",
+        "Message.$": "States.JsonToString($)"
+      },
+      "Next": "Failure"
+    },
+    "Failure": {
+      "Type": "Fail",
+      "Error": "IsolationFailed",
+      "Cause": "Failed to isolate compromised agent"
+    }
+  }
+}
