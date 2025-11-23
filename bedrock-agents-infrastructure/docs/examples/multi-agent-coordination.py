@@ -10,7 +10,7 @@ import boto3
 import json
 import uuid
 import time
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
@@ -52,7 +52,7 @@ class MultiAgentOrchestrator:
         self.execution_log: List[Dict[str, Any]] = []
 
     def invoke_agent(
-        self, agent_name: str, query: str, context: Dict[str, Any] = None
+        self, agent_name: str, query: str, context: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Invoke a specific agent.
@@ -126,7 +126,7 @@ class MultiAgentOrchestrator:
         print(f"{'='*60}")
 
         current_output = task
-        results = {}
+        results: Dict[str, Any] = {}
 
         for i, agent_name in enumerate(agent_sequence):
             print(f"\n[Step {i+1}/{len(agent_sequence)}] Invoking {agent_name}")

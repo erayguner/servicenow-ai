@@ -289,7 +289,7 @@ RESPOND AS JSON:
         escalations = len([r for r in results if r.get("escalate")])
 
         # Count by category
-        categories = {}
+        categories: Dict[str, int] = {}
         for r in results:
             cat = r.get("category", "Unknown")
             categories[cat] = categories.get(cat, 0) + 1

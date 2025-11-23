@@ -7,7 +7,7 @@ for retrieval-augmented generation (RAG) workflows.
 """
 
 import boto3
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 
@@ -205,7 +205,7 @@ class KnowledgeBaseClient:
             return {}
 
     def search_with_filters(
-        self, query: str, metadata_filters: Dict[str, Any] = None, max_results: int = 5
+        self, query: str, metadata_filters: Optional[Dict[str, Any]] = None, max_results: int = 5
     ) -> List[Dict[str, Any]]:
         """
         Retrieve documents with metadata filters.

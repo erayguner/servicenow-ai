@@ -14,7 +14,7 @@ import json
 import boto3
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from collections import defaultdict
 
 logging.basicConfig(
@@ -51,7 +51,7 @@ class TimelineBuilder:
         self.rds = boto3.client("rds")
 
         # Timeline events storage
-        self.events = []
+        self.events: List[Dict[str, Any]] = []
 
     def parse_cloudtrail_events(self) -> List[Dict]:
         """Parse CloudTrail events into timeline format."""
@@ -307,7 +307,7 @@ class TimelineBuilder:
 
     def _count_by_source(self, events: List[Dict]) -> Dict[str, int]:
         """Count events by source."""
-        counts = defaultdict(int)
+        counts: Dict[str, int] = defaultdict(int)
         for event in events:
             source = event.get("source", "Unknown")
             counts[source] += 1
@@ -315,7 +315,7 @@ class TimelineBuilder:
 
     def analyze_patterns(self, events: List[Dict]) -> Dict:
         """Analyze event patterns for insights."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "top_principals": defaultdict(int),
             "top_source_ips": defaultdict(int),
             "top_event_types": defaultdict(int),

@@ -14,7 +14,7 @@ import json
 import boto3
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pathlib import Path
 
 # Configure logging
@@ -46,7 +46,7 @@ class LogCaptureManager:
         self.rds = boto3.client("rds")
         self.s3 = boto3.client("s3")
 
-        self.logs_captured = {
+        self.logs_captured: Dict[str, Any] = {
             "cloudtrail": [],
             "cloudwatch": [],
             "vpc_flow": [],
@@ -157,7 +157,7 @@ class LogCaptureManager:
 
                 except Exception as e:
                     logger.warning(f"Error capturing {log_group}: {e}")
-                    all_logs[log_group] = {"error": str(e)}
+                    all_logs[log_group] = []
 
             # Save to file
             output_file = self.output_dir / "cloudwatch-logs.json"
@@ -420,7 +420,7 @@ class LogCaptureManager:
 
     def create_capture_summary(self) -> Dict:
         """Create summary of all captured logs."""
-        summary = {
+        summary: Dict[str, Any] = {
             "incident_id": self.incident_id,
             "capture_time": datetime.utcnow().isoformat(),
             "output_directory": str(self.output_dir),
@@ -456,7 +456,7 @@ class LogCaptureManager:
             f"Starting comprehensive log capture for incident {self.incident_id}"
         )
 
-        results = {
+        results: Dict[str, Any] = {
             "incident_id": self.incident_id,
             "start_time": datetime.utcnow().isoformat(),
             "captures": {},

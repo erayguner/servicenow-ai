@@ -14,7 +14,7 @@ import json
 import boto3
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -35,7 +35,7 @@ class NetworkCaptureManager:
         self.ssm = boto3.client("ssm")
         self.cloudwatch = boto3.client("logs")
 
-        self.captures = {
+        self.captures: Dict[str, List] = {
             "packet_captures": [],
             "vpc_flow_logs": [],
             "dns_queries": [],
@@ -113,7 +113,7 @@ class NetworkCaptureManager:
         logger.info(f"Analyzing VPC Flow Logs for {len(vpc_ids)} VPCs")
 
         try:
-            flow_logs = {}
+            flow_logs: Dict[str, Any] = {}
 
             for vpc_id in vpc_ids:
                 try:
@@ -323,7 +323,7 @@ class NetworkCaptureManager:
         """
         logger.info(f"Starting network capture for incident {self.incident_id}")
 
-        results = {
+        results: Dict[str, Any] = {
             "incident_id": self.incident_id,
             "start_time": datetime.utcnow().isoformat(),
             "captures": {},

@@ -15,9 +15,10 @@ import json
 import boto3
 import requests
 import base64
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Any
 from datetime import datetime
 from dataclasses import dataclass
+from collections import defaultdict
 
 
 @dataclass
@@ -129,11 +130,9 @@ class ChangeRiskAssessment:
             response.raise_for_status()
 
             changes = response.json()["result"]
-            grouped = {}
+            grouped: Dict[str, List[Any]] = defaultdict(list)
             for change in changes:
                 change_type = change.get("type", "unknown")
-                if change_type not in grouped:
-                    grouped[change_type] = []
                 grouped[change_type].append(change)
 
             return grouped

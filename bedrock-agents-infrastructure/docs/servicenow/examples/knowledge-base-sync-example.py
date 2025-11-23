@@ -15,9 +15,10 @@ import json
 import boto3
 import requests
 import base64
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 from datetime import datetime
 from dataclasses import dataclass
+from collections import defaultdict
 
 
 @dataclass
@@ -357,7 +358,7 @@ RESPOND AS JSON:
             "sysparm_fields": "category,short_description",
         }
 
-        incidents_by_category = {}
+        incidents_by_category: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
         try:
             response = requests.get(
                 url, headers=self.headers, params=params, timeout=15
@@ -366,15 +367,13 @@ RESPOND AS JSON:
 
             for incident in response.json()["result"]:
                 category = incident.get("category", "Other")
-                if category not in incidents_by_category:
-                    incidents_by_category[category] = []
                 incidents_by_category[category].append(incident)
 
         except requests.RequestException as e:
             print(f"Error analyzing coverage: {e}")
 
         # Get KB article count by category
-        kb_by_category = {}
+        kb_by_category: Dict[str, int] = {}
         url = f"{self.servicenow_url}/api/now/table/kb_knowledge"
         params = {"sysparm_limit": 500, "sysparm_fields": "category"}
 

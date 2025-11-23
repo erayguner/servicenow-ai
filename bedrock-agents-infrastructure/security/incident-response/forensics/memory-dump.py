@@ -14,7 +14,7 @@ import json
 import boto3
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -36,7 +36,7 @@ class MemoryDumpManager:
         self.lambda_client = boto3.client("lambda")
         self.cloudwatch = boto3.client("logs")
 
-        self.dumps = {"ec2_memory": [], "lambda_memory": [], "process_dumps": []}
+        self.dumps: Dict[str, List] = {"ec2_memory": [], "lambda_memory": [], "process_dumps": []}
 
     def dump_ec2_memory(self, instance_id: str) -> Dict:
         """
@@ -290,7 +290,7 @@ class MemoryDumpManager:
         """
         logger.info(f"Starting memory dump collection for incident {self.incident_id}")
 
-        results = {
+        results: Dict[str, Any] = {
             "incident_id": self.incident_id,
             "start_time": datetime.utcnow().isoformat(),
             "dumps": {},

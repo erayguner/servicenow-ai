@@ -14,7 +14,7 @@ import json
 import boto3
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import time
 
 logging.basicConfig(
@@ -36,7 +36,7 @@ class ResourceSnapshotManager:
         self.rds = boto3.client("rds")
         self.s3 = boto3.client("s3")
 
-        self.snapshots = {"ebs": [], "rds": [], "s3": [], "ami": []}
+        self.snapshots: Dict[str, List] = {"ebs": [], "rds": [], "s3": [], "ami": []}
 
     def snapshot_ebs_volumes(self, volume_ids: Optional[List[str]] = None) -> Dict:
         """
@@ -356,7 +356,7 @@ class ResourceSnapshotManager:
         """
         logger.info(f"Starting resource snapshot for incident {self.incident_id}")
 
-        results = {
+        results: Dict[str, Any] = {
             "incident_id": self.incident_id,
             "start_time": datetime.utcnow().isoformat(),
             "snapshots": {},
