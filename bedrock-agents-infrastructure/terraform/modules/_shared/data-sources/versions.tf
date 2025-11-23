@@ -1,5 +1,5 @@
 # ==============================================================================
-# Bedrock Security Hub Module - Version Constraints
+# Shared Data Sources Module - Version Constraints
 # ==============================================================================
 
 terraform {

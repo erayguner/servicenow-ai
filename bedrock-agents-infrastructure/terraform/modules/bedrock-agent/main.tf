@@ -1,3 +1,15 @@
+# ==============================================================================
+# Shared Data Sources
+# ==============================================================================
+
+module "shared_data" {
+  source = "../_shared/data-sources"
+}
+
+# ==============================================================================
+# IAM Resources
+# ==============================================================================
+
 # IAM Role for Bedrock Agent
 resource "aws_iam_role" "agent" {
   name               = "${var.agent_name}-agent-role"
@@ -27,13 +39,13 @@ data "aws_iam_policy_document" "agent_trust" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceAccount"
-      values   = [data.aws_caller_identity.current.account_id]
+      values   = [module.shared_data.account_id]
     }
 
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:agent/*"]
+      values   = ["arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:agent/*"]
     }
   }
 }
@@ -54,8 +66,8 @@ data "aws_iam_policy_document" "agent_permissions" {
       "bedrock:InvokeModelWithResponseStream"
     ]
     resources = [
-      "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/${var.foundation_model}",
-      "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/${var.model_id}"
+      "arn:aws:bedrock:${module.shared_data.region_name}::foundation-model/${var.foundation_model}",
+      "arn:aws:bedrock:${module.shared_data.region_name}::foundation-model/${var.model_id}"
     ]
   }
 
@@ -69,7 +81,7 @@ data "aws_iam_policy_document" "agent_permissions" {
         "bedrock:RetrieveAndGenerate"
       ]
       resources = [
-        for kb in var.knowledge_bases : "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:knowledge-base/${kb.knowledge_base_id}"
+        for kb in var.knowledge_bases : "arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:knowledge-base/${kb.knowledge_base_id}"
       ]
     }
   }
@@ -97,7 +109,7 @@ data "aws_iam_policy_document" "agent_permissions" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/bedrock/agents/${var.agent_name}:*"
+      "arn:aws:logs:${module.shared_data.region_name}:${module.shared_data.account_id}:log-group:/aws/bedrock/agents/${var.agent_name}:*"
     ]
   }
 
@@ -235,7 +247,3 @@ resource "aws_cloudwatch_log_group" "agent" {
     }
   )
 }
-
-# Data sources
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}

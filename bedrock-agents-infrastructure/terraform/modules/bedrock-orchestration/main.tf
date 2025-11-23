@@ -1,3 +1,15 @@
+# ==============================================================================
+# Shared Data Sources
+# ==============================================================================
+
+module "shared_data" {
+  source = "../_shared/data-sources"
+}
+
+# ==============================================================================
+# State Management Resources
+# ==============================================================================
+
 # DynamoDB Table for State Management
 resource "aws_dynamodb_table" "state" {
   count = var.create_dynamodb_table ? 1 : 0
@@ -73,7 +85,7 @@ resource "aws_dynamodb_table" "state" {
 
   server_side_encryption {
     enabled     = true
-    kms_key_arn = var.kms_key_id != null ? "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}" : null
+    kms_key_arn = var.kms_key_id != null ? "arn:aws:kms:${module.shared_data.region_name}:${module.shared_data.account_id}:key/${var.kms_key_id}" : null
   }
 
   ttl {
@@ -208,7 +220,7 @@ data "aws_iam_policy_document" "sfn_permissions" {
         "kms:Decrypt",
         "kms:GenerateDataKey"
       ]
-      resources = ["arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}"]
+      resources = ["arn:aws:kms:${module.shared_data.region_name}:${module.shared_data.account_id}:key/${var.kms_key_id}"]
     }
   }
 }
@@ -218,7 +230,7 @@ resource "aws_cloudwatch_log_group" "state_machine" {
   count             = var.enable_logging ? 1 : 0
   name              = "/aws/vendedlogs/states/${var.orchestration_name}"
   retention_in_days = 30
-  kms_key_id        = var.kms_key_id != null ? "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}" : null
+  kms_key_id        = var.kms_key_id != null ? "arn:aws:kms:${module.shared_data.region_name}:${module.shared_data.account_id}:key/${var.kms_key_id}" : null
 
   tags = merge(
     var.tags,
@@ -393,7 +405,3 @@ locals {
     error_handling      = var.error_handling_strategy
   })
 }
-
-# Data sources
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
