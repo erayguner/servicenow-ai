@@ -577,4 +577,3 @@ resource "aws_cloudwatch_metric_alarm" "iam_policy_changes" {
 # ==============================================================================
 
 data "aws_caller_identity" "current" {}
-data "aws_partition" "current" {}

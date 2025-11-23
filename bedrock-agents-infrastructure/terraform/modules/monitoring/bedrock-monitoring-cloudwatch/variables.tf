@@ -38,12 +38,6 @@ variable "api_gateway_ids" {
   default     = []
 }
 
-variable "api_gateway_v2_ids" {
-  description = "List of API Gateway v2 (HTTP) API IDs to monitor"
-  type        = list(string)
-  default     = []
-}
-
 variable "alarm_sns_topic_arn" {
   description = "SNS topic ARN for alarm notifications"
   type        = string
@@ -144,12 +138,6 @@ variable "step_functions_timed_out_executions_threshold" {
 }
 
 # API Gateway thresholds
-variable "api_gateway_4xx_error_threshold" {
-  description = "API Gateway 4XX error threshold (percentage)"
-  type        = number
-  default     = 10
-}
-
 variable "api_gateway_5xx_error_threshold" {
   description = "API Gateway 5XX error threshold (percentage)"
   type        = number
@@ -164,12 +152,6 @@ variable "api_gateway_latency_threshold" {
 
 variable "evaluation_periods" {
   description = "Number of periods to evaluate for alarms"
-  type        = number
-  default     = 2
-}
-
-variable "datapoints_to_alarm" {
-  description = "Number of datapoints that must be breaching to trigger alarm"
   type        = number
   default     = 2
 }
@@ -190,17 +172,6 @@ variable "metric_namespace" {
   description = "Custom CloudWatch metric namespace"
   type        = string
   default     = "BedrockAgents/Custom"
-}
-
-variable "retention_in_days" {
-  description = "CloudWatch Logs retention in days"
-  type        = number
-  default     = 30
-
-  validation {
-    condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1096, 1827, 2192, 2557, 2922, 3288, 3653], var.retention_in_days)
-    error_message = "Retention must be a valid CloudWatch Logs retention period."
-  }
 }
 
 variable "tags" {

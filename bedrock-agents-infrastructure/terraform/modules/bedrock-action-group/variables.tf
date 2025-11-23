@@ -88,17 +88,6 @@ variable "api_schema_is_file" {
   default     = false
 }
 
-variable "parent_action_group_signature" {
-  description = "Parent action group signature (for built-in action groups)"
-  type        = string
-  default     = null
-
-  validation {
-    condition     = var.parent_action_group_signature == null || contains(["AMAZON.UserInput"], var.parent_action_group_signature)
-    error_message = "Parent action group signature must be a valid built-in action group."
-  }
-}
-
 variable "enable_lambda_vpc" {
   description = "Whether to enable VPC configuration for Lambda"
   type        = bool

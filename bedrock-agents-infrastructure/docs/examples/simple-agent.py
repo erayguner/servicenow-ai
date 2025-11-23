@@ -7,13 +7,12 @@ a Bedrock agent for a simple task.
 """
 
 import boto3
-import json
 import uuid
 from typing import Dict, Any
 
 # Initialize Bedrock clients
-bedrock_agent = boto3.client('bedrock-agent', region_name='us-east-1')
-bedrock_runtime = boto3.client('bedrock-agent-runtime', region_name='us-east-1')
+bedrock_agent = boto3.client("bedrock-agent", region_name="us-east-1")
+bedrock_runtime = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
 
 
 def create_simple_agent() -> str:
@@ -27,16 +26,16 @@ def create_simple_agent() -> str:
 
     # Create agent
     response = bedrock_agent.create_agent(
-        agentName='simple-assistant-agent',
-        description='A simple assistant agent for basic queries',
-        foundationModel='anthropic.claude-3-haiku-20240307-v1:0',
+        agentName="simple-assistant-agent",
+        description="A simple assistant agent for basic queries",
+        foundationModel="anthropic.claude-3-haiku-20240307-v1:0",
         agentInstruction="""You are a helpful assistant agent.
         Help users with their questions and provide clear, concise answers.
         Always be respectful and professional.""",
-        agentResourceRoleArn='arn:aws:iam::ACCOUNT_ID:role/bedrock-agent-role'
+        agentResourceRoleArn="arn:aws:iam::ACCOUNT_ID:role/bedrock-agent-role",
     )
 
-    agent_id = response['agent']['agentId']
+    agent_id = response["agent"]["agentId"]
     print(f"Agent created with ID: {agent_id}")
 
     # Prepare the agent (required before invocation)
@@ -65,15 +64,15 @@ def invoke_agent(agent_id: str, user_query: str) -> Dict[str, Any]:
     # Invoke the agent
     response = bedrock_runtime.invoke_agent(
         agentId=agent_id,
-        agentAliasId='PROD',  # Use default alias
+        agentAliasId="PROD",  # Use default alias
         sessionId=session_id,
-        inputText=user_query
+        inputText=user_query,
     )
 
     return {
-        'session_id': session_id,
-        'output': response['output'],
-        'agent_id': agent_id
+        "session_id": session_id,
+        "output": response["output"],
+        "agent_id": agent_id,
     }
 
 
@@ -95,7 +94,7 @@ def multi_turn_conversation(agent_id: str) -> None:
         "Hello! What can you help me with?",
         "I need help understanding AWS Bedrock agents",
         "Can you give me a quick summary?",
-        "Thank you for the help!"
+        "Thank you for the help!",
     ]
 
     for i, query in enumerate(queries, 1):
@@ -103,9 +102,9 @@ def multi_turn_conversation(agent_id: str) -> None:
 
         response = bedrock_runtime.invoke_agent(
             agentId=agent_id,
-            agentAliasId='PROD',
+            agentAliasId="PROD",
             sessionId=session_id,  # Reuse session for context
-            inputText=query
+            inputText=query,
         )
 
         print(f"[Turn {i}] Agent: {response['output']}")
@@ -133,7 +132,7 @@ def main():
     queries = [
         "What is AWS Bedrock?",
         "How do I create a ServiceNow incident?",
-        "Explain multi-agent orchestration"
+        "Explain multi-agent orchestration",
     ]
 
     for query in queries:

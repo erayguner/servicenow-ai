@@ -226,12 +226,6 @@ variable "enable_encryption_at_rest" {
   default     = true
 }
 
-variable "enable_encryption_in_transit" {
-  description = "Enable encryption in transit for API communications"
-  type        = bool
-  default     = true
-}
-
 variable "allowed_ip_ranges" {
   description = "List of CIDR blocks allowed to access API Gateway webhooks"
   type        = list(string)

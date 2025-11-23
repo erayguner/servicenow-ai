@@ -8,12 +8,6 @@ variable "environment" {
   type        = string
 }
 
-variable "enable_eventbridge" {
-  description = "Enable EventBridge monitoring"
-  type        = bool
-  default     = true
-}
-
 variable "event_bus_name" {
   description = "Name of the EventBridge event bus (use 'default' for default bus)"
   type        = string
@@ -66,12 +60,6 @@ variable "enable_step_functions_events" {
   description = "Enable Step Functions state change events"
   type        = bool
   default     = true
-}
-
-variable "enable_api_gateway_events" {
-  description = "Enable API Gateway events"
-  type        = bool
-  default     = false
 }
 
 variable "enable_cloudtrail_insights_events" {

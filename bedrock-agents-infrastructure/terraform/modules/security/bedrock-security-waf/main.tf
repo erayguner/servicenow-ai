@@ -501,6 +501,4 @@ resource "aws_cloudwatch_event_target" "waf_sns" {
 # Data Sources
 # ==============================================================================
 
-data "aws_caller_identity" "current" {}
-data "aws_partition" "current" {}
 data "aws_region" "current" {}

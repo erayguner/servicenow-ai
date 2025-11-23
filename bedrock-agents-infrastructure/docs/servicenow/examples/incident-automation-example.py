@@ -17,12 +17,12 @@ import requests
 import base64
 from typing import Dict, List, Optional
 from dataclasses import dataclass
-from datetime import datetime
 
 
 @dataclass
 class IncidentData:
     """Represents a ServiceNow incident"""
+
     sys_id: str
     number: str
     short_description: str
@@ -48,7 +48,7 @@ class ServiceNowClient:
             username: API username
             api_token: API token
         """
-        self.instance_url = instance_url.rstrip('/')
+        self.instance_url = instance_url.rstrip("/")
         self.username = username
         self.api_token = api_token
 
@@ -56,9 +56,9 @@ class ServiceNowClient:
         credentials = f"{username}:{api_token}"
         encoded_credentials = base64.b64encode(credentials.encode()).decode()
         self.headers = {
-            'Authorization': f'Basic {encoded_credentials}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            "Authorization": f"Basic {encoded_credentials}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
         }
 
     def get_incident(self, incident_id: str) -> Optional[IncidentData]:
@@ -73,26 +73,28 @@ class ServiceNowClient:
         """
         url = f"{self.instance_url}/api/now/table/incident/{incident_id}"
         params = {
-            'sysparm_fields': 'sys_id,number,short_description,description,caller_id,state,priority,impact,urgency,category,assignment_group'
+            "sysparm_fields": "sys_id,number,short_description,description,caller_id,state,priority,impact,urgency,category,assignment_group"
         }
 
         try:
-            response = requests.get(url, headers=self.headers, params=params, timeout=10)
+            response = requests.get(
+                url, headers=self.headers, params=params, timeout=10
+            )
             response.raise_for_status()
 
-            data = response.json()['result']
+            data = response.json()["result"]
             return IncidentData(
-                sys_id=data['sys_id'],
-                number=data['number'],
-                short_description=data['short_description'],
-                description=data['description'],
-                caller_id=data['caller_id'],
-                state=data['state'],
-                priority=int(data.get('priority', 3)),
-                impact=int(data.get('impact', 3)),
-                urgency=int(data.get('urgency', 3)),
-                category=data.get('category'),
-                assignment_group=data.get('assignment_group')
+                sys_id=data["sys_id"],
+                number=data["number"],
+                short_description=data["short_description"],
+                description=data["description"],
+                caller_id=data["caller_id"],
+                state=data["state"],
+                priority=int(data.get("priority", 3)),
+                impact=int(data.get("impact", 3)),
+                urgency=int(data.get("urgency", 3)),
+                category=data.get("category"),
+                assignment_group=data.get("assignment_group"),
             )
         except requests.exceptions.RequestException as e:
             print(f"Error retrieving incident: {e}")
@@ -113,15 +115,17 @@ class ServiceNowClient:
         # Encode query for CONTAINS search
         encoded_query = f"CONTAINS(text,'{query}')"
         params = {
-            'sysparm_query': encoded_query,
-            'sysparm_limit': limit,
-            'sysparm_fields': 'number,short_description,text'
+            "sysparm_query": encoded_query,
+            "sysparm_limit": limit,
+            "sysparm_fields": "number,short_description,text",
         }
 
         try:
-            response = requests.get(url, headers=self.headers, params=params, timeout=10)
+            response = requests.get(
+                url, headers=self.headers, params=params, timeout=10
+            )
             response.raise_for_status()
-            return response.json()['result']
+            return response.json()["result"]
         except requests.exceptions.RequestException as e:
             print(f"Error searching KB: {e}")
             return []
@@ -140,7 +144,9 @@ class ServiceNowClient:
         url = f"{self.instance_url}/api/now/table/incident/{incident_id}"
 
         try:
-            response = requests.patch(url, headers=self.headers, json=update_data, timeout=10)
+            response = requests.patch(
+                url, headers=self.headers, json=update_data, timeout=10
+            )
             response.raise_for_status()
             return True
         except requests.exceptions.RequestException as e:
@@ -161,15 +167,17 @@ class ServiceNowClient:
         url = f"{self.instance_url}/api/now/table/incident"
         query = f"category={category}^state!=1^ORDERBYDESCcreated_on"
         params = {
-            'sysparm_query': query,
-            'sysparm_limit': limit,
-            'sysparm_fields': 'number,short_description,state,resolution_notes'
+            "sysparm_query": query,
+            "sysparm_limit": limit,
+            "sysparm_fields": "number,short_description,state,resolution_notes",
         }
 
         try:
-            response = requests.get(url, headers=self.headers, params=params, timeout=10)
+            response = requests.get(
+                url, headers=self.headers, params=params, timeout=10
+            )
             response.raise_for_status()
-            return response.json()['result']
+            return response.json()["result"]
         except requests.exceptions.RequestException as e:
             print(f"Error retrieving similar incidents: {e}")
             return []
@@ -178,18 +186,22 @@ class ServiceNowClient:
 class BedrockIncidentAnalyzer:
     """Analyzer for incidents using Amazon Bedrock"""
 
-    def __init__(self, region: str = 'us-east-1'):
+    def __init__(self, region: str = "us-east-1"):
         """
         Initialize Bedrock client
 
         Args:
             region: AWS region for Bedrock
         """
-        self.bedrock = boto3.client('bedrock-runtime', region_name=region)
-        self.model_id = 'anthropic.claude-3-5-sonnet-20241022-v2:0'
+        self.bedrock = boto3.client("bedrock-runtime", region_name=region)
+        self.model_id = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 
-    def analyze_incident(self, incident: IncidentData, kb_articles: List[Dict],
-                        similar_incidents: List[Dict]) -> Dict:
+    def analyze_incident(
+        self,
+        incident: IncidentData,
+        kb_articles: List[Dict],
+        similar_incidents: List[Dict],
+    ) -> Dict:
         """
         Analyze incident using Claude
 
@@ -223,8 +235,10 @@ RELEVANT KB ARTICLES:
         context += "\nSIMILAR RESOLVED INCIDENTS:\n"
         for i, incident_record in enumerate(similar_incidents, 1):
             context += f"\n{i}. {incident_record['number']}: {incident_record['short_description']}\n"
-            if incident_record.get('resolution_notes'):
-                context += f"   Resolution: {incident_record['resolution_notes'][:150]}...\n"
+            if incident_record.get("resolution_notes"):
+                context += (
+                    f"   Resolution: {incident_record['resolution_notes'][:150]}...\n"
+                )
 
         context += """
 PROVIDE:
@@ -253,22 +267,19 @@ Format response as JSON with these exact keys:
             # Call Bedrock
             response = self.bedrock.invoke_model(
                 modelId=self.model_id,
-                contentType='application/json',
-                accept='application/json',
-                body=json.dumps({
-                    'messages': [
-                        {
-                            'role': 'user',
-                            'content': context
-                        }
-                    ],
-                    'max_tokens': 1000
-                })
+                contentType="application/json",
+                accept="application/json",
+                body=json.dumps(
+                    {
+                        "messages": [{"role": "user", "content": context}],
+                        "max_tokens": 1000,
+                    }
+                ),
             )
 
             # Parse response
-            result = json.loads(response['body'].read())
-            content = result['content'][0]['text']
+            result = json.loads(response["body"].read())
+            content = result["content"][0]["text"]
 
             # Extract JSON from response
             try:
@@ -277,34 +288,37 @@ Format response as JSON with these exact keys:
             except json.JSONDecodeError:
                 # If that fails, try to extract JSON from the text
                 import re
-                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+
+                json_match = re.search(r"\{.*\}", content, re.DOTALL)
                 if json_match:
                     analysis = json.loads(json_match.group())
                 else:
-                    analysis = {'raw_response': content}
+                    analysis = {"raw_response": content}
 
             return analysis
 
         except Exception as e:
             print(f"Error analyzing with Bedrock: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
 
 def main():
     """Main example demonstrating incident automation"""
 
     # Configuration
-    SERVICENOW_INSTANCE = 'https://your-instance.service-now.com'
-    SERVICENOW_USERNAME = 'servicenow_bedrock_api'
-    SERVICENOW_API_TOKEN = 'your-api-token-here'
+    SERVICENOW_INSTANCE = "https://your-instance.service-now.com"
+    SERVICENOW_USERNAME = "servicenow_bedrock_api"
+    SERVICENOW_API_TOKEN = "your-api-token-here"
 
     # Initialize clients
     print("Initializing clients...")
-    snow_client = ServiceNowClient(SERVICENOW_INSTANCE, SERVICENOW_USERNAME, SERVICENOW_API_TOKEN)
+    snow_client = ServiceNowClient(
+        SERVICENOW_INSTANCE, SERVICENOW_USERNAME, SERVICENOW_API_TOKEN
+    )
     bedrock_analyzer = BedrockIncidentAnalyzer()
 
     # Example: Process an incident
-    incident_id = 'a59c6c43db...'  # Replace with actual incident sys_id
+    incident_id = "a59c6c43db..."  # Replace with actual incident sys_id
 
     print(f"\n1. Retrieving incident {incident_id}...")
     incident = snow_client.get_incident(incident_id)
@@ -318,33 +332,38 @@ def main():
     # Search for related KB articles
     print("\n2. Searching for related KB articles...")
     search_terms = incident.short_description.split()[:3]
-    search_query = ' '.join(search_terms)
+    search_query = " ".join(search_terms)
     kb_articles = snow_client.search_kb(search_query, limit=5)
     print(f"   Found {len(kb_articles)} KB articles")
 
     # Get similar incidents
     print("\n3. Retrieving similar incidents...")
-    category = incident.category or 'Software'
+    category = incident.category or "Software"
     similar_incidents = snow_client.get_similar_incidents(category, limit=5)
     print(f"   Found {len(similar_incidents)} similar incidents")
 
     # Analyze with Bedrock
     print("\n4. Analyzing incident with Bedrock...")
-    analysis = bedrock_analyzer.analyze_incident(incident, kb_articles, similar_incidents)
+    analysis = bedrock_analyzer.analyze_incident(
+        incident, kb_articles, similar_incidents
+    )
 
     print("\n5. Analysis Results:")
     print(json.dumps(analysis, indent=2))
 
     # Update incident with recommendations
-    if 'error' not in analysis:
+    if "error" not in analysis:
         print("\n6. Updating incident with recommendations...")
         update_data = {
-            'category': analysis.get('category', incident.category),
-            'assignment_group': analysis.get('assignment_group'),
-            'priority': analysis.get('recommended_priority', 3),
-            'work_notes': f"AI Analysis:\nRoot Cause: {analysis.get('root_cause')}\nConfidence: {analysis.get('confidence')}%\n\nSuggested Solution:\n" +
-                         '\n'.join(f"  {i+1}. {step}" for i, step in enumerate(analysis.get('solution_steps', []))) +
-                         f"\n\nEstimated Resolution Time: {analysis.get('estimated_time_minutes')} minutes"
+            "category": analysis.get("category", incident.category),
+            "assignment_group": analysis.get("assignment_group"),
+            "priority": analysis.get("recommended_priority", 3),
+            "work_notes": f"AI Analysis:\nRoot Cause: {analysis.get('root_cause')}\nConfidence: {analysis.get('confidence')}%\n\nSuggested Solution:\n"
+            + "\n".join(
+                f"  {i+1}. {step}"
+                for i, step in enumerate(analysis.get("solution_steps", []))
+            )
+            + f"\n\nEstimated Resolution Time: {analysis.get('estimated_time_minutes')} minutes",
         }
 
         if snow_client.update_incident(incident.sys_id, update_data):
@@ -355,5 +374,5 @@ def main():
     print("\n7. Incident automation complete!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

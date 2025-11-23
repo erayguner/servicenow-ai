@@ -10,25 +10,27 @@ import boto3
 import json
 import uuid
 import time
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
 # Initialize clients
-bedrock_runtime = boto3.client('bedrock-agent-runtime', region_name='us-east-1')
-stepfunctions = boto3.client('stepfunctions', region_name='us-east-1')
+bedrock_runtime = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
+stepfunctions = boto3.client("stepfunctions", region_name="us-east-1")
 
 
 @dataclass
 class AgentConfig:
     """Configuration for an agent."""
+
     id: str
-    alias: str = 'PROD'
-    name: str = ''
+    alias: str = "PROD"
+    name: str = ""
 
 
 class AgentRole(Enum):
     """Different roles agents can play."""
+
     RESEARCHER = "researcher"
     ANALYZER = "analyzer"
     WRITER = "writer"
@@ -50,10 +52,7 @@ class MultiAgentOrchestrator:
         self.execution_log: List[Dict[str, Any]] = []
 
     def invoke_agent(
-        self,
-        agent_name: str,
-        query: str,
-        context: Dict[str, Any] = None
+        self, agent_name: str, query: str, context: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Invoke a specific agent.
@@ -84,18 +83,20 @@ class MultiAgentOrchestrator:
                 agentId=agent_config.id,
                 agentAliasId=agent_config.alias,
                 sessionId=self.session_id,
-                inputText=full_query
+                inputText=full_query,
             )
 
-            output = response['output']
+            output = response["output"]
 
             # Log execution
-            self.execution_log.append({
-                'agent': agent_name,
-                'query': query,
-                'response': output,
-                'timestamp': time.time()
-            })
+            self.execution_log.append(
+                {
+                    "agent": agent_name,
+                    "query": query,
+                    "response": output,
+                    "timestamp": time.time(),
+                }
+            )
 
             print(f"[{agent_name}] Response: {output[:100]}...")
             return output
@@ -105,9 +106,7 @@ class MultiAgentOrchestrator:
             raise
 
     def sequential_workflow(
-        self,
-        task: str,
-        agent_sequence: List[str]
+        self, task: str, agent_sequence: List[str]
     ) -> Dict[str, Any]:
         """
         Execute agents sequentially, passing output to next agent.
@@ -127,36 +126,32 @@ class MultiAgentOrchestrator:
         print(f"{'='*60}")
 
         current_output = task
-        results = {}
+        results: Dict[str, Any] = {}
 
         for i, agent_name in enumerate(agent_sequence):
             print(f"\n[Step {i+1}/{len(agent_sequence)}] Invoking {agent_name}")
 
             context = {
-                'previous_outputs': results,
-                'step': i + 1,
-                'total_steps': len(agent_sequence)
+                "previous_outputs": results,
+                "step": i + 1,
+                "total_steps": len(agent_sequence),
             }
 
             output = self.invoke_agent(
-                agent_name,
-                f"Process this: {current_output}",
-                context
+                agent_name, f"Process this: {current_output}", context
             )
 
             results[agent_name] = output
             current_output = output
 
         return {
-            'final_output': current_output,
-            'intermediate_results': results,
-            'execution_log': self.execution_log
+            "final_output": current_output,
+            "intermediate_results": results,
+            "execution_log": self.execution_log,
         }
 
     def parallel_workflow(
-        self,
-        task: str,
-        agent_group: Dict[str, str]
+        self, task: str, agent_group: Dict[str, str]
     ) -> Dict[str, Any]:
         """
         Execute multiple agents in parallel on the same task.
@@ -196,16 +191,10 @@ class MultiAgentOrchestrator:
                 agent_name, output = future.result()
                 results[agent_name] = output
 
-        return {
-            'parallel_results': results,
-            'execution_log': self.execution_log
-        }
+        return {"parallel_results": results, "execution_log": self.execution_log}
 
     def conditional_workflow(
-        self,
-        task: str,
-        router_agent: str,
-        specialized_agents: Dict[str, str]
+        self, task: str, router_agent: str, specialized_agents: Dict[str, str]
     ) -> Dict[str, Any]:
         """
         Use router agent to decide which specialized agent to invoke.
@@ -222,16 +211,16 @@ class MultiAgentOrchestrator:
             Result from selected specialist
         """
         print(f"\n{'='*60}")
-        print(f"CONDITIONAL WORKFLOW")
+        print("CONDITIONAL WORKFLOW")
         print(f"{'='*60}")
 
         # Step 1: Router decides
-        print(f"\n[Step 1] Router analysis...")
+        print("\n[Step 1] Router analysis...")
         router_response = self.invoke_agent(
             router_agent,
             f"Analyze this task and decide which agent should handle it: {task}\n\n"
             f"Available agents: {', '.join(specialized_agents.keys())}\n"
-            f"Respond with ONLY the agent name."
+            f"Respond with ONLY the agent name.",
         )
 
         selected_agent = router_response.strip().lower()
@@ -244,23 +233,18 @@ class MultiAgentOrchestrator:
 
         # Step 2: Specialist processes task
         specialist_output = self.invoke_agent(
-            selected_agent,
-            task,
-            {'routed_from': router_agent}
+            selected_agent, task, {"routed_from": router_agent}
         )
 
         return {
-            'router_decision': router_response,
-            'selected_agent': selected_agent,
-            'specialist_output': specialist_output,
-            'execution_log': self.execution_log
+            "router_decision": router_response,
+            "selected_agent": selected_agent,
+            "specialist_output": specialist_output,
+            "execution_log": self.execution_log,
         }
 
     def voting_consensus(
-        self,
-        proposition: str,
-        voting_agents: List[str],
-        threshold: float = 0.5
+        self, proposition: str, voting_agents: List[str], threshold: float = 0.5
     ) -> Dict[str, Any]:
         """
         Have multiple agents vote on a proposition.
@@ -291,26 +275,26 @@ class MultiAgentOrchestrator:
             response = self.invoke_agent(agent_name, vote_prompt)
 
             # Simple vote extraction (in production, use more robust parsing)
-            if 'approve' in response.lower():
-                votes[agent_name] = 'APPROVE'
+            if "approve" in response.lower():
+                votes[agent_name] = "APPROVE"
             else:
-                votes[agent_name] = 'REJECT'
+                votes[agent_name] = "REJECT"
 
             reasoning[agent_name] = response
 
         # Calculate consensus
-        approvals = sum(1 for v in votes.values() if v == 'APPROVE')
+        approvals = sum(1 for v in votes.values() if v == "APPROVE")
         approval_ratio = approvals / len(votes)
         consensus = approval_ratio >= threshold
 
         return {
-            'proposition': proposition,
-            'votes': votes,
-            'reasoning': reasoning,
-            'approval_ratio': approval_ratio,
-            'consensus_reached': consensus,
-            'decision': 'APPROVED' if consensus else 'REJECTED',
-            'execution_log': self.execution_log
+            "proposition": proposition,
+            "votes": votes,
+            "reasoning": reasoning,
+            "approval_ratio": approval_ratio,
+            "consensus_reached": consensus,
+            "decision": "APPROVED" if consensus else "REJECTED",
+            "execution_log": self.execution_log,
         }
 
     def print_summary(self) -> None:
@@ -333,69 +317,57 @@ def main():
 
     # Define agents
     agents = {
-        'research-agent': AgentConfig(
-            id='RESEARCH_AGENT_ID',
-            name='research-agent'
-        ),
-        'analyzer-agent': AgentConfig(
-            id='ANALYZER_AGENT_ID',
-            name='analyzer-agent'
-        ),
-        'writer-agent': AgentConfig(
-            id='WRITER_AGENT_ID',
-            name='writer-agent'
-        ),
-        'router-agent': AgentConfig(
-            id='ROUTER_AGENT_ID',
-            name='router-agent'
-        ),
+        "research-agent": AgentConfig(id="RESEARCH_AGENT_ID", name="research-agent"),
+        "analyzer-agent": AgentConfig(id="ANALYZER_AGENT_ID", name="analyzer-agent"),
+        "writer-agent": AgentConfig(id="WRITER_AGENT_ID", name="writer-agent"),
+        "router-agent": AgentConfig(id="ROUTER_AGENT_ID", name="router-agent"),
     }
 
     # Create orchestrator
     orchestrator = MultiAgentOrchestrator(agents)
 
     # Example 1: Sequential Workflow
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXAMPLE 1: SEQUENTIAL WORKFLOW")
-    print("="*60)
+    print("=" * 60)
 
     try:
         result = orchestrator.sequential_workflow(
             task="Analyze the impact of AI on software development",
-            agent_sequence=['research-agent', 'analyzer-agent', 'writer-agent']
+            agent_sequence=["research-agent", "analyzer-agent", "writer-agent"],
         )
         print(f"\nFinal Output: {result['final_output']}")
     except Exception as e:
         print(f"Error in sequential workflow: {e}")
 
     # Example 2: Parallel Workflow
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXAMPLE 2: PARALLEL WORKFLOW")
-    print("="*60)
+    print("=" * 60)
 
     try:
         result = orchestrator.parallel_workflow(
             task="Evaluate the security of AWS Bedrock infrastructure",
             agent_group={
-                'research-agent': 'Current threats and vulnerabilities',
-                'analyzer-agent': 'Risk assessment',
-                'writer-agent': 'Documentation review'
-            }
+                "research-agent": "Current threats and vulnerabilities",
+                "analyzer-agent": "Risk assessment",
+                "writer-agent": "Documentation review",
+            },
         )
         print(f"\nParallel Results: {json.dumps(result['parallel_results'], indent=2)}")
     except Exception as e:
         print(f"Error in parallel workflow: {e}")
 
     # Example 3: Voting Consensus
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXAMPLE 3: VOTING CONSENSUS")
-    print("="*60)
+    print("=" * 60)
 
     try:
         result = orchestrator.voting_consensus(
             proposition="AWS Bedrock is the best choice for our agent infrastructure",
-            voting_agents=['research-agent', 'analyzer-agent'],
-            threshold=0.5
+            voting_agents=["research-agent", "analyzer-agent"],
+            threshold=0.5,
         )
         print(f"\nConsensus Result: {result['decision']}")
         print(f"Approval Ratio: {result['approval_ratio']:.0%}")
