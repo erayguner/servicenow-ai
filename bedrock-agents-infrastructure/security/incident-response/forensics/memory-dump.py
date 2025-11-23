@@ -36,7 +36,11 @@ class MemoryDumpManager:
         self.lambda_client = boto3.client("lambda")
         self.cloudwatch = boto3.client("logs")
 
-        self.dumps: Dict[str, List] = {"ec2_memory": [], "lambda_memory": [], "process_dumps": []}
+        self.dumps: Dict[str, List] = {
+            "ec2_memory": [],
+            "lambda_memory": [],
+            "process_dumps": [],
+        }
 
     def dump_ec2_memory(self, instance_id: str) -> Dict:
         """
