@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # Authenticate to GCP using Workload Identity Federation (no keys!)
       - id: auth
@@ -89,7 +89,7 @@ jobs:
       # Generate SBOM (Software Bill of Materials)
       - name: Generate SBOM with Syft
         if: hashFiles('services/conversation-manager/Dockerfile') != ''
-        uses: anchore/sbom-action@v0.20.9
+        uses: anchore/sbom-action@v0.20.10
         with:
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/conversation-manager:${{ github.sha }}
           format: 'spdx-json'

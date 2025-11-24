@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Detect Node dependencies
         id: detect_node
@@ -95,7 +95,7 @@ jobs:
       module-count: ${{ steps.find-modules.outputs.count }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Find modules with tests
         id: find-modules
@@ -120,7 +120,7 @@ jobs:
     needs: [setup, discover-terraform-modules]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -180,7 +180,7 @@ jobs:
         module: ${{ fromJson(needs.discover-terraform-modules.outputs.modules-with-tests) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -634,7 +634,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download all artifacts
         uses: actions/download-artifact@v6

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Detect file categories
         id: detect
         shell: bash
@@ -143,7 +143,7 @@ jobs:
 
       # ---------------- GitHub Actions ----------------
       - name: actionlint
-        uses: rhysd/actionlint@v1.7.8
+        uses: rhysd/actionlint@v1.7.9
       - name: Summary
         run: |-
           echo "Lint summary:"
