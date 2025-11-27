@@ -11,12 +11,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "servicenow-ai-terraform-state"
-    key            = "prod/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "terraform-state-lock"
-    kms_key_id     = "alias/terraform-state"
+    bucket       = "servicenow-ai-terraform-state"
+    key          = "prod/terraform.tfstate"
+    region       = "eu-west-2"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 

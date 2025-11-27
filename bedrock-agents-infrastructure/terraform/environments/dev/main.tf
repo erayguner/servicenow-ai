@@ -13,14 +13,11 @@ terraform {
 
   # Backend configuration for state management
   backend "s3" {
-    bucket         = "servicenow-ai-terraform-state-dev"
-    key            = "bedrock-agents/dev/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "servicenow-ai-terraform-locks-dev"
-
-    # Enable state locking and consistency checking
-    kms_key_id = "alias/terraform-state-key-dev"
+    bucket       = "servicenow-ai-terraform-state-dev"
+    key          = "bedrock-agents/dev/terraform.tfstate"
+    region       = "eu-west-2"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 
