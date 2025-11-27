@@ -405,7 +405,7 @@ module "monitoring_cloudtrail" {
   kms_key_id = module.security_kms.bedrock_data_key_id
 
   # CloudWatch Logs integration
-  create_cloudwatch_logs_group  = true
+  create_cloudwatch_logs_group   = true
   cloudwatch_logs_retention_days = 7
 
   # Event selectors - basic for dev
