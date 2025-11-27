@@ -40,29 +40,8 @@ locals {
 
   # Minimal configuration for dev
   agent_config = {
-    instance_count     = 1
-    model_id           = "anthropic.claude-3-sonnet-20240229-v1:0"
-    enable_trace       = true
-    idle_session_ttl   = 600 # 10 minutes
-    enable_provisioned = false
-    pricing_model      = "on-demand"
-  }
-
-  # Basic knowledge base configuration
-  knowledge_base_config = {
-    enabled           = true
-    storage_type      = "opensearch-serverless"
-    embedding_model   = "amazon.titan-embed-text-v1"
-    chunking_strategy = "fixed_size"
-    chunk_size        = 300
-    chunk_overlap     = 20
-    max_tokens        = 512
-  }
-
-  # Limited action groups for dev
-  action_groups = {
-    enabled = true
-    groups  = ["basic-actions"]
+    model_id         = "anthropic.claude-3-sonnet-20240229-v1:0"
+    idle_session_ttl = 600 # 10 minutes
   }
 }
 

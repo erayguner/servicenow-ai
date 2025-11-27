@@ -22,15 +22,10 @@ variable "agent_instruction" {
   EOT
 }
 
-variable "data_source_bucket_arn" {
-  description = "ARN of S3 bucket containing knowledge base data"
-  type        = string
-}
-
-variable "action_lambda_arn" {
-  description = "ARN of Lambda function for agent actions"
-  type        = string
-}
+# Note: Knowledge bases and action groups are not currently configured
+# in this environment. Add these variables back when implementing:
+# - data_source_bucket_arn: For S3 bucket containing knowledge base data
+# - action_lambda_arn: For Lambda function ARN for agent actions
 
 variable "alert_email" {
   description = "Email address for alerts (optional in dev)"

@@ -15,11 +15,14 @@ agent_instruction = <<-EOT
   This is a development environment - be verbose and educational.
 EOT
 
-# Data Sources
-data_source_bucket_arn = "arn:aws:s3:::servicenow-ai-data-dev"
-
-# Lambda Configuration
-action_lambda_arn = "arn:aws:lambda:us-east-1:123456789012:function:servicenow-actions-dev"
+# Note: Knowledge bases and action groups are not currently configured.
+# The bedrock-agent module creates the agent only. To add knowledge bases
+# and action groups, you'll need to configure them separately after the
+# agent is created. See the module documentation for details.
+#
+# Future variables (when implementing knowledge bases and action groups):
+# data_source_bucket_arn = "arn:aws:s3:::servicenow-ai-data-dev"
+# action_lambda_arn = "arn:aws:lambda:us-east-1:123456789012:function:servicenow-actions-dev"
 
 # Alerts (optional in dev)
 alert_email = "dev-alerts@example.com"
@@ -48,13 +51,14 @@ test_data_enabled  = true
 # - Knowledge Base: servicenow-ai-kb-dev
 # - Log Group: /aws/bedrock/agent/servicenow-ai-dev
 
-# Cost Estimate:
+# Cost Estimate (Basic Agent Only):
 # - Bedrock Agent (on-demand): ~$20-40/month
-# - OpenSearch Serverless: ~$20-30/month
-# - Lambda executions: ~$5-10/month
 # - CloudWatch logs: ~$5-10/month
-# - S3 storage: ~$5/month
-# Total: ~$50-100/month (with auto-shutdown)
+# Total: ~$25-50/month (basic agent without knowledge bases)
+#
+# Note: Knowledge bases and action groups are not configured in this setup.
+# When added, expect additional costs for OpenSearch Serverless (~$20-30/month)
+# and Lambda executions (~$5-10/month).
 
 # ==============================================================================
 # Security Module Configuration
