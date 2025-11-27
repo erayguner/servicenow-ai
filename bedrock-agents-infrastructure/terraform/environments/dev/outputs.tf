@@ -15,29 +15,29 @@ output "agent_name" {
   value       = module.bedrock_agent.agent_name
 }
 
+output "agent_version" {
+  description = "Bedrock agent version"
+  value       = module.bedrock_agent.agent_version
+}
+
+output "agent_aliases" {
+  description = "Bedrock agent aliases"
+  value       = module.bedrock_agent.agent_aliases
+}
+
 output "agent_alias_id" {
-  description = "Bedrock agent alias ID"
-  value       = module.bedrock_agent.agent_alias_id
+  description = "Bedrock agent 'live' alias ID"
+  value       = try(module.bedrock_agent.agent_aliases["live"].agent_alias_id, null)
 }
 
 output "agent_alias_arn" {
-  description = "Bedrock agent alias ARN"
-  value       = module.bedrock_agent.agent_alias_arn
+  description = "Bedrock agent 'live' alias ARN"
+  value       = try(module.bedrock_agent.agent_aliases["live"].agent_alias_arn, null)
 }
 
-output "knowledge_base_id" {
-  description = "Knowledge base ID"
-  value       = module.bedrock_agent.knowledge_base_id
-}
-
-output "knowledge_base_arn" {
-  description = "Knowledge base ARN"
-  value       = module.bedrock_agent.knowledge_base_arn
-}
-
-output "data_source_id" {
-  description = "Data source ID"
-  value       = module.bedrock_agent.data_source_id
+output "knowledge_base_associations" {
+  description = "Knowledge base associations"
+  value       = module.bedrock_agent.knowledge_base_associations
 }
 
 output "agent_role_arn" {
@@ -45,14 +45,19 @@ output "agent_role_arn" {
   value       = module.bedrock_agent.agent_role_arn
 }
 
-output "cloudwatch_log_group" {
-  description = "CloudWatch log group name"
-  value       = module.bedrock_agent.cloudwatch_log_group
+output "agent_role_name" {
+  description = "IAM role name for the Bedrock agent"
+  value       = module.bedrock_agent.agent_role_name
 }
 
-output "cloudwatch_log_stream" {
-  description = "CloudWatch log stream name"
-  value       = module.bedrock_agent.cloudwatch_log_stream
+output "log_group_name" {
+  description = "CloudWatch log group name"
+  value       = module.bedrock_agent.log_group_name
+}
+
+output "log_group_arn" {
+  description = "CloudWatch log group ARN"
+  value       = module.bedrock_agent.log_group_arn
 }
 
 # Cost tracking outputs
@@ -85,18 +90,17 @@ output "testing_guide" {
     1. Invoke Agent:
        aws bedrock-agent-runtime invoke-agent \
          --agent-id ${module.bedrock_agent.agent_id} \
-         --agent-alias-id ${module.bedrock_agent.agent_alias_id} \
+         --agent-alias-id ${try(module.bedrock_agent.agent_aliases["live"].agent_alias_id, "ALIAS_ID")} \
          --session-id test-session-123 \
          --input-text "Your test query" \
          --region ${var.aws_region}
 
     2. Check Logs:
-       aws logs tail ${module.bedrock_agent.cloudwatch_log_group} --follow
+       aws logs tail ${module.bedrock_agent.log_group_name} --follow
 
-    3. Query Knowledge Base:
-       aws bedrock-agent-runtime retrieve \
-         --knowledge-base-id ${module.bedrock_agent.knowledge_base_id} \
-         --retrieval-query text="Your query"
+    3. Monitor Agent:
+       aws bedrock-agent get-agent \
+         --agent-id ${module.bedrock_agent.agent_id}
   EOT
 }
 
