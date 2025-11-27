@@ -553,32 +553,6 @@ module "bedrock_servicenow" {
 # Outputs
 # ==============================================================================
 
-# Bedrock Agent Outputs
-output "agent_id" {
-  description = "Bedrock agent ID"
-  value       = module.bedrock_agent.agent_id
-}
-
-output "agent_arn" {
-  description = "Bedrock agent ARN"
-  value       = module.bedrock_agent.agent_arn
-}
-
-output "agent_alias_id" {
-  description = "Bedrock agent alias ID"
-  value       = module.bedrock_agent.agent_alias_id
-}
-
-output "knowledge_base_id" {
-  description = "Knowledge base ID"
-  value       = module.bedrock_agent.knowledge_base_id
-}
-
-output "cloudwatch_log_group" {
-  description = "CloudWatch log group name"
-  value       = module.bedrock_agent.cloudwatch_log_group
-}
-
 # Security Outputs
 output "kms_bedrock_data_key_arn" {
   description = "ARN of the KMS key for Bedrock data encryption"
