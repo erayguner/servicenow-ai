@@ -13,14 +13,11 @@ terraform {
 
   # Backend configuration for state management
   backend "s3" {
-    bucket         = "servicenow-ai-terraform-state-prod"
-    key            = "bedrock-agents/prod/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "servicenow-ai-terraform-locks-prod"
-
-    # Enable state locking and consistency checking
-    kms_key_id = "alias/terraform-state-key-prod"
+    bucket       = "servicenow-ai-terraform-state-prod"
+    key          = "bedrock-agents/prod/terraform.tfstate"
+    region       = "eu-west-2"
+    encrypt      = true
+    use_lockfile = true
 
     # Workspace support for blue/green deployments
     workspace_key_prefix = "workspaces"

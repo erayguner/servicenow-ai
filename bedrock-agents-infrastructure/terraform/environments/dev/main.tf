@@ -13,14 +13,11 @@ terraform {
 
   # Backend configuration for state management
   backend "s3" {
-    bucket         = "servicenow-ai-terraform-state-dev"
-    key            = "bedrock-agents/dev/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "servicenow-ai-terraform-locks-dev"
-
-    # Enable state locking and consistency checking
-    kms_key_id = "alias/terraform-state-key-dev"
+    bucket       = "servicenow-ai-terraform-state-dev"
+    key          = "bedrock-agents/dev/terraform.tfstate"
+    region       = "eu-west-2"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 
@@ -405,14 +402,17 @@ module "monitoring_cloudtrail" {
   kms_key_id = module.security_kms.bedrock_data_key_id
 
   # CloudWatch Logs integration
-  enable_cloudwatch_logs = true
-  log_retention_days     = 7
+  create_cloudwatch_logs_group   = true
+  cloudwatch_logs_retention_days = 7
 
   # Event selectors - basic for dev
-  enable_management_events = true
-  enable_data_events       = false
-
-  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+  event_selectors = [
+    {
+      read_write_type           = "All"
+      include_management_events = true
+      data_resources            = []
+    }
+  ]
 
   tags = local.common_tags
 }
@@ -549,32 +549,6 @@ module "bedrock_servicenow" {
 # ==============================================================================
 # Outputs
 # ==============================================================================
-
-# Bedrock Agent Outputs
-output "agent_id" {
-  description = "Bedrock agent ID"
-  value       = module.bedrock_agent.agent_id
-}
-
-output "agent_arn" {
-  description = "Bedrock agent ARN"
-  value       = module.bedrock_agent.agent_arn
-}
-
-output "agent_alias_id" {
-  description = "Bedrock agent alias ID"
-  value       = module.bedrock_agent.agent_alias_id
-}
-
-output "knowledge_base_id" {
-  description = "Knowledge base ID"
-  value       = module.bedrock_agent.knowledge_base_id
-}
-
-output "cloudwatch_log_group" {
-  description = "CloudWatch log group name"
-  value       = module.bedrock_agent.cloudwatch_log_group
-}
 
 # Security Outputs
 output "kms_bedrock_data_key_arn" {
