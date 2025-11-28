@@ -26,7 +26,7 @@ export async function getSecret(secretName: string): Promise<string> {
     // Update cache
     secretCache.set(secretName, { value: payload, timestamp: Date.now() });
 
-    logger.info({ secretName }, 'Secret retrieved successfully');
+    logger.info({}, 'Secret retrieved successfully');
     return payload;
   } catch (error) {
     logger.error({}, 'Failed to retrieve secret');
