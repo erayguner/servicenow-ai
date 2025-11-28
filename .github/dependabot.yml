@@ -16,7 +16,6 @@ updates:
       - 'erayguner'
     labels:
       - 'dependencies'
-      - 'terraform'
     commit-message:
       prefix: 'chore(terraform)'
       include: 'scope'
@@ -46,7 +45,6 @@ updates:
       - 'erayguner'
     labels:
       - 'dependencies'
-      - 'github-actions'
     commit-message:
       prefix: 'chore(ci)'
       include: 'scope'
@@ -69,7 +67,6 @@ updates:
       - 'erayguner'
     labels:
       - 'dependencies'
-      - 'docker'
     commit-message:
       prefix: 'chore(docker)'
       include: 'scope'
@@ -92,7 +89,6 @@ updates:
       - 'erayguner'
     labels:
       - 'dependencies'
-      - 'python'
     commit-message:
       prefix: 'chore(python)'
       include: 'scope'
@@ -116,7 +112,6 @@ updates:
       - 'erayguner'
     labels:
       - 'dependencies'
-      - 'javascript'
     commit-message:
       prefix: 'chore(npm)'
       include: 'scope'
