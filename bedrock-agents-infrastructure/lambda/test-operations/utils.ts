@@ -473,12 +473,19 @@ async function storeTestMetrics(
 }
 
 function extractImports(content: string): string[] {
-  const importRegex = /import\s+.*\s+from\s+['"](.*)['"];/g;
+  // Prevent ReDoS attacks by limiting input size (CodeQL recommendation)
+  if (content.length > 100000) {
+    throw new Error('Content too large for import extraction (max 100KB)');
+  }
+
+  // Use constrained character class to prevent exponential backtracking
+  // [^\n]+ matches anything except newlines, avoiding overlap with \s+ boundaries
+  const importRegex = /import\s+([^\n]+?)\s+from\s+['"]([^'"]+)['"]/g;
   const imports: string[] = [];
   let match;
 
   while ((match = importRegex.exec(content)) !== null) {
-    imports.push(match[1]);
+    imports.push(match[2]); // Capture group 2 now contains the import path
   }
 
   return imports;

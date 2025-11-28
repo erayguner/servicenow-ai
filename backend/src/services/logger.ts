@@ -8,6 +8,50 @@ interface LogEntry {
   [key: string]: any;
 }
 
+// Sensitive field patterns to redact from console logs
+const SENSITIVE_FIELDS = [
+  'password',
+  'passwd',
+  'pwd',
+  'secret',
+  'token',
+  'apikey',
+  'api_key',
+  'authorization',
+  'auth',
+  'cookie',
+  'session',
+  'private',
+  'credential',
+  'credit_card',
+  'ssn',
+  'social_security'
+];
+
+/**
+ * Sanitize log entry by redacting sensitive fields for console output
+ * This prevents sensitive data from being exposed in clear text logs
+ */
+function sanitizeForConsole(entry: LogEntry): LogEntry {
+  const sanitized: LogEntry = {};
+
+  for (const [key, value] of Object.entries(entry)) {
+    const lowerKey = key.toLowerCase();
+    const isSensitive = SENSITIVE_FIELDS.some(field => lowerKey.includes(field));
+
+    if (isSensitive) {
+      sanitized[key] = '[REDACTED]';
+    } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+      // Recursively sanitize nested objects
+      sanitized[key] = sanitizeForConsole(value);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+
+  return sanitized;
+}
+
 export const logger = {
   info: (entry: LogEntry, message: string) => {
     const metadata = {
@@ -17,9 +61,9 @@ export const logger = {
     const logEntry = log.entry(metadata, { message, ...entry });
     log.write(logEntry);
 
-    // Also log to console in development
+    // Also log to console in development (with sanitization)
     if (config.nodeEnv === 'development') {
-      console.log('[INFO]', message, entry);
+      console.log('[INFO]', message, sanitizeForConsole(entry));
     }
   },
 
@@ -32,7 +76,7 @@ export const logger = {
     log.write(logEntry);
 
     if (config.nodeEnv === 'development') {
-      console.error('[ERROR]', message, entry);
+      console.error('[ERROR]', message, sanitizeForConsole(entry));
     }
   },
 
@@ -45,7 +89,7 @@ export const logger = {
     log.write(logEntry);
 
     if (config.nodeEnv === 'development') {
-      console.warn('[WARN]', message, entry);
+      console.warn('[WARN]', message, sanitizeForConsole(entry));
     }
   },
 
@@ -59,7 +103,7 @@ export const logger = {
       log.write(logEntry);
 
       if (config.nodeEnv === 'development') {
-        console.debug('[DEBUG]', message, entry);
+        console.debug('[DEBUG]', message, sanitizeForConsole(entry));
       }
     }
   },
