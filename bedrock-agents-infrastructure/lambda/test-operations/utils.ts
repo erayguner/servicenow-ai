@@ -473,7 +473,9 @@ async function storeTestMetrics(
 }
 
 function extractImports(content: string): string[] {
-  const importRegex = /import\s+.*\s+from\s+['"](.*)['"];/g;
+  // Fixed ReDoS vulnerability by using non-greedy quantifiers and specific character classes
+  // This prevents exponential backtracking on strings with many spaces
+  const importRegex = /import\s+.+?\s+from\s+['"]([^'"]+)['"]/g;
   const imports: string[] = [];
   let match;
 
