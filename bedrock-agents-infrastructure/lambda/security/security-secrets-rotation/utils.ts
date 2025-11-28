@@ -51,8 +51,16 @@ export function generateNewSecret(type: 'api_key' | 'password' | 'generic'): str
   const randomBytes = crypto.randomBytes(length);
   let result = '';
 
-  for (let i = 0; i < length; i++) {
-    result += charset[randomBytes[i] % charset.length];
+  let i = 0;
+  // Compute bias-free upper bound for random byte mapping
+  const maxMultiple = Math.floor(256 / charset.length) * charset.length;
+  while (i < length) {
+    const randByte = crypto.randomBytes(1)[0];
+    if (randByte >= maxMultiple) {
+      continue; // Reject and redraw if out of bounds
+    }
+    result += charset[randByte % charset.length];
+    i++;
   }
 
   // Ensure password complexity requirements
