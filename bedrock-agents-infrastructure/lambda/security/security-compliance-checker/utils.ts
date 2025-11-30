@@ -1,24 +1,25 @@
 import { KMSClient, DescribeKeyCommand } from '@aws-sdk/client-kms';
 import { IAMClient, SimulatePrincipalPolicyCommand } from '@aws-sdk/client-iam';
-import {
-  ComplianceFinding,
-  EncryptionCheckResult,
-  LoggerContext,
-  IAMPolicyCheckResult,
-} from './types';
+import { ComplianceFinding, LoggerContext } from './types';
 
 const kmsClient = new KMSClient({});
 const iamClient = new IAMClient({});
 
 export const logger = {
   info: (message: string, context?: LoggerContext) => {
-    console.log(JSON.stringify({ level: 'INFO', message, ...context, timestamp: new Date().toISOString() }));
+    console.log(
+      JSON.stringify({ level: 'INFO', message, ...context, timestamp: new Date().toISOString() })
+    );
   },
   warn: (message: string, context?: LoggerContext) => {
-    console.warn(JSON.stringify({ level: 'WARN', message, ...context, timestamp: new Date().toISOString() }));
+    console.warn(
+      JSON.stringify({ level: 'WARN', message, ...context, timestamp: new Date().toISOString() })
+    );
   },
   error: (message: string, context?: LoggerContext) => {
-    console.error(JSON.stringify({ level: 'ERROR', message, ...context, timestamp: new Date().toISOString() }));
+    console.error(
+      JSON.stringify({ level: 'ERROR', message, ...context, timestamp: new Date().toISOString() })
+    );
   },
 };
 
@@ -164,7 +165,10 @@ export async function checkIAMPolicy(
   return findings;
 }
 
-export async function scanForSecrets(content: string, source: string): Promise<ComplianceFinding[]> {
+export async function scanForSecrets(
+  content: string,
+  source: string
+): Promise<ComplianceFinding[]> {
   const findings: ComplianceFinding[] = [];
 
   // Regex patterns for common secrets

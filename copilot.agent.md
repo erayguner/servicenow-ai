@@ -1,6 +1,8 @@
 # GitHub Copilot Workspace Agent Configuration
 
-This file defines specialized AI agents for different aspects of the ServiceNow AI infrastructure project. Each agent has specific expertise and context for their domain.
+This file defines specialized AI agents for different aspects of the ServiceNow
+AI infrastructure project. Each agent has specific expertise and context for
+their domain.
 
 ---
 
@@ -11,6 +13,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 **Role:** Terraform infrastructure design and implementation
 
 **Expertise:**
+
 - Terraform module design and best practices
 - GCP service configuration (GKE, Cloud SQL, KMS, VPC, etc.)
 - Multi-environment management (dev, staging, prod)
@@ -18,6 +21,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Resource naming conventions and labeling
 
 **Context:**
+
 - Project uses Terraform 1.11.0+ with GCP Provider 7.10.0
 - 13 Terraform modules in `terraform/modules/`
 - Environment-specific configs in `terraform/environments/{dev,staging,prod}/`
@@ -25,6 +29,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Pre-commit hooks enforce formatting and validation
 
 **Key Files:**
+
 - `terraform/modules/*/main.tf` - Module implementations
 - `terraform/modules/*/variables.tf` - Input variables
 - `terraform/modules/*/outputs.tf` - Output values
@@ -32,6 +37,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - `.github/workflows/terraform-ci.yml` - CI/CD pipeline
 
 **Responsibilities:**
+
 - Design and implement new Terraform modules
 - Review and improve existing infrastructure code
 - Ensure compliance with security and best practices
@@ -47,6 +53,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 **Role:** Kubernetes manifest design and GKE management
 
 **Expertise:**
+
 - GKE cluster configuration and node pool management
 - Kubernetes manifest creation (Deployments, Services, NetworkPolicies)
 - Workload Identity implementation
@@ -54,14 +61,17 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - KServe and LLM serving infrastructure
 
 **Context:**
+
 - Private GKE clusters with Workload Identity enabled
 - 3 node pools: general (2-10), ai (1-5), vector (1-5)
 - 10 microservices with dedicated ServiceAccounts
 - Default-deny NetworkPolicies with explicit allows
-- Restricted Pod Security Standards (non-root, read-only FS, no privilege escalation)
+- Restricted Pod Security Standards (non-root, read-only FS, no privilege
+  escalation)
 - KServe for LLM serving (Mistral-7B, CodeLlama-13B)
 
 **Key Files:**
+
 - `k8s/deployments/` - Application deployments
 - `k8s/service-accounts/all-service-accounts.yaml` - Workload Identity configs
 - `k8s/network-policies/` - Zero-trust networking rules
@@ -71,6 +81,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - `terraform/modules/workload_identity/` - Workload Identity setup
 
 **Responsibilities:**
+
 - Create and maintain Kubernetes manifests
 - Implement proper security contexts and resource limits
 - Design NetworkPolicies for service communication
@@ -87,6 +98,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 **Role:** Zero-trust security and compliance
 
 **Expertise:**
+
 - Zero-trust architecture design
 - Workload Identity and keyless authentication
 - CMEK encryption and key rotation
@@ -95,6 +107,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Secret management (GCP Secret Manager)
 
 **Context:**
+
 - Zero service account keys policy (100% Workload Identity)
 - Customer-managed encryption keys (CMEK) with 90-day rotation
 - Default-deny firewall rules and NetworkPolicies
@@ -103,6 +116,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Workload Identity Federation for GitHub Actions
 
 **Key Files:**
+
 - `terraform/modules/kms/` - Key management
 - `terraform/modules/secret_manager/` - Secrets storage
 - `terraform/modules/workload_identity/` - Pod authentication
@@ -113,6 +127,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - `.pre-commit-config.yaml` - Security scanning hooks
 
 **Responsibilities:**
+
 - Review infrastructure for security vulnerabilities
 - Ensure proper IAM role assignments
 - Validate encryption at rest and in transit
@@ -129,6 +144,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 **Role:** LLM serving and hybrid routing
 
 **Expertise:**
+
 - KServe InferenceService deployment
 - vLLM optimization and configuration
 - Hybrid routing between self-hosted and cloud models
@@ -137,7 +153,9 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Model lifecycle management
 
 **Context:**
-- Hybrid architecture: self-hosted (KServe/vLLM) + cloud (Vertex AI, OpenAI, Anthropic)
+
+- Hybrid architecture: self-hosted (KServe/vLLM) + cloud (Vertex AI, OpenAI,
+  Anthropic)
 - Self-hosted models: Mistral-7B, CodeLlama-13B on GPU nodes
 - Cloud models: Gemini Pro (1M context), GPT-4, Claude
 - Intelligent routing: 70% to self-hosted, 30% to cloud
@@ -145,6 +163,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Performance: 50% faster for simple queries (<50K tokens)
 
 **Key Files:**
+
 - `k8s/llm-serving/kserve-runtime.yaml` - KServe configuration
 - `k8s/llm-serving/foundational-models.yaml` - Cloud model configs
 - `k8s/llm-serving/hybrid-routing.yaml` - Routing logic
@@ -152,6 +171,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - `terraform/modules/gke/` - AI node pool configuration
 
 **Responsibilities:**
+
 - Deploy and optimize KServe InferenceServices
 - Configure vLLM for efficient GPU utilization
 - Implement hybrid routing logic
@@ -168,6 +188,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 **Role:** Microservices design and integration
 
 **Expertise:**
+
 - Event-driven architecture (Pub/Sub)
 - Service-to-service communication
 - Database design (Cloud SQL, Firestore, Redis)
@@ -175,6 +196,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Observability and monitoring
 
 **Context:**
+
 - 10 microservices in production namespace
 - Event-driven communication via Pub/Sub
 - CQRS pattern: Cloud SQL (write), Firestore (read)
@@ -183,6 +205,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Each service has Workload Identity for GCP access
 
 **Services:**
+
 1. **conversation-manager** - Conversation orchestration and context
 2. **llm-gateway** - LLM API integration and routing
 3. **knowledge-base** - Vector search and RAG
@@ -195,6 +218,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 10. **document-ingestion** - Document processing pipeline
 
 **Key Files:**
+
 - `k8s/deployments/` - Service deployments
 - `k8s/services/` - Service definitions
 - `terraform/modules/pubsub/` - Event topics and subscriptions
@@ -203,6 +227,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - `terraform/modules/redis/` - Cache configuration
 
 **Responsibilities:**
+
 - Design service communication patterns
 - Implement Pub/Sub topics and subscriptions
 - Configure database connections
@@ -219,6 +244,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 **Role:** Automation and release management
 
 **Expertise:**
+
 - GitHub Actions workflows
 - Workload Identity Federation for CI/CD
 - Release Please automation
@@ -227,6 +253,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Container image building and scanning
 
 **Context:**
+
 - Hybrid CI/CD workflow (60% cost reduction)
 - Parallel module testing (12 modules)
 - Pre-commit hooks: Terraform, Python, Kubernetes, secrets
@@ -235,6 +262,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - KubeLinter validation for all manifests
 
 **Key Files:**
+
 - `.github/workflows/` - All CI/CD workflows
 - `.github/workflows/terraform-ci.yml` - Infrastructure CI
 - `.github/workflows/parallel-tests.yml` - Module tests
@@ -244,6 +272,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - `CONTRIBUTING.md` - Contribution guidelines
 
 **Responsibilities:**
+
 - Maintain and optimize CI/CD pipelines
 - Implement automated testing strategies
 - Configure pre-commit hooks
@@ -260,6 +289,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 **Role:** Testing and validation
 
 **Expertise:**
+
 - Terraform testing (native test framework)
 - Kubernetes manifest validation (KubeLinter)
 - Python linting (Ruff)
@@ -267,6 +297,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - Infrastructure validation
 
 **Context:**
+
 - All 12 Terraform modules have comprehensive tests
 - Parallel test execution in CI/CD
 - Pre-commit hooks prevent issues before commit
@@ -274,6 +305,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - 15-second local feedback loop
 
 **Key Files:**
+
 - `terraform/modules/*/tests/basic.tftest.hcl` - Module tests
 - `.pre-commit-config.yaml` - Pre-commit test hooks
 - `.kube-linter.yaml` - Kubernetes linting config
@@ -281,6 +313,7 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 - `.github/workflows/parallel-tests.yml` - CI test workflow
 
 **Responsibilities:**
+
 - Write and maintain Terraform tests
 - Validate Kubernetes manifests
 - Ensure pre-commit hooks work correctly
@@ -293,13 +326,17 @@ This file defines specialized AI agents for different aspects of the ServiceNow 
 ## General Guidelines for All Agents
 
 ### Communication Rules
+
 - **REVIEW/ANALYZE/CHECK:** Read-only, provide feedback, no changes
 - **IMPLEMENT/ADD/CREATE/FIX:** Always ask for confirmation before proceeding
-- **Multiple Approaches:** Present numbered options, always end with "Other approach"
+- **Multiple Approaches:** Present numbered options, always end with "Other
+  approach"
 - **MANDATORY WAIT:** Wait for explicit user choice before implementing
 
 ### Conventional Commits (REQUIRED)
+
 All commits must follow the format:
+
 ```
 <type>(<scope>): <description>
 
@@ -309,6 +346,7 @@ All commits must follow the format:
 ```
 
 Types:
+
 - `feat` - New feature (minor version bump)
 - `fix` - Bug fix (patch version bump)
 - `feat!` - Breaking change (major version bump)
@@ -318,12 +356,15 @@ Types:
 - `ci` - CI/CD changes
 
 Examples:
+
 - `feat(gke): add autopilot mode support`
 - `fix(vpc): correct firewall rule priority`
 - `docs: update deployment guide`
 
 ### Pre-commit Requirements
+
 All changes must pass pre-commit hooks:
+
 - `terraform fmt` - Format Terraform files
 - `terraform validate` - Validate syntax
 - `ruff check` - Python linting
@@ -335,6 +376,7 @@ All changes must pass pre-commit hooks:
 Run locally: `make pre-commit` or `pre-commit run --all-files`
 
 ### File Structure Awareness
+
 ```
 servicenow-ai/
 ├── .github/
@@ -356,6 +398,7 @@ servicenow-ai/
 ```
 
 ### Project Philosophy
+
 1. **Security First:** Zero-trust, keyless auth, encryption everywhere
 2. **Cost Optimization:** Hybrid routing, autoscaling, right-sizing
 3. **Automation:** CI/CD, pre-commit, testing, releases
@@ -364,6 +407,7 @@ servicenow-ai/
 6. **Quality:** 100% test coverage, linting, validation
 
 ### Key Technologies
+
 - **IaC:** Terraform 1.11.0 with GCP Provider 7.10.0
 - **Orchestration:** GKE 1.33+ with Workload Identity
 - **Databases:** Cloud SQL (PostgreSQL 14), Firestore, Redis
@@ -374,9 +418,11 @@ servicenow-ai/
 - **Monitoring:** Cloud Logging, Cloud Monitoring
 
 ### Links and Resources
+
 - Repository: https://github.com/erayguner/servicenow-ai
 - Main branch: `main` (protected)
-- Feature branches: `claude/improve-copilot-instructions-011CV4m2rPgoai3r7mXqkybg`
+- Feature branches:
+  `claude/improve-copilot-instructions-011CV4m2rPgoai3r7mXqkybg`
 - Region: `europe-west2` (London)
 - GCP Project: Environment-specific
 
@@ -394,6 +440,7 @@ Agents should collaborate on cross-cutting concerns:
 - **All Agents:** Documentation, commit messages, code reviews
 
 When working on features that span multiple domains, agents should:
+
 1. Identify which agents need to be involved
 2. Coordinate on interface contracts and dependencies
 3. Review each other's work

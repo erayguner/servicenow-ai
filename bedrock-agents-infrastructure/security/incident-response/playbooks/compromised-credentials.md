@@ -1,9 +1,12 @@
 # Compromised Credentials Response Playbook
 
 ## Overview
-Response procedures for suspected or confirmed compromised credentials affecting Bedrock agents infrastructure.
+
+Response procedures for suspected or confirmed compromised credentials affecting
+Bedrock agents infrastructure.
 
 ## Detection Criteria
+
 - Credentials detected in public repositories (GitHub Secret Scanning)
 - Leaked credentials in dark web/paste sites
 - Unexpected API key usage from unknown locations
@@ -16,6 +19,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Severity Classification
 
 ### Critical (P1)
+
 - Root AWS account credentials exposed
 - Database admin credentials compromised
 - Production service account credentials leaked
@@ -23,6 +27,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - Multi-account access compromised
 
 ### High (P2)
+
 - IAM user credentials with admin access
 - API keys with broad permissions exposed
 - Database user credentials compromised
@@ -30,12 +35,14 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - Potential active use
 
 ### Medium (P3)
+
 - Limited-scope IAM credentials exposed
 - API keys with restricted permissions
 - No evidence of active use
 - Automated secret rotation available
 
 ### Low (P4)
+
 - Expired credentials exposed
 - Read-only access credentials
 - No evidence of compromise
@@ -46,12 +53,14 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ### Phase 1: Immediate Response (0-1 hour)
 
 1. **Alert Verification**
+
    - Confirm credential type and scope
    - Verify source of detection
    - Check if credential is currently active
    - Search for active use in logs
 
 2. **Preliminary Containment**
+
    - Execute `rotate-all-credentials.json` for affected credential type
    - For AWS: Deactivate affected IAM access keys
    - For database: Change password immediately
@@ -59,6 +68,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
    - Block associated IP addresses at WAF
 
 3. **Immediate Actions**
+
    - If currently in use: Force session termination
    - Revoke all sessions for compromised account
    - Disable MFA recovery codes
@@ -75,6 +85,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ### Phase 2: Investigation (1-4 hours)
 
 1. **Unauthorized Access Detection**
+
    - Query CloudTrail for all activity by credential
    - Review API Gateway access logs
    - Check CloudWatch logs for unusual patterns
@@ -82,6 +93,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
    - Run `timeline-builder.py` for detailed timeline
 
 2. **Scope Analysis**
+
    - Determine what permissions credential had
    - Identify all resources accessible
    - Check for lateral movement
@@ -89,6 +101,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
    - Identify potentially affected systems
 
 3. **Activity Review**
+
    - When was credential first created?
    - When was it last used legitimately?
    - Any unusual access patterns?
@@ -105,6 +118,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ### Phase 3: Containment (1-24 hours)
 
 1. **Credential Rotation**
+
    - Execute comprehensive credential rotation
    - Rotate database passwords
    - Regenerate API keys
@@ -112,6 +126,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
    - Update all dependent applications
 
 2. **Access Audit**
+
    - Review IAM policies for least privilege
    - Audit service account permissions
    - Review API key scopes
@@ -119,6 +134,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
    - Implement role-based access controls
 
 3. **Enhanced Monitoring**
+
    - Implement anomalous login detection
    - Add geolocation-based blocks
    - Enable CloudTrail for all API calls
@@ -135,6 +151,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ### Phase 4: Eradication (4-72 hours)
 
 1. **Backdoor Removal**
+
    - Search for persistence mechanisms
    - Remove unauthorized IAM roles
    - Delete suspicious security groups
@@ -142,6 +159,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
    - Terminate unauthorized instances
 
 2. **System Hardening**
+
    - Enable credential monitoring
    - Implement credential expiration
    - Require MFA for sensitive operations
@@ -158,6 +176,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Containment Procedures
 
 ### AWS IAM Credentials
+
 ```bash
 # 1. Immediate deactivation
 - Deactivate access key (Deactivate, don't delete)
@@ -178,6 +197,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ```
 
 ### Database Credentials
+
 ```bash
 # 1. Password change
 - Change password immediately
@@ -199,6 +219,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ```
 
 ### API Keys
+
 ```bash
 # 1. Revocation
 - Revoke leaked key immediately
@@ -222,6 +243,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Eradication Steps
 
 ### Credential Cleanup
+
 - [ ] Delete old/unused credentials
 - [ ] Remove expired credentials
 - [ ] Deactivate backup credentials
@@ -229,6 +251,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - [ ] Validate all deletions logged
 
 ### Account Hardening
+
 - [ ] Enable MFA on all accounts
 - [ ] Reduce credential lifetime
 - [ ] Implement credential rotation
@@ -236,6 +259,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - [ ] Implement adaptive auth
 
 ### System Updates
+
 - [ ] Patch all affected systems
 - [ ] Update security groups
 - [ ] Review VPC configuration
@@ -245,6 +269,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Recovery Procedures
 
 ### User Communication
+
 1. Notify user of compromise
 2. Explain what happened
 3. Provide new credentials
@@ -252,6 +277,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 5. Recommend password reset across services
 
 ### System Restoration
+
 1. Verify all services operational
 2. Confirm new credentials working
 3. Monitor for issues
@@ -259,6 +285,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 5. Test failover procedures
 
 ### Verification
+
 1. Confirm old credential no longer works
 2. Verify no unauthorized access
 3. Validate monitoring active
@@ -268,6 +295,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Post-Incident Review
 
 ### Investigation Findings
+
 - How was credential exposed?
 - Why was it in an insecure location?
 - How long was it exposed?
@@ -275,6 +303,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - What was accessed?
 
 ### Control Gaps
+
 - Missing detection controls
 - Inadequate monitoring
 - Insufficient access restrictions
@@ -282,6 +311,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - Lack of rotation procedures
 
 ### Improvements
+
 - Implement secret scanning
 - Automated credential rotation
 - Enhanced monitoring/alerting
@@ -291,6 +321,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Preventive Controls
 
 ### Secret Management
+
 - Use AWS Secrets Manager
 - Rotate credentials automatically
 - Encrypt secrets at rest
@@ -298,6 +329,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - Implement least privilege
 
 ### Detection
+
 - GitHub Secret Scanning
 - Third-party credential monitoring
 - CloudTrail analysis
@@ -305,6 +337,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 - Geographic-based alerts
 
 ### User Training
+
 - Secure credential handling
 - Not hardcoding credentials
 - Secret rotation procedures
@@ -314,12 +347,14 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Contacts & Escalation
 
 ### Immediate Contacts
+
 - **Security Lead**: [On-call rotation]
 - **Credential Owner**: [Notify immediately]
 - **Engineering Lead**: [For deployment coordination]
 - **CISO**: [For high-severity credentials]
 
 ### Response Team
+
 ```
 1. Security Engineer (verification)
 2. DevOps/Platform (credential rotation)
@@ -330,17 +365,20 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Tools & Resources
 
 ### Detection Tools
+
 - GitHub Secret Scanning
 - GitGuardian
 - AWS Secrets Manager
 - Third-party credential monitoring
 
 ### Response Runbooks
+
 - rotate-all-credentials.json
 - isolate-compromised-agent.json
 - collect-evidence.json
 
 ### Forensics Tools
+
 - capture-logs.py
 - timeline-builder.py
 - snapshot-resources.py
@@ -348,6 +386,7 @@ Response procedures for suspected or confirmed compromised credentials affecting
 ## Metrics & KPIs
 
 Track during incident:
+
 - **Detection to Awareness**: < 1 hour
 - **Awareness to Revocation**: < 30 minutes
 - **Revocation to Rotation**: < 2 hours
@@ -355,9 +394,11 @@ Track during incident:
 - **Full Remediation**: < 24 hours
 
 ## Related Playbooks
+
 - [Data Breach Response](./data-breach-response.md)
 - [Unauthorized Access Response](./unauthorized-access.md)
 - [Malware Detection Response](./malware-detection.md)
 
 ## Revision History
+
 - v1.0 - Initial creation (2024-11-17)

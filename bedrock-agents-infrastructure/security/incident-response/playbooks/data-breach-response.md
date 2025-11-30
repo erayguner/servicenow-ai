@@ -1,9 +1,12 @@
 # Data Breach Response Playbook
 
 ## Overview
-This playbook provides a structured response to suspected or confirmed data breaches affecting Bedrock agents infrastructure.
+
+This playbook provides a structured response to suspected or confirmed data
+breaches affecting Bedrock agents infrastructure.
 
 ## Detection Criteria
+
 - Unauthorized data exfiltration detected by DLP systems
 - Unusual data access patterns in CloudWatch logs
 - Third-party notification of data appearing in breach databases
@@ -14,6 +17,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Severity Classification
 
 ### Critical (P1)
+
 - Production database data exposed
 - Customer PII (names, email, phone) compromised
 - Payment card information (PCI) exposed
@@ -21,17 +25,20 @@ This playbook provides a structured response to suspected or confirmed data brea
 - Regulatory breach requiring immediate notification
 
 ### High (P2)
+
 - Non-production data exposed
 - 1,000-10,000 records affected
 - Internal data leaked
 - Source code or configuration exposed
 
 ### Medium (P3)
+
 - Less than 1,000 records
 - Non-sensitive internal data
 - No customer impact
 
 ### Low (P4)
+
 - Metadata only
 - No actual data accessed
 - Internal use case
@@ -41,17 +48,20 @@ This playbook provides a structured response to suspected or confirmed data brea
 ### Phase 1: Immediate Response (0-2 hours)
 
 1. **Activate Incident Response Team**
+
    - Page on-call security lead
    - Activate incident war room (Slack channel #incident-response)
    - Notify CISO and Legal within 15 minutes
 
 2. **Verify the Breach**
+
    - Confirm alert authenticity
    - Check detection source reliability
    - Validate scope of exposure
    - Document initial findings
 
 3. **Preserve Evidence**
+
    - Enable forensics mode on affected agents
    - Capture CloudWatch logs (6 months retention)
    - Create S3 snapshots of accessed data
@@ -67,6 +77,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ### Phase 2: Investigation (2-8 hours)
 
 1. **Scope Determination**
+
    - Query CloudTrail for affected resources
    - Analyze S3 access logs
    - Review RDS query logs
@@ -74,6 +85,7 @@ This playbook provides a structured response to suspected or confirmed data brea
    - Identify affected customer accounts
 
 2. **Root Cause Analysis**
+
    - Examine compromise vector (credential theft, vulnerability, etc.)
    - Trace access path through infrastructure
    - Identify lateral movement attempts
@@ -81,6 +93,7 @@ This playbook provides a structured response to suspected or confirmed data brea
    - Run `timeline-builder.py` forensics script
 
 3. **Evidence Collection**
+
    - Execute `capture-logs.py` for comprehensive logging
    - Run `network-capture.py` for traffic analysis
    - Execute `snapshot-resources.py` for point-in-time recovery
@@ -96,6 +109,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ### Phase 3: Containment (2-24 hours)
 
 1. **Access Revocation**
+
    - Execute `rotate-all-credentials.json` runbook
    - Reset all MFA devices
    - Invalidate all active sessions
@@ -103,6 +117,7 @@ This playbook provides a structured response to suspected or confirmed data brea
    - Review and revoke API keys
 
 2. **System Hardening**
+
    - Apply security patches
    - Update WAF rules to block attack patterns
    - Enable additional CloudTrail logging
@@ -119,6 +134,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ### Phase 4: Eradication (24-72 hours)
 
 1. **Threat Removal**
+
    - Remove backdoors or suspicious code
    - Patch exploited vulnerabilities
    - Remove unauthorized IAM roles/users
@@ -126,6 +142,7 @@ This playbook provides a structured response to suspected or confirmed data brea
    - Clean up suspicious Lambda functions
 
 2. **System Restoration**
+
    - Rebuild affected systems from golden AMIs
    - Restore databases from clean backups
    - Redeploy applications from source control
@@ -142,6 +159,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ### Phase 5: Recovery (72 hours - 2 weeks)
 
 1. **System Bring-Up**
+
    - Gradually restore services in priority order
    - Monitor for anomalies during restoration
    - Validate system functionality
@@ -149,6 +167,7 @@ This playbook provides a structured response to suspected or confirmed data brea
    - Monitor for resurgence of attack
 
 2. **Communication**
+
    - Issue customer notifications if required
    - Regulatory filings if mandatory
    - Public statement if appropriate
@@ -165,6 +184,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Containment Procedures
 
 ### Immediate Actions
+
 ```bash
 # Stop data exfiltration
 - Block suspicious destination IPs at WAF
@@ -174,6 +194,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ```
 
 ### Data Protection
+
 ```bash
 - Encrypt sensitive data in transit
 - Enable server-side encryption verification
@@ -183,6 +204,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ```
 
 ### Access Control
+
 ```bash
 - Revoke all temporary credentials
 - Force session re-authentication
@@ -194,6 +216,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Eradication Steps
 
 ### 1. Threat Removal
+
 - [ ] Identify and remove malware/backdoors
 - [ ] Patch exploited vulnerabilities
 - [ ] Review and remove unauthorized access
@@ -201,6 +224,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 - [ ] Validate removal with security scan
 
 ### 2. System Hardening
+
 - [ ] Update all security baselines
 - [ ] Strengthen authentication mechanisms
 - [ ] Implement network segmentation
@@ -208,6 +232,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 - [ ] Deploy host-based protection
 
 ### 3. Code Review
+
 - [ ] Audit recent code changes
 - [ ] Review for injected malicious code
 - [ ] Validate integrity of binaries
@@ -217,6 +242,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Recovery Procedures
 
 ### Data Recovery
+
 1. Identify clean backup point
 2. Create isolated recovery environment
 3. Restore data from verified backups
@@ -225,6 +251,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 6. Monitor for attack resurgence
 
 ### Service Restoration
+
 1. Restore in priority order (critical → standard)
 2. Validate functionality at each step
 3. Monitor performance and logs
@@ -232,6 +259,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 5. Maintain rollback capability
 
 ### Verification
+
 1. Confirm all services operational
 2. Validate data consistency
 3. Review security controls active
@@ -241,6 +269,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Post-Incident Review
 
 ### Forensic Analysis
+
 - Root cause determination
 - Attack vector identification
 - Attacker capabilities assessment
@@ -248,6 +277,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 - Security gap analysis
 
 ### Compliance & Legal
+
 - Regulatory notification requirements
 - Customer notification obligations
 - Documentation for audit
@@ -255,6 +285,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 - Insurance claim support
 
 ### Improvement Actions
+
 - Prevent similar breaches
 - Improve detection capability
 - Strengthen response procedures
@@ -264,12 +295,14 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Contacts & Escalation
 
 ### Immediate Contacts
+
 - **Security Lead**: [On-call rotation in PagerDuty]
 - **CISO**: [CISO contact information]
 - **Legal**: [Legal department contact]
 - **Incident Commander**: [Rotation schedule]
 
 ### Escalation Path
+
 ```
 1. On-call Security Engineer (first responder)
 2. Security Lead (tactical decisions)
@@ -279,6 +312,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ```
 
 ### External Contacts
+
 - **Regulatory Bodies**: [Contact information]
 - **Customers**: [Notification procedures]
 - **Law Enforcement**: [FBI/Secret Service contacts]
@@ -287,6 +321,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Tools & Resources
 
 ### Investigation Tools
+
 - AWS CloudTrail (audit logs)
 - Amazon GuardDuty (threat detection)
 - CloudWatch Logs (application logs)
@@ -295,12 +330,14 @@ This playbook provides a structured response to suspected or confirmed data brea
 - RDS Enhanced Monitoring
 
 ### Response Runbooks
+
 - isolate-compromised-agent.json
 - rotate-all-credentials.json
 - enable-forensics-mode.json
 - collect-evidence.json
 
 ### Forensics Scripts
+
 - capture-logs.py
 - snapshot-resources.py
 - network-capture.py
@@ -309,6 +346,7 @@ This playbook provides a structured response to suspected or confirmed data brea
 ## Metrics & KPIs
 
 Track during incident:
+
 - **Detection to Confirmation**: < 15 minutes
 - **Confirmation to Isolation**: < 30 minutes
 - **Isolation to Containment**: < 2 hours
@@ -317,9 +355,11 @@ Track during incident:
 - **Customer Notification**: < 72 hours (if required)
 
 ## Related Playbooks
+
 - [Compromised Credentials Response](./compromised-credentials.md)
 - [Unauthorized Access Response](./unauthorized-access.md)
 - [DDoS Attack Response](./ddos-attack-response.md)
 
 ## Revision History
+
 - v1.0 - Initial creation (2024-11-17)

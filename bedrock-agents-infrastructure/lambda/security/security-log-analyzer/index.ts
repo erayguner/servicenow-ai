@@ -1,23 +1,6 @@
-import {
-  CloudTrailClient,
-  LookupEventsCommand,
-  GetEventSelectorsCommand,
-} from '@aws-sdk/client-cloudtrail';
-import {
-  CloudWatchLogsClient,
-  FilterLogEventsCommand,
-  DescribeLogGroupsCommand,
-} from '@aws-sdk/client-cloudwatch-logs';
-import {
-  GuardDutyClient,
-  ListFindingsCommand,
-  GetFindingsCommand,
-} from '@aws-sdk/client-guardduty';
+import { CloudTrailClient, LookupEventsCommand } from '@aws-sdk/client-cloudtrail';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
-import {
-  SecurityHubClient,
-  BatchImportFindingsCommand,
-} from '@aws-sdk/client-securityhub';
+import { SecurityHubClient, BatchImportFindingsCommand } from '@aws-sdk/client-securityhub';
 import { Handler } from 'aws-lambda';
 import {
   LogAnalysisEvent,
@@ -27,7 +10,6 @@ import {
   SuspiciousPattern,
 } from './types';
 import {
-  analyzecloudTrailLogs,
   detectSuspiciousAPICalls,
   detectPrivilegeEscalation,
   detectUnauthorizedAccess,
@@ -37,8 +19,6 @@ import {
 } from './utils';
 
 const cloudtrailClient = new CloudTrailClient({});
-const cloudwatchClient = new CloudWatchLogsClient({});
-const guarddutyClient = new GuardDutyClient({});
 const snsClient = new SNSClient({});
 const securityHubClient = new SecurityHubClient({});
 
@@ -138,10 +118,7 @@ export const handler: Handler<LogAnalysisEvent, LogAnalysisResult> = async (even
   }
 };
 
-async function analyzeCloudTrailEvents(
-  startTime: Date,
-  endTime: Date
-): Promise<SecurityEvent[]> {
+async function analyzeCloudTrailEvents(startTime: Date, endTime: Date): Promise<SecurityEvent[]> {
   const events: SecurityEvent[] = [];
 
   try {
@@ -164,12 +141,20 @@ async function analyzeCloudTrailEvents(
         eventName: event.EventName,
         eventSource: event.EventSource || 'unknown',
         userIdentity: parseUserIdentity(event.Username),
-        sourceIPAddress: event.CloudTrailEvent ? JSON.parse(event.CloudTrailEvent).sourceIPAddress : 'unknown',
+        sourceIPAddress: event.CloudTrailEvent
+          ? JSON.parse(event.CloudTrailEvent).sourceIPAddress
+          : 'unknown',
         userAgent: event.CloudTrailEvent ? JSON.parse(event.CloudTrailEvent).userAgent : 'unknown',
         errorCode: event.CloudTrailEvent ? JSON.parse(event.CloudTrailEvent).errorCode : undefined,
-        errorMessage: event.CloudTrailEvent ? JSON.parse(event.CloudTrailEvent).errorMessage : undefined,
-        requestParameters: event.CloudTrailEvent ? JSON.parse(event.CloudTrailEvent).requestParameters : undefined,
-        responseElements: event.CloudTrailEvent ? JSON.parse(event.CloudTrailEvent).responseElements : undefined,
+        errorMessage: event.CloudTrailEvent
+          ? JSON.parse(event.CloudTrailEvent).errorMessage
+          : undefined,
+        requestParameters: event.CloudTrailEvent
+          ? JSON.parse(event.CloudTrailEvent).requestParameters
+          : undefined,
+        responseElements: event.CloudTrailEvent
+          ? JSON.parse(event.CloudTrailEvent).responseElements
+          : undefined,
         resources: event.Resources?.map((r) => ({
           type: r.ResourceType || 'unknown',
           arn: r.ResourceName || 'unknown',
@@ -197,10 +182,7 @@ function parseUserIdentity(username?: string): any {
   };
 }
 
-function filterBySeverity(
-  anomalies: AnomalousActivity[],
-  threshold: string
-): AnomalousActivity[] {
+function filterBySeverity(anomalies: AnomalousActivity[], threshold: string): AnomalousActivity[] {
   const severityOrder = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
   const thresholdIndex = severityOrder.indexOf(threshold);
 

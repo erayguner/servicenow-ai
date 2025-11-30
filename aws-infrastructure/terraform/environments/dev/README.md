@@ -6,30 +6,32 @@ Minimal, cost-optimized AWS environment for testing and feature development.
 
 ### Cost Breakdown (Monthly)
 
-| Service | Configuration | Est. Cost |
-|---------|--------------|-----------|
-| **EKS Control Plane** | 1 cluster | $72 |
-| **EKS Nodes** | 1x t3a.medium Spot | $8 |
-| **RDS PostgreSQL** | db.t4g.micro Single-AZ | $12 |
-| **ElastiCache** | cache.t4g.micro (1 node) | $11 |
-| **DynamoDB** | On-Demand (light usage) | $5 |
-| **S3** | 10GB storage + requests | $2 |
-| **NAT Gateway** | Single gateway | $32 |
-| **Data Transfer** | 50GB/month | $5 |
-| **CloudWatch Logs** | Minimal retention | $3 |
-| **Total** | | **~$150/month** |
+| Service               | Configuration            | Est. Cost       |
+| --------------------- | ------------------------ | --------------- |
+| **EKS Control Plane** | 1 cluster                | $72             |
+| **EKS Nodes**         | 1x t3a.medium Spot       | $8              |
+| **RDS PostgreSQL**    | db.t4g.micro Single-AZ   | $12             |
+| **ElastiCache**       | cache.t4g.micro (1 node) | $11             |
+| **DynamoDB**          | On-Demand (light usage)  | $5              |
+| **S3**                | 10GB storage + requests  | $2              |
+| **NAT Gateway**       | Single gateway           | $32             |
+| **Data Transfer**     | 50GB/month               | $5              |
+| **CloudWatch Logs**   | Minimal retention        | $3              |
+| **Total**             |                          | **~$150/month** |
 
 **With Spot instances and VPC endpoints**: **~$50-80/month**
 
 ## 🎯 Cost Optimizations Applied
 
 ### Infrastructure
+
 - ✅ **Single NAT Gateway** (vs 3 in prod) - Save ~$64/month
 - ✅ **VPC Endpoints** enabled - Reduce NAT Gateway data transfer costs
 - ✅ **Single Availability Zone** - No cross-AZ data transfer charges
 - ✅ **No VPC Flow Logs** - Save ~$10/month
 
 ### Compute (EKS)
+
 - ✅ **Spot Instances** (70% cheaper than On-Demand)
 - ✅ **t3a.medium** (AMD instances, 10% cheaper than t3)
 - ✅ **1 node minimum** (vs 3 in prod)
@@ -37,6 +39,7 @@ Minimal, cost-optimized AWS environment for testing and feature development.
 - ✅ **Minimal logging** (api, audit only) - Reduce CloudWatch costs
 
 ### Database (RDS)
+
 - ✅ **db.t4g.micro** (Graviton, smallest instance)
 - ✅ **Single-AZ** (vs Multi-AZ in prod) - 50% cost reduction
 - ✅ **20GB storage** (vs 200GB in prod)
@@ -45,21 +48,25 @@ Minimal, cost-optimized AWS environment for testing and feature development.
 - ✅ **No Enhanced Monitoring** - Save $1/month
 
 ### Cache (ElastiCache)
+
 - ✅ **cache.t4g.micro** (Graviton, smallest)
 - ✅ **Single node** (vs 3 in prod) - Save ~$540/month
 - ✅ **No snapshots** - Save storage costs
 
 ### Storage (S3)
+
 - ✅ **No versioning** - Reduce storage costs
 - ✅ **7-day lifecycle** on uploads - Auto-cleanup
 - ✅ **No Intelligent-Tiering** - Avoid overhead for small datasets
 
 ### NoSQL (DynamoDB)
+
 - ✅ **On-Demand billing** - Pay per request (perfect for dev)
 - ✅ **No Point-in-Time Recovery** - Save 20% of table cost
 - ✅ **No Streams** - Save unless needed
 
 ### Other
+
 - ✅ **Shared KMS key** - 1 key vs 7 in prod
 - ✅ **3-day log retention** - Reduce CloudWatch storage
 - ✅ **$200 budget alert** - Catch unexpected costs early
@@ -135,7 +142,8 @@ curl https://your-alb-url/api/test
 
 ### Cleanup When Not in Use
 
-**IMPORTANT**: To minimize costs, destroy the environment when not actively developing:
+**IMPORTANT**: To minimize costs, destroy the environment when not actively
+developing:
 
 ```bash
 terraform destroy
@@ -154,12 +162,14 @@ Resources will be recreated from your Terraform state.
 ## 🛡️ Security Notes
 
 ### Dev-Specific Relaxations
+
 - ✅ Public EKS API endpoint (restrict via `eks_public_access_cidrs`)
 - ✅ Deletion protection disabled (easy teardown)
 - ✅ Skip final RDS snapshot (faster deletion)
 - ⚠️ Single NAT Gateway (single point of failure - OK for dev)
 
 ### Still Secure
+
 - ✅ All data encrypted at rest (KMS)
 - ✅ All data encrypted in transit (TLS)
 - ✅ Secrets in AWS Secrets Manager
@@ -170,15 +180,18 @@ Resources will be recreated from your Terraform state.
 ## 📊 Monitoring
 
 ### CloudWatch Dashboards
+
 - EKS cluster metrics
 - RDS performance
 - DynamoDB capacity
 
 ### Budget Alerts
+
 - 80% threshold: Warning email
 - 100% threshold: Critical email
 
 ### Access Logs
+
 ```bash
 # View EKS API logs
 aws logs tail /aws/eks/dev-ai-agent-eks/cluster --follow
@@ -204,17 +217,17 @@ Then `terraform apply`. **Remember to scale back down** after testing.
 
 ## 🆚 Dev vs Prod Differences
 
-| Feature | Dev | Prod |
-|---------|-----|------|
-| **Monthly Cost** | ~$50-80 | ~$3,112 |
-| **EKS Nodes** | 1x t3a.medium Spot | 3x t3.xlarge + 2x r6i.2xlarge |
-| **RDS** | db.t4g.micro, Single-AZ | db.r6i.xlarge, Multi-AZ |
-| **Redis** | 1x cache.t4g.micro | 3x cache.r7g.xlarge |
-| **NAT Gateway** | 1 (Single) | 3 (HA) |
-| **Backups** | 1 day | 30 days |
-| **Monitoring** | Basic | Enhanced + Performance Insights |
-| **High Availability** | No | Yes (Multi-AZ) |
-| **Deletion Protection** | No | Yes |
+| Feature                 | Dev                     | Prod                            |
+| ----------------------- | ----------------------- | ------------------------------- |
+| **Monthly Cost**        | ~$50-80                 | ~$3,112                         |
+| **EKS Nodes**           | 1x t3a.medium Spot      | 3x t3.xlarge + 2x r6i.2xlarge   |
+| **RDS**                 | db.t4g.micro, Single-AZ | db.r6i.xlarge, Multi-AZ         |
+| **Redis**               | 1x cache.t4g.micro      | 3x cache.r7g.xlarge             |
+| **NAT Gateway**         | 1 (Single)              | 3 (HA)                          |
+| **Backups**             | 1 day                   | 30 days                         |
+| **Monitoring**          | Basic                   | Enhanced + Performance Insights |
+| **High Availability**   | No                      | Yes (Multi-AZ)                  |
+| **Deletion Protection** | No                      | Yes                             |
 
 ## 🐛 Troubleshooting
 
@@ -243,6 +256,7 @@ kubectl run -it --rm debug --image=postgres:16 --restart=Never -- \
 ### Cost Spikes
 
 Check your budget alerts and review:
+
 ```bash
 aws ce get-cost-and-usage --time-period Start=2025-01-01,End=2025-01-31 \
   --granularity MONTHLY --metrics BlendedCost
@@ -267,6 +281,7 @@ aws ce get-cost-and-usage --time-period Start=2025-01-01,End=2025-01-31 \
 ## 📧 Support
 
 For issues:
+
 1. Check CloudWatch Logs
 2. Review AWS Cost Explorer for unexpected charges
 3. Verify Security Group rules

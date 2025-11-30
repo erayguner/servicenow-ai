@@ -6,11 +6,7 @@
  * business logic.
  */
 
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-  Context
-} from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import * as crypto from 'crypto';
 
@@ -44,13 +40,7 @@ interface ActionResponse {
  * Create task action handler
  */
 async function createTask(parameters: Record<string, any>): Promise<any> {
-  const {
-    title,
-    description,
-    priority = 'medium',
-    assignee,
-    dueDate
-  } = parameters;
+  const { title, description, priority = 'medium', assignee, dueDate } = parameters;
 
   if (!title || !description) {
     throw new Error('Missing required parameters: title, description');
@@ -67,19 +57,21 @@ async function createTask(parameters: Record<string, any>): Promise<any> {
     status: 'open',
     createdAt: new Date().toISOString(),
     dueDate: dueDate || null,
-    completedAt: null
+    completedAt: null,
   };
 
   try {
-    await dynamodb.put({
-      TableName: process.env.TASKS_TABLE || 'bedrock-tasks',
-      Item: task
-    }).promise();
+    await dynamodb
+      .put({
+        TableName: process.env.TASKS_TABLE || 'bedrock-tasks',
+        Item: task,
+      })
+      .promise();
 
     return {
       taskId,
       message: `Task created successfully`,
-      task
+      task,
     };
   } catch (error) {
     throw new Error(`Failed to create task: ${error}`);
@@ -90,19 +82,15 @@ async function createTask(parameters: Record<string, any>): Promise<any> {
  * Get tasks action handler
  */
 async function getTasks(parameters: Record<string, any>): Promise<any> {
-  const {
-    status = 'open',
-    assignee,
-    limit = 10
-  } = parameters;
+  const { status = 'open', assignee, limit = 10 } = parameters;
 
   try {
     const scanParams: any = {
       TableName: process.env.TASKS_TABLE || 'bedrock-tasks',
       FilterExpression: 'taskStatus = :status',
       ExpressionAttributeValues: {
-        ':status': status
-      }
+        ':status': status,
+      },
     };
 
     if (assignee) {
@@ -110,15 +98,17 @@ async function getTasks(parameters: Record<string, any>): Promise<any> {
       scanParams.ExpressionAttributeValues[':assignee'] = assignee;
     }
 
-    const result = await dynamodb.scan({
-      ...scanParams,
-      Limit: limit
-    }).promise();
+    const result = await dynamodb
+      .scan({
+        ...scanParams,
+        Limit: limit,
+      })
+      .promise();
 
     return {
       tasks: result.Items || [],
       count: result.Items?.length || 0,
-      message: `Retrieved ${result.Items?.length || 0} tasks`
+      message: `Retrieved ${result.Items?.length || 0} tasks`,
     };
   } catch (error) {
     throw new Error(`Failed to get tasks: ${error}`);
@@ -129,13 +119,7 @@ async function getTasks(parameters: Record<string, any>): Promise<any> {
  * Update task action handler
  */
 async function updateTask(parameters: Record<string, any>): Promise<any> {
-  const {
-    taskId,
-    status,
-    priority,
-    assignee,
-    notes
-  } = parameters;
+  const { taskId, status, priority, assignee, notes } = parameters;
 
   if (!taskId) {
     throw new Error('Missing required parameter: taskId');
@@ -144,7 +128,7 @@ async function updateTask(parameters: Record<string, any>): Promise<any> {
   // Build update expression
   const updateParts: string[] = [];
   const expressionValues: Record<string, any> = {
-    ':updatedAt': new Date().toISOString()
+    ':updatedAt': new Date().toISOString(),
   };
 
   if (status) {
@@ -175,18 +159,20 @@ async function updateTask(parameters: Record<string, any>): Promise<any> {
   updateParts.push('updatedAt = :updatedAt');
 
   try {
-    const result = await dynamodb.update({
-      TableName: process.env.TASKS_TABLE || 'bedrock-tasks',
-      Key: { id: taskId },
-      UpdateExpression: `SET ${updateParts.join(', ')}`,
-      ExpressionAttributeValues: expressionValues,
-      ReturnValues: 'ALL_NEW'
-    }).promise();
+    const result = await dynamodb
+      .update({
+        TableName: process.env.TASKS_TABLE || 'bedrock-tasks',
+        Key: { id: taskId },
+        UpdateExpression: `SET ${updateParts.join(', ')}`,
+        ExpressionAttributeValues: expressionValues,
+        ReturnValues: 'ALL_NEW',
+      })
+      .promise();
 
     return {
       taskId,
       message: 'Task updated successfully',
-      task: result.Attributes
+      task: result.Attributes,
     };
   } catch (error) {
     throw new Error(`Failed to update task: ${error}`);
@@ -197,12 +183,7 @@ async function updateTask(parameters: Record<string, any>): Promise<any> {
  * Send notification action handler
  */
 async function sendNotification(parameters: Record<string, any>): Promise<any> {
-  const {
-    recipientEmail,
-    subject,
-    message,
-    taskId
-  } = parameters;
+  const { recipientEmail, subject, message, taskId } = parameters;
 
   if (!recipientEmail || !subject || !message) {
     throw new Error('Missing required parameters: recipientEmail, subject, message');
@@ -213,11 +194,13 @@ async function sendNotification(parameters: Record<string, any>): Promise<any> {
     const snsTopicArn = process.env.SNS_TOPIC_ARN;
 
     if (snsTopicArn) {
-      await sns.publish({
-        TopicArn: snsTopicArn,
-        Subject: subject,
-        Message: `${message}\n\n${taskId ? `Task ID: ${taskId}` : ''}`
-      }).promise();
+      await sns
+        .publish({
+          TopicArn: snsTopicArn,
+          Subject: subject,
+          Message: `${message}\n\n${taskId ? `Task ID: ${taskId}` : ''}`,
+        })
+        .promise();
     }
 
     // In production, you might also send email via SES
@@ -225,7 +208,7 @@ async function sendNotification(parameters: Record<string, any>): Promise<any> {
       notificationId: `NOTIF-${Date.now()}`,
       recipient: recipientEmail,
       status: 'sent',
-      message: 'Notification sent successfully'
+      message: 'Notification sent successfully',
     };
   } catch (error) {
     throw new Error(`Failed to send notification: ${error}`);
@@ -236,12 +219,7 @@ async function sendNotification(parameters: Record<string, any>): Promise<any> {
  * Store document action handler
  */
 async function storeDocument(parameters: Record<string, any>): Promise<any> {
-  const {
-    filename,
-    content,
-    contentType = 'text/plain',
-    metadata = {}
-  } = parameters;
+  const { filename, content, contentType = 'text/plain', metadata = {} } = parameters;
 
   if (!filename || !content) {
     throw new Error('Missing required parameters: filename, content');
@@ -251,18 +229,20 @@ async function storeDocument(parameters: Record<string, any>): Promise<any> {
   const key = `documents/${Date.now()}-${filename}`;
 
   try {
-    await s3.putObject({
-      Bucket: bucketName,
-      Key: key,
-      Body: Buffer.from(content),
-      ContentType: contentType,
-      Metadata: metadata
-    }).promise();
+    await s3
+      .putObject({
+        Bucket: bucketName,
+        Key: key,
+        Body: Buffer.from(content),
+        ContentType: contentType,
+        Metadata: metadata,
+      })
+      .promise();
 
     return {
       documentId: key,
       location: `s3://${bucketName}/${key}`,
-      message: 'Document stored successfully'
+      message: 'Document stored successfully',
     };
   } catch (error) {
     throw new Error(`Failed to store document: ${error}`);
@@ -282,17 +262,19 @@ async function retrieveDocument(parameters: Record<string, any>): Promise<any> {
   const bucketName = process.env.DOCUMENTS_BUCKET || 'bedrock-documents';
 
   try {
-    const object = await s3.getObject({
-      Bucket: bucketName,
-      Key: documentId
-    }).promise();
+    const object = await s3
+      .getObject({
+        Bucket: bucketName,
+        Key: documentId,
+      })
+      .promise();
 
     return {
       documentId,
       content: object.Body?.toString('utf-8'),
       contentType: object.ContentType,
       size: object.ContentLength,
-      metadata: object.Metadata
+      metadata: object.Metadata,
     };
   } catch (error) {
     throw new Error(`Failed to retrieve document: ${error}`);
@@ -303,10 +285,7 @@ async function retrieveDocument(parameters: Record<string, any>): Promise<any> {
  * Search documents action handler
  */
 async function searchDocuments(parameters: Record<string, any>): Promise<any> {
-  const {
-    query,
-    limit = 10
-  } = parameters;
+  const { query, limit = 10 } = parameters;
 
   if (!query) {
     throw new Error('Missing required parameter: query');
@@ -315,28 +294,30 @@ async function searchDocuments(parameters: Record<string, any>): Promise<any> {
   const bucketName = process.env.DOCUMENTS_BUCKET || 'bedrock-documents';
 
   try {
-    const objects = await s3.listObjectsV2({
-      Bucket: bucketName,
-      Prefix: 'documents/',
-      MaxKeys: limit
-    }).promise();
+    const objects = await s3
+      .listObjectsV2({
+        Bucket: bucketName,
+        Prefix: 'documents/',
+        MaxKeys: limit,
+      })
+      .promise();
 
     const results = (objects.Contents || [])
-      .filter(obj => {
+      .filter((obj) => {
         const key = obj.Key || '';
         return key.toLowerCase().includes(query.toLowerCase());
       })
-      .map(obj => ({
+      .map((obj) => ({
         key: obj.Key,
         size: obj.Size,
         modified: obj.LastModified,
-        url: `s3://${bucketName}/${obj.Key}`
+        url: `s3://${bucketName}/${obj.Key}`,
       }));
 
     return {
       query,
       results,
-      count: results.length
+      count: results.length,
     };
   } catch (error) {
     throw new Error(`Failed to search documents: ${error}`);
@@ -354,16 +335,14 @@ export const handler = async (
 
   try {
     // Parse request body
-    const body = typeof event.body === 'string'
-      ? JSON.parse(event.body)
-      : event.body;
+    const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
 
     const request: ActionRequest = body;
 
     if (!request.action) {
       return formatResponse(400, {
         success: false,
-        error: 'Missing required field: action'
+        error: 'Missing required field: action',
       });
     }
 
@@ -402,16 +381,15 @@ export const handler = async (
       default:
         return formatResponse(400, {
           success: false,
-          error: `Unknown action: ${request.action}`
+          error: `Unknown action: ${request.action}`,
         });
     }
 
     return formatResponse(200, {
       success: true,
       data: result,
-      message: `Action '${request.action}' completed successfully`
+      message: `Action '${request.action}' completed successfully`,
     });
-
   } catch (error) {
     console.error('Error:', error);
 
@@ -419,7 +397,7 @@ export const handler = async (
 
     return formatResponse(500, {
       success: false,
-      error: message
+      error: message,
     });
   }
 };
@@ -427,29 +405,24 @@ export const handler = async (
 /**
  * Format response in standard structure
  */
-function formatResponse(
-  statusCode: number,
-  body: any
-): APIGatewayProxyResult {
+function formatResponse(statusCode: number, body: any): APIGatewayProxyResult {
   return {
     statusCode,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   };
 }
 
 /**
  * Health check handler (optional, for testing)
  */
-export const healthCheck = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+export const healthCheck = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   return formatResponse(200, {
     success: true,
     message: 'Action group Lambda is healthy',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };

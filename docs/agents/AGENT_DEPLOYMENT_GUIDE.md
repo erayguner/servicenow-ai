@@ -2,7 +2,10 @@
 
 ## Overview
 
-This document describes the deployed development agents for the ServiceNow AI Terraform infrastructure project. These agents work together using Claude-Flow coordination to provide comprehensive development, security, testing, and optimization capabilities.
+This document describes the deployed development agents for the ServiceNow AI
+Terraform infrastructure project. These agents work together using Claude-Flow
+coordination to provide comprehensive development, security, testing, and
+optimization capabilities.
 
 ## Deployment Information
 
@@ -21,6 +24,7 @@ This document describes the deployed development agents for the ServiceNow AI Te
 **Purpose**: High-level infrastructure design and architecture review
 
 **Key Responsibilities**:
+
 - Review Terraform module architecture and design patterns
 - Analyze infrastructure dependencies and relationships
 - Recommend best practices for GCP and AWS resources
@@ -28,6 +32,7 @@ This document describes the deployed development agents for the ServiceNow AI Te
 - Design scalable and maintainable infrastructure patterns
 
 **When to Use**:
+
 - Planning new infrastructure modules
 - Reviewing complex architectural changes
 - Designing multi-cloud strategies
@@ -35,6 +40,7 @@ This document describes the deployed development agents for the ServiceNow AI Te
 - Creating infrastructure roadmaps
 
 **Example Usage**:
+
 ```bash
 # Request architecture review
 npx claude-flow@alpha agent execute terraform-architect-001 \
@@ -51,6 +57,7 @@ npx claude-flow@alpha memory retrieve swarm/architect/decisions
 **Purpose**: Deep code analysis and quality assessment
 
 **Key Responsibilities**:
+
 - Analyze Terraform code quality and maintainability
 - Identify code smells and anti-patterns
 - Review module reusability and DRY principles
@@ -58,6 +65,7 @@ npx claude-flow@alpha memory retrieve swarm/architect/decisions
 - Validate naming conventions and documentation
 
 **When to Use**:
+
 - Code quality reviews
 - Refactoring planning
 - Module consolidation
@@ -65,6 +73,7 @@ npx claude-flow@alpha memory retrieve swarm/architect/decisions
 - Pre-merge code analysis
 
 **Example Usage**:
+
 ```bash
 # Analyze specific module
 npx claude-flow@alpha agent execute terraform-analyzer-001 \
@@ -81,6 +90,7 @@ npx claude-flow@alpha memory retrieve swarm/analyzer/metrics
 **Purpose**: Comprehensive security scanning and compliance validation
 
 **Key Responsibilities**:
+
 - Run Checkov security scans on Terraform code
 - Identify security vulnerabilities and misconfigurations
 - Validate compliance with security frameworks (SOC2, GDPR, HIPAA)
@@ -88,6 +98,7 @@ npx claude-flow@alpha memory retrieve swarm/analyzer/metrics
 - Check encryption configurations and secrets management
 
 **When to Use**:
+
 - Pre-deployment security checks
 - Compliance audits
 - Security policy validation
@@ -95,6 +106,7 @@ npx claude-flow@alpha memory retrieve swarm/analyzer/metrics
 - Secrets management review
 
 **Example Usage**:
+
 ```bash
 # Run security scan
 checkov -d /home/user/servicenow-ai/terraform --framework terraform
@@ -108,6 +120,7 @@ npx claude-flow@alpha memory retrieve swarm/security/compliance
 ```
 
 **Security Frameworks Checked**:
+
 - AWS CIS
 - GCP CIS
 - SOC 2 Type II
@@ -123,6 +136,7 @@ npx claude-flow@alpha memory retrieve swarm/security/compliance
 **Purpose**: CI/CD pipeline management and optimization
 
 **Key Responsibilities**:
+
 - Manage GitHub Actions workflows and optimization
 - Configure parallel testing and execution strategies
 - Optimize workflow performance and costs
@@ -130,6 +144,7 @@ npx claude-flow@alpha memory retrieve swarm/security/compliance
 - Monitor CI/CD metrics and failure rates
 
 **When to Use**:
+
 - Workflow optimization
 - Pipeline debugging
 - Adding new CI/CD jobs
@@ -137,6 +152,7 @@ npx claude-flow@alpha memory retrieve swarm/security/compliance
 - Cost reduction initiatives
 
 **Example Usage**:
+
 ```bash
 # Optimize workflow
 npx claude-flow@alpha agent execute cicd-engineer-001 \
@@ -147,6 +163,7 @@ npx claude-flow@alpha memory retrieve swarm/cicd/metrics
 ```
 
 **Current Workflows**:
+
 - `lint.yml` - Code linting and formatting
 - `security-check.yml` - Security scanning
 - `terraform-ci-optimized.yml` - Terraform validation and testing
@@ -161,6 +178,7 @@ npx claude-flow@alpha memory retrieve swarm/cicd/metrics
 **Purpose**: Code quality enforcement and standards validation
 
 **Key Responsibilities**:
+
 - Review Terraform code changes for quality
 - Validate formatting with terraform fmt and prettier
 - Check YAML configurations with yamllint
@@ -168,6 +186,7 @@ npx claude-flow@alpha memory retrieve swarm/cicd/metrics
 - Review documentation completeness
 
 **When to Use**:
+
 - Pull request reviews
 - Code formatting issues
 - Documentation gaps
@@ -175,6 +194,7 @@ npx claude-flow@alpha memory retrieve swarm/cicd/metrics
 - Standards enforcement
 
 **Example Usage**:
+
 ```bash
 # Review changes
 npx claude-flow@alpha agent execute code-reviewer-001 \
@@ -185,6 +205,7 @@ npx claude-flow@alpha memory retrieve swarm/reviewer/standards
 ```
 
 **Quality Checks**:
+
 - Terraform formatting (`terraform fmt`)
 - YAML linting (`yamllint`)
 - Shell script formatting (`shfmt`)
@@ -198,6 +219,7 @@ npx claude-flow@alpha memory retrieve swarm/reviewer/standards
 **Purpose**: Comprehensive testing and validation
 
 **Key Responsibilities**:
+
 - Execute Terraform module tests and validation
 - Run integration tests for infrastructure
 - Validate terraform plan outputs
@@ -205,6 +227,7 @@ npx claude-flow@alpha memory retrieve swarm/reviewer/standards
 - Monitor test coverage and results
 
 **When to Use**:
+
 - Module testing
 - Integration test execution
 - Plan validation
@@ -212,6 +235,7 @@ npx claude-flow@alpha memory retrieve swarm/reviewer/standards
 - Regression testing
 
 **Example Usage**:
+
 ```bash
 # Run module tests
 cd /home/user/servicenow-ai/terraform/modules/gke
@@ -226,6 +250,7 @@ npx claude-flow@alpha memory retrieve swarm/tester/results
 ```
 
 **Test Capabilities**:
+
 - Terraform module tests (12/12 modules)
 - Kubernetes manifest validation
 - Integration testing
@@ -239,6 +264,7 @@ npx claude-flow@alpha memory retrieve swarm/tester/results
 **Purpose**: Performance monitoring and cost optimization
 
 **Key Responsibilities**:
+
 - Analyze infrastructure performance metrics
 - Monitor GCP and AWS resource utilization
 - Identify cost optimization opportunities
@@ -246,6 +272,7 @@ npx claude-flow@alpha memory retrieve swarm/tester/results
 - Track deployment times and bottlenecks
 
 **When to Use**:
+
 - Cost reduction initiatives
 - Performance optimization
 - Resource right-sizing
@@ -253,6 +280,7 @@ npx claude-flow@alpha memory retrieve swarm/tester/results
 - Deployment time improvements
 
 **Example Usage**:
+
 ```bash
 # Analyze costs
 npx claude-flow@alpha agent execute performance-monitor-001 \
@@ -263,6 +291,7 @@ npx claude-flow@alpha memory retrieve swarm/perf/optimizations
 ```
 
 **Optimization Areas**:
+
 - GKE node pool sizing
 - Cloud SQL instance types
 - Storage lifecycle policies
@@ -276,6 +305,7 @@ npx claude-flow@alpha memory retrieve swarm/perf/optimizations
 **Purpose**: Repository organization and documentation management
 
 **Key Responsibilities**:
+
 - Maintain repository structure and organization
 - Manage documentation and guides
 - Coordinate release management and versioning
@@ -283,6 +313,7 @@ npx claude-flow@alpha memory retrieve swarm/perf/optimizations
 - Track project dependencies and tools
 
 **When to Use**:
+
 - Repository reorganization
 - Documentation updates
 - Release planning
@@ -290,6 +321,7 @@ npx claude-flow@alpha memory retrieve swarm/perf/optimizations
 - Project structure reviews
 
 **Example Usage**:
+
 ```bash
 # Review repo structure
 npx claude-flow@alpha agent execute repo-organizer-001 \
@@ -300,6 +332,7 @@ npx claude-flow@alpha memory retrieve swarm/repo/docs
 ```
 
 **Managed Areas**:
+
 - Project structure
 - Documentation (20+ guides)
 - Release management (Release Please)
@@ -313,18 +346,21 @@ npx claude-flow@alpha memory retrieve swarm/repo/docs
 All agents use Claude-Flow hooks for coordination:
 
 **Before Starting Work**:
+
 ```bash
 npx claude-flow@alpha hooks pre-task --description "Task description"
 npx claude-flow@alpha hooks session-restore --session-id "servicenow-ai-infra-dev"
 ```
 
 **During Work**:
+
 ```bash
 npx claude-flow@alpha hooks post-edit --file "path/to/file" --memory-key "swarm/agent/step"
 npx claude-flow@alpha hooks notify --message "What was done"
 ```
 
 **After Completing Work**:
+
 ```bash
 npx claude-flow@alpha hooks post-task --task-id "task-id"
 npx claude-flow@alpha hooks session-end --export-metrics true
@@ -335,11 +371,13 @@ npx claude-flow@alpha hooks session-end --export-metrics true
 Agents share information through memory keys:
 
 **Global Shared Keys**:
+
 - `swarm/global/decisions` - Architecture and design decisions
 - `swarm/global/standards` - Coding standards and conventions
 - `swarm/global/patterns` - Reusable patterns and solutions
 
 **Agent-Specific Keys**:
+
 - `swarm/architect/*` - Architecture decisions and patterns
 - `swarm/analyzer/*` - Code analysis issues and metrics
 - `swarm/security/*` - Security findings and compliance status
@@ -350,6 +388,7 @@ Agents share information through memory keys:
 - `swarm/repo/*` - Repository structure and documentation
 
 **Memory Commands**:
+
 ```bash
 # Store information
 npx claude-flow@alpha memory store swarm/global/decisions "decision-data"
@@ -413,6 +452,7 @@ npx claude-flow@alpha swarm execute \
 ### Agent Status
 
 Check agent health and availability:
+
 ```bash
 npx claude-flow@alpha swarm status --session-id servicenow-ai-infra-dev
 ```
@@ -420,6 +460,7 @@ npx claude-flow@alpha swarm status --session-id servicenow-ai-infra-dev
 ### Agent Metrics
 
 View agent performance metrics:
+
 ```bash
 npx claude-flow@alpha agent metrics terraform-architect-001
 ```
@@ -427,6 +468,7 @@ npx claude-flow@alpha agent metrics terraform-architect-001
 ### Session Metrics
 
 View overall session metrics:
+
 ```bash
 npx claude-flow@alpha swarm metrics --session-id servicenow-ai-infra-dev
 ```
@@ -435,14 +477,20 @@ npx claude-flow@alpha swarm metrics --session-id servicenow-ai-infra-dev
 
 ### When to Use Agents
 
-1. **Terraform Architect**: Major infrastructure changes, new modules, architecture reviews
-2. **Code Analyzer**: Refactoring, quality improvements, technical debt reduction
-3. **Security Auditor**: Before every deployment, compliance audits, security reviews
-4. **CI/CD Engineer**: Workflow issues, pipeline optimization, deployment problems
+1. **Terraform Architect**: Major infrastructure changes, new modules,
+   architecture reviews
+2. **Code Analyzer**: Refactoring, quality improvements, technical debt
+   reduction
+3. **Security Auditor**: Before every deployment, compliance audits, security
+   reviews
+4. **CI/CD Engineer**: Workflow issues, pipeline optimization, deployment
+   problems
 5. **Code Reviewer**: Pull requests, code formatting, documentation reviews
 6. **Test Validator**: New features, regression testing, coverage improvements
-7. **Performance Monitor**: Cost spikes, performance issues, optimization initiatives
-8. **Repo Architect**: Repository reorganization, documentation updates, releases
+7. **Performance Monitor**: Cost spikes, performance issues, optimization
+   initiatives
+8. **Repo Architect**: Repository reorganization, documentation updates,
+   releases
 
 ### Agent Collaboration
 
@@ -454,6 +502,7 @@ npx claude-flow@alpha swarm metrics --session-id servicenow-ai-infra-dev
 ### Common Workflows
 
 **New Feature Development**:
+
 1. Architect designs infrastructure
 2. Analyzer reviews code quality
 3. Security auditor scans for vulnerabilities
@@ -461,6 +510,7 @@ npx claude-flow@alpha swarm metrics --session-id servicenow-ai-infra-dev
 5. Reviewer checks standards compliance
 
 **Production Deployment**:
+
 1. Tester runs full test suite
 2. Security auditor performs compliance check
 3. Performance monitor analyzes resource usage
@@ -468,6 +518,7 @@ npx claude-flow@alpha swarm metrics --session-id servicenow-ai-infra-dev
 5. Repo architect updates documentation
 
 **Optimization Initiative**:
+
 1. Performance monitor identifies bottlenecks
 2. Architect proposes solutions
 3. Analyzer reviews implementation quality
@@ -512,6 +563,7 @@ npx claude-flow@alpha swarm init --topology mesh --session-id servicenow-ai-infr
 ### Neural Training
 
 Train agents from successful patterns:
+
 ```bash
 npx claude-flow@alpha neural train --session-id servicenow-ai-infra-dev
 ```
@@ -519,6 +571,7 @@ npx claude-flow@alpha neural train --session-id servicenow-ai-infra-dev
 ### Pattern Recognition
 
 Extract patterns from agent work:
+
 ```bash
 npx claude-flow@alpha neural patterns --session-id servicenow-ai-infra-dev
 ```
@@ -526,6 +579,7 @@ npx claude-flow@alpha neural patterns --session-id servicenow-ai-infra-dev
 ### Performance Benchmarking
 
 Benchmark agent performance:
+
 ```bash
 npx claude-flow@alpha benchmark run --agents all
 ```
@@ -535,6 +589,7 @@ npx claude-flow@alpha benchmark run --agents all
 ### Pre-commit Integration
 
 Agents automatically run during pre-commit:
+
 ```bash
 # .pre-commit-config.yaml already configured
 pre-commit run --all-files
@@ -543,6 +598,7 @@ pre-commit run --all-files
 ### GitHub Actions Integration
 
 Agents can be called from workflows:
+
 ```yaml
 - name: Security Scan
   run: |
@@ -553,6 +609,7 @@ Agents can be called from workflows:
 ### IDE Integration
 
 Configure IDE to call agents:
+
 - VS Code: Configure tasks to execute agents
 - IntelliJ: Add external tools for agent commands
 
@@ -567,6 +624,7 @@ Configure IDE to call agents:
 ## Support
 
 For issues or questions:
+
 - Check agent status: `npx claude-flow@alpha swarm status`
 - View logs: `npx claude-flow@alpha logs`
 - Documentation: https://github.com/ruvnet/claude-flow
@@ -575,13 +633,16 @@ For issues or questions:
 ## Agent Configuration Files
 
 All agent configurations are stored in:
-- Manifest: `/home/user/servicenow-ai/coordination/agents/agent-deployment-manifest.json`
+
+- Manifest:
+  `/home/user/servicenow-ai/coordination/agents/agent-deployment-manifest.json`
 - Sessions: `/home/user/servicenow-ai/coordination/sessions/`
 - Memory: `/home/user/servicenow-ai/memory/`
 
 ## Performance Benefits
 
 With these agents deployed, you can expect:
+
 - **84.8% improvement** in infrastructure review quality
 - **32.3% reduction** in security vulnerabilities
 - **2.8-4.4x speed** improvement in code reviews
@@ -590,4 +651,5 @@ With these agents deployed, you can expect:
 
 ---
 
-**Remember**: Agents coordinate via Claude-Flow, but execute via Claude Code's Task tool for actual work!
+**Remember**: Agents coordinate via Claude-Flow, but execute via Claude Code's
+Task tool for actual work!

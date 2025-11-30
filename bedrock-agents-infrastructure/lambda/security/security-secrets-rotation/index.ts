@@ -66,7 +66,7 @@ export const handler: Handler<RotationEvent, RotationResult> = async (event) => 
     // Execute rotation based on type
     switch (rotationType) {
       case 'BEDROCK_API_KEY':
-        await rotateBedrock APIKey(secretArn, rotationId, steps);
+        await rotateBedrockAPIKey(secretArn, rotationId, steps);
         break;
 
       case 'DATABASE_CREDENTIALS':
@@ -336,7 +336,7 @@ async function rotateLambdaEnvironmentVars(
 
   // Rotate each environment variable
   for (const [key, value] of Object.entries(currentEnvVars)) {
-    if (typeof value === 'string' && key.includes('KEY') || key.includes('SECRET')) {
+    if ((typeof value === 'string' && key.includes('KEY')) || key.includes('SECRET')) {
       newEnvVars[key] = generateNewSecret('api_key');
     } else {
       newEnvVars[key] = value as string;

@@ -2,18 +2,8 @@ import {
   AccessAnalyzerClient,
   ListFindingsCommand,
   GetFindingCommand,
-  ArchiveFindingCommand,
-  StartPolicyGenerationCommand,
-  GetGeneratedPolicyCommand,
 } from '@aws-sdk/client-accessanalyzer';
-import {
-  IAMClient,
-  GetPolicyCommand,
-  GetRoleCommand,
-  SimulatePrincipalPolicyCommand,
-  ListAttachedRolePoliciesCommand,
-  GetPolicyVersionCommand,
-} from '@aws-sdk/client-iam';
+import { IAMClient, GetRoleCommand, ListAttachedRolePoliciesCommand } from '@aws-sdk/client-iam';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { Handler } from 'aws-lambda';
@@ -28,7 +18,6 @@ import {
   analyzeIAMPolicy,
   generateLeastPrivilegePolicy,
   detectUnusedPermissions,
-  updatePolicyRecommendation,
   logger,
 } from './utils';
 
@@ -93,7 +82,9 @@ export const handler: Handler<AccessAnalysisEvent, AccessAnalysisResult> = async
     }
 
     // Send notification for critical findings
-    const criticalFindings = findings.filter((f) => f.severity === 'CRITICAL' || f.severity === 'HIGH');
+    const criticalFindings = findings.filter(
+      (f) => f.severity === 'CRITICAL' || f.severity === 'HIGH'
+    );
     if (criticalFindings.length > 0 && NOTIFICATION_TOPIC) {
       await sendAccessAnalysisNotification(criticalFindings, analysisId);
     }
@@ -160,10 +151,12 @@ async function analyzeAccessAnalyzerFindings(): Promise<AccessFinding[]> {
         if (!finding) continue;
 
         findings.push({
-          id: finding.id,
+          id: finding.id || 'unknown-id',
           type: 'ACCESS_ANALYZER',
           title: `External access detected: ${finding.resourceType}`,
-          description: finding.condition ? JSON.stringify(finding.condition) : 'External access to resource',
+          description: finding.condition
+            ? JSON.stringify(finding.condition)
+            : 'External access to resource',
           severity: mapAccessAnalyzerSeverity(finding.status || 'ACTIVE'),
           resourceArn: finding.resource || '',
           resourceType: finding.resourceType || 'Unknown',
@@ -183,9 +176,7 @@ async function analyzeAccessAnalyzerFindings(): Promise<AccessFinding[]> {
   return findings;
 }
 
-async function analyzeRole(
-  roleArn: string
-): Promise<{
+async function analyzeRole(roleArn: string): Promise<{
   findings: AccessFinding[];
   recommendations: PolicyRecommendation[];
   unusedPermissions: UnusedPermission[];
@@ -299,7 +290,10 @@ async function analyzeTrustPolicy(role: any): Promise<AccessFinding[]> {
             : [statement.Principal.AWS];
 
           for (const principal of principals) {
-            if (principal.includes(':root') && !principal.startsWith('arn:aws:iam::' + process.env.AWS_ACCOUNT_ID)) {
+            if (
+              principal.includes(':root') &&
+              !principal.startsWith('arn:aws:iam::' + process.env.AWS_ACCOUNT_ID)
+            ) {
               findings.push({
                 id: `${role.RoleName}-external-without-externalid`,
                 type: 'MISSING_EXTERNAL_ID',

@@ -42,7 +42,7 @@ resource "aws_iam_role_policy" "lambda_execution" {
           "logs:PutLogEvents"
         ]
         Resource = [
-          "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.name_prefix}*:*"
+          "arn:aws:logs:${module.shared_data.region_name}:${module.shared_data.account_id}:log-group:/aws/lambda/${local.name_prefix}*:*"
         ]
       },
       # DynamoDB access
@@ -85,8 +85,8 @@ resource "aws_iam_role_policy" "lambda_execution" {
         Condition = var.kms_key_id != null ? {
           StringEquals = {
             "kms:ViaService" = [
-              "secretsmanager.${data.aws_region.current.name}.amazonaws.com",
-              "dynamodb.${data.aws_region.current.name}.amazonaws.com"
+              "secretsmanager.${module.shared_data.region_name}.amazonaws.com",
+              "dynamodb.${module.shared_data.region_name}.amazonaws.com"
             ]
           }
         } : null
@@ -122,8 +122,8 @@ resource "aws_iam_role_policy" "lambda_execution" {
           "bedrock:Retrieve"
         ]
         Resource = [
-          "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:agent/*",
-          "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"
+          "arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:agent/*",
+          "arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:knowledge-base/*"
         ]
       },
       # X-Ray tracing
@@ -265,7 +265,7 @@ resource "aws_iam_role_policy" "step_functions" {
           "bedrock:InvokeAgent"
         ]
         Resource = [
-          "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:agent/*"
+          "arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:agent/*"
         ]
       }
     ]

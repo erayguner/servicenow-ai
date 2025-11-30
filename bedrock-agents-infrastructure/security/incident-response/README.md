@@ -1,6 +1,7 @@
 # Bedrock Agents Infrastructure - Incident Response System
 
-Complete incident response playbooks, runbooks, forensics tools, communication templates, and automation infrastructure for the Bedrock agents infrastructure.
+Complete incident response playbooks, runbooks, forensics tools, communication
+templates, and automation infrastructure for the Bedrock agents infrastructure.
 
 ## Directory Structure
 
@@ -45,6 +46,7 @@ incident-response/
 Six comprehensive playbooks covering major incident types:
 
 #### data-breach-response.md
+
 - **Scope:** Unauthorized data exfiltration
 - **Severity Levels:** P1-P4 based on data volume and sensitivity
 - **Response Phases:**
@@ -56,30 +58,36 @@ Six comprehensive playbooks covering major incident types:
 - **Key Actions:** Evidence preservation, log capture, customer notification
 
 #### compromised-credentials.md
+
 - **Scope:** Leaked or compromised credentials
-- **Detection:** GitHub Secret Scanning, dark web monitoring, unusual access patterns
+- **Detection:** GitHub Secret Scanning, dark web monitoring, unusual access
+  patterns
 - **Response:** Credential rotation, access revocation, forensics
 - **Preventive Controls:** Secret management, automated rotation
 
 #### ddos-attack-response.md
+
 - **Scope:** Distributed Denial of Service attacks
 - **Detection:** CloudWatch alarms, AWS Shield alerts
 - **Mitigation:** Rate limiting, CloudFront activation, WAF rules
 - **Recovery:** Gradual de-escalation, monitoring
 
 #### malware-detection.md
+
 - **Scope:** Detected or suspected malware
 - **Detection:** GuardDuty findings, behavioral anomalies
 - **Forensics:** Memory dumps, process analysis
 - **Eradication:** System rebuild, backdoor removal
 
 #### unauthorized-access.md
+
 - **Scope:** Unauthorized access to systems/data
 - **Detection:** Failed auth attempts, geolocation anomalies
 - **Investigation:** Session analysis, privilege review
 - **Recovery:** Account reset, access restoration
 
 #### api-abuse.md
+
 - **Scope:** Excessive API usage, DDoS, credential stuffing
 - **Detection:** Rate limiting violations, unusual patterns
 - **Containment:** IP blocking, API key revocation
@@ -90,6 +98,7 @@ Six comprehensive playbooks covering major incident types:
 AWS Step Functions state machines for automated incident response:
 
 #### isolate-compromised-agent.json
+
 - **Purpose:** Isolate compromised Bedrock agents
 - **Steps:**
   1. Validate agent ID and reason
@@ -103,6 +112,7 @@ AWS Step Functions state machines for automated incident response:
   9. Log event and notify
 
 #### rotate-all-credentials.json
+
 - **Purpose:** Comprehensive credential rotation
 - **Steps:**
   1. Initialize rotation session
@@ -115,6 +125,7 @@ AWS Step Functions state machines for automated incident response:
   8. Notify completion
 
 #### enable-forensics-mode.json
+
 - **Purpose:** Enable comprehensive forensics collection
 - **Steps:**
   1. Validate target
@@ -128,6 +139,7 @@ AWS Step Functions state machines for automated incident response:
   9. Notify forensics team
 
 #### collect-evidence.json
+
 - **Purpose:** Comprehensive forensic evidence collection
 - **Steps:**
   1. Identify evidence sources
@@ -145,6 +157,7 @@ AWS Step Functions state machines for automated incident response:
   8. Document chain of custody
 
 #### notify-stakeholders.json
+
 - **Purpose:** Multi-channel stakeholder notification
 - **Steps:**
   1. Determine incident severity
@@ -164,6 +177,7 @@ AWS Step Functions state machines for automated incident response:
 Python scripts for forensic investigation:
 
 #### capture-logs.py
+
 - **Purpose:** Comprehensive log collection
 - **Capabilities:**
   - CloudTrail event capture
@@ -175,6 +189,7 @@ Python scripts for forensic investigation:
 - **Output:** JSON formatted logs with summary
 
 #### snapshot-resources.py
+
 - **Purpose:** Point-in-time resource snapshots
 - **Capabilities:**
   - EBS volume snapshots
@@ -184,6 +199,7 @@ Python scripts for forensic investigation:
 - **Output:** Manifest with snapshot details
 
 #### network-capture.py
+
 - **Purpose:** Network traffic analysis
 - **Capabilities:**
   - Packet capture via tcpdump
@@ -193,6 +209,7 @@ Python scripts for forensic investigation:
 - **Output:** Traffic analysis report
 
 #### memory-dump.py
+
 - **Purpose:** Memory collection and analysis
 - **Capabilities:**
   - EC2 instance memory dumps
@@ -202,6 +219,7 @@ Python scripts for forensic investigation:
 - **Output:** Memory dump manifest
 
 #### timeline-builder.py
+
 - **Purpose:** Build incident timeline
 - **Capabilities:**
   - Correlate events from multiple sources
@@ -215,6 +233,7 @@ Python scripts for forensic investigation:
 Professional templates for incident communication:
 
 #### internal-notification.md
+
 - **Audience:** Internal team
 - **Content:**
   - Executive summary
@@ -226,6 +245,7 @@ Professional templates for incident communication:
   - Status updates
 
 #### customer-notification.md
+
 - **Audience:** Affected customers
 - **Content:**
   - Incident summary
@@ -237,6 +257,7 @@ Professional templates for incident communication:
   - FAQ
 
 #### regulatory-reporting.md
+
 - **Audience:** Regulatory bodies
 - **Content:**
   - Incident classification
@@ -248,6 +269,7 @@ Professional templates for incident communication:
   - Supporting documentation
 
 #### post-incident-report.md
+
 - **Audience:** Management, security team
 - **Content:**
   - Executive summary
@@ -264,7 +286,9 @@ Professional templates for incident communication:
 Terraform infrastructure for automated response:
 
 #### main.tf - EventBridge Rules
+
 **11 EventBridge rules covering:**
+
 - GuardDuty findings (severity 7+)
 - CloudTrail anomalies (API abuse)
 - Security Hub findings (critical/high)
@@ -278,7 +302,9 @@ Terraform infrastructure for automated response:
 - Bedrock agent anomalies
 
 #### sqs-dead-letter.tf - DLQ Management
+
 **Features:**
+
 - Dead Letter Queue for failed responses
 - Main incident response queue with redrive
 - CloudWatch alarms for queue monitoring
@@ -287,7 +313,9 @@ Terraform infrastructure for automated response:
 - Visibility into failed incidents
 
 #### sns-topics.tf - Notification Channels
+
 **Topics:**
+
 - `incident-response-notifications` - Main topic
 - `security-team-notifications` - Security team
 - `incident-commander-notifications` - Incident commander
@@ -297,12 +325,15 @@ Terraform infrastructure for automated response:
 - `dlq-notifications` - Failed response alerts
 
 **Subscriptions:**
+
 - Slack webhooks for instant notification
 - Email for archival
 - Lambda processors for automation
 
 #### lambda-responders.tf - Response Functions
+
 **Functions:**
+
 - `incident-logger` - Log all incident events
 - `incident-tracker` - Track incident in DynamoDB
 - `resource-isolator` - Isolate compromised resources
@@ -310,6 +341,7 @@ Terraform infrastructure for automated response:
 - `stakeholder-notifier` - Notify stakeholders
 
 **Permissions:**
+
 - EC2 isolation
 - IAM access revocation
 - DynamoDB incident tracking
@@ -351,6 +383,7 @@ Post-Incident Review
 ## Getting Started
 
 ### 1. Deploy Infrastructure
+
 ```bash
 cd automation/
 terraform init
@@ -359,11 +392,13 @@ terraform apply
 ```
 
 ### 2. Review Playbooks
+
 - Read relevant playbook for incident type
 - Follow response phases and steps
 - Use runbooks for automation
 
 ### 3. Collect Forensics
+
 ```bash
 # Capture logs
 python3 forensics/capture-logs.py --incident-id INCIDENT123
@@ -382,6 +417,7 @@ python3 forensics/timeline-builder.py --incident-id INCIDENT123
 ```
 
 ### 4. Communicate
+
 - Use internal notification template for team
 - Use customer notification if customer impact
 - Use regulatory reporting if required
@@ -390,6 +426,7 @@ python3 forensics/timeline-builder.py --incident-id INCIDENT123
 ## Response Metrics
 
 ### Target Times
+
 - **Detection to Alert:** < 1 minute
 - **Alert to Incident Declaration:** < 15 minutes
 - **Declaration to War Room:** < 5 minutes
@@ -403,12 +440,14 @@ python3 forensics/timeline-builder.py --incident-id INCIDENT123
 ## Important Contacts
 
 **Internal:**
+
 - Security Lead: [On-call rotation]
 - Incident Commander: [Rotation]
 - CISO: [Contact]
 - Legal: [Contact]
 
 **External:**
+
 - Law Enforcement: [FBI/Secret Service]
 - Regulatory Bodies: [Contacts]
 - PR/Communications: [PR firm]
@@ -416,6 +455,7 @@ python3 forensics/timeline-builder.py --incident-id INCIDENT123
 ## Compliance
 
 These playbooks and automation meet requirements for:
+
 - **GDPR:** Article 33 (72-hour notification)
 - **CCPA:** Breach notification requirements
 - **State Laws:** Breach notification statutes
@@ -441,8 +481,5 @@ These playbooks and automation meet requirements for:
 
 ---
 
-**Version:** 1.0
-**Last Updated:** 2024-11-17
-**Maintained By:** Security Team
+**Version:** 1.0 **Last Updated:** 2024-11-17 **Maintained By:** Security Team
 **Status:** Production Ready
-

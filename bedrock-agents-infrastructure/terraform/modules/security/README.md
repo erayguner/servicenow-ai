@@ -1,10 +1,12 @@
 # Bedrock Agents Security Modules
 
-Comprehensive security Terraform modules for Amazon Bedrock agents infrastructure with enterprise-grade security features.
+Comprehensive security Terraform modules for Amazon Bedrock agents
+infrastructure with enterprise-grade security features.
 
 ## Overview
 
-This directory contains 6 security modules designed to provide defense-in-depth protection for Bedrock agent deployments:
+This directory contains 6 security modules designed to provide defense-in-depth
+protection for Bedrock agent deployments:
 
 1. **bedrock-security-iam** - Identity and Access Management
 2. **bedrock-security-kms** - Key Management Service encryption
@@ -16,6 +18,7 @@ This directory contains 6 security modules designed to provide defense-in-depth 
 ## Module Structure
 
 Each module follows Terraform best practices with the following files:
+
 - `main.tf` - Primary resource definitions
 - `variables.tf` - Input variables with validation
 - `outputs.tf` - Output values for module composition
@@ -28,6 +31,7 @@ Each module follows Terraform best practices with the following files:
 **Purpose**: Least-privilege IAM policies and roles for Bedrock agents
 
 **Key Features**:
+
 - Bedrock agent execution roles with least-privilege access
 - Lambda execution roles for action groups
 - Step Functions orchestration roles
@@ -37,12 +41,14 @@ Each module follows Terraform best practices with the following files:
 - CloudWatch alarms for unauthorized API calls and IAM policy changes
 
 **Resources Created**:
+
 - IAM roles for Bedrock agents, Lambda, Step Functions
 - Permission boundary policies
 - CloudWatch metric filters and alarms
 - IAM policies with service-specific access
 
 **Use Cases**:
+
 - Secure Bedrock agent execution
 - Multi-account deployments
 - Compliance-driven access control
@@ -54,6 +60,7 @@ Each module follows Terraform best practices with the following files:
 **Purpose**: KMS encryption for all Bedrock agent data
 
 **Key Features**:
+
 - Separate KMS keys for different data types:
   - Bedrock data encryption
   - Secrets Manager encryption
@@ -66,6 +73,7 @@ Each module follows Terraform best practices with the following files:
 - CloudWatch alarms for key usage and API errors
 
 **Resources Created**:
+
 - 3 KMS keys with rotation
 - KMS key aliases
 - KMS grants for role-based access
@@ -73,6 +81,7 @@ Each module follows Terraform best practices with the following files:
 - Metric filters for key deletion attempts
 
 **Use Cases**:
+
 - Data encryption at rest
 - Compliance requirements (HIPAA, PCI-DSS)
 - Multi-region data replication
@@ -84,6 +93,7 @@ Each module follows Terraform best practices with the following files:
 **Purpose**: Intelligent threat detection for Bedrock infrastructure
 
 **Key Features**:
+
 - S3 data events protection
 - EKS/Kubernetes audit logs monitoring
 - Lambda network logs analysis
@@ -96,6 +106,7 @@ Each module follows Terraform best practices with the following files:
 - Lambda function for findings processing
 
 **Resources Created**:
+
 - GuardDuty detector with all protection features
 - GuardDuty filters for high-severity findings
 - EventBridge rules for finding notifications
@@ -104,6 +115,7 @@ Each module follows Terraform best practices with the following files:
 - IP sets for custom filtering
 
 **Use Cases**:
+
 - Real-time threat detection
 - Automated incident response
 - Security operations center (SOC) integration
@@ -115,6 +127,7 @@ Each module follows Terraform best practices with the following files:
 **Purpose**: Centralized security posture management and compliance
 
 **Key Features**:
+
 - Security standards subscriptions:
   - AWS Foundational Security Best Practices
   - CIS AWS Foundations Benchmark v1.2.0
@@ -134,6 +147,7 @@ Each module follows Terraform best practices with the following files:
 - EventBridge rules for finding notifications
 
 **Resources Created**:
+
 - Security Hub account with standards
 - 4+ custom security insights
 - EventBridge rules for findings
@@ -142,6 +156,7 @@ Each module follows Terraform best practices with the following files:
 - Product subscriptions
 
 **Use Cases**:
+
 - Compliance monitoring (SOC2, HIPAA, PCI-DSS)
 - Security posture assessment
 - Automated compliance reporting
@@ -154,6 +169,7 @@ Each module follows Terraform best practices with the following files:
 **Purpose**: Web Application Firewall protection for API Gateway
 
 **Key Features**:
+
 - Rate limiting per IP address
 - AWS Managed Rules:
   - Core Rule Set
@@ -169,6 +185,7 @@ Each module follows Terraform best practices with the following files:
 - EventBridge integration
 
 **Resources Created**:
+
 - WAF Web ACL with 10 rule groups
 - IP sets for whitelist/blacklist
 - WAF association with API Gateway
@@ -177,6 +194,7 @@ Each module follows Terraform best practices with the following files:
 - EventBridge rules for blocked requests
 
 **Use Cases**:
+
 - API Gateway protection
 - DDoS mitigation
 - Application-layer attack prevention
@@ -189,6 +207,7 @@ Each module follows Terraform best practices with the following files:
 **Purpose**: Secrets management with automatic rotation
 
 **Key Features**:
+
 - Secrets storage for:
   - Bedrock API keys
   - Database credentials
@@ -203,6 +222,7 @@ Each module follows Terraform best practices with the following files:
 - EventBridge notifications for rotation events
 
 **Resources Created**:
+
 - Secrets Manager secrets with versions
 - Lambda function for rotation
 - IAM role for Lambda execution
@@ -212,6 +232,7 @@ Each module follows Terraform best practices with the following files:
 - Secret replicas in multiple regions
 
 **Use Cases**:
+
 - API key management
 - Database credential rotation
 - Zero-trust secret access
@@ -222,6 +243,7 @@ Each module follows Terraform best practices with the following files:
 ## Common Features Across All Modules
 
 ### Security
+
 - KMS encryption for all data at rest
 - Least-privilege IAM policies
 - CloudWatch logging for all activities
@@ -229,18 +251,21 @@ Each module follows Terraform best practices with the following files:
 - SNS notifications for security events
 
 ### Monitoring
+
 - CloudWatch metric filters
 - CloudWatch alarms with SNS integration
 - EventBridge rules for automated responses
 - Comprehensive logging to CloudWatch Logs
 
 ### Compliance
+
 - Tags for SOC2, HIPAA, PCI-DSS compliance
 - Audit logging via CloudTrail integration
 - Metric filters for security events
 - Automated compliance checking (Security Hub)
 
 ### High Availability
+
 - Multi-region support (KMS, Secrets Manager)
 - Cross-region replication (Secrets Manager)
 - Automatic failover capabilities
@@ -387,6 +412,7 @@ module "security_secrets" {
 ## Security Best Practices
 
 ### 1. IAM Best Practices
+
 - Always use permission boundaries in production
 - Enable ABAC for fine-grained access control
 - Regularly rotate access keys
@@ -394,6 +420,7 @@ module "security_secrets" {
 - Monitor unauthorized API calls
 
 ### 2. Encryption Best Practices
+
 - Enable automatic KMS key rotation
 - Use separate keys for different data types
 - Enable multi-region keys for DR
@@ -401,6 +428,7 @@ module "security_secrets" {
 - Use encryption contexts in KMS grants
 
 ### 3. Monitoring Best Practices
+
 - Enable all GuardDuty protection features
 - Set up EventBridge rules for automated responses
 - Configure SNS topics for security team alerts
@@ -408,6 +436,7 @@ module "security_secrets" {
 - Enable WAF logging for forensics
 
 ### 4. Secrets Management Best Practices
+
 - Rotate secrets automatically every 30-90 days
 - Use cross-region replication for DR
 - Never hardcode secrets in code
@@ -415,6 +444,7 @@ module "security_secrets" {
 - Enable deletion protection (recovery window)
 
 ### 5. Compliance Best Practices
+
 - Enable all relevant Security Hub standards
 - Tag all resources with compliance identifiers
 - Set up automated remediation where possible
@@ -426,45 +456,54 @@ module "security_secrets" {
 All modules include comprehensive CloudWatch alarms:
 
 ### IAM Module
+
 - Unauthorized API calls
 - IAM policy changes
 
 ### KMS Module
+
 - KMS key disabled
 - KMS API errors
 - KMS key deletion attempts
 
 ### GuardDuty Module
+
 - High findings count
 - High severity findings
 - SQL injection attempts
 
 ### Security Hub Module
+
 - Critical findings
 - Failed compliance checks
 
 ### WAF Module
+
 - Blocked requests threshold
 - Rate limit exceeded
 - SQL injection attempts
 
 ### Secrets Module
+
 - High secrets access rate
 - Rotation failures
 
 ## SNS Integration
 
 All modules support SNS topic ARN for notifications:
+
 - Security events
 - Compliance violations
 - Rotation events
 - Alarm triggers
 
-Configure a single SNS topic and subscribe security team members, SIEM systems, or incident response tools.
+Configure a single SNS topic and subscribe security team members, SIEM systems,
+or incident response tools.
 
 ## Dependencies
 
 ### Required AWS Services
+
 - AWS IAM
 - AWS KMS
 - AWS Secrets Manager
@@ -476,36 +515,43 @@ Configure a single SNS topic and subscribe security team members, SIEM systems, 
 - AWS CloudTrail (for metric filters)
 
 ### Terraform Requirements
+
 - Terraform >= 1.11.0
 - AWS Provider >= 5.80.0
 
 ## Cost Considerations
 
 ### KMS
+
 - $1/month per CMK
 - $0.03 per 10,000 API requests
 
 ### GuardDuty
+
 - Varies by data volume analyzed
 - ~$4.50 per million CloudTrail events
 - ~$1.40 per GB of VPC flow logs
 
 ### Security Hub
+
 - $0.0010 per finding ingested
 - $0.0010 per compliance check
 
 ### WAF
+
 - $5/month per Web ACL
 - $1/month per rule
 - $0.60 per million requests
 
 ### Secrets Manager
+
 - $0.40 per secret per month
 - $0.05 per 10,000 API calls
 
 ## Support and Contributions
 
 For issues, questions, or contributions:
+
 1. Check existing documentation
 2. Review CloudWatch logs for errors
 3. Verify IAM permissions
@@ -517,9 +563,10 @@ These modules are part of the Bedrock Agents Infrastructure project.
 
 ## Version
 
-Module Version: 1.0.0
-Last Updated: 2025-11-17
+Module Version: 1.0.0 Last Updated: 2025-11-17
 
 ---
 
-**Note**: Always review and test security configurations in a non-production environment before deploying to production. Security requirements vary by organization and compliance framework.
+**Note**: Always review and test security configurations in a non-production
+environment before deploying to production. Security requirements vary by
+organization and compliance framework.

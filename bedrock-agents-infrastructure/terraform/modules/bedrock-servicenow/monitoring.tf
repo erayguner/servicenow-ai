@@ -344,7 +344,7 @@ resource "aws_cloudwatch_dashboard" "servicenow_integration" {
           ]
           period = 300
           stat   = "Average"
-          region = data.aws_region.current.name
+          region = module.shared_data.region_name
           title  = "Lambda Metrics"
         }
       },
@@ -359,7 +359,7 @@ resource "aws_cloudwatch_dashboard" "servicenow_integration" {
           ]
           period = 300
           stat   = "Average"
-          region = data.aws_region.current.name
+          region = module.shared_data.region_name
           title  = "API Gateway Metrics"
         }
       },
@@ -374,7 +374,7 @@ resource "aws_cloudwatch_dashboard" "servicenow_integration" {
           ]
           period = 300
           stat   = "Average"
-          region = data.aws_region.current.name
+          region = module.shared_data.region_name
           title  = "Step Functions Metrics"
         }
       },
@@ -389,7 +389,7 @@ resource "aws_cloudwatch_dashboard" "servicenow_integration" {
           ]
           period = 300
           stat   = "Average"
-          region = data.aws_region.current.name
+          region = module.shared_data.region_name
           title  = "DynamoDB Metrics"
         }
       }

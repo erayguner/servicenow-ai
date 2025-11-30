@@ -1,63 +1,63 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef } from 'react'
-import { fetchConversation, sendMessage, Message } from '@/lib/api'
-import ReactMarkdown from 'react-markdown'
+import { useState, useEffect, useRef } from 'react';
+import { fetchConversation, sendMessage, Message } from '@/lib/api';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatInterfaceProps {
-  conversationId: string | null
-  onConversationCreated: (conversationId: string) => void
+  conversationId: string | null;
+  onConversationCreated: (conversationId: string) => void;
 }
 
 export default function ChatInterface({
   conversationId,
   onConversationCreated,
 }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (conversationId) {
-      loadConversation()
+      loadConversation();
     } else {
-      setMessages([])
+      setMessages([]);
     }
-  }, [conversationId])
+  }, [conversationId]);
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const loadConversation = async () => {
-    if (!conversationId) return
+    if (!conversationId) return;
 
     try {
-      setLoading(true)
-      const data = await fetchConversation(conversationId)
-      setMessages(data.messages)
-      setError(null)
+      setLoading(true);
+      const data = await fetchConversation(conversationId);
+      setMessages(data.messages);
+      setError(null);
     } catch (err) {
-      setError('Failed to load conversation')
-      console.error(err)
+      setError('Failed to load conversation');
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || loading) return
+    e.preventDefault();
+    if (!input.trim() || loading) return;
 
-    const userMessage = input.trim()
-    setInput('')
-    setError(null)
+    const userMessage = input.trim();
+    setInput('');
+    setError(null);
 
     // Optimistically add user message
     const tempUserMessage: Message = {
@@ -66,16 +66,16 @@ export default function ChatInterface({
       role: 'user',
       content: userMessage,
       timestamp: new Date(),
-    }
-    setMessages((prev) => [...prev, tempUserMessage])
+    };
+    setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
-      setLoading(true)
-      const response = await sendMessage(userMessage, conversationId || undefined)
+      setLoading(true);
+      const response = await sendMessage(userMessage, conversationId || undefined);
 
       // If this is a new conversation, notify parent
       if (!conversationId) {
-        onConversationCreated(response.conversationId)
+        onConversationCreated(response.conversationId);
       }
 
       // Replace temp message and add assistant response
@@ -89,16 +89,16 @@ export default function ChatInterface({
           content: response.message,
           timestamp: new Date(),
         },
-      ])
+      ]);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to send message')
-      console.error(err)
+      setError(err.response?.data?.error || 'Failed to send message');
+      console.error(err);
       // Remove optimistic message on error
-      setMessages((prev) => prev.slice(0, -1))
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex-1 flex flex-col">
@@ -114,18 +114,14 @@ export default function ChatInterface({
         {messages.length === 0 && !loading && (
           <div className="text-center text-gray-400 mt-8">
             <p className="text-lg">Start a conversation</p>
-            <p className="text-sm mt-2">
-              Ask me anything or request in-depth research
-            </p>
+            <p className="text-sm mt-2">Ask me anything or request in-depth research</p>
           </div>
         )}
 
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`message flex ${
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            className={`message flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
               className={`max-w-3xl rounded-lg p-4 ${
@@ -194,5 +190,5 @@ export default function ChatInterface({
         </form>
       </div>
     </div>
-  )
+  );
 }

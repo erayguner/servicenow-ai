@@ -105,9 +105,7 @@ describe('Security Access Analyzer', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const overprivilegedFindings = result.findings.filter(
-        (f) => f.type === 'OVERPRIVILEGED'
-      );
+      const overprivilegedFindings = result.findings.filter((f) => f.type === 'OVERPRIVILEGED');
       expect(overprivilegedFindings).toBeDefined();
     });
 
@@ -118,9 +116,7 @@ describe('Security Access Analyzer', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const wildcardFindings = result.findings.filter(
-        (f) => f.type === 'WILDCARD_PRINCIPAL'
-      );
+      const wildcardFindings = result.findings.filter((f) => f.type === 'WILDCARD_PRINCIPAL');
       expect(wildcardFindings).toBeDefined();
     });
 
@@ -131,9 +127,7 @@ describe('Security Access Analyzer', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const externalIdFindings = result.findings.filter(
-        (f) => f.type === 'MISSING_EXTERNAL_ID'
-      );
+      const externalIdFindings = result.findings.filter((f) => f.type === 'MISSING_EXTERNAL_ID');
       expect(externalIdFindings).toBeDefined();
     });
   });

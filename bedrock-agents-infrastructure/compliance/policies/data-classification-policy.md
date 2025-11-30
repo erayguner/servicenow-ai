@@ -1,22 +1,25 @@
 # Data Classification Policy
+
 ## Amazon Bedrock Agents Infrastructure
 
-**Document Version:** 1.0
-**Effective Date:** 2025-11-17
-**Last Reviewed:** 2025-11-17
-**Next Review:** 2026-11-17
-**Policy Owner:** Chief Information Security Officer (CISO)
-**Approved By:** Executive Leadership Team
+**Document Version:** 1.0 **Effective Date:** 2025-11-17 **Last Reviewed:**
+2025-11-17 **Next Review:** 2026-11-17 **Policy Owner:** Chief Information
+Security Officer (CISO) **Approved By:** Executive Leadership Team
 
 ---
 
 ## 1. Purpose
 
-This Data Classification Policy establishes a framework for categorizing information assets based on their sensitivity, criticality, and regulatory requirements within the Amazon Bedrock Agents infrastructure. The policy ensures that appropriate security controls are applied to protect data throughout its lifecycle.
+This Data Classification Policy establishes a framework for categorizing
+information assets based on their sensitivity, criticality, and regulatory
+requirements within the Amazon Bedrock Agents infrastructure. The policy ensures
+that appropriate security controls are applied to protect data throughout its
+lifecycle.
 
 ## 2. Scope
 
 This policy applies to:
+
 - All data processed, stored, or transmitted by Amazon Bedrock agents
 - All knowledge bases containing organizational or customer information
 - All AWS services supporting Bedrock agent operations
@@ -27,29 +30,35 @@ This policy applies to:
 
 ### 3.1 PUBLIC (Level 0)
 
-**Definition:** Information intended for public disclosure with no confidentiality requirements.
+**Definition:** Information intended for public disclosure with no
+confidentiality requirements.
 
 **Characteristics:**
+
 - Can be freely distributed without authorization
 - No adverse impact if disclosed
 - Marketing materials, public documentation
 
 **Security Controls:**
+
 - Integrity verification
 - Version control
 - No encryption required
 
 **AWS Implementation:**
+
 - S3 bucket: Public read access allowed
 - CloudFront distribution allowed
 - No data residency restrictions
 
 **Bedrock Context:**
+
 - Public knowledge base content
 - General information responses
 - Published API documentation
 
 **Tagging Requirements:**
+
 ```yaml
 Classification: Public
 Confidentiality: None
@@ -63,21 +72,25 @@ Availability: Standard
 
 ### 3.2 INTERNAL (Level 1)
 
-**Definition:** Information intended for internal use only, not sensitive but not for public disclosure.
+**Definition:** Information intended for internal use only, not sensitive but
+not for public disclosure.
 
 **Characteristics:**
+
 - General business information
 - Internal communications
 - Operational data
 - Limited impact if disclosed
 
 **Security Controls:**
+
 - Access authentication required
 - Basic access controls (IAM policies)
 - Standard backup procedures
 - Audit logging enabled
 
 **AWS Implementation:**
+
 - S3 bucket: Block public access
 - IAM policies: Organization-wide access
 - Encryption at rest: AWS-managed keys (SSE-S3)
@@ -85,12 +98,14 @@ Availability: Standard
 - CloudTrail: Data events logged
 
 **Bedrock Context:**
+
 - Internal knowledge bases
 - Employee-facing agent responses
 - Operational prompts and configurations
 - Non-sensitive training data
 
 **Tagging Requirements:**
+
 ```yaml
 Classification: Internal
 Confidentiality: Low
@@ -105,9 +120,11 @@ DataOwner: [Department]
 
 ### 3.3 CONFIDENTIAL (Level 2)
 
-**Definition:** Sensitive business information requiring protection from unauthorized disclosure.
+**Definition:** Sensitive business information requiring protection from
+unauthorized disclosure.
 
 **Characteristics:**
+
 - Business plans and strategies
 - Financial reports
 - Customer information (non-regulated)
@@ -116,6 +133,7 @@ DataOwner: [Department]
 - Moderate to significant impact if disclosed
 
 **Security Controls:**
+
 - Strong authentication (MFA required)
 - Role-based access control (RBAC)
 - Encryption at rest with customer-managed keys (CMK)
@@ -125,6 +143,7 @@ DataOwner: [Department]
 - Enhanced audit logging
 
 **AWS Implementation:**
+
 - S3 bucket:
   - Block all public access
   - Bucket versioning enabled
@@ -151,6 +170,7 @@ DataOwner: [Department]
 - Macie: Sensitive data discovery enabled
 
 **Bedrock Context:**
+
 - Customer interaction history
 - Business-critical knowledge bases
 - Strategic planning agents
@@ -159,6 +179,7 @@ DataOwner: [Department]
 - Model fine-tuning data (proprietary)
 
 **Bedrock-Specific Controls:**
+
 - Bedrock knowledge base:
   - Encrypted with CMK
   - VPC endpoint access only
@@ -171,6 +192,7 @@ DataOwner: [Department]
   - Session data encryption
 
 **Tagging Requirements:**
+
 ```yaml
 Classification: Confidential
 Confidentiality: High
@@ -188,9 +210,11 @@ DLPEnabled: true
 
 ### 3.4 RESTRICTED (Level 3)
 
-**Definition:** Highly sensitive information subject to regulatory requirements or causing severe impact if disclosed.
+**Definition:** Highly sensitive information subject to regulatory requirements
+or causing severe impact if disclosed.
 
 **Characteristics:**
+
 - Personally Identifiable Information (PII)
 - Protected Health Information (PHI)
 - Payment Card Information (PCI)
@@ -201,6 +225,7 @@ DLPEnabled: true
 - Severe to catastrophic impact if disclosed
 
 **Security Controls:**
+
 - Multi-factor authentication (MFA) mandatory
 - Attribute-based access control (ABAC)
 - Encryption at rest with CMK and key policies
@@ -216,6 +241,7 @@ DLPEnabled: true
 - Privacy impact assessments
 
 **AWS Implementation:**
+
 - S3 bucket:
   - Block all public access
   - Bucket versioning enabled
@@ -280,6 +306,7 @@ DLPEnabled: true
   - Resource-based policies
 
 **Bedrock Context:**
+
 - Knowledge bases containing PII/PHI/PCI
 - Healthcare diagnosis agents
 - Financial advisory agents
@@ -290,6 +317,7 @@ DLPEnabled: true
 - Model training data with sensitive information
 
 **Bedrock-Specific Controls:**
+
 - Bedrock knowledge base:
   - Encrypted with dedicated CMK
   - VPC endpoint with PrivateLink only
@@ -329,6 +357,7 @@ DLPEnabled: true
   - Breach detection and notification automation
 
 **Compliance Mappings:**
+
 - **GDPR:** Articles 5, 25, 32 (personal data protection)
 - **HIPAA:** 164.312(a)(2)(iv), 164.312(e)(2)(ii) (PHI encryption)
 - **PCI DSS:** Requirement 3 (protect stored cardholder data)
@@ -336,6 +365,7 @@ DLPEnabled: true
 - **ISO 27001:** A.8.24 (use of cryptography)
 
 **Tagging Requirements:**
+
 ```yaml
 Classification: Restricted
 Confidentiality: Critical
@@ -355,11 +385,14 @@ RetentionPeriod: [Years]
 ```
 
 **Retention:**
-- As per regulatory requirements (GDPR: as needed for purpose, HIPAA: 6 years, PCI DSS: per merchant agreement)
+
+- As per regulatory requirements (GDPR: as needed for purpose, HIPAA: 6 years,
+  PCI DSS: per merchant agreement)
 - Minimum 7 years for audit purposes
 - Maximum retention period defined by purpose limitation
 
 **Disposal:**
+
 - Cryptographic erasure (delete KMS keys)
 - Multi-pass overwrite for physical media
 - Certificates of destruction required
@@ -399,6 +432,7 @@ graph TD
 ### 4.2 Classification Criteria Decision Tree
 
 **Step 1:** Does the data contain any of the following?
+
 - Payment card information (PAN, CVV, etc.) → **RESTRICTED (PCI DSS)**
 - Health information → **RESTRICTED (HIPAA)**
 - Personal identifiable information → **RESTRICTED (GDPR, CCPA)**
@@ -406,19 +440,23 @@ graph TD
 - Authentication credentials → **RESTRICTED**
 
 **Step 2:** If no to Step 1, what is the business impact if disclosed?
+
 - Severe financial loss, legal liability, reputation damage → **CONFIDENTIAL**
 - Competitive disadvantage, internal disruption → **CONFIDENTIAL**
 - Limited impact, general business information → **INTERNAL**
 - No impact, publicly available → **PUBLIC**
 
 **Step 3:** Apply regulatory requirements:
+
 - If subject to GDPR, HIPAA, PCI DSS → minimum **RESTRICTED**
 - If subject to SOC 2, ISO 27001 → minimum **CONFIDENTIAL**
-- If contractual confidentiality obligations → **CONFIDENTIAL** or **RESTRICTED**
+- If contractual confidentiality obligations → **CONFIDENTIAL** or
+  **RESTRICTED**
 
 ### 4.3 Roles and Responsibilities
 
 **Data Owner:**
+
 - Executive or senior manager accountable for data
 - Determines classification level
 - Approves access requests
@@ -427,6 +465,7 @@ graph TD
 - Determines retention and disposal
 
 **Data Custodian (IT/DevOps):**
+
 - Implements security controls per classification
 - Maintains technical safeguards
 - Monitors access and audit logs
@@ -434,18 +473,21 @@ graph TD
 - Performs backups and recovery
 
 **Data Steward:**
+
 - Ensures data quality and accuracy
 - Manages metadata and tagging
 - Coordinates with Data Owner on classification
 - Maintains data inventory
 
 **Data User:**
+
 - Adheres to classification handling requirements
 - Reports suspected misclassification
 - Complies with acceptable use policy
 - Protects data per classification level
 
 **Information Security Team:**
+
 - Develops and maintains classification policy
 - Provides classification guidance
 - Audits compliance
@@ -453,12 +495,14 @@ graph TD
 - Investigates incidents
 
 **Privacy Team:**
+
 - Ensures GDPR, HIPAA, CCPA compliance
 - Conducts Privacy Impact Assessments
 - Manages data subject requests
 - Coordinates breach notifications
 
 **Compliance Team:**
+
 - Validates regulatory compliance
 - Coordinates audits
 - Maintains compliance evidence
@@ -470,48 +514,48 @@ graph TD
 
 ### 5.1 Storage
 
-| Classification | Encryption at Rest | Encryption Key | Versioning | Backup | Replication |
-|----------------|-------------------|----------------|------------|--------|-------------|
-| PUBLIC | Optional | AWS-managed | Optional | Standard | Allowed |
-| INTERNAL | Required | AWS-managed | Recommended | Standard | Allowed |
-| CONFIDENTIAL | Required | Customer-managed (CMK) | Required | Encrypted | Encrypted only |
-| RESTRICTED | Required | Customer-managed (CMK) | Required + Object Lock | Encrypted + Cross-region | Encrypted + Separate keys |
+| Classification | Encryption at Rest | Encryption Key         | Versioning             | Backup                   | Replication               |
+| -------------- | ------------------ | ---------------------- | ---------------------- | ------------------------ | ------------------------- |
+| PUBLIC         | Optional           | AWS-managed            | Optional               | Standard                 | Allowed                   |
+| INTERNAL       | Required           | AWS-managed            | Recommended            | Standard                 | Allowed                   |
+| CONFIDENTIAL   | Required           | Customer-managed (CMK) | Required               | Encrypted                | Encrypted only            |
+| RESTRICTED     | Required           | Customer-managed (CMK) | Required + Object Lock | Encrypted + Cross-region | Encrypted + Separate keys |
 
 ### 5.2 Transmission
 
-| Classification | Encryption in Transit | Minimum TLS Version | Certificate Validation | Network Isolation |
-|----------------|----------------------|---------------------|------------------------|-------------------|
-| PUBLIC | Recommended | TLS 1.2 | Standard | None |
-| INTERNAL | Required | TLS 1.2 | Standard | Optional |
-| CONFIDENTIAL | Required | TLS 1.2 | Required | VPC endpoints |
-| RESTRICTED | Required | TLS 1.3 | Required + Pinning | VPC endpoints + PrivateLink |
+| Classification | Encryption in Transit | Minimum TLS Version | Certificate Validation | Network Isolation           |
+| -------------- | --------------------- | ------------------- | ---------------------- | --------------------------- |
+| PUBLIC         | Recommended           | TLS 1.2             | Standard               | None                        |
+| INTERNAL       | Required              | TLS 1.2             | Standard               | Optional                    |
+| CONFIDENTIAL   | Required              | TLS 1.2             | Required               | VPC endpoints               |
+| RESTRICTED     | Required              | TLS 1.3             | Required + Pinning     | VPC endpoints + PrivateLink |
 
 ### 5.3 Access Control
 
-| Classification | Authentication | MFA | Authorization | Access Review |
-|----------------|---------------|-----|---------------|---------------|
-| PUBLIC | None | No | None | N/A |
-| INTERNAL | IAM | Recommended | RBAC | Annual |
-| CONFIDENTIAL | IAM | Required | RBAC + Least Privilege | Quarterly |
-| RESTRICTED | IAM | Required | ABAC + Least Privilege | Monthly |
+| Classification | Authentication | MFA         | Authorization          | Access Review |
+| -------------- | -------------- | ----------- | ---------------------- | ------------- |
+| PUBLIC         | None           | No          | None                   | N/A           |
+| INTERNAL       | IAM            | Recommended | RBAC                   | Annual        |
+| CONFIDENTIAL   | IAM            | Required    | RBAC + Least Privilege | Quarterly     |
+| RESTRICTED     | IAM            | Required    | ABAC + Least Privilege | Monthly       |
 
 ### 5.4 Logging and Monitoring
 
-| Classification | CloudTrail Events | Log Retention | Real-time Monitoring | DLP |
-|----------------|-------------------|---------------|----------------------|-----|
-| PUBLIC | Management | 90 days | No | No |
-| INTERNAL | Management | 1 year | Recommended | No |
-| CONFIDENTIAL | Management + Data | 7 years | Required | Yes |
-| RESTRICTED | All events | 7+ years | Required + Automated Response | Yes + Blocking |
+| Classification | CloudTrail Events | Log Retention | Real-time Monitoring          | DLP            |
+| -------------- | ----------------- | ------------- | ----------------------------- | -------------- |
+| PUBLIC         | Management        | 90 days       | No                            | No             |
+| INTERNAL       | Management        | 1 year        | Recommended                   | No             |
+| CONFIDENTIAL   | Management + Data | 7 years       | Required                      | Yes            |
+| RESTRICTED     | All events        | 7+ years      | Required + Automated Response | Yes + Blocking |
 
 ### 5.5 Bedrock-Specific Controls
 
-| Classification | Knowledge Base Encryption | Agent Deployment | Guardrails | Invocation Logging | PII Detection |
-|----------------|---------------------------|------------------|------------|--------------------|--------------  |
-| PUBLIC | Optional | Public subnet | Optional | Standard | No |
-| INTERNAL | AWS-managed key | Private subnet | Recommended | Enabled | No |
-| CONFIDENTIAL | CMK | Private subnet + VPC endpoint | Required | Enabled + Encrypted | Yes |
-| RESTRICTED | CMK + Separate key | Private subnet + PrivateLink | Maximum sensitivity | Enabled + Isolated + Encrypted | Yes + Redaction |
+| Classification | Knowledge Base Encryption | Agent Deployment              | Guardrails          | Invocation Logging             | PII Detection   |
+| -------------- | ------------------------- | ----------------------------- | ------------------- | ------------------------------ | --------------- |
+| PUBLIC         | Optional                  | Public subnet                 | Optional            | Standard                       | No              |
+| INTERNAL       | AWS-managed key           | Private subnet                | Recommended         | Enabled                        | No              |
+| CONFIDENTIAL   | CMK                       | Private subnet + VPC endpoint | Required            | Enabled + Encrypted            | Yes             |
+| RESTRICTED     | CMK + Separate key        | Private subnet + PrivateLink  | Maximum sensitivity | Enabled + Isolated + Encrypted | Yes + Redaction |
 
 ---
 
@@ -556,11 +600,13 @@ ReviewDate: [ISO 8601 date]
 ### 6.2 Automated Tagging Enforcement
 
 AWS Config rules enforcing tagging:
+
 - `required-tags`: Ensures mandatory tags present
 - `restricted-tag-values`: Validates tag values
 - `bedrock-classification-tag`: Ensures Bedrock resources classified
 
 EventBridge rules:
+
 - Alert on untagged resource creation
 - Auto-remediation for missing tags (where possible)
 - Notification to resource creator and Data Owner
@@ -593,9 +639,11 @@ Use AWS IAM condition keys to enforce classification-based access:
 
 ### 7.1 Personally Identifiable Information (PII)
 
-**Definition:** Information that can identify an individual directly or indirectly.
+**Definition:** Information that can identify an individual directly or
+indirectly.
 
 **Examples:**
+
 - Names, email addresses, phone numbers
 - National identifiers (SSN, passport number)
 - IP addresses, device IDs
@@ -606,6 +654,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 **Classification:** RESTRICTED
 
 **Additional Controls:**
+
 - GDPR compliance (if EU data subjects)
 - CCPA compliance (if California residents)
 - Data subject rights management
@@ -616,6 +665,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 - Pseudonymization where possible
 
 **Bedrock Handling:**
+
 - PII detection guardrails enabled
 - Output filtering and masking
 - No PII in model training data (unless anonymized)
@@ -626,6 +676,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 **Definition:** Health information subject to HIPAA Privacy and Security Rules.
 
 **Examples:**
+
 - Medical records, diagnoses, treatments
 - Health insurance information
 - Prescriptions, lab results
@@ -634,6 +685,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 **Classification:** RESTRICTED
 
 **Additional Controls:**
+
 - HIPAA compliance mandatory
 - Business Associate Agreement (BAA) with AWS
 - Administrative, physical, technical safeguards
@@ -642,11 +694,13 @@ Use AWS IAM condition keys to enforce classification-based access:
 - Patient rights management
 
 **AWS BAA Coverage:**
+
 - Amazon Bedrock (verify current coverage)
 - S3, KMS, Lambda, DynamoDB
 - CloudWatch Logs, CloudTrail
 
 **Bedrock Handling:**
+
 - Only HIPAA-eligible Bedrock features
 - PHI detection and redaction
 - De-identification for analytics
@@ -657,12 +711,14 @@ Use AWS IAM condition keys to enforce classification-based access:
 **Definition:** Cardholder data subject to PCI DSS.
 
 **Examples:**
+
 - Primary Account Number (PAN)
 - Cardholder name
 - Expiration date
 - Service code
 
 **Sensitive Authentication Data (never store):**
+
 - CVV/CVC codes
 - PIN
 - Magnetic stripe data
@@ -670,6 +726,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 **Classification:** RESTRICTED
 
 **Additional Controls:**
+
 - PCI DSS compliance mandatory
 - Cardholder Data Environment (CDE) segmentation
 - PAN masking (display first 6 and last 4)
@@ -680,6 +737,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 - Strong cryptography (AES-256, RSA-2048+)
 
 **Bedrock Handling:**
+
 - PCI data should NOT be in knowledge bases
 - If unavoidable, tokenization required
 - PAN detection and masking in agent responses
@@ -691,6 +749,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 **Classification:** RESTRICTED
 
 **Examples:**
+
 - Proprietary algorithms
 - Source code
 - Business strategies
@@ -699,6 +758,7 @@ Use AWS IAM condition keys to enforce classification-based access:
 - Research data
 
 **Additional Controls:**
+
 - Need-to-know access
 - Non-disclosure agreements
 - Legal hold capabilities
@@ -719,14 +779,15 @@ Classify → Protect → Monitor → Control → Retain → Destroy
 
 ### 8.2 Retention Schedules
 
-| Classification | Minimum Retention | Maximum Retention | Legal Hold |
-|----------------|------------------|-------------------|------------|
-| PUBLIC | As needed | Indefinite | Not applicable |
-| INTERNAL | 3 years | 7 years | If litigation |
-| CONFIDENTIAL | 7 years | 10 years | If litigation |
-| RESTRICTED | Per regulation | Per regulation | Mandatory |
+| Classification | Minimum Retention | Maximum Retention | Legal Hold     |
+| -------------- | ----------------- | ----------------- | -------------- |
+| PUBLIC         | As needed         | Indefinite        | Not applicable |
+| INTERNAL       | 3 years           | 7 years           | If litigation  |
+| CONFIDENTIAL   | 7 years           | 10 years          | If litigation  |
+| RESTRICTED     | Per regulation    | Per regulation    | Mandatory      |
 
 **Regulatory Retention Requirements:**
+
 - **GDPR:** As long as necessary for purpose (data minimization)
 - **HIPAA:** 6 years from creation or last effective date
 - **PCI DSS:** Per merchant agreement (typically 3 months to 1 year for logs)
@@ -739,6 +800,7 @@ Classify → Protect → Monitor → Control → Retain → Destroy
 **CONFIDENTIAL and RESTRICTED data:**
 
 **Digital Data:**
+
 - Cryptographic erasure (delete KMS encryption keys)
 - S3 object deletion (all versions)
 - DynamoDB table deletion
@@ -747,17 +809,20 @@ Classify → Protect → Monitor → Control → Retain → Destroy
 - Audit trail of deletion maintained
 
 **Backup Data:**
+
 - Backup vault deletion
 - Recovery points deleted
 - Cross-region copies deleted
 - Backup encryption keys deleted
 
 **Logs:**
+
 - CloudWatch Logs deletion (after retention period)
 - CloudTrail logs deletion (after retention period)
 - S3 access logs deletion
 
 **Process:**
+
 1. Data Owner approves disposal
 2. Legal hold verification (none active)
 3. Retention period verification (expired)
@@ -773,12 +838,14 @@ Classify → Protect → Monitor → Control → Retain → Destroy
 ### 9.1 Exception Process
 
 **When required:**
+
 - Technical infeasibility of control implementation
 - Business justification for deviation
 - Temporary exception during migration
 - Legacy system constraints
 
 **Exception Request Requirements:**
+
 - Business justification
 - Risk assessment
 - Compensating controls
@@ -787,6 +854,7 @@ Classify → Protect → Monitor → Control → Retain → Destroy
 - Documentation in exception register
 
 **Exception Review:**
+
 - Quarterly review of all active exceptions
 - Annual re-approval required
 - Automated expiration alerts
@@ -794,6 +862,7 @@ Classify → Protect → Monitor → Control → Retain → Destroy
 ### 9.2 Risk Acceptance
 
 For RESTRICTED data where controls cannot be fully implemented:
+
 - Must be approved by Executive Leadership
 - Documented risk acceptance
 - Compensating controls mandatory
@@ -808,6 +877,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 10.1 Automated Compliance Checks
 
 **AWS Config Rules:**
+
 - `data-classification-tag-present`
 - `restricted-data-encryption-cmk`
 - `confidential-data-vpc-endpoint`
@@ -815,11 +885,13 @@ For RESTRICTED data where controls cannot be fully implemented:
 - `bedrock-knowledge-base-classification-compliant`
 
 **Security Hub Controls:**
+
 - Classification-specific security standards
 - Continuous compliance monitoring
 - Automated remediation where possible
 
 **Macie Jobs:**
+
 - Daily sensitive data discovery
 - Classification validation
 - Policy violation detection
@@ -827,6 +899,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 10.2 Audit Evidence
 
 **Maintained evidence:**
+
 - Classification decisions and justifications
 - Access review records
 - Tag compliance reports
@@ -843,16 +916,19 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 10.3 Audit Procedures
 
 **Quarterly:**
+
 - Access review for CONFIDENTIAL data
 - Tag compliance verification
 - Exception review
 
 **Monthly:**
+
 - Access review for RESTRICTED data
 - Sensitive data discovery validation
 - Encryption key usage review
 
 **Annual:**
+
 - Full classification inventory audit
 - Policy review and update
 - Data Owner re-certification
@@ -864,12 +940,14 @@ For RESTRICTED data where controls cannot be fully implemented:
 ## 11. Training and Awareness
 
 **All personnel must complete:**
+
 - Annual data classification training
 - Role-specific training (Data Owners, Custodians, Stewards)
 - GDPR/HIPAA/PCI awareness (if handling RESTRICTED data)
 - Acceptable use policy acknowledgment
 
 **Training Topics:**
+
 - Classification levels and criteria
 - Handling requirements per classification
 - Tagging procedures
@@ -878,6 +956,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 - Breach notification procedures
 
 **Records:**
+
 - Training completion tracked
 - Certificates maintained
 - Annual refresher required
@@ -889,11 +968,13 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 12.1 Misclassification Incidents
 
 **Discovery:**
+
 - Automated Macie findings
 - User reports
 - Audit findings
 
 **Response:**
+
 1. Verify misclassification
 2. Determine correct classification
 3. Assess impact (was data exposed?)
@@ -906,6 +987,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 12.2 Data Breaches
 
 **RESTRICTED data breaches:**
+
 - Immediate CISO notification
 - Privacy team engagement
 - Legal team notification
@@ -919,6 +1001,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 - Remediation and lessons learned
 
 **Automation:**
+
 - Automated breach detection (GuardDuty, Macie)
 - Automated containment (EventBridge + Lambda)
 - Automated notification workflows
@@ -931,6 +1014,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 13.1 Data Sharing Requirements
 
 **CONFIDENTIAL or RESTRICTED data:**
+
 - Non-disclosure agreement (NDA) required
 - Data Processing Agreement (DPA) for GDPR
 - Business Associate Agreement (BAA) for HIPAA
@@ -945,12 +1029,14 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 13.2 AWS Service Provider Agreements
 
 **AWS agreements in place:**
+
 - AWS Customer Agreement
 - AWS Data Processing Addendum (DPA) for GDPR
 - AWS Business Associate Addendum (BAA) for HIPAA
 - AWS Standard Contractual Clauses for international transfers
 
 **Bedrock-specific:**
+
 - Verify Bedrock coverage under BAA (for HIPAA)
 - Verify Bedrock coverage under DPA (for GDPR)
 - Review Bedrock data processing practices
@@ -964,20 +1050,24 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 14.1 Regional Requirements
 
 **GDPR (EU data subjects):**
+
 - Data may be stored in EU or adequate jurisdiction
 - Standard Contractual Clauses for non-EU transfers
 - Transfer Impact Assessment required
 - Data localization preferences honored
 
 **HIPAA:**
+
 - No specific geographic restriction
 - BAA coverage regardless of region
 
 **PCI DSS:**
+
 - No specific geographic restriction
 - Acquirer bank requirements may apply
 
 **Organizational Policy for RESTRICTED data:**
+
 - Default: Data stored in region of origin
 - Cross-region transfers: Encryption mandatory
 - Data residency tags enforced
@@ -986,6 +1076,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 14.2 AWS Implementation
 
 **S3 Bucket region lock:**
+
 ```json
 {
   "Version": "2012-10-17",
@@ -1006,6 +1097,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ```
 
 **Bedrock regional deployment:**
+
 - Bedrock agents deployed in same region as data
 - Knowledge base data sources in same region
 - No cross-region Bedrock API calls for RESTRICTED data
@@ -1017,6 +1109,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 15.1 Policy Review
 
 **Annual review:**
+
 - Policy effectiveness assessment
 - Regulatory changes incorporation
 - Technology changes evaluation
@@ -1024,6 +1117,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 - Industry best practices adoption
 
 **Triggers for interim review:**
+
 - Major regulatory change
 - Significant data breach
 - New technology adoption (e.g., new Bedrock features)
@@ -1033,6 +1127,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ### 15.2 Policy Updates
 
 **Process:**
+
 1. Draft updates (CISO + Privacy + Legal + Compliance)
 2. Stakeholder review (Data Owners, IT, Business Units)
 3. Executive approval
@@ -1042,6 +1137,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 7. Compliance verification
 
 **Version control:**
+
 - Semantic versioning (MAJOR.MINOR.PATCH)
 - Change log maintained
 - Previous versions archived
@@ -1052,25 +1148,33 @@ For RESTRICTED data where controls cannot be fully implemented:
 
 **Data Asset:** Any information resource of value to the organization.
 
-**Data Owner:** Executive accountable for classification, access, and compliance.
+**Data Owner:** Executive accountable for classification, access, and
+compliance.
 
-**Data Custodian:** IT personnel responsible for technical implementation of controls.
+**Data Custodian:** IT personnel responsible for technical implementation of
+controls.
 
-**Data Steward:** Personnel responsible for data quality, metadata, and governance.
+**Data Steward:** Personnel responsible for data quality, metadata, and
+governance.
 
-**Personal Data (GDPR):** Information relating to an identified or identifiable natural person.
+**Personal Data (GDPR):** Information relating to an identified or identifiable
+natural person.
 
-**Protected Health Information (HIPAA):** Individually identifiable health information.
+**Protected Health Information (HIPAA):** Individually identifiable health
+information.
 
-**Cardholder Data (PCI DSS):** Primary Account Number plus cardholder name, expiration date, or service code.
+**Cardholder Data (PCI DSS):** Primary Account Number plus cardholder name,
+expiration date, or service code.
 
-**Pseudonymization:** Processing of personal data such that it can no longer be attributed to a specific data subject without additional information.
+**Pseudonymization:** Processing of personal data such that it can no longer be
+attributed to a specific data subject without additional information.
 
 **Encryption at Rest:** Encryption of data stored on disk or in database.
 
 **Encryption in Transit:** Encryption of data being transmitted over a network.
 
-**Customer-Managed Key (CMK):** Encryption key created, owned, and managed by the customer in AWS KMS.
+**Customer-Managed Key (CMK):** Encryption key created, owned, and managed by
+the customer in AWS KMS.
 
 ---
 
@@ -1091,6 +1195,7 @@ For RESTRICTED data where controls cannot be fully implemented:
 ## 18. Policy Violations
 
 Violations of this policy may result in:
+
 - Access revocation
 - Disciplinary action (up to termination)
 - Legal action
@@ -1098,6 +1203,7 @@ Violations of this policy may result in:
 - Financial liability
 
 **Violation reporting:**
+
 - Email: security@organization.com
 - Incident management system
 - Anonymous hotline
@@ -1106,42 +1212,42 @@ Violations of this policy may result in:
 
 ## 19. Contact Information
 
-**Policy Owner:**
-Chief Information Security Officer (CISO)
-Email: ciso@organization.com
+**Policy Owner:** Chief Information Security Officer (CISO) Email:
+ciso@organization.com
 
-**Privacy Questions:**
-Data Protection Officer (DPO)
-Email: privacy@organization.com
+**Privacy Questions:** Data Protection Officer (DPO) Email:
+privacy@organization.com
 
-**Technical Implementation:**
-Cloud Security Team
-Email: cloudsecurity@organization.com
+**Technical Implementation:** Cloud Security Team Email:
+cloudsecurity@organization.com
 
-**Classification Guidance:**
-Information Security Team
-Email: infosec@organization.com
+**Classification Guidance:** Information Security Team Email:
+infosec@organization.com
 
 ---
 
 ## Document Control
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-11-17 | CISO | Initial policy creation |
+| Version | Date       | Author | Changes                 |
+| ------- | ---------- | ------ | ----------------------- |
+| 1.0     | 2025-11-17 | CISO   | Initial policy creation |
 
 **Approval Signatures:**
 
-___________________________
+---
+
 Chief Information Security Officer
 
-___________________________
+---
+
 Chief Privacy Officer
 
-___________________________
+---
+
 Chief Compliance Officer
 
-___________________________
+---
+
 Chief Executive Officer
 
 **Next Review Date:** 2026-11-17

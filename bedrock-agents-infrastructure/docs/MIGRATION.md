@@ -1,32 +1,33 @@
 # Bedrock Agents Infrastructure - Migration Guide from claude-flow
 
-Complete guide for migrating from Claude-Flow orchestration to AWS Bedrock Agents infrastructure.
+Complete guide for migrating from Claude-Flow orchestration to AWS Bedrock
+Agents infrastructure.
 
 ## Comparison Matrix
 
 ### Architecture Comparison
 
-| Aspect | Claude-Flow | Bedrock Agents |
-|--------|------------|----------------|
-| **Hosting** | Local/Cloud (via MCP) | AWS Managed |
-| **Agent Model** | Claude variants | Claude, Mistral, others |
-| **State Management** | In-memory/File-based | DynamoDB, RDS |
-| **Orchestration** | Claude-Flow commands | Step Functions |
-| **Scalability** | Vertical | Horizontal (auto-scaling) |
-| **Cost Model** | Token-based | Token + infrastructure |
-| **Compliance** | Flexible | AWS compliance built-in |
-| **Monitoring** | Custom logging | CloudWatch native |
+| Aspect               | Claude-Flow           | Bedrock Agents            |
+| -------------------- | --------------------- | ------------------------- |
+| **Hosting**          | Local/Cloud (via MCP) | AWS Managed               |
+| **Agent Model**      | Claude variants       | Claude, Mistral, others   |
+| **State Management** | In-memory/File-based  | DynamoDB, RDS             |
+| **Orchestration**    | Claude-Flow commands  | Step Functions            |
+| **Scalability**      | Vertical              | Horizontal (auto-scaling) |
+| **Cost Model**       | Token-based           | Token + infrastructure    |
+| **Compliance**       | Flexible              | AWS compliance built-in   |
+| **Monitoring**       | Custom logging        | CloudWatch native         |
 
 ### Feature Mapping
 
-| Feature | Claude-Flow | Bedrock | Notes |
-|---------|------------|---------|-------|
-| Agent creation | JS/TS objects | Terraform/SDK | IaC approach |
-| Multi-agent coordination | Task tool | Step Functions | More mature |
-| Knowledge bases | In-memory | OpenSearch + S3 | Persistent |
-| Action groups | Custom functions | Lambda + schema | Type-safe |
-| Session management | Memory-based | DynamoDB | Durable |
-| Monitoring | Logs file | CloudWatch | Enterprise-grade |
+| Feature                  | Claude-Flow      | Bedrock         | Notes            |
+| ------------------------ | ---------------- | --------------- | ---------------- |
+| Agent creation           | JS/TS objects    | Terraform/SDK   | IaC approach     |
+| Multi-agent coordination | Task tool        | Step Functions  | More mature      |
+| Knowledge bases          | In-memory        | OpenSearch + S3 | Persistent       |
+| Action groups            | Custom functions | Lambda + schema | Type-safe        |
+| Session management       | Memory-based     | DynamoDB        | Durable          |
+| Monitoring               | Logs file        | CloudWatch      | Enterprise-grade |
 
 ## Migration Phases
 
@@ -80,16 +81,19 @@ print(f"Difference: {((bedrock_cost - claude_flow_cost) / claude_flow_cost * 100
 **Migration Strategy**
 
 Option 1: **Big Bang** - Migrate all agents at once
+
 - Pros: Quick transition, clear cutover date
 - Cons: High risk, potential downtime
 - Best for: Small deployments (< 5 agents)
 
 Option 2: **Phased** - Migrate agents by priority
+
 - Pros: Lower risk, validate patterns
 - Cons: Extended migration period, dual maintenance
 - Best for: Medium deployments (5-20 agents)
 
 Option 3: **Hybrid** - Run both in parallel
+
 - Pros: Zero downtime, gradual validation
 - Cons: Complex dual systems, higher cost
 - Best for: Large critical deployments
@@ -665,5 +669,4 @@ def batch_upload_documents(documents: List[str], batch_size: int = 100):
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-17
+**Version**: 1.0.0 **Last Updated**: 2025-01-17

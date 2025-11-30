@@ -1,27 +1,33 @@
 # Bedrock Terraform Code Duplication Analysis
 
-**Analysis Date:** 2025-11-23
-**Scope:** /home/user/servicenow-ai/bedrock-agents-infrastructure/terraform/
+**Analysis Date:** 2025-11-23 **Scope:**
+/home/user/servicenow-ai/bedrock-agents-infrastructure/terraform/
 
 ---
 
 ## Executive Summary
 
-This analysis identifies **10 major categories of duplications** across the Bedrock Terraform infrastructure code, spanning **90+ files**. The duplications range from critical infrastructure patterns to minor code repetition, with significant opportunities for consolidation through shared modules and data sources.
+This analysis identifies **10 major categories of duplications** across the
+Bedrock Terraform infrastructure code, spanning **90+ files**. The duplications
+range from critical infrastructure patterns to minor code repetition, with
+significant opportunities for consolidation through shared modules and data
+sources.
 
 **Total Duplications Found:** 67 specific instances across 10 categories
-**Modules Analyzed:** 25+ modules (bedrock-agent, bedrock-servicenow, security, monitoring, etc.)
-**Environments Analyzed:** 3 environments (dev, staging, prod)
+**Modules Analyzed:** 25+ modules (bedrock-agent, bedrock-servicenow, security,
+monitoring, etc.) **Environments Analyzed:** 3 environments (dev, staging, prod)
 
 ---
 
 ## Category 1: Data Source Duplications (CRITICAL PRIORITY)
 
 ### Duplication Type: AWS Data Sources
-**Severity:** HIGH - Appears in every module
-**Impact:** Resource waste, slower plan/apply times
+
+**Severity:** HIGH - Appears in every module **Impact:** Resource waste, slower
+plan/apply times
 
 ### Affected Files (25+ instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-agent/main.tf (lines 240-241)
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-knowledge-base/main.tf (lines 342-343)
@@ -36,6 +42,7 @@ This analysis identifies **10 major categories of duplications** across the Bedr
 ```
 
 ### Duplicated Code Blocks:
+
 ```hcl
 # Appears in EVERY module main.tf
 data "aws_caller_identity" "current" {}
@@ -43,7 +50,9 @@ data "aws_region" "current" {}
 ```
 
 ### Recommendation:
-**Create a shared data source module** at `/terraform/modules/_shared/data-sources/main.tf`:
+
+**Create a shared data source module** at
+`/terraform/modules/_shared/data-sources/main.tf`:
 
 ```hcl
 # modules/_shared/data-sources/main.tf
@@ -60,6 +69,7 @@ output "region_name" {
 ```
 
 **Usage in modules:**
+
 ```hcl
 module "shared_data" {
   source = "../../_shared/data-sources"
@@ -70,6 +80,7 @@ module "shared_data" {
 ```
 
 **Estimated Impact:**
+
 - Reduces 50+ duplicate data source declarations
 - Improves plan/apply performance by ~10-15%
 - Centralizes AWS account/region references
@@ -79,10 +90,12 @@ module "shared_data" {
 ## Category 2: Terraform Version Block Duplications (HIGH PRIORITY)
 
 ### Duplication Type: Required Version and Provider Constraints
-**Severity:** HIGH - Maintenance burden, version drift risk
-**Impact:** Inconsistency risk when updating Terraform/provider versions
+
+**Severity:** HIGH - Maintenance burden, version drift risk **Impact:**
+Inconsistency risk when updating Terraform/provider versions
 
 ### Affected Files (18+ instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-agent/versions.tf
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-knowledge-base/versions.tf
@@ -96,6 +109,7 @@ module "shared_data" {
 ```
 
 ### Duplicated Code Pattern (nearly identical):
+
 ```hcl
 # Pattern 1: Most modules (15 instances)
 terraform {
@@ -143,12 +157,15 @@ terraform {
 ```
 
 ### Recommendation:
+
 **Option 1: Use root-level version constraints** (Recommended)
+
 - Define versions once in `/terraform/versions.tf`
 - Remove from individual modules
 - Child modules inherit from root
 
 **Option 2: Create a shared versions module** (if modules are used standalone)
+
 ```hcl
 # modules/_shared/versions/versions.tf
 terraform {
@@ -164,6 +181,7 @@ terraform {
 ```
 
 **Estimated Impact:**
+
 - Eliminates 18+ duplicate version blocks
 - Single source of truth for version constraints
 - Easier version upgrades (change once, apply everywhere)
@@ -173,10 +191,12 @@ terraform {
 ## Category 3: Environment Configuration Duplications (HIGH PRIORITY)
 
 ### Duplication Type: Terraform Backend and Provider Blocks
-**Severity:** HIGH - Nearly identical across environments
-**Impact:** Maintenance burden, potential for configuration drift
+
+**Severity:** HIGH - Nearly identical across environments **Impact:**
+Maintenance burden, potential for configuration drift
 
 ### Affected Files (12 files):
+
 ```
 - /bedrock-agents-infrastructure/terraform/environments/dev/main.tf (lines 4-25)
 - /bedrock-agents-infrastructure/terraform/environments/staging/main.tf (lines 4-25)
@@ -187,6 +207,7 @@ terraform {
 ```
 
 ### Duplicated Pattern 1: Terraform Backend Block
+
 ```hcl
 # DEV (lines 4-25 in dev/main.tf)
 terraform {
@@ -234,6 +255,7 @@ terraform {
 ```
 
 ### Duplicated Pattern 2: Provider Configuration
+
 ```hcl
 # DEV providers.tf
 provider "aws" {
@@ -279,7 +301,9 @@ provider "aws" {
 ```
 
 ### Recommendation:
-**Use Terraform workspaces or environment-specific tfvars** instead of separate directories:
+
+**Use Terraform workspaces or environment-specific tfvars** instead of separate
+directories:
 
 ```hcl
 # Single backend.tf at root
@@ -323,6 +347,7 @@ locals {
 ```
 
 **Estimated Impact:**
+
 - Reduces 3 environment directories to 1
 - Eliminates 12 duplicate configuration files
 - Easier to add new environments
@@ -333,12 +358,14 @@ locals {
 ## Category 4: IAM Trust Policy Duplications (MEDIUM PRIORITY)
 
 ### Duplication Type: Service Assume Role Policies
-**Severity:** MEDIUM - Repeated across multiple modules
-**Impact:** Code maintenance, potential for inconsistency
+
+**Severity:** MEDIUM - Repeated across multiple modules **Impact:** Code
+maintenance, potential for inconsistency
 
 ### Affected Files (15+ instances):
 
 #### Bedrock Service Trust Policy (5 instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-agent/main.tf (lines 16-38)
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-knowledge-base/main.tf (lines 174-196)
@@ -346,18 +373,21 @@ locals {
 ```
 
 #### Lambda Service Trust Policy (3 instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-action-group/main.tf (lines 29-39)
 - /bedrock-agents-infrastructure/terraform/modules/security/bedrock-security-iam/main.tf (lines 163-173)
 ```
 
 #### Step Functions Trust Policy (3 instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-orchestration/main.tf (lines 109-119)
 - /bedrock-agents-infrastructure/terraform/modules/security/bedrock-security-iam/main.tf (lines 288-300)
 ```
 
 #### EventBridge Trust Policy (2 instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-orchestration/main.tf (lines 350-362)
 ```
@@ -365,6 +395,7 @@ locals {
 ### Duplicated Code Examples:
 
 #### Bedrock Assume Role (appears 5+ times):
+
 ```hcl
 data "aws_iam_policy_document" "bedrock_trust" {
   statement {
@@ -393,6 +424,7 @@ data "aws_iam_policy_document" "bedrock_trust" {
 ```
 
 #### Lambda Assume Role (appears 3+ times):
+
 ```hcl
 data "aws_iam_policy_document" "lambda_trust" {
   statement {
@@ -409,6 +441,7 @@ data "aws_iam_policy_document" "lambda_trust" {
 ```
 
 #### Step Functions Assume Role (appears 3+ times):
+
 ```hcl
 data "aws_iam_policy_document" "sfn_trust" {
   statement {
@@ -425,6 +458,7 @@ data "aws_iam_policy_document" "sfn_trust" {
 ```
 
 ### Recommendation:
+
 **Create a shared IAM policy templates module:**
 
 ```hcl
@@ -498,6 +532,7 @@ output "sfn_assume_role_policy" {
 ```
 
 **Estimated Impact:**
+
 - Eliminates 15+ duplicate trust policy definitions
 - Consistent IAM policies across all modules
 - Single source of truth for service trust policies
@@ -507,10 +542,12 @@ output "sfn_assume_role_policy" {
 ## Category 5: Common Tags Pattern Duplications (MEDIUM PRIORITY)
 
 ### Duplication Type: Local Tags Blocks
-**Severity:** MEDIUM - Repeated in every module
-**Impact:** Inconsistent tagging, maintenance burden
+
+**Severity:** MEDIUM - Repeated in every module **Impact:** Inconsistent
+tagging, maintenance burden
 
 ### Affected Files (20+ instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-servicenow/main.tf (lines 13-22)
 - /bedrock-agents-infrastructure/terraform/modules/security/bedrock-security-kms/main.tf (lines 8-17)
@@ -520,6 +557,7 @@ output "sfn_assume_role_policy" {
 ```
 
 ### Duplicated Pattern:
+
 ```hcl
 # Pattern 1: Most modules
 locals {
@@ -561,6 +599,7 @@ locals {
 ```
 
 ### Recommendation:
+
 **Create a shared tagging module:**
 
 ```hcl
@@ -609,6 +648,7 @@ output "tags" {
 ```
 
 **Usage:**
+
 ```hcl
 module "tags" {
   source = "../../_shared/tags"
@@ -624,6 +664,7 @@ module "tags" {
 ```
 
 **Estimated Impact:**
+
 - Eliminates 20+ duplicate tagging blocks
 - Consistent tag structure across all resources
 - Easier to enforce organization tagging standards
@@ -633,10 +674,12 @@ module "tags" {
 ## Category 6: CloudWatch Log Group Pattern Duplications (MEDIUM PRIORITY)
 
 ### Duplication Type: Log Group Creation with Similar Configuration
-**Severity:** MEDIUM - Repeated pattern across modules
-**Impact:** Code duplication, inconsistent log retention policies
+
+**Severity:** MEDIUM - Repeated pattern across modules **Impact:** Code
+duplication, inconsistent log retention policies
 
 ### Affected Files (12+ instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-agent/main.tf (lines 224-237)
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-action-group/main.tf (lines 72-86)
@@ -645,6 +688,7 @@ module "tags" {
 ```
 
 ### Duplicated Pattern:
+
 ```hcl
 # Pattern repeats with slight variations
 resource "aws_cloudwatch_log_group" "NAME" {
@@ -664,6 +708,7 @@ resource "aws_cloudwatch_log_group" "NAME" {
 ```
 
 **Specific instances:**
+
 ```hcl
 # bedrock-agent/main.tf (lines 224-237)
 resource "aws_cloudwatch_log_group" "agent" {
@@ -708,6 +753,7 @@ resource "aws_cloudwatch_log_group" "step_functions" {
 ```
 
 ### Recommendation:
+
 **Create a reusable log group module:**
 
 ```hcl
@@ -748,6 +794,7 @@ output "arn" {
 ```
 
 **Usage:**
+
 ```hcl
 module "agent_logs" {
   source = "../../_shared/cloudwatch-log-group"
@@ -760,6 +807,7 @@ module "agent_logs" {
 ```
 
 **Estimated Impact:**
+
 - Eliminates 12+ duplicate log group definitions
 - Consistent retention policies
 - Centralized log management configuration
@@ -769,15 +817,18 @@ module "agent_logs" {
 ## Category 7: KMS Key Policy Duplications (MEDIUM PRIORITY)
 
 ### Duplication Type: Root Account Permission Statements
-**Severity:** MEDIUM - Repeated 3 times in single module
-**Impact:** Code duplication within security-kms module
+
+**Severity:** MEDIUM - Repeated 3 times in single module **Impact:** Code
+duplication within security-kms module
 
 ### Affected File:
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/security/bedrock-security-kms/main.tf
 ```
 
 ### Duplicated Code (appears 3 times):
+
 ```hcl
 # Lines 51-63 (bedrock_data_key_policy)
 statement {
@@ -823,6 +874,7 @@ statement {
 ```
 
 ### Recommendation:
+
 **Create a shared KMS policy statement:**
 
 ```hcl
@@ -867,6 +919,7 @@ data "aws_iam_policy_document" "root_permissions" {
 ```
 
 **Estimated Impact:**
+
 - Eliminates 3 duplicate root permission statements
 - Easier to update root account permissions
 - Consistent policy across all KMS keys
@@ -876,16 +929,19 @@ data "aws_iam_policy_document" "root_permissions" {
 ## Category 8: SNS Topic + Email Subscription Pattern (LOW PRIORITY)
 
 ### Duplication Type: SNS Topic Creation with Email Subscriptions
-**Severity:** LOW - Similar pattern but context-specific
-**Impact:** Minor code duplication
+
+**Severity:** LOW - Similar pattern but context-specific **Impact:** Minor code
+duplication
 
 ### Affected Files (5+ instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-orchestration/main.tf (lines 273-295)
 - /bedrock-agents-infrastructure/terraform/modules/monitoring/bedrock-monitoring-cloudwatch/main.tf (lines 22-43)
 ```
 
 ### Duplicated Pattern:
+
 ```hcl
 # Pattern repeats
 resource "aws_sns_topic" "NAME" {
@@ -907,6 +963,7 @@ resource "aws_sns_topic_subscription" "email" {
 ```
 
 ### Recommendation:
+
 **Create a reusable SNS topic module** (if truly generic across use cases):
 
 ```hcl
@@ -931,9 +988,11 @@ output "topic_arn" {
 }
 ```
 
-**Note:** This is lower priority as SNS topics often have context-specific configurations (display names, policies, etc.)
+**Note:** This is lower priority as SNS topics often have context-specific
+configurations (display names, policies, etc.)
 
 **Estimated Impact:**
+
 - Eliminates 5+ duplicate SNS topic patterns
 - Standardizes notification infrastructure
 
@@ -942,16 +1001,19 @@ output "topic_arn" {
 ## Category 9: DynamoDB Configuration Patterns (LOW PRIORITY)
 
 ### Duplication Type: DynamoDB Table Encryption and Configuration
-**Severity:** LOW - Standard configuration repeated
-**Impact:** Minor duplication
+
+**Severity:** LOW - Standard configuration repeated **Impact:** Minor
+duplication
 
 ### Affected Files (3+ instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-orchestration/main.tf (lines 70-82)
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-servicenow/main.tf (lines 214-227)
 ```
 
 ### Duplicated Pattern:
+
 ```hcl
 # Pattern 1: bedrock-orchestration
 point_in_time_recovery {
@@ -985,19 +1047,23 @@ ttl {
 ```
 
 ### Recommendation:
-**Minor refactoring or accept as-is** since DynamoDB configurations are context-specific (different TTL attributes, etc.)
 
-**Estimated Impact:** Low priority - configurations differ enough to warrant keeping separate
+**Minor refactoring or accept as-is** since DynamoDB configurations are
+context-specific (different TTL attributes, etc.)
+
+**Estimated Impact:** Low priority - configurations differ enough to warrant
+keeping separate
 
 ---
 
 ## Category 10: Variable Validation Duplications (LOW PRIORITY)
 
 ### Duplication Type: Similar Variable Validations
-**Severity:** LOW - Ensures consistency
-**Impact:** Minor code duplication
+
+**Severity:** LOW - Ensures consistency **Impact:** Minor code duplication
 
 ### Affected Files (10+ instances):
+
 ```
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-knowledge-base/variables.tf
 - /bedrock-agents-infrastructure/terraform/modules/bedrock-servicenow/variables.tf
@@ -1005,6 +1071,7 @@ ttl {
 ```
 
 ### Duplicated Pattern:
+
 ```hcl
 # ServiceNow URL validation (appears 4 times)
 validation {
@@ -1026,7 +1093,9 @@ validation {
 ```
 
 ### Recommendation:
-**Accept as-is** - Variable validations are module-specific and ensure input correctness. Duplication here is acceptable for clarity and module independence.
+
+**Accept as-is** - Variable validations are module-specific and ensure input
+correctness. Duplication here is acceptable for clarity and module independence.
 
 **Estimated Impact:** Low - Keep as-is for module clarity
 
@@ -1037,11 +1106,13 @@ validation {
 ### HIGH PRIORITY (Immediate Action):
 
 1. **Create Shared Data Sources Module**
+
    - Files: 25+ modules
    - Impact: Eliminates 50+ duplicate declarations
    - Effort: 2 hours
 
 2. **Consolidate Version Blocks**
+
    - Files: 18+ modules
    - Impact: Single source of truth for versions
    - Effort: 3 hours
@@ -1054,16 +1125,19 @@ validation {
 ### MEDIUM PRIORITY (Next Sprint):
 
 4. **Create Shared IAM Policy Templates**
+
    - Files: 15+ modules
    - Impact: Consistent trust policies
    - Effort: 4 hours
 
 5. **Standardize Common Tags**
+
    - Files: 20+ modules
    - Impact: Consistent tagging
    - Effort: 3 hours
 
 6. **Create CloudWatch Log Group Module**
+
    - Files: 12+ modules
    - Impact: Standardized logging
    - Effort: 2 hours
@@ -1084,16 +1158,19 @@ validation {
 ## Estimated Total Impact
 
 **Code Reduction:**
+
 - **Lines of code eliminated:** ~2,500 lines
 - **Files consolidated:** ~30 files
 - **Modules created:** 6 shared modules
 
 **Maintenance Benefits:**
+
 - **Version updates:** Change once vs. 18 times
 - **Policy updates:** Change once vs. 15 times
 - **Tag updates:** Change once vs. 20 times
 
 **Performance Benefits:**
+
 - **Plan/apply time:** ~10-15% faster (fewer data source calls)
 - **State file size:** ~5-10% smaller
 
@@ -1102,21 +1179,25 @@ validation {
 ## Recommended Implementation Order
 
 ### Phase 1: Foundation (Week 1)
+
 1. Create `_shared` directory structure
 2. Implement shared data sources module
 3. Test in dev environment
 
 ### Phase 2: Versions & Environments (Week 2)
+
 4. Consolidate version blocks
 5. Refactor environment configurations
 6. Test workspace-based approach
 
 ### Phase 3: Patterns & Templates (Week 3)
+
 7. Create IAM policy templates
 8. Create common tags module
 9. Create CloudWatch log group module
 
 ### Phase 4: Cleanup (Week 4)
+
 10. Refactor KMS policies
 11. Update all modules to use shared components
 12. Documentation updates
@@ -1126,6 +1207,7 @@ validation {
 ## Testing Strategy
 
 For each refactoring:
+
 1. **Test in dev environment first**
 2. **Run `terraform plan` and verify no resource changes**
 3. **Validate outputs remain identical**
@@ -1144,19 +1226,29 @@ For each refactoring:
 
 ### Anti-Patterns Observed:
 
-1. **Hard-coded ARN construction** - Some modules build ARNs manually instead of using resource references
-2. **Inconsistent variable naming** - `kms_key_id` vs `kms_key_arn` used inconsistently
-3. **Mixed provider version constraints** - `~> 5.80` vs `>= 5.80.0` should be standardized
+1. **Hard-coded ARN construction** - Some modules build ARNs manually instead of
+   using resource references
+2. **Inconsistent variable naming** - `kms_key_id` vs `kms_key_arn` used
+   inconsistently
+3. **Mixed provider version constraints** - `~> 5.80` vs `>= 5.80.0` should be
+   standardized
 
 ---
 
 ## Conclusion
 
-This analysis identified **67 specific duplication instances across 10 major categories**, affecting **90+ files**. By implementing the recommended changes in 4 phases over 4 weeks, the codebase can be reduced by approximately **2,500 lines** while improving maintainability, consistency, and reducing the risk of configuration drift.
+This analysis identified **67 specific duplication instances across 10 major
+categories**, affecting **90+ files**. By implementing the recommended changes
+in 4 phases over 4 weeks, the codebase can be reduced by approximately **2,500
+lines** while improving maintainability, consistency, and reducing the risk of
+configuration drift.
 
-**Priority:** Focus on HIGH PRIORITY items first (shared data sources, version blocks, environment consolidation) as they provide the most immediate value with relatively low effort.
+**Priority:** Focus on HIGH PRIORITY items first (shared data sources, version
+blocks, environment consolidation) as they provide the most immediate value with
+relatively low effort.
 
 **Next Steps:**
+
 1. Review findings with team
 2. Prioritize based on current project timeline
 3. Create tickets for Phase 1 implementation

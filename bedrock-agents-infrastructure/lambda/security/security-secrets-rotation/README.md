@@ -1,6 +1,7 @@
 # Security Secrets Rotation
 
-Automated secrets rotation system for Bedrock agents infrastructure credentials and API keys.
+Automated secrets rotation system for Bedrock agents infrastructure credentials
+and API keys.
 
 ## Features
 
@@ -15,30 +16,36 @@ Automated secrets rotation system for Bedrock agents infrastructure credentials 
 ## Supported Rotation Types
 
 ### 1. BEDROCK_API_KEY
+
 Rotates API keys for Amazon Bedrock services.
 
 ### 2. DATABASE_CREDENTIALS
+
 Rotates database passwords for:
+
 - Amazon RDS (MySQL, PostgreSQL, Oracle, SQL Server)
 - Amazon Aurora
 - Self-managed databases
 
 ### 3. LAMBDA_ENVIRONMENT
+
 Rotates secrets stored in Lambda environment variables.
 
 ### 4. GENERIC_SECRET
+
 Rotates any generic secret value.
 
 ## Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `NOTIFICATION_TOPIC_ARN` | SNS topic for notifications | Yes | - |
-| `DRY_RUN` | Test mode without actual changes | No | false |
+| Variable                 | Description                      | Required | Default |
+| ------------------------ | -------------------------------- | -------- | ------- |
+| `NOTIFICATION_TOPIC_ARN` | SNS topic for notifications      | Yes      | -       |
+| `DRY_RUN`                | Test mode without actual changes | No       | false   |
 
 ## Event Structure
 
 ### Basic Rotation Event
+
 ```json
 {
   "SecretId": "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-secret",
@@ -48,18 +55,17 @@ Rotates any generic secret value.
 ```
 
 ### Lambda Environment Rotation
+
 ```json
 {
   "secretArn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:lambda-secrets",
   "rotationType": "LAMBDA_ENVIRONMENT",
-  "lambdaFunctions": [
-    "bedrock-agent-function-1",
-    "bedrock-agent-function-2"
-  ]
+  "lambdaFunctions": ["bedrock-agent-function-1", "bedrock-agent-function-2"]
 }
 ```
 
 ### Database Rotation
+
 ```json
 {
   "SecretId": "arn:aws:secretsmanager:us-east-1:123456789012:secret:db-creds",
@@ -145,27 +151,32 @@ Rotates any generic secret value.
 All rotations follow the standard 4-step process:
 
 ### 1. CREATE_SECRET
+
 - Generates new credential/key
 - Stores as AWSPENDING version
 - Does not affect current secret
 
 ### 2. SET_SECRET
+
 - Updates target resource with new credential
 - Database: Updates password
 - Lambda: Updates environment variables
 - Bedrock: Updates API key configuration
 
 ### 3. TEST_SECRET
+
 - Tests new credential against target resource
 - Verifies connectivity and permissions
 - Rolls back on failure
 
 ### 4. FINISH_SECRET
+
 - Promotes AWSPENDING to AWSCURRENT
 - Archives old version
 - Completes rotation
 
 ### 5. VERIFICATION
+
 - Validates rotation success
 - Checks secret accessibility
 - Verifies format and metadata
@@ -174,13 +185,15 @@ All rotations follow the standard 4-step process:
 ## Secret Complexity Requirements
 
 ### Passwords
+
 - Minimum 12 characters
 - At least one uppercase letter
 - At least one lowercase letter
 - At least one digit
-- At least one special character (!@#$%^&*)
+- At least one special character (!@#$%^&\*)
 
 ### API Keys
+
 - Minimum 32 characters
 - Alphanumeric only
 
@@ -238,6 +251,7 @@ DRY_RUN=true node index.js
 ## Rollback
 
 If rotation fails during SET_SECRET or TEST_SECRET, the function automatically:
+
 - Does not promote AWSPENDING version
 - Keeps AWSCURRENT version active
 - Logs failure details

@@ -1,17 +1,20 @@
 # Common Terraform Configuration Files
 
-This directory contains shared Terraform configuration files used across all Bedrock infrastructure modules.
+This directory contains shared Terraform configuration files used across all
+Bedrock infrastructure modules.
 
 ## Files
 
 ### Version Constraint Files
 
 1. **versions-standard.tf**
+
    - Standard version constraints for most modules
    - Includes: Terraform >= 1.11.0, AWS provider ~> 5.80
    - Used by: All core bedrock and monitoring modules
 
 2. **versions-with-archive.tf**
+
    - Includes archive and local providers
    - Used by: bedrock-action-group, monitoring-synthetics
 
@@ -50,6 +53,7 @@ All modules should use consistent version constraints. If updating versions:
 ## Version Standardization
 
 All modules have been standardized to use:
+
 - Terraform: `>= 1.11.0`
 - AWS Provider: `~> 5.80` (consistent across all modules)
 

@@ -15,6 +15,7 @@
 ### Issue 1: Incidents Not Being Analyzed
 
 **Symptoms**:
+
 - Incident created but not categorized
 - No agent analysis in work notes
 - ServiceNow rules appear to trigger but nothing happens
@@ -22,6 +23,7 @@
 **Diagnosis Steps**:
 
 1. **Check ServiceNow Business Rule**
+
    ```bash
    # Log in to ServiceNow instance
    # Navigate to: Incident > Administration > Business Rules
@@ -33,6 +35,7 @@
    ```
 
 2. **Check Lambda Function Logs**
+
    ```bash
    aws logs tail /aws/lambda/servicenow-incident-agent --follow
 
@@ -44,6 +47,7 @@
    ```
 
 3. **Test API Gateway Endpoint**
+
    ```bash
    curl -X POST \
      -H "Content-Type: application/json" \
@@ -59,6 +63,7 @@
    ```
 
 4. **Verify Secrets Manager Access**
+
    ```bash
    aws secretsmanager get-secret-value \
      --secret-id servicenow/credentials/bedrock-integration \
@@ -88,6 +93,7 @@
 ### Issue 2: "Authentication Failed" Errors
 
 **Symptoms**:
+
 - HTTP 401 errors from ServiceNow API calls
 - Error message: "Invalid OAuth token" or "Authentication failed"
 - Agent cannot access incident data
@@ -102,6 +108,7 @@
 **Resolution Steps**:
 
 1. **Verify Credentials in Secrets Manager**
+
    ```bash
    aws secretsmanager get-secret-value \
      --secret-id servicenow/credentials/bedrock-integration \
@@ -114,6 +121,7 @@
    ```
 
 2. **Test ServiceNow Credentials Directly**
+
    ```bash
    CREDS="servicenow_bedrock_api:YOUR_API_TOKEN"
 
@@ -124,6 +132,7 @@
    ```
 
 3. **Regenerate API Token**
+
    ```
    ServiceNow:
    1. Log in as the service account user
@@ -131,6 +140,7 @@
    3. Copy new token
    4. Update in Secrets Manager:
    ```
+
    ```bash
    aws secretsmanager update-secret \
      --secret-id servicenow/credentials/bedrock-integration \
@@ -142,6 +152,7 @@
    ```
 
 4. **Verify API User Permissions**
+
    ```
    ServiceNow:
    1. Navigate to System Security > Users > servicenow_bedrock_api
@@ -154,6 +165,7 @@
    ```
 
 5. **Check Network Connectivity**
+
    ```bash
    # From Lambda environment or local test:
    curl -I https://your-instance.service-now.com
@@ -166,6 +178,7 @@
 ### Issue 3: Agent Takes Too Long to Respond
 
 **Symptoms**:
+
 - Lambda timeout after 60-300 seconds
 - Slow agent analysis
 - Increased latency for incident processing
@@ -173,6 +186,7 @@
 **Diagnosis**:
 
 1. **Check CloudWatch Metrics**
+
    ```bash
    aws cloudwatch get-metric-statistics \
      --namespace AWS/Lambda \
@@ -185,6 +199,7 @@
    ```
 
 2. **Review Lambda Logs**
+
    ```bash
    aws logs tail /aws/lambda/servicenow-incident-agent --follow
 
@@ -196,6 +211,7 @@
    ```
 
 3. **Check Concurrent Lambda Executions**
+
    ```bash
    aws lambda get-function-concurrency \
      --function-name servicenow-incident-agent
@@ -206,6 +222,7 @@
 **Optimization Steps**:
 
 1. **Increase Lambda Memory** (improves CPU and speed)
+
    ```bash
    aws lambda update-function-configuration \
      --function-name servicenow-incident-agent \
@@ -213,6 +230,7 @@
    ```
 
 2. **Increase Lambda Timeout** (for complex operations)
+
    ```bash
    aws lambda update-function-configuration \
      --function-name servicenow-incident-agent \
@@ -220,6 +238,7 @@
    ```
 
 3. **Increase Concurrency**
+
    ```bash
    aws lambda put-function-concurrency \
      --function-name servicenow-incident-agent \
@@ -227,11 +246,13 @@
    ```
 
 4. **Implement Caching**
+
    - Cache KB search results (1-hour TTL)
    - Cache user/group information (24-hour TTL)
    - Reduces API calls by 40-60%
 
 5. **Optimize ServiceNow Queries**
+
    ```bash
    # Before: Gets full incident record with all fields
    # Slow: Fields not specified
@@ -243,19 +264,22 @@
    ```
 
 6. **Use Bedrock Model Optimization**
+
    ```javascript
    // Use faster model for simple tasks
    const simpleIncident = {
-     short_description: "Password reset",
-     description: "User forgot password"
+     short_description: 'Password reset',
+     description: 'User forgot password',
    };
 
    // Use Haiku (faster, cheaper)
-   agent = "anthropic.claude-3-haiku-20250101-v1:0"
+   agent = 'anthropic.claude-3-haiku-20250101-v1:0';
 
    // Use Sonnet for complex analysis
-   const complexIncident = { /* complex data */ };
-   agent = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+   const complexIncident = {
+     /* complex data */
+   };
+   agent = 'anthropic.claude-3-5-sonnet-20241022-v2:0';
    ```
 
 ---
@@ -263,6 +287,7 @@
 ### Issue 4: Knowledge Base Not Updating
 
 **Symptoms**:
+
 - No KB articles created from incident resolutions
 - Duplicate articles still exist in KB
 - Old articles not being updated
@@ -270,6 +295,7 @@
 **Diagnosis Steps**:
 
 1. **Check KB Agent Logs**
+
    ```bash
    aws logs tail /aws/lambda/servicenow-kb-agent --follow
 
@@ -280,6 +306,7 @@
    ```
 
 2. **Verify KB Agent Configuration**
+
    ```bash
    aws lambda get-function-configuration \
      --function-name servicenow-kb-agent
@@ -291,6 +318,7 @@
    ```
 
 3. **Check KB Permissions**
+
    ```
    ServiceNow:
    1. Go to System Security > Users > servicenow_bedrock_api
@@ -299,6 +327,7 @@
    ```
 
 4. **Test KB API Directly**
+
    ```bash
    CREDS="servicenow_bedrock_api:YOUR_API_TOKEN"
 
@@ -319,6 +348,7 @@
 **Resolution**:
 
 1. **Enable KB Agent**
+
    ```bash
    # Ensure Lambda function is deployed and active
    aws lambda get-function-configuration \
@@ -326,6 +356,7 @@
    ```
 
 2. **Configure Trigger**
+
    ```
    ServiceNow:
    1. Create business rule: "Incident Resolved - Trigger KB Agent"
@@ -334,6 +365,7 @@
    ```
 
 3. **Check Cloudwatch Events Schedule**
+
    ```bash
    # If using scheduled KB maintenance:
    aws events list-rules \
@@ -475,6 +507,7 @@ aws logs filter-log-events \
 ### Slow Incident Analysis
 
 **Root Causes**:
+
 1. Large KB with slow search (>30 seconds)
 2. Incident history with many similar records
 3. Bedrock model processing (inference time)
@@ -483,6 +516,7 @@ aws logs filter-log-events \
 **Solutions**:
 
 1. **Implement KB Search Caching**
+
    ```javascript
    // Cache search results for 1 hour
    const cachedResult = await cache.get(`kb-search:${symptom}`);
@@ -494,6 +528,7 @@ aws logs filter-log-events \
    ```
 
 2. **Optimize Incident History Queries**
+
    ```bash
    # Before: Returns all fields for last 1000 incidents (slow)
    # After: Returns only essential fields, limit to 100 (fast)
@@ -505,16 +540,17 @@ aws logs filter-log-events \
    ```javascript
    if (isSimpleIncident(incident)) {
      // Use Haiku for fast simple analysis
-     model = "anthropic.claude-3-haiku-20250101-v1:0";
+     model = 'anthropic.claude-3-haiku-20250101-v1:0';
    } else {
      // Use Sonnet for complex analysis
-     model = "anthropic.claude-3-5-sonnet-20241022-v2:0";
+     model = 'anthropic.claude-3-5-sonnet-20241022-v2:0';
    }
    ```
 
 ### High Memory Usage
 
 **Diagnosis**:
+
 ```bash
 aws cloudwatch get-metric-statistics \
   --namespace AWS/Lambda \
@@ -540,6 +576,7 @@ aws cloudwatch get-metric-statistics \
 ### HTTP 429 - Rate Limited
 
 **Error Message**:
+
 ```
 HTTP 429 Too Many Requests
 RateLimit-Remaining: 0
@@ -548,6 +585,7 @@ Retry-After: 60
 ```
 
 **Solution**:
+
 ```javascript
 // Implement exponential backoff
 async function callWithBackoff(fn, maxRetries = 4) {
@@ -558,7 +596,7 @@ async function callWithBackoff(fn, maxRetries = 4) {
       if (error.status === 429) {
         const backoffMs = Math.pow(2, i) * 30000; // 30s, 60s, 120s, 240s
         console.log(`Rate limited, waiting ${backoffMs}ms before retry`);
-        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
       } else {
         throw error;
       }
@@ -570,11 +608,13 @@ async function callWithBackoff(fn, maxRetries = 4) {
 ### HTTP 400 - Bad Request
 
 **Common Causes**:
+
 - Invalid field value
 - Missing required field
 - Malformed JSON
 
 **Debug**:
+
 ```bash
 # Check request body
 aws logs filter-log-events \
@@ -595,11 +635,13 @@ curl -u "credentials" \
 ### Model Unavailable
 
 **Error**:
+
 ```
 ValidationException: Model 'anthropic.claude-3-5-sonnet-20241022-v2:0' is not available
 ```
 
 **Solution**:
+
 ```bash
 # Check available models in your region
 aws bedrock list-foundation-models --region us-east-1
@@ -611,17 +653,19 @@ MODEL_ID = "anthropic.claude-3-haiku-20250101-v1:0"
 ### Token Limit Exceeded
 
 **Error**:
+
 ```
 InputTokenLimitExceeded: Input tokens (8500) exceed model limit (8000)
 ```
 
 **Solution**:
+
 ```javascript
 // Summarize long incident descriptions
-const summary = await summarizeText(incident.description, maxTokens=2000);
+const summary = await summarizeText(incident.description, (maxTokens = 2000));
 const incidentContext = {
   ...incident,
-  description: summary
+  description: summary,
 };
 ```
 
@@ -654,4 +698,5 @@ aws lambda put-function-concurrency \
   --reserved-concurrent-executions 100
 ```
 
-For additional support, check the [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md), [AGENT_GUIDE.md](AGENT_GUIDE.md), or [API_REFERENCE.md](API_REFERENCE.md).
+For additional support, check the [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md),
+[AGENT_GUIDE.md](AGENT_GUIDE.md), or [API_REFERENCE.md](API_REFERENCE.md).

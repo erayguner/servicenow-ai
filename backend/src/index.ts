@@ -21,10 +21,12 @@ const app: Express = express();
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: config.corsOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: config.corsOrigins,
+    credentials: true,
+  })
+);
 app.use(compression());
 
 // Body parsing middleware
@@ -33,11 +35,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request logging
 app.use((req: Request, _res: Response, next: NextFunction) => {
-  logger.info({
-    method: req.method,
-    path: req.path,
-    ip: req.ip,
-  }, 'Incoming request');
+  logger.info(
+    {
+      method: req.method,
+      path: req.path,
+      ip: req.ip,
+    },
+    'Incoming request'
+  );
   next();
 });
 

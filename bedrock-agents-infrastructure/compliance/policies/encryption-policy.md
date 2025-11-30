@@ -1,22 +1,25 @@
 # Encryption Policy
+
 ## Amazon Bedrock Agents Infrastructure
 
-**Document Version:** 1.0
-**Effective Date:** 2025-11-17
-**Last Reviewed:** 2025-11-17
-**Next Review:** 2026-11-17
-**Policy Owner:** Chief Information Security Officer (CISO)
-**Approved By:** Executive Leadership Team
+**Document Version:** 1.0 **Effective Date:** 2025-11-17 **Last Reviewed:**
+2025-11-17 **Next Review:** 2026-11-17 **Policy Owner:** Chief Information
+Security Officer (CISO) **Approved By:** Executive Leadership Team
 
 ---
 
 ## 1. Purpose
 
-This Encryption Policy establishes requirements for the use of cryptography to protect data confidentiality, integrity, and authenticity within the Amazon Bedrock Agents infrastructure. The policy ensures compliance with regulatory requirements (GDPR, HIPAA, PCI DSS, SOC 2, ISO 27001) and industry best practices.
+This Encryption Policy establishes requirements for the use of cryptography to
+protect data confidentiality, integrity, and authenticity within the Amazon
+Bedrock Agents infrastructure. The policy ensures compliance with regulatory
+requirements (GDPR, HIPAA, PCI DSS, SOC 2, ISO 27001) and industry best
+practices.
 
 ## 2. Scope
 
 This policy applies to:
+
 - All data processed by Amazon Bedrock agents (at rest and in transit)
 - All AWS services supporting Bedrock infrastructure
 - All cryptographic keys and certificates
@@ -28,61 +31,83 @@ This policy applies to:
 
 ### 3.1 General Encryption Requirements
 
-**3.1.1** All RESTRICTED and CONFIDENTIAL data MUST be encrypted at rest and in transit.
+**3.1.1** All RESTRICTED and CONFIDENTIAL data MUST be encrypted at rest and in
+transit.
 
-**3.1.2** All INTERNAL data SHOULD be encrypted at rest and MUST be encrypted in transit.
+**3.1.2** All INTERNAL data SHOULD be encrypted at rest and MUST be encrypted in
+transit.
 
-**3.1.3** Encryption algorithms MUST comply with current NIST recommendations and industry standards.
+**3.1.3** Encryption algorithms MUST comply with current NIST recommendations
+and industry standards.
 
-**3.1.4** Encryption keys MUST be protected with controls equivalent to or greater than the data they protect.
+**3.1.4** Encryption keys MUST be protected with controls equivalent to or
+greater than the data they protect.
 
-**3.1.5** Cryptographic operations MUST use FIPS 140-2 validated modules where required by regulation.
+**3.1.5** Cryptographic operations MUST use FIPS 140-2 validated modules where
+required by regulation.
 
 ### 3.2 Encryption at Rest
 
-**3.2.1** All Amazon Bedrock knowledge bases containing RESTRICTED or CONFIDENTIAL data MUST use AWS KMS Customer Managed Keys (CMK) for encryption.
+**3.2.1** All Amazon Bedrock knowledge bases containing RESTRICTED or
+CONFIDENTIAL data MUST use AWS KMS Customer Managed Keys (CMK) for encryption.
 
-**3.2.2** All S3 buckets storing RESTRICTED or CONFIDENTIAL data MUST have default encryption enabled using KMS CMK.
+**3.2.2** All S3 buckets storing RESTRICTED or CONFIDENTIAL data MUST have
+default encryption enabled using KMS CMK.
 
-**3.2.3** All EBS volumes containing RESTRICTED or CONFIDENTIAL data MUST be encrypted using KMS CMK.
+**3.2.3** All EBS volumes containing RESTRICTED or CONFIDENTIAL data MUST be
+encrypted using KMS CMK.
 
-**3.2.4** All RDS databases containing RESTRICTED or CONFIDENTIAL data MUST have encryption at rest enabled using KMS CMK.
+**3.2.4** All RDS databases containing RESTRICTED or CONFIDENTIAL data MUST have
+encryption at rest enabled using KMS CMK.
 
-**3.2.5** All DynamoDB tables containing RESTRICTED or CONFIDENTIAL data MUST use AWS KMS encryption.
+**3.2.5** All DynamoDB tables containing RESTRICTED or CONFIDENTIAL data MUST
+use AWS KMS encryption.
 
-**3.2.6** All backup data MUST be encrypted with the same or higher level of encryption as the source data.
+**3.2.6** All backup data MUST be encrypted with the same or higher level of
+encryption as the source data.
 
-**3.2.7** All CloudWatch Logs containing RESTRICTED or CONFIDENTIAL data MUST be encrypted using KMS CMK.
+**3.2.7** All CloudWatch Logs containing RESTRICTED or CONFIDENTIAL data MUST be
+encrypted using KMS CMK.
 
 ### 3.3 Encryption in Transit
 
-**3.3.1** All data in transit over untrusted networks MUST be encrypted using TLS 1.2 or higher.
+**3.3.1** All data in transit over untrusted networks MUST be encrypted using
+TLS 1.2 or higher.
 
-**3.3.2** All API communications with Amazon Bedrock MUST use HTTPS with TLS 1.2 minimum.
+**3.3.2** All API communications with Amazon Bedrock MUST use HTTPS with TLS 1.2
+minimum.
 
-**3.3.3** All AWS service-to-service communications for RESTRICTED data MUST use AWS PrivateLink or VPC endpoints.
+**3.3.3** All AWS service-to-service communications for RESTRICTED data MUST use
+AWS PrivateLink or VPC endpoints.
 
-**3.3.4** All Application Load Balancers and API Gateways MUST enforce HTTPS and redirect HTTP to HTTPS.
+**3.3.4** All Application Load Balancers and API Gateways MUST enforce HTTPS and
+redirect HTTP to HTTPS.
 
-**3.3.5** TLS cipher suites MUST be configured to use only strong ciphers (no weak or deprecated ciphers).
+**3.3.5** TLS cipher suites MUST be configured to use only strong ciphers (no
+weak or deprecated ciphers).
 
 **3.3.6** Certificate validation MUST be enforced for all TLS connections.
 
 ### 3.4 Key Management
 
-**3.4.1** All encryption keys MUST be generated using cryptographically secure random number generators.
+**3.4.1** All encryption keys MUST be generated using cryptographically secure
+random number generators.
 
-**3.4.2** Customer Managed Keys (CMK) MUST be used for RESTRICTED and CONFIDENTIAL data encryption.
+**3.4.2** Customer Managed Keys (CMK) MUST be used for RESTRICTED and
+CONFIDENTIAL data encryption.
 
 **3.4.3** Automatic key rotation MUST be enabled for all Customer Managed Keys.
 
-**3.4.4** Encryption keys MUST NOT be hardcoded in source code or configuration files.
+**3.4.4** Encryption keys MUST NOT be hardcoded in source code or configuration
+files.
 
-**3.4.5** Access to encryption keys MUST be restricted to the minimum necessary personnel and services.
+**3.4.5** Access to encryption keys MUST be restricted to the minimum necessary
+personnel and services.
 
 **3.4.6** Key usage MUST be logged and monitored for anomalous activity.
 
-**3.4.7** Encryption keys MUST have a minimum deletion window of 30 days when scheduled for deletion.
+**3.4.7** Encryption keys MUST have a minimum deletion window of 30 days when
+scheduled for deletion.
 
 ---
 
@@ -92,44 +117,45 @@ This policy applies to:
 
 #### Symmetric Encryption
 
-| Algorithm | Key Size | Use Case | Status |
-|-----------|----------|----------|--------|
-| AES | 256-bit | Data at rest, bulk encryption | **Recommended** |
-| AES | 192-bit | Data at rest (acceptable) | Acceptable |
-| AES | 128-bit | Legacy systems only | Deprecated (phase out by 2026) |
-| 3DES | N/A | N/A | **Prohibited** |
-| DES | N/A | N/A | **Prohibited** |
-| RC4 | N/A | N/A | **Prohibited** |
+| Algorithm | Key Size | Use Case                      | Status                         |
+| --------- | -------- | ----------------------------- | ------------------------------ |
+| AES       | 256-bit  | Data at rest, bulk encryption | **Recommended**                |
+| AES       | 192-bit  | Data at rest (acceptable)     | Acceptable                     |
+| AES       | 128-bit  | Legacy systems only           | Deprecated (phase out by 2026) |
+| 3DES      | N/A      | N/A                           | **Prohibited**                 |
+| DES       | N/A      | N/A                           | **Prohibited**                 |
+| RC4       | N/A      | N/A                           | **Prohibited**                 |
 
 **AWS KMS Default:** AES-256-GCM for data encryption keys
 
 #### Asymmetric Encryption
 
-| Algorithm | Key Size | Use Case | Status |
-|-----------|----------|----------|--------|
-| RSA | 4096-bit | Key exchange, digital signatures | **Recommended** |
-| RSA | 2048-bit | Key exchange, digital signatures | Acceptable (minimum) |
-| RSA | < 2048-bit | N/A | **Prohibited** |
-| ECC (P-256) | 256-bit | Key exchange, digital signatures | **Recommended** |
-| ECC (P-384) | 384-bit | High security requirements | **Recommended** |
-| DSA | N/A | N/A | Deprecated |
+| Algorithm   | Key Size   | Use Case                         | Status               |
+| ----------- | ---------- | -------------------------------- | -------------------- |
+| RSA         | 4096-bit   | Key exchange, digital signatures | **Recommended**      |
+| RSA         | 2048-bit   | Key exchange, digital signatures | Acceptable (minimum) |
+| RSA         | < 2048-bit | N/A                              | **Prohibited**       |
+| ECC (P-256) | 256-bit    | Key exchange, digital signatures | **Recommended**      |
+| ECC (P-384) | 384-bit    | High security requirements       | **Recommended**      |
+| DSA         | N/A        | N/A                              | Deprecated           |
 
 #### Hashing Algorithms
 
-| Algorithm | Use Case | Status |
-|-----------|----------|--------|
-| SHA-256 | Data integrity, digital signatures | **Recommended** |
-| SHA-384 | High security requirements | **Recommended** |
-| SHA-512 | High security requirements | **Recommended** |
-| SHA-1 | N/A | **Prohibited** |
-| MD5 | N/A | **Prohibited** |
+| Algorithm | Use Case                           | Status          |
+| --------- | ---------------------------------- | --------------- |
+| SHA-256   | Data integrity, digital signatures | **Recommended** |
+| SHA-384   | High security requirements         | **Recommended** |
+| SHA-512   | High security requirements         | **Recommended** |
+| SHA-1     | N/A                                | **Prohibited**  |
+| MD5       | N/A                                | **Prohibited**  |
 
-**Exception:** SHA-1 and MD5 may be used for non-security purposes (e.g., checksums) where collision resistance is not required.
+**Exception:** SHA-1 and MD5 may be used for non-security purposes (e.g.,
+checksums) where collision resistance is not required.
 
 #### Message Authentication Codes (MAC)
 
-| Algorithm | Use Case | Status |
-|-----------|----------|--------|
+| Algorithm   | Use Case               | Status          |
+| ----------- | ---------------------- | --------------- |
 | HMAC-SHA256 | Message authentication | **Recommended** |
 | HMAC-SHA384 | Message authentication | **Recommended** |
 | HMAC-SHA512 | Message authentication | **Recommended** |
@@ -138,16 +164,17 @@ This policy applies to:
 
 #### Minimum TLS Version
 
-| Data Classification | Minimum TLS Version | Cipher Suite Requirements |
-|---------------------|---------------------|---------------------------|
-| PUBLIC | TLS 1.2 | Standard |
-| INTERNAL | TLS 1.2 | Standard |
-| CONFIDENTIAL | TLS 1.2 | Strong ciphers only |
-| RESTRICTED | TLS 1.3 (preferred) or TLS 1.2 | Strong ciphers only + Perfect Forward Secrecy |
+| Data Classification | Minimum TLS Version            | Cipher Suite Requirements                     |
+| ------------------- | ------------------------------ | --------------------------------------------- |
+| PUBLIC              | TLS 1.2                        | Standard                                      |
+| INTERNAL            | TLS 1.2                        | Standard                                      |
+| CONFIDENTIAL        | TLS 1.2                        | Strong ciphers only                           |
+| RESTRICTED          | TLS 1.3 (preferred) or TLS 1.2 | Strong ciphers only + Perfect Forward Secrecy |
 
 #### Approved TLS Cipher Suites (TLS 1.2)
 
 **Recommended (Perfect Forward Secrecy):**
+
 ```
 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
@@ -156,6 +183,7 @@ TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
 ```
 
 **Prohibited:**
+
 ```
 All NULL cipher suites (no encryption)
 All EXPORT cipher suites (weak encryption)
@@ -168,6 +196,7 @@ All cipher suites without Perfect Forward Secrecy for RESTRICTED data
 #### TLS 1.3 (Recommended for RESTRICTED data)
 
 All TLS 1.3 cipher suites are acceptable (TLS 1.3 removed weak ciphers):
+
 ```
 TLS_AES_256_GCM_SHA384
 TLS_CHACHA20_POLY1305_SHA256
@@ -177,17 +206,20 @@ TLS_AES_128_GCM_SHA256
 ### 4.3 Certificate Management
 
 **Certificate Authority (CA):**
+
 - Certificates MUST be issued by a trusted public CA or internal CA
 - Self-signed certificates are PROHIBITED in production
 - Self-signed certificates acceptable in development with documented exception
 
 **Certificate Standards:**
+
 - RSA: 2048-bit minimum (4096-bit recommended for RESTRICTED data)
 - ECC: P-256 minimum (P-384 recommended for RESTRICTED data)
 - Validity period: Maximum 398 days (per CA/Browser Forum requirements)
 - Certificate Transparency: MUST be enabled
 
 **Certificate Lifecycle:**
+
 - Issuance: Automated via AWS Certificate Manager (ACM) or internal PKI
 - Renewal: Automated 30 days before expiration
 - Revocation: Within 24 hours of compromise or decommissioning
@@ -202,6 +234,7 @@ TLS_AES_128_GCM_SHA256
 #### Knowledge Bases
 
 **RESTRICTED and CONFIDENTIAL knowledge bases:**
+
 ```yaml
 Encryption at rest:
   - Type: AWS KMS Customer Managed Key (CMK)
@@ -221,6 +254,7 @@ Data sources (S3):
 ```
 
 **Implementation (Terraform):**
+
 ```hcl
 resource "aws_bedrockagent_knowledge_base" "encrypted_kb" {
   name     = "secure-knowledge-base"
@@ -267,6 +301,7 @@ resource "aws_opensearchserverless_security_policy" "encryption" {
 #### Bedrock Agents
 
 **RESTRICTED and CONFIDENTIAL agents:**
+
 ```yaml
 Encryption at rest:
   - Agent configuration: Encrypted via AWS service encryption
@@ -286,6 +321,7 @@ Guardrails:
 ```
 
 **Implementation (Terraform):**
+
 ```hcl
 resource "aws_bedrockagent_agent" "encrypted_agent" {
   agent_name              = "secure-bedrock-agent"
@@ -338,6 +374,7 @@ CloudWatch Logs encryption:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_cloudwatch_log_group" "bedrock_model_invocation" {
   name              = "/aws/bedrock/modelinvocations"
@@ -349,6 +386,7 @@ resource "aws_cloudwatch_log_group" "bedrock_model_invocation" {
 ### 5.2 Amazon S3
 
 **RESTRICTED and CONFIDENTIAL buckets:**
+
 ```yaml
 Encryption at rest:
   - Default encryption: Enabled (KMS CMK)
@@ -367,6 +405,7 @@ Access control:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_s3_bucket" "encrypted_bucket" {
   bucket = "bedrock-restricted-data-${var.environment}"
@@ -489,6 +528,7 @@ Key deletion:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_kms_key" "bedrock_cmk" {
   description             = "Customer-managed key for Bedrock RESTRICTED data"
@@ -611,6 +651,7 @@ resource "aws_kms_key_policy" "bedrock_cmk" {
 ### 5.4 AWS Lambda
 
 **RESTRICTED and CONFIDENTIAL functions:**
+
 ```yaml
 Environment variables:
   - Encryption helper: Enabled (automatic encryption)
@@ -628,6 +669,7 @@ Secrets:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_lambda_function" "bedrock_integration" {
   function_name = "bedrock-secure-function"
@@ -675,6 +717,7 @@ resource "aws_secretsmanager_secret_rotation" "api_key" {
 ### 5.5 Amazon RDS / Amazon Aurora
 
 **RESTRICTED and CONFIDENTIAL databases:**
+
 ```yaml
 Encryption at rest:
   - Storage encryption: Enabled (KMS CMK)
@@ -694,6 +737,7 @@ Network:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_db_instance" "encrypted_db" {
   identifier = "bedrock-metadata-db-${var.environment}"
@@ -744,6 +788,7 @@ resource "aws_db_parameter_group" "postgres_ssl" {
 ### 5.6 Amazon DynamoDB
 
 **RESTRICTED and CONFIDENTIAL tables:**
+
 ```yaml
 Encryption at rest:
   - Type: AWS KMS Customer Managed Key (CMK)
@@ -758,6 +803,7 @@ Encryption in transit:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_dynamodb_table" "encrypted_table" {
   name         = "bedrock-session-data-${var.environment}"
@@ -801,6 +847,7 @@ resource "aws_dynamodb_table" "encrypted_table" {
 ### 5.7 Amazon CloudWatch Logs
 
 **RESTRICTED and CONFIDENTIAL log groups:**
+
 ```yaml
 Encryption:
   - KMS CMK: Required
@@ -817,6 +864,7 @@ Access:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_cloudwatch_log_group" "bedrock_logs" {
   name              = "/aws/bedrock/${var.environment}/agents"
@@ -876,6 +924,7 @@ resource "aws_kms_key" "cloudwatch_cmk" {
 ### 5.8 AWS Backup
 
 **RESTRICTED and CONFIDENTIAL backups:**
+
 ```yaml
 Encryption:
   - Backup vault: Locked (cannot delete backups)
@@ -893,6 +942,7 @@ Recovery:
 ```
 
 **Implementation:**
+
 ```hcl
 resource "aws_backup_vault" "encrypted_vault" {
   name        = "bedrock-backup-vault-${var.environment}"
@@ -957,6 +1007,7 @@ resource "aws_backup_selection" "bedrock_resources" {
 ### 6.1 Key Generation
 
 **Process:**
+
 1. **Request:** Data Owner submits key request via ticketing system
 2. **Justification:** Business justification and data classification documented
 3. **Approval:** Security team approves key specifications
@@ -970,6 +1021,7 @@ resource "aws_backup_selection" "bedrock_resources" {
 7. **Notification:** Data Owner and custodians notified
 
 **Automated generation (Terraform/CloudFormation):**
+
 - Infrastructure as Code (IaC) preferred
 - Code review required before deployment
 - Drift detection enabled (AWS Config)
@@ -977,6 +1029,7 @@ resource "aws_backup_selection" "bedrock_resources" {
 ### 6.2 Key Rotation
 
 **Automatic Rotation (Recommended):**
+
 - Enabled for all Customer Managed Keys
 - Rotation frequency: Annual (AWS default)
 - AWS KMS automatically rotates key material
@@ -984,15 +1037,19 @@ resource "aws_backup_selection" "bedrock_resources" {
 - Application transparent (no code changes)
 
 **Manual Rotation:**
+
 - Discouraged (use automatic rotation)
 - If required: Create new key, update applications, decrypt/re-encrypt data
-- Used only when automatic rotation is insufficient (e.g., compliance requirement for immediate rotation)
+- Used only when automatic rotation is insufficient (e.g., compliance
+  requirement for immediate rotation)
 
 **Rotation Verification:**
+
 - CloudWatch alarm on rotation failure
 - Monthly audit of rotation status (AWS Config rule)
 
 **Implementation:**
+
 ```hcl
 resource "aws_kms_key" "auto_rotate" {
   description             = "Auto-rotating CMK for Bedrock"
@@ -1027,18 +1084,21 @@ resource "aws_cloudwatch_metric_alarm" "kms_rotation_alarm" {
 ### 6.3 Key Storage
 
 **AWS KMS (Recommended):**
+
 - Key material never leaves KMS (FIPS 140-2 Level 2 or higher)
 - Key material never exposed to users or applications
 - All cryptographic operations performed within KMS
 - Multi-tenant hardware security modules (HSMs)
 
 **AWS CloudHSM (High Assurance Requirements):**
+
 - FIPS 140-2 Level 3 validated HSMs
 - Single-tenant dedicated HSM
 - Customer-controlled HSM cluster
 - Use case: RESTRICTED data requiring dedicated HSMs
 
 **Prohibited:**
+
 - Storing keys in source code
 - Storing keys in configuration files
 - Storing keys in S3 without encryption
@@ -1048,12 +1108,14 @@ resource "aws_cloudwatch_metric_alarm" "kms_rotation_alarm" {
 ### 6.4 Key Access Control
 
 **Principle of Least Privilege:**
+
 - Separate roles: Key Administrators vs. Key Users
 - Key Administrators: Manage key lifecycle (create, rotate, delete)
 - Key Users: Use key for encryption/decryption only
 - No user should have both administrative and usage permissions
 
 **Key Policy Structure:**
+
 ```json
 {
   "Version": "2012-10-17",
@@ -1061,19 +1123,26 @@ resource "aws_cloudwatch_metric_alarm" "kms_rotation_alarm" {
     {
       "Sid": "Enable IAM User Permissions",
       "Effect": "Allow",
-      "Principal": {"AWS": "arn:aws:iam::ACCOUNT:root"},
+      "Principal": { "AWS": "arn:aws:iam::ACCOUNT:root" },
       "Action": "kms:*",
       "Resource": "*"
     },
     {
       "Sid": "Allow Key Administrators",
       "Effect": "Allow",
-      "Principal": {"AWS": ["arn:aws:iam::ACCOUNT:role/KMSAdminRole"]},
+      "Principal": { "AWS": ["arn:aws:iam::ACCOUNT:role/KMSAdminRole"] },
       "Action": [
-        "kms:Create*", "kms:Describe*", "kms:Enable*",
-        "kms:List*", "kms:Put*", "kms:Update*",
-        "kms:Revoke*", "kms:Disable*", "kms:Get*",
-        "kms:Delete*", "kms:ScheduleKeyDeletion",
+        "kms:Create*",
+        "kms:Describe*",
+        "kms:Enable*",
+        "kms:List*",
+        "kms:Put*",
+        "kms:Update*",
+        "kms:Revoke*",
+        "kms:Disable*",
+        "kms:Get*",
+        "kms:Delete*",
+        "kms:ScheduleKeyDeletion",
         "kms:CancelKeyDeletion"
       ],
       "Resource": "*"
@@ -1081,12 +1150,8 @@ resource "aws_cloudwatch_metric_alarm" "kms_rotation_alarm" {
     {
       "Sid": "Allow Key Users (Bedrock Service)",
       "Effect": "Allow",
-      "Principal": {"Service": "bedrock.amazonaws.com"},
-      "Action": [
-        "kms:Decrypt",
-        "kms:GenerateDataKey",
-        "kms:CreateGrant"
-      ],
+      "Principal": { "Service": "bedrock.amazonaws.com" },
+      "Action": ["kms:Decrypt", "kms:GenerateDataKey", "kms:CreateGrant"],
       "Resource": "*",
       "Condition": {
         "StringEquals": {
@@ -1101,7 +1166,7 @@ resource "aws_cloudwatch_metric_alarm" "kms_rotation_alarm" {
       "Action": ["kms:ScheduleKeyDeletion", "kms:Delete*"],
       "Resource": "*",
       "Condition": {
-        "BoolIfExists": {"aws:MultiFactorAuthPresent": "false"}
+        "BoolIfExists": { "aws:MultiFactorAuthPresent": "false" }
       }
     }
   ]
@@ -1111,17 +1176,20 @@ resource "aws_cloudwatch_metric_alarm" "kms_rotation_alarm" {
 ### 6.5 Key Usage Monitoring
 
 **CloudTrail Logging:**
+
 - All KMS API calls logged (management and data events)
 - Log file validation enabled
 - Logs encrypted and stored in dedicated S3 bucket
 - Cross-region log aggregation
 
 **Monitored Events:**
+
 - `CreateKey`, `ScheduleKeyDeletion`, `DisableKey`
 - `Encrypt`, `Decrypt`, `GenerateDataKey`
 - `PutKeyPolicy`, `CreateGrant`, `RevokeGrant`
 
 **Alarms:**
+
 - Unusual encryption/decryption volume (anomaly detection)
 - Key deletion scheduled
 - Key disabled
@@ -1129,6 +1197,7 @@ resource "aws_cloudwatch_metric_alarm" "kms_rotation_alarm" {
 - Grant creation by unauthorized principal
 
 **Implementation:**
+
 ```hcl
 resource "aws_cloudwatch_log_metric_filter" "kms_delete" {
   name           = "kms-key-deletion-scheduled"
@@ -1184,6 +1253,7 @@ resource "aws_cloudwatch_metric_alarm" "kms_decrypt_failures_alarm" {
 ### 6.6 Key Deletion
 
 **Deletion Process:**
+
 1. **Request:** Data Owner submits deletion request with justification
 2. **Validation:**
    - Verify key is no longer in use (no dependent resources)
@@ -1208,17 +1278,20 @@ resource "aws_cloudwatch_metric_alarm" "kms_decrypt_failures_alarm" {
    - Compliance evidence retained
 
 **Prevention Measures:**
+
 - KMS key policy: Require MFA for deletion
 - AWS Config rule: Alert on deletion scheduling
 - IAM policy: Restrict deletion permissions
 - Resource tags: "DeletionProtection": "true"
 
 **Accidental Deletion Recovery:**
+
 - During waiting period: Cancel deletion
 - After deletion: No recovery possible
 - Mitigation: Ensure backups encrypted with separate keys
 
 **Implementation:**
+
 ```bash
 # Schedule key deletion (requires approval)
 aws kms schedule-key-deletion \
@@ -1237,25 +1310,30 @@ aws kms cancel-key-deletion \
 ### 7.1 Compliance Frameworks
 
 **GDPR (Article 32 - Security of Processing):**
+
 - Encryption of personal data at rest and in transit: **Compliant**
 - Pseudonymization where applicable: **Implemented via Bedrock guardrails**
 - Regular testing and evaluation: **Quarterly compliance audits**
 
 **HIPAA (164.312(a)(2)(iv) and 164.312(e)(2)(ii)):**
+
 - Encryption of ePHI at rest: **Compliant (KMS CMK)**
 - Encryption of ePHI in transit: **Compliant (TLS 1.2+)**
 - Encryption key management: **Compliant (AWS KMS)**
 
 **PCI DSS v4.0 (Requirement 3):**
+
 - Cardholder data encryption at rest: **Compliant (KMS CMK)**
 - Strong cryptography: **Compliant (AES-256, RSA-2048+)**
 - Key management: **Compliant (separation of duties, rotation, access control)**
 
 **SOC 2 (CC6.7 - Restrict Access to Resources):**
+
 - Encryption as access control: **Compliant**
 - Key access restrictions: **Compliant (IAM policies, key policies)**
 
 **ISO 27001 (A.10.1 - Cryptographic Controls):**
+
 - Policy on cryptographic controls: **This document**
 - Key management: **Compliant (AWS KMS)**
 - Use of cryptography: **Compliant (approved algorithms)**
@@ -1329,6 +1407,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 ```
 
 **Security Hub Standards:**
+
 - AWS Foundational Security Best Practices
 - CIS AWS Foundations Benchmark
 - PCI DSS
@@ -1337,6 +1416,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 ### 7.3 Audit Procedures
 
 **Quarterly Audits:**
+
 - Review all KMS keys for rotation status
 - Verify encryption enabled on all RESTRICTED/CONFIDENTIAL resources
 - Review key policies for least privilege compliance
@@ -1344,6 +1424,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 - Test disaster recovery encryption procedures
 
 **Annual Audits:**
+
 - Full encryption inventory audit
 - Cryptographic algorithm review (ensure no deprecated algorithms)
 - Third-party penetration testing (encryption validation)
@@ -1352,6 +1433,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 - Compliance certification evidence collection
 
 **Continuous Monitoring:**
+
 - AWS Config compliance dashboard
 - Security Hub compliance scores
 - CloudWatch alarms for encryption violations
@@ -1360,6 +1442,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 ### 7.4 Audit Evidence
 
 **Maintained Evidence:**
+
 - Encryption configurations (AWS Config snapshots)
 - Key creation and deletion logs (CloudTrail)
 - Key rotation history (AWS KMS)
@@ -1378,12 +1461,14 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 ### 8.1 Exception Process
 
 **When Exceptions May Be Granted:**
+
 - Technical infeasibility (legacy system constraints)
 - Performance impact (with compensating controls)
 - Cost prohibitive (for non-critical data)
 - Temporary exception during migration (max 180 days)
 
 **Exception Request:**
+
 1. Business justification documented
 2. Risk assessment conducted
 3. Compensating controls identified
@@ -1393,9 +1478,11 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 7. Quarterly review of active exceptions
 
 **Prohibited Exceptions:**
+
 - No exception for RESTRICTED data encryption at rest
 - No exception for RESTRICTED data encryption in transit
-- No exception for use of prohibited algorithms (DES, 3DES, RC4, MD5, SHA-1 for security)
+- No exception for use of prohibited algorithms (DES, 3DES, RC4, MD5, SHA-1 for
+  security)
 - No exception for hardcoded keys in source code
 
 ---
@@ -1405,6 +1492,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 ### 9.1 Encryption Incidents
 
 **Types of Encryption Incidents:**
+
 - Encryption key compromise or suspected compromise
 - Unencrypted RESTRICTED/CONFIDENTIAL data discovered
 - Encryption algorithm vulnerability (e.g., downgrade attack)
@@ -1415,6 +1503,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 **Incident Response Procedures:**
 
 **Key Compromise:**
+
 1. **Immediate Actions:**
    - Disable compromised key (KMS: `DisableKey`)
    - Alert CISO and security team
@@ -1438,6 +1527,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
    - Notify affected parties (if required by regulation)
 
 **Unencrypted Sensitive Data:**
+
 1. **Immediate Actions:**
    - Assess data classification and exposure
    - Enable encryption immediately
@@ -1452,9 +1542,11 @@ resource "aws_config_config_rule" "bedrock_encryption" {
    - Revoke access if unauthorized disclosure suspected
 4. **Reporting:**
    - Data breach assessment (if exposure occurred)
-   - Regulatory notification (if required: GDPR 72 hours, HIPAA 60 days, PCI DSS per card brand)
+   - Regulatory notification (if required: GDPR 72 hours, HIPAA 60 days, PCI DSS
+     per card brand)
 
 **Ransomware Attack:**
+
 1. **Immediate Actions:**
    - Isolate affected systems (security group modification, network ACL)
    - Prevent deletion of backups
@@ -1479,6 +1571,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 ## 10. Training and Awareness
 
 **All personnel must complete:**
+
 - Annual encryption policy training
 - Secure coding training (developers)
 - Key management procedures training (key administrators)
@@ -1486,6 +1579,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 - Incident response training (security team)
 
 **Training Topics:**
+
 - Encryption policy requirements
 - Approved cryptographic algorithms
 - Key management lifecycle
@@ -1495,6 +1589,7 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 - Regulatory compliance requirements (GDPR, HIPAA, PCI DSS)
 
 **Records:**
+
 - Training completion tracked
 - Certificates maintained (7 years)
 - Annual refresher required
@@ -1515,23 +1610,30 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 
 ## 12. Definitions
 
-**Encryption at Rest:** Encryption of data stored on persistent storage (disk, database).
+**Encryption at Rest:** Encryption of data stored on persistent storage (disk,
+database).
 
 **Encryption in Transit:** Encryption of data being transmitted over a network.
 
-**Customer Managed Key (CMK):** Encryption key created, owned, and managed by the customer in AWS KMS.
+**Customer Managed Key (CMK):** Encryption key created, owned, and managed by
+the customer in AWS KMS.
 
-**AWS Managed Key:** Encryption key created and managed by AWS on behalf of the customer.
+**AWS Managed Key:** Encryption key created and managed by AWS on behalf of the
+customer.
 
-**Key Rotation:** Process of replacing encryption key material while maintaining the same key ID.
+**Key Rotation:** Process of replacing encryption key material while maintaining
+the same key ID.
 
-**TLS (Transport Layer Security):** Cryptographic protocol for secure communication over networks.
+**TLS (Transport Layer Security):** Cryptographic protocol for secure
+communication over networks.
 
 **FIPS 140-2:** US government standard for cryptographic module validation.
 
-**Perfect Forward Secrecy (PFS):** Property where session keys are not compromised even if long-term keys are compromised.
+**Perfect Forward Secrecy (PFS):** Property where session keys are not
+compromised even if long-term keys are compromised.
 
-**Cipher Suite:** Set of cryptographic algorithms used for secure communication (key exchange, authentication, encryption, MAC).
+**Cipher Suite:** Set of cryptographic algorithms used for secure communication
+(key exchange, authentication, encryption, MAC).
 
 ---
 
@@ -1553,36 +1655,34 @@ resource "aws_config_config_rule" "bedrock_encryption" {
 
 ## 14. Contact Information
 
-**Policy Owner:**
-Chief Information Security Officer (CISO)
-Email: ciso@organization.com
+**Policy Owner:** Chief Information Security Officer (CISO) Email:
+ciso@organization.com
 
-**Key Management:**
-Cloud Security Team
-Email: cloudsecurity@organization.com
+**Key Management:** Cloud Security Team Email: cloudsecurity@organization.com
 
-**Incident Reporting:**
-Security Operations Center (SOC)
-Email: security@organization.com
-Phone: +1-XXX-XXX-XXXX (24/7)
+**Incident Reporting:** Security Operations Center (SOC) Email:
+security@organization.com Phone: +1-XXX-XXX-XXXX (24/7)
 
 ---
 
 ## Document Control
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-11-17 | CISO | Initial policy creation |
+| Version | Date       | Author | Changes                 |
+| ------- | ---------- | ------ | ----------------------- |
+| 1.0     | 2025-11-17 | CISO   | Initial policy creation |
 
 **Approval Signatures:**
 
-___________________________
+---
+
 Chief Information Security Officer
 
-___________________________
+---
+
 Chief Technology Officer
 
-___________________________
+---
+
 Chief Compliance Officer
 
 **Next Review Date:** 2026-11-17

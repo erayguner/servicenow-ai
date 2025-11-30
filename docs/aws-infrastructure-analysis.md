@@ -3,27 +3,33 @@
 ## 1. OVERVIEW - AWS SERVICES INVENTORY
 
 ### Core Infrastructure Services
+
 - **VPC (Virtual Private Cloud)** - Network foundation with multi-AZ support
 - **EKS (Elastic Kubernetes Service)** - Container orchestration platform
-- **S3 (Simple Storage Service)** - Object storage for documents, uploads, backups
+- **S3 (Simple Storage Service)** - Object storage for documents, uploads,
+  backups
 - **CloudWatch** - Logging and monitoring across all services
 
 ### Database & Caching Services
+
 - **RDS PostgreSQL** - Relational database for structured data
 - **DynamoDB** - NoSQL database for conversations and sessions
 - **ElastiCache Redis** - In-memory caching for performance
 
 ### Security & Encryption
+
 - **KMS (Key Management Service)** - Encryption key management
 - **Secrets Manager** - Credential and secret storage
 - **WAF (Web Application Firewall)** - Traffic protection and rate limiting
 - **IAM (Identity & Access Management)** - Role-based access control
 
 ### Messaging & Async Processing
+
 - **SNS (Simple Notification Service)** - Pub/Sub messaging
 - **SQS (Simple Queue Service)** - Message queuing (subscribers to SNS)
 
 ### Cost Management & Budgets
+
 - **AWS Budgets** - Cost monitoring and alerts
 
 ---
@@ -31,24 +37,30 @@
 ## 2. DETAILED MODULE ARCHITECTURE
 
 ### 2.1 VPC Module (Network Layer)
-**Purpose**: Provides isolated network infrastructure with public/private/database subnets
+
+**Purpose**: Provides isolated network infrastructure with
+public/private/database subnets
 
 **Key Configurations:**
+
 - **3 Availability Zones** for high availability
 - **Public Subnets**: Host NAT Gateways and load balancers
 - **Private Subnets**: Host EKS worker nodes
 - **Database Subnets**: Host RDS and ElastiCache
 - **Internet Gateway**: Public internet access
 - **NAT Gateway**: Private subnet internet egress
-- **VPC Endpoints**: S3, DynamoDB, ECR, STS, Logs, SecretsManager (avoid NAT Gateway costs)
+- **VPC Endpoints**: S3, DynamoDB, ECR, STS, Logs, SecretsManager (avoid NAT
+  Gateway costs)
 - **VPC Flow Logs**: Traffic monitoring (prod only)
 
 **Dev Configuration:**
+
 - Single NAT Gateway (cost optimization)
 - Flow logs disabled
 - VPC endpoints enabled
 
 **Prod Configuration:**
+
 - Multiple NAT Gateways (HA)
 - Flow logs enabled (30-day retention)
 - VPC endpoints enabled
@@ -56,13 +68,16 @@
 ---
 
 ### 2.2 EKS Module (Kubernetes Orchestration)
+
 **Purpose**: Kubernetes cluster for AI agent workloads
 
 **Architecture:**
+
 - **Control Plane**: AWS-managed Kubernetes API server
 - **Node Groups**: EC2 instances running as worker nodes
 
 **Dev Configuration:**
+
 ```
 General Node Group:
   - Instance: t3a.medium (ARM-based, cheaper)
@@ -72,6 +87,7 @@ General Node Group:
 ```
 
 **Prod Configuration:**
+
 ```
 General Node Group:
   - Instances: t3.xlarge, t3a.xlarge
@@ -86,6 +102,7 @@ AI Node Group:
 ```
 
 **Key Add-ons (2025 Best Practices):**
+
 - **vpc-cni**: AWS VPC CNI for pod networking
 - **coredns**: DNS resolution
 - **kube-proxy**: Network proxy
@@ -93,12 +110,14 @@ AI Node Group:
 - **aws-ebs-csi-driver**: Persistent volume support
 
 **Security:**
+
 - KMS encryption for secrets
 - Pod Identity for IAM access
 - OIDC provider for IRSA fallback
 - Security groups for control plane and nodes
 
 **Logging:**
+
 - CloudWatch logs: api, audit, authenticator, controllerManager, scheduler
 - Dev: 7 days retention
 - Prod: 30 days retention
@@ -106,9 +125,11 @@ AI Node Group:
 ---
 
 ### 2.3 RDS Module (Relational Database)
+
 **Purpose**: PostgreSQL database for structured data
 
 **Dev Configuration:**
+
 ```
 Engine: PostgreSQL 16.1
 Instance: db.t4g.micro (smallest Graviton)
@@ -121,6 +142,7 @@ Read Replica: None
 ```
 
 **Prod Configuration:**
+
 ```
 Engine: PostgreSQL 16.1
 Instance: db.r6i.xlarge (memory optimized)
@@ -133,12 +155,14 @@ Read Replica: db.r6i.large (optional)
 ```
 
 **Database:**
+
 - Name: agentdb
 - Subnet: Database subnets
 - Security: Encrypted with KMS
 - Access: Only from EKS nodes
 
 **Logging:**
+
 - PostgreSQL error logs
 - Upgrade logs
 - Parameter group with statement logging
@@ -146,9 +170,11 @@ Read Replica: db.r6i.large (optional)
 ---
 
 ### 2.4 DynamoDB Module (NoSQL Database)
+
 **Purpose**: Serverless document storage for conversations and sessions
 
 **Dev Tables:**
+
 ```
 1. dev-conversations
    - Hash Key: userId (String)
@@ -166,6 +192,7 @@ Read Replica: db.r6i.large (optional)
 ```
 
 **Prod Tables:**
+
 ```
 1. prod-conversations
    - Hash Key: userId (String)
@@ -184,6 +211,7 @@ Read Replica: db.r6i.large (optional)
 ```
 
 **Features:**
+
 - KMS encryption at rest
 - Point-in-time recovery (prod)
 - TTL for auto-expiration
@@ -193,9 +221,11 @@ Read Replica: db.r6i.large (optional)
 ---
 
 ### 2.5 S3 Module (Object Storage)
+
 **Purpose**: Store documents, uploads, backups, and audit logs
 
 **Dev Buckets:**
+
 ```
 1. servicenow-ai-knowledge-documents-dev
    - Versioning: Disabled
@@ -207,6 +237,7 @@ Read Replica: db.r6i.large (optional)
 ```
 
 **Prod Buckets:**
+
 ```
 1. servicenow-ai-knowledge-documents-prod
    - Versioning: Enabled
@@ -232,6 +263,7 @@ Read Replica: db.r6i.large (optional)
 ```
 
 **Security Across All Buckets:**
+
 - Server-side encryption with KMS
 - Block all public access
 - VPC endpoint access
@@ -239,9 +271,11 @@ Read Replica: db.r6i.large (optional)
 ---
 
 ### 2.6 SNS-SQS Module (Message Queue)
+
 **Purpose**: Async messaging for event-driven workflows
 
 **Dev Configuration:**
+
 ```
 Topics:
   - dev-test-events (1 day retention)
@@ -251,19 +285,21 @@ Queue per topic:
 ```
 
 **Prod Configuration:**
+
 ```
 Topics:
   1. prod-ticket-events
   2. prod-notification-requests
   3. prod-knowledge-updates
   4. prod-action-requests
-  
+
 All with:
   - 7 day retention (604800 seconds)
   - SQS queue subscriber
 ```
 
 **Architecture:**
+
 - SNS Topics: Publishers
 - SQS Queues: Subscribers to SNS
 - Dead Letter Queue: Failed message handling
@@ -273,9 +309,11 @@ All with:
 ---
 
 ### 2.7 ElastiCache Redis Module (Caching Layer)
+
 **Purpose**: In-memory caching for sessions and performance
 
 **Dev Configuration:**
+
 ```
 Node Type: cache.t4g.micro (Graviton, cheapest)
 Nodes: 1 (single node)
@@ -285,6 +323,7 @@ Multi-AZ: No
 ```
 
 **Prod Configuration:**
+
 ```
 Node Type: cache.r7g.xlarge (Graviton, memory optimized)
 Nodes: 3 (cluster for HA)
@@ -294,6 +333,7 @@ Multi-AZ: Enabled
 ```
 
 **Security:**
+
 - KMS encryption at rest
 - In-transit encryption enabled
 - AUTH token authentication
@@ -303,9 +343,11 @@ Multi-AZ: Enabled
 ---
 
 ### 2.8 KMS Module (Key Management)
+
 **Purpose**: Centralized encryption key management
 
 **Dev Configuration:**
+
 ```
 Single shared key: "Shared encryption key for dev"
   - Used for all services
@@ -314,6 +356,7 @@ Single shared key: "Shared encryption key for dev"
 ```
 
 **Prod Configuration:**
+
 ```
 Separate keys for each service:
   1. storage - S3 buckets
@@ -326,6 +369,7 @@ Separate keys for each service:
 ```
 
 **Common Features:**
+
 - Automatic key rotation enabled
 - 7-30 day deletion window
 - Aliases for easy reference
@@ -333,9 +377,11 @@ Separate keys for each service:
 ---
 
 ### 2.9 Secrets Manager Module (Secret Storage)
+
 **Purpose**: Secure credential and API key storage
 
 **Dev Secrets:**
+
 ```
 1. dev/anthropic-api-key
 2. dev/openai-api-key
@@ -343,6 +389,7 @@ Separate keys for each service:
 ```
 
 **Prod Secrets:**
+
 ```
 1. prod/servicenow-oauth-client-id
 2. prod/servicenow-oauth-client-secret
@@ -354,6 +401,7 @@ Separate keys for each service:
 ```
 
 **Security:**
+
 - KMS encryption
 - Recovery window for deletion protection
 - Automatic rotation (prod RDS password)
@@ -361,22 +409,27 @@ Separate keys for each service:
 ---
 
 ### 2.10 WAF Module (Web Application Firewall)
+
 **Purpose**: Protect EKS workloads from attacks
 
 **Dev Configuration:**
+
 - Rate limit: 5000 req/IP
 - Scope: REGIONAL
 
 **Prod Configuration:**
+
 - Rate limit: 2000 req/IP
 - Scope: REGIONAL
 
 **Security Rules:**
+
 1. **AWSManagedRulesCommonRuleSet** - OWASP top 10
 2. **AWSManagedRulesSQLiRuleSet** - SQL injection protection
 3. **RateLimitRule** - Throttle excessive traffic
 
 **Monitoring:**
+
 - CloudWatch metrics enabled
 - Sampled requests logged
 
@@ -394,7 +447,7 @@ AWS WAF (Rate limiting, DDoS protection)
 EKS Cluster (Kubernetes nodes)
     ├─ General Node Group (t3a.medium/xlarge)
     └─ AI Node Group (r6i.2xlarge) [Prod only]
-    
+
 EKS Nodes Access:
 ├─ PostgreSQL (RDS) via private subnet
 │  └─ Port 5432 from EKS security group
@@ -418,6 +471,7 @@ EKS Nodes Access:
 ### 3.2 Encryption & Security Layer
 
 **All data encrypted at rest with KMS:**
+
 - RDS: Encrypted with KMS key
 - DynamoDB: Encrypted with KMS key
 - S3: Server-side encryption with KMS
@@ -426,6 +480,7 @@ EKS Nodes Access:
 - Secrets Manager: Encrypted with KMS
 
 **In-transit encryption:**
+
 - Redis: Transit encryption enabled + AUTH token
 - RDS: TLS/SSL connections
 - S3: HTTPS only
@@ -434,6 +489,7 @@ EKS Nodes Access:
 ### 3.3 High Availability Pattern
 
 **Dev (Single Availability Zone):**
+
 ```
 Single AZ
 ├─ 1 NAT Gateway
@@ -443,6 +499,7 @@ Single AZ
 ```
 
 **Prod (Multi-AZ):**
+
 ```
 3 Availability Zones
 ├─ NAT Gateway per AZ
@@ -455,18 +512,22 @@ Single AZ
 ### 3.4 Backup & Recovery Strategy
 
 **RDS:**
+
 - Dev: 1 day retention (minimal backups)
 - Prod: 30 day retention + optional read replica
 
 **S3:**
+
 - Dev: Minimal (7 day delete for uploads)
 - Prod: Versioning + lifecycle rules (30/90/180 day transitions)
 
 **DynamoDB:**
+
 - Dev: No PITR
 - Prod: PITR enabled, Streams enabled
 
 **Redis:**
+
 - Dev: No snapshots
 - Prod: 7 day snapshot retention
 
@@ -495,6 +556,7 @@ Single AZ
 ### Service Communication Paths
 
 **Allowed:**
+
 - EKS → RDS (via security group rule)
 - EKS → ElastiCache (via security group rule)
 - EKS → S3 (via VPC endpoint)
@@ -504,6 +566,7 @@ Single AZ
 - SNS → SQS (queue policy)
 
 **Blocked:**
+
 - RDS ↔ DynamoDB (different subnets, no direct access)
 - Public ↔ Private subnets (NAT Gateway required)
 - Private ↔ Database subnet (no direct route)
@@ -513,6 +576,7 @@ Single AZ
 ## 5. COST OPTIMIZATION PATTERNS
 
 ### Dev Environment Cost Reductions
+
 - Single NAT Gateway (not HA)
 - SPOT instances (70% cheaper)
 - Smallest instance types (t3a.micro/medium)
@@ -523,6 +587,7 @@ Single AZ
 - No PITR for DynamoDB/RDS
 
 ### Prod Environment Cost Optimization
+
 - VPC endpoints for S3/DynamoDB (avoid NAT data transfer)
 - Intelligent tiering for old S3 objects
 - ON_DEMAND capacity for reliability
@@ -534,6 +599,7 @@ Single AZ
 ## 6. MONITORING & OBSERVABILITY
 
 ### CloudWatch Integration
+
 - **EKS Logs**: /aws/eks/{cluster-name}/cluster
 - **RDS Logs**: PostgreSQL error logs, upgrade logs
 - **Redis Logs**: Slow-log to CloudWatch
@@ -541,6 +607,7 @@ Single AZ
 - **VPC Flow Logs**: Network traffic (prod only)
 
 ### Metrics Collected
+
 - EKS cluster health
 - RDS CPU, memory, connections
 - DynamoDB capacity utilization
@@ -550,6 +617,7 @@ Single AZ
 - WAF blocked requests
 
 ### Budgets & Alerts
+
 - Dev: $200/month budget with 80% and 100% alerts
 - Prod: $15,000/month budget with 50%, 80%, 100% alerts
 
@@ -557,21 +625,21 @@ Single AZ
 
 ## 7. ENVIRONMENT COMPARISON MATRIX
 
-| Feature | Dev | Prod |
-|---------|-----|------|
-| **VPC** | Single NAT, No flow logs | Multi-AZ NAT, Flow logs 30d |
-| **EKS Nodes** | t3a.medium SPOT (1-3) | t3.xlarge/a ON_DEMAND (3-20) |
-| **AI Nodes** | Disabled | r6i.2xlarge (2-10) |
-| **RDS** | db.t4g.micro, 20GB, 1-day backup | db.r6i.xlarge, 200GB, 30-day backup |
-| **RDS HA** | No (single AZ) | Yes (Multi-AZ) |
-| **DynamoDB PITR** | No | Yes |
-| **Redis** | cache.t4g.micro, 1 node | cache.r7g.xlarge, 3 nodes |
-| **S3 Versioning** | Disabled | Enabled |
-| **S3 Lifecycle** | 7-day delete | 30/90/180-day transitions |
-| **KMS Keys** | 1 shared | 7 separate keys |
-| **CloudWatch Retention** | 3 days | 30 days |
-| **WAF Rate Limit** | 5000 req/IP | 2000 req/IP |
-| **Estimated Cost** | $200/month | $15,000/month |
+| Feature                  | Dev                              | Prod                                |
+| ------------------------ | -------------------------------- | ----------------------------------- |
+| **VPC**                  | Single NAT, No flow logs         | Multi-AZ NAT, Flow logs 30d         |
+| **EKS Nodes**            | t3a.medium SPOT (1-3)            | t3.xlarge/a ON_DEMAND (3-20)        |
+| **AI Nodes**             | Disabled                         | r6i.2xlarge (2-10)                  |
+| **RDS**                  | db.t4g.micro, 20GB, 1-day backup | db.r6i.xlarge, 200GB, 30-day backup |
+| **RDS HA**               | No (single AZ)                   | Yes (Multi-AZ)                      |
+| **DynamoDB PITR**        | No                               | Yes                                 |
+| **Redis**                | cache.t4g.micro, 1 node          | cache.r7g.xlarge, 3 nodes           |
+| **S3 Versioning**        | Disabled                         | Enabled                             |
+| **S3 Lifecycle**         | 7-day delete                     | 30/90/180-day transitions           |
+| **KMS Keys**             | 1 shared                         | 7 separate keys                     |
+| **CloudWatch Retention** | 3 days                           | 30 days                             |
+| **WAF Rate Limit**       | 5000 req/IP                      | 2000 req/IP                         |
+| **Estimated Cost**       | $200/month                       | $15,000/month                       |
 
 ---
 
@@ -579,24 +647,25 @@ Single AZ
 
 When migrating to Bedrock-based equivalent:
 
-| AWS Service | Bedrock/Alternative | Notes |
-|-------------|-------------------|-------|
-| **EKS** | Bedrock Agents + Lambda | Serverless alternative to Kubernetes |
-| **RDS** | DynamoDB + Aurora Serverless | Better for serverless pattern |
-| **ElastiCache** | DAX (DynamoDB Accelerator) | Native DynamoDB caching |
-| **SNS/SQS** | EventBridge + Lambda | Event-driven without message queues |
-| **S3** | S3 (keep) | Object storage remains same |
-| **DynamoDB** | DynamoDB (keep) | NoSQL layer remains same |
-| **KMS** | KMS (keep) | Encryption layer remains same |
-| **Secrets Manager** | Secrets Manager (keep) | Secret storage remains same |
-| **WAF** | WAF (keep) + API Gateway | Add API Gateway for REST endpoints |
-| **CloudWatch** | CloudWatch (keep) | Logging/monitoring remains same |
+| AWS Service         | Bedrock/Alternative          | Notes                                |
+| ------------------- | ---------------------------- | ------------------------------------ |
+| **EKS**             | Bedrock Agents + Lambda      | Serverless alternative to Kubernetes |
+| **RDS**             | DynamoDB + Aurora Serverless | Better for serverless pattern        |
+| **ElastiCache**     | DAX (DynamoDB Accelerator)   | Native DynamoDB caching              |
+| **SNS/SQS**         | EventBridge + Lambda         | Event-driven without message queues  |
+| **S3**              | S3 (keep)                    | Object storage remains same          |
+| **DynamoDB**        | DynamoDB (keep)              | NoSQL layer remains same             |
+| **KMS**             | KMS (keep)                   | Encryption layer remains same        |
+| **Secrets Manager** | Secrets Manager (keep)       | Secret storage remains same          |
+| **WAF**             | WAF (keep) + API Gateway     | Add API Gateway for REST endpoints   |
+| **CloudWatch**      | CloudWatch (keep)            | Logging/monitoring remains same      |
 
 ---
 
 ## 9. KEY CONFIGURATION FILES
 
 **Environment Variables Required:**
+
 ```
 - AWS Region: us-east-1 (configurable)
 - db_master_password: RDS password
@@ -608,6 +677,7 @@ When migrating to Bedrock-based equivalent:
 ```
 
 **Terraform State Management:**
+
 ```
 Backend: S3
   - Bucket: servicenow-ai-terraform-state
@@ -615,4 +685,3 @@ Backend: S3
   - KMS Encryption: alias/terraform-state
   - Separate keys per environment (dev/, prod/)
 ```
-

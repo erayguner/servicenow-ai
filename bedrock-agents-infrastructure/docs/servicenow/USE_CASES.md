@@ -14,11 +14,14 @@
 
 ### Scenario
 
-A large financial services company receives 500+ incidents per day across their IT infrastructure. Manual incident triage by 3 tier-1 support engineers takes 2-3 hours daily before work can be assigned to appropriate teams.
+A large financial services company receives 500+ incidents per day across their
+IT infrastructure. Manual incident triage by 3 tier-1 support engineers takes
+2-3 hours daily before work can be assigned to appropriate teams.
 
 ### Solution
 
-Deploy the Incident Resolution Agent to automatically triage all new incidents as they arrive in ServiceNow.
+Deploy the Incident Resolution Agent to automatically triage all new incidents
+as they arrive in ServiceNow.
 
 ### Process Flow
 
@@ -119,11 +122,15 @@ ROI:
 
 ### Scenario
 
-A technology company manages 150+ changes per month across production systems. Manual change risk assessments take 4+ hours per change request. CAB (Change Advisory Board) meetings often miss critical risks, leading to post-implementation issues and rollbacks.
+A technology company manages 150+ changes per month across production systems.
+Manual change risk assessments take 4+ hours per change request. CAB (Change
+Advisory Board) meetings often miss critical risks, leading to
+post-implementation issues and rollbacks.
 
 ### Solution
 
-Deploy the Change Coordination Agent to provide automated risk assessment and CAB preparation for all changes.
+Deploy the Change Coordination Agent to provide automated risk assessment and
+CAB preparation for all changes.
 
 ### Process Flow
 
@@ -285,11 +292,14 @@ ROI:
 
 ### Scenario
 
-A company's ServiceNow KB contains 1,200 articles, but 35% of user searches return no results. Support teams frequently resolve the same issues repeatedly, and there's significant duplication in KB content.
+A company's ServiceNow KB contains 1,200 articles, but 35% of user searches
+return no results. Support teams frequently resolve the same issues repeatedly,
+and there's significant duplication in KB content.
 
 ### Solution
 
-Deploy the Knowledge Synchronizer Agent to automatically generate KB articles from incident resolutions, consolidate duplicates, and optimize search.
+Deploy the Knowledge Synchronizer Agent to automatically generate KB articles
+from incident resolutions, consolidate duplicates, and optimize search.
 
 ### Process Flow
 
@@ -448,11 +458,13 @@ ROI:
 
 ### Scenario
 
-A global company with users across multiple time zones needs 24/7 support but can't afford to staff support teams around the clock in all regions.
+A global company with users across multiple time zones needs 24/7 support but
+can't afford to staff support teams around the clock in all regions.
 
 ### Solution
 
-Deploy the Incident Resolution Agent to provide 24/7 automated first-line support, with human escalation when needed.
+Deploy the Incident Resolution Agent to provide 24/7 automated first-line
+support, with human escalation when needed.
 
 ### Process Flow
 
@@ -481,11 +493,13 @@ Morning Shift (AI + Humans):
 
 ### Scenario
 
-Company wants to enable users to resolve common issues themselves without contacting support.
+Company wants to enable users to resolve common issues themselves without
+contacting support.
 
 ### Solution
 
-Integrate the agents into ServiceNow Service Portal to provide interactive troubleshooting.
+Integrate the agents into ServiceNow Service Portal to provide interactive
+troubleshooting.
 
 ### User Experience
 
@@ -630,5 +644,6 @@ Year 3+:
 - Continuous ROI growth
 ```
 
-For implementation details, refer to the [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
-For workflow details, refer to the [WORKFLOWS.md](WORKFLOWS.md).
+For implementation details, refer to the
+[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). For workflow details, refer to the
+[WORKFLOWS.md](WORKFLOWS.md).

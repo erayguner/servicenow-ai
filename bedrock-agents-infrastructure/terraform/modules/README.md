@@ -1,13 +1,16 @@
 # Amazon Bedrock Agents Terraform Modules
 
-Comprehensive Terraform modules for deploying and managing Amazon Bedrock Agents infrastructure with knowledge bases, action groups, and orchestration capabilities.
+Comprehensive Terraform modules for deploying and managing Amazon Bedrock Agents
+infrastructure with knowledge bases, action groups, and orchestration
+capabilities.
 
 ## Overview
 
 This collection provides production-ready Terraform modules for:
 
 - **Bedrock Agents** - Claude 3.5 Sonnet/Haiku agents with full configuration
-- **Knowledge Bases** - OpenSearch Serverless with S3 storage and Titan Embeddings V2
+- **Knowledge Bases** - OpenSearch Serverless with S3 storage and Titan
+  Embeddings V2
 - **Action Groups** - Lambda-backed custom actions with API schemas
 - **Orchestration** - Step Functions workflows for multi-agent coordination
 
@@ -15,9 +18,11 @@ This collection provides production-ready Terraform modules for:
 
 ### 1. bedrock-agent
 
-Creates a fully configured Bedrock agent with IAM roles, aliases, and integrations.
+Creates a fully configured Bedrock agent with IAM roles, aliases, and
+integrations.
 
 **Features:**
+
 - Claude 3.5 Sonnet or Haiku model selection
 - Customizable instructions and prompts
 - Knowledge base associations
@@ -80,6 +85,7 @@ module "customer_support_agent" {
 ```
 
 **Key Outputs:**
+
 - `agent_id` - Agent identifier
 - `agent_arn` - Agent ARN
 - `agent_aliases` - Map of alias names to details
@@ -90,6 +96,7 @@ module "customer_support_agent" {
 Creates an OpenSearch Serverless-backed knowledge base with S3 document storage.
 
 **Features:**
+
 - OpenSearch Serverless collection with encryption
 - S3 bucket with versioning and encryption
 - Titan Embeddings V2 (256, 512, or 1024 dimensions)
@@ -141,6 +148,7 @@ module "product_documentation_kb" {
 ```
 
 **Key Outputs:**
+
 - `knowledge_base_id` - Knowledge base identifier
 - `knowledge_base_arn` - Knowledge base ARN
 - `opensearch_collection_endpoint` - Collection endpoint
@@ -151,6 +159,7 @@ module "product_documentation_kb" {
 Creates Lambda-backed action groups for custom agent capabilities.
 
 **Features:**
+
 - Lambda function creation with configurable runtime
 - Inline or file-based source code
 - OpenAPI schema support
@@ -281,15 +290,18 @@ module "database_actions" {
 ```
 
 **Key Outputs:**
+
 - `lambda_function_arn` - Lambda ARN for agent association
 - `lambda_function_name` - Function name
 - `api_schema` - OpenAPI schema (sensitive)
 
 ### 4. bedrock-orchestration
 
-Creates Step Functions state machines for multi-agent orchestration with DynamoDB state management.
+Creates Step Functions state machines for multi-agent orchestration with
+DynamoDB state management.
 
 **Features:**
+
 - Multiple orchestration patterns (sequential, parallel, choice, map)
 - DynamoDB state tracking
 - EventBridge triggers
@@ -367,6 +379,7 @@ module "customer_workflow" {
 4. **Map** - Batch processing across multiple items
 
 **Key Outputs:**
+
 - `state_machine_arn` - State machine ARN
 - `dynamodb_table_name` - State storage table
 - `sns_topic_arn` - Notification topic
@@ -376,7 +389,8 @@ module "customer_workflow" {
 - **Terraform**: >= 1.11.0
 - **AWS Provider**: ~> 5.80
 - **AWS CLI**: Configured with appropriate credentials
-- **Permissions**: IAM permissions for Bedrock, Lambda, S3, OpenSearch, Step Functions, DynamoDB, EventBridge, SNS
+- **Permissions**: IAM permissions for Bedrock, Lambda, S3, OpenSearch, Step
+  Functions, DynamoDB, EventBridge, SNS
 
 ## Complete Example
 
@@ -490,11 +504,13 @@ output "agent_ids" {
 ### Security
 
 1. **Encryption**
+
    - Enable KMS encryption for S3 buckets
    - Use customer-managed keys when required
    - Enable encryption for DynamoDB tables
 
 2. **IAM Least Privilege**
+
    - Use specific resource ARNs in policies
    - Enable source account/ARN conditions
    - Regularly audit permissions
@@ -507,11 +523,13 @@ output "agent_ids" {
 ### Performance
 
 1. **Knowledge Bases**
+
    - Choose appropriate vector dimensions (1024 recommended)
    - Optimize chunk size for your content
    - Use appropriate overlap percentages
 
 2. **Lambda Functions**
+
    - Set appropriate memory and timeout values
    - Use Lambda layers for dependencies
    - Enable reserved concurrency for critical actions
@@ -524,10 +542,12 @@ output "agent_ids" {
 ### Cost Optimization
 
 1. **OpenSearch Serverless**
+
    - Enable standby replicas only when needed
    - Monitor collection capacity units (OCUs)
 
 2. **Step Functions**
+
    - Use EXPRESS for high-volume, short-duration workflows
    - Use STANDARD for long-running workflows
 
@@ -538,11 +558,13 @@ output "agent_ids" {
 ### Monitoring
 
 1. **CloudWatch**
+
    - Enable detailed logging
    - Set up alarms for errors and throttling
    - Monitor Lambda concurrent executions
 
 2. **X-Ray**
+
    - Enable tracing for Lambda and Step Functions
    - Analyze trace maps for bottlenecks
 
@@ -555,16 +577,19 @@ output "agent_ids" {
 ### Common Issues
 
 1. **Agent Creation Fails**
+
    - Verify model access in Bedrock console
    - Check IAM role permissions
    - Ensure knowledge base IDs are valid
 
 2. **Knowledge Base Ingestion Issues**
+
    - Verify S3 bucket permissions
    - Check data source configuration
    - Ensure documents are in supported formats
 
 3. **Action Group Errors**
+
    - Validate OpenAPI schema format
    - Check Lambda function permissions
    - Verify response format matches Bedrock requirements
@@ -583,11 +608,13 @@ output "agent_ids" {
 
 ## License
 
-This module collection is provided as-is for use in AWS infrastructure deployments.
+This module collection is provided as-is for use in AWS infrastructure
+deployments.
 
 ## Support
 
 For issues or questions:
+
 1. Review the troubleshooting section
 2. Check AWS service quotas and limits
 3. Verify IAM permissions

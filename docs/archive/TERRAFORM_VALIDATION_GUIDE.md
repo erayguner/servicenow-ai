@@ -1,13 +1,14 @@
 # Terraform Validation Guide
 
-**Last Updated:** 2025-11-13
-**Status:** Active
+**Last Updated:** 2025-11-13 **Status:** Active
 
 ---
 
 ## Overview
 
-This guide provides instructions for validating Terraform configurations in the ServiceNow AI Infrastructure project using `npx claude-flow@alpha` and standard terraform tools.
+This guide provides instructions for validating Terraform configurations in the
+ServiceNow AI Infrastructure project using `npx claude-flow@alpha` and standard
+terraform tools.
 
 ---
 
@@ -76,6 +77,7 @@ pre-commit run terraform_validate --all-files
 ```
 
 **What pre-commit checks:**
+
 - ✅ Terraform formatting (terraform_fmt)
 - ✅ Terraform validation (terraform_validate)
 - ✅ Python linting (ruff)
@@ -100,6 +102,7 @@ npx claude-flow@alpha agent booster benchmark
 ```
 
 **Claude Flow Benefits:**
+
 - AI-powered code review
 - Advanced linting beyond standard tools
 - Context-aware suggestions
@@ -125,11 +128,13 @@ The CI/CD pipeline automatically runs on every push:
 ```
 
 **Workflow triggers:**
+
 - Push to any branch
 - Pull request creation/update
 - Manual workflow dispatch
 
-Reference: [.github/workflows/terraform-ci-optimized.yml](../.github/workflows/terraform-ci-optimized.yml)
+Reference:
+[.github/workflows/terraform-ci-optimized.yml](../.github/workflows/terraform-ci-optimized.yml)
 
 ---
 
@@ -138,6 +143,7 @@ Reference: [.github/workflows/terraform-ci-optimized.yml](../.github/workflows/t
 ### Security Standards
 
 **Validate compliance with:**
+
 - ✅ Government Cyber Security Strategy (2022-2030)
 - ✅ Secure by Design principles
 - ✅ NCSC Cloud Security Principles
@@ -194,12 +200,14 @@ grep -r "replica" terraform/modules/cloudsql/
 ### Issue 1: Formatting Errors
 
 **Error:**
+
 ```
 terraform fmt -check
 └─ [FAIL] terraform/modules/gke/main.tf
 ```
 
 **Fix:**
+
 ```bash
 terraform fmt terraform/modules/gke/main.tf
 # Or format all files
@@ -211,11 +219,13 @@ terraform fmt -recursive terraform/
 ### Issue 2: Variable Type Mismatch
 
 **Error:**
+
 ```
 Error: Invalid value for variable
 ```
 
 **Fix:**
+
 ```hcl
 # Ensure variable types match in variables.tf and module calls
 # Example:
@@ -233,11 +243,13 @@ spot_instance_pools = ["general", "ai-inference"]
 ### Issue 3: Cyclic Dependencies
 
 **Error:**
+
 ```
 Error: Cycle: module.vpc, module.gke
 ```
 
 **Fix:**
+
 ```hcl
 # Use explicit depends_on to break cycles
 module "gke" {
@@ -251,11 +263,13 @@ module "gke" {
 ### Issue 4: Checkov Security Failures
 
 **Error:**
+
 ```
 CKV_GCP_21: Ensure GKE clusters are configured with labels
 ```
 
 **Fix:**
+
 ```hcl
 # Add required labels
 resource "google_container_cluster" "primary" {
@@ -302,6 +316,7 @@ resource "google_container_cluster" "primary" {
 ### Principle 3: Security
 
 **Validation:**
+
 ```bash
 # Check Workload Identity (no service account keys)
 ! grep -r "service_account_key" terraform/
@@ -316,6 +331,7 @@ grep "binary_authorization" terraform/modules/gke/main.tf
 ### Principle 5: Lifecycle Management
 
 **Validation:**
+
 ```bash
 # Check monitoring configuration
 grep -r "monitoring_service" terraform/modules/gke/
@@ -330,6 +346,7 @@ grep -r "auto_upgrade" terraform/modules/gke/
 ### Principle 10: Organizational Alignment
 
 **Validation:**
+
 ```bash
 # Verify all environments have consistent configuration
 diff terraform/environments/dev/main.tf terraform/environments/staging/main.tf
@@ -371,18 +388,21 @@ npx claude-flow@alpha agent booster benchmark
 ### Example Claude Flow Prompts
 
 **Security review:**
+
 ```
 Review all terraform modules for UK Government Cyber Security Strategy compliance.
 Check for: Workload Identity, encryption at rest/transit, private clusters, key rotation.
 ```
 
 **Cost optimization:**
+
 ```
 Analyze terraform configurations for cost optimization opportunities.
 Focus on: spot instances, committed use discounts, right-sizing, storage lifecycle.
 ```
 
 **Best practices:**
+
 ```
 Review terraform modules against best practices for:
 - DRY principles (module reuse)
@@ -398,18 +418,21 @@ Review terraform modules against best practices for:
 ### Automated Checks (CI/CD)
 
 **On every commit:**
+
 - Terraform format check
 - Terraform validate (all modules)
 - Security scanning (Checkov)
 - Pre-commit hooks
 
 **On pull request:**
+
 - Full terraform test suite
 - Cost estimation
 - Plan output review
 - Security audit
 
 **Weekly:**
+
 - Dependency updates (Dependabot)
 - Security advisories check
 - Compliance audit
@@ -417,12 +440,14 @@ Review terraform modules against best practices for:
 ### Manual Reviews
 
 **Monthly:**
+
 - Architecture review
 - Cost analysis
 - Security posture assessment
 - UK AI Playbook compliance check
 
 **Quarterly:**
+
 - External security audit
 - Compliance certification renewal
 - Disaster recovery drill
@@ -494,12 +519,14 @@ make ci
 ## References
 
 ### Internal Documentation
+
 - [Pre-commit Quickstart](../PRE_COMMIT_QUICKSTART.md)
 - [Parallel Testing Guide](../docs/PARALLEL_TESTING_GUIDE.md)
 - [Security Configuration](../terraform/docs/SECURITY_CONFIGURATION.md)
 - [UK AI Playbook Compliance](../docs/ai-governance/UK_AI_PLAYBOOK_COMPLIANCE.md)
 
 ### External References
+
 - [Terraform Best Practices](https://www.terraform-best-practices.com/)
 - [Google Cloud Terraform Modules](https://github.com/terraform-google-modules)
 - [UK AI Playbook](https://www.gov.uk/government/publications/ai-playbook-for-the-uk-government)
@@ -507,8 +534,7 @@ make ci
 
 ---
 
-**Document Owner:** Cloud Infrastructure Team
-**Last Updated:** 2025-11-13
+**Document Owner:** Cloud Infrastructure Team **Last Updated:** 2025-11-13
 **Next Review:** 2025-02-13
 
 ---

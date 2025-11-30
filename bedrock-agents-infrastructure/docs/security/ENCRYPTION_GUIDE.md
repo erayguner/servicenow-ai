@@ -66,6 +66,7 @@ The encryption architecture protects data at multiple layers:
 ### S3 Bucket Encryption
 
 #### Configuration via Bucket Policy
+
 ```json
 {
   "Bucket": "bedrock-agents-data",
@@ -84,6 +85,7 @@ The encryption architecture protects data at multiple layers:
 ```
 
 #### Object-Level Encryption
+
 ```bash
 # Upload with specific key
 aws s3api put-object \
@@ -101,6 +103,7 @@ aws s3api head-object \
 ```
 
 #### Default Encryption Policy
+
 ```json
 {
   "Version": "2012-10-17",
@@ -124,6 +127,7 @@ aws s3api head-object \
 ### RDS Database Encryption
 
 #### Enable Encryption at Creation
+
 ```bash
 aws rds create-db-instance \
   --db-instance-identifier bedrock-database \
@@ -135,6 +139,7 @@ aws rds create-db-instance \
 ```
 
 #### Enable Encryption on Existing Database
+
 ```bash
 # Create snapshot
 aws rds create-db-snapshot \
@@ -156,6 +161,7 @@ aws rds restore-db-instance-from-db-snapshot \
 ### DynamoDB Encryption
 
 #### Table Encryption
+
 ```json
 {
   "TableName": "agent-state",
@@ -168,6 +174,7 @@ aws rds restore-db-instance-from-db-snapshot \
 ```
 
 #### Point-in-Time Recovery
+
 ```bash
 aws dynamodb update-continuous-backups \
   --table-name agent-state \
@@ -177,6 +184,7 @@ aws dynamodb update-continuous-backups \
 ### EBS Volume Encryption
 
 #### Launch Encrypted Instance
+
 ```bash
 aws ec2 run-instances \
   --image-id ami-0c55b159cbfafe1f0 \
@@ -199,6 +207,7 @@ aws ec2 run-instances \
 ### TLS 1.3 Configuration
 
 #### API Gateway with TLS 1.3
+
 ```json
 {
   "restApiId": "api-id",
@@ -208,6 +217,7 @@ aws ec2 run-instances \
 ```
 
 #### ALB with TLS 1.3
+
 ```bash
 aws elbv2 create-listener \
   --load-balancer-arn arn:aws:elasticloadbalancing:REGION:ACCOUNT:loadbalancer/app/bedrock-alb/1234567890abcdef \
@@ -220,6 +230,7 @@ aws elbv2 create-listener \
 ### Certificate Configuration
 
 #### Certificate for API
+
 ```bash
 # Request certificate
 aws acm request-certificate \
@@ -236,6 +247,7 @@ aws acm describe-certificate \
 ### Mutual TLS (mTLS)
 
 #### Client Certificate Authentication
+
 ```bash
 # Create private CA
 aws acm-pca create-certificate-authority \
@@ -253,6 +265,7 @@ aws acm-pca request-certificate \
 ### VPN Encryption
 
 #### VPN Connection with Encryption
+
 ```bash
 aws ec2 create-vpn-connection \
   --type ipsec.1 \
@@ -291,6 +304,7 @@ Each DEK:
 ### Key Creation
 
 #### Create Customer-Managed Key
+
 ```bash
 aws kms create-key \
   --origin AWS_KMS \
@@ -302,6 +316,7 @@ aws kms create-key \
 ```
 
 #### Key Alias
+
 ```bash
 aws kms create-alias \
   --alias-name alias/bedrock-agents-key \
@@ -311,6 +326,7 @@ aws kms create-alias \
 ### Key Policy
 
 #### Customer-Managed Key Policy
+
 ```json
 {
   "Sid": "Enable Root Account Permissions",
@@ -328,17 +344,9 @@ aws kms create-alias \
   "Sid": "Allow Services to Use Key",
   "Effect": "Allow",
   "Principal": {
-    "Service": [
-      "s3.amazonaws.com",
-      "rds.amazonaws.com",
-      "logs.amazonaws.com"
-    ]
+    "Service": ["s3.amazonaws.com", "rds.amazonaws.com", "logs.amazonaws.com"]
   },
-  "Action": [
-    "kms:Decrypt",
-    "kms:GenerateDataKey",
-    "kms:DescribeKey"
-  ],
+  "Action": ["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"],
   "Resource": "*"
 }
 ```
@@ -350,10 +358,7 @@ aws kms create-alias \
   "Principal": {
     "AWS": "arn:aws:iam::ACCOUNT:role/LambdaExecutionRole"
   },
-  "Action": [
-    "kms:Decrypt",
-    "kms:GenerateDataKey"
-  ],
+  "Action": ["kms:Decrypt", "kms:GenerateDataKey"],
   "Resource": "*"
 }
 ```
@@ -376,6 +381,7 @@ aws kms create-alias \
 ### Key Monitoring
 
 #### CloudTrail Logging
+
 ```bash
 # Enable CloudTrail logging for key
 aws kms put-key-policy \
@@ -390,6 +396,7 @@ aws cloudtrail lookup-events \
 ```
 
 #### CloudWatch Metrics
+
 ```bash
 # Disable or enable key rotation
 aws kms enable-key-rotation \
@@ -406,6 +413,7 @@ aws kms describe-key \
 ### Automatic Key Rotation
 
 #### Enable Annual Rotation
+
 ```bash
 aws kms enable-key-rotation \
   --key-id KEY-ID
@@ -416,6 +424,7 @@ aws kms get-key-rotation-status \
 ```
 
 #### Rotation Timeline
+
 ```
 Timeline:
 - Year 0: Initial key generation
@@ -428,6 +437,7 @@ Timeline:
 ### Manual Key Rotation
 
 #### Scenario: Key Compromise Suspected
+
 ```bash
 # Step 1: Create new key immediately
 aws kms create-key \
@@ -457,6 +467,7 @@ aws kms schedule-key-deletion \
 ### Data Re-encryption Process
 
 #### S3 Objects
+
 ```bash
 # Use S3 batch operations
 aws s3control create-job \
@@ -475,6 +486,7 @@ aws s3control create-job \
 ```
 
 #### RDS Database
+
 ```bash
 # Create snapshot with old key
 aws rds create-db-snapshot \
@@ -514,6 +526,7 @@ Expiration: Certificate invalid, service failure
 ### Certificate Renewal
 
 #### Automatic Renewal (ACM)
+
 ```bash
 # Enable transparency logging
 aws acm update-certificate-options \
@@ -527,6 +540,7 @@ aws acm describe-certificate \
 ```
 
 #### Manual Renewal if Needed
+
 ```bash
 # Request new certificate
 aws acm request-certificate \
@@ -543,6 +557,7 @@ aws elbv2 modify-listener \
 ### Certificate Monitoring
 
 #### CloudWatch Alarms
+
 ```bash
 aws cloudwatch put-metric-alarm \
   --alarm-name bedrock-certificate-expiration \
@@ -561,6 +576,7 @@ aws cloudwatch put-metric-alarm \
 ### Secrets Manager Integration
 
 #### Store Sensitive Data
+
 ```bash
 # Store database password
 aws secretsmanager create-secret \
@@ -577,6 +593,7 @@ aws secretsmanager create-secret \
 ```
 
 #### Retrieve Secret in Lambda
+
 ```python
 import json
 import boto3
@@ -596,6 +613,7 @@ def lambda_handler(event, context):
 ### Automatic Rotation
 
 #### Configure Rotation Function
+
 ```bash
 aws secretsmanager rotate-secret \
   --secret-id bedrock/rds/password \
@@ -604,6 +622,7 @@ aws secretsmanager rotate-secret \
 ```
 
 #### Rotation Lambda Lifecycle
+
 ```
 1. Create Secret: Generate new password
 2. Set Secret: Apply new password to RDS
@@ -614,30 +633,35 @@ aws secretsmanager rotate-secret \
 ## Encryption Best Practices
 
 ### 1. Encrypt by Default
+
 - Enable encryption on all new resources
 - Enable encryption on existing resources
 - Use customer-managed keys for sensitive data
 - Use service-managed keys for general data
 
 ### 2. Key Management
+
 - Use separate keys for different classifications
 - Enable automatic key rotation (annual)
 - Restrict key access via key policies
 - Monitor key usage via CloudTrail
 
 ### 3. Certificate Management
+
 - Use AWS ACM for certificate automation
 - Monitor certificate expiration
 - Enforce TLS 1.3 minimum
 - Use SAN certificates for flexibility
 
 ### 4. Secrets Rotation
+
 - Rotate credentials every 30-90 days
 - Automate rotation where possible
 - Test rotation procedures regularly
 - Monitor rotation failures
 
 ### 5. Compliance
+
 - Document encryption for each resource
 - Maintain encryption audit trail
 - Review encryption configuration quarterly
@@ -646,12 +670,14 @@ aws secretsmanager rotate-secret \
 ## Encryption Compliance
 
 ### Supported Standards
+
 - FIPS 140-2 Level 2: AWS KMS
 - FIPS 140-2 Level 3: AWS CloudHSM
 - NIST SP 800-38D: AES-GCM mode
 - Common Criteria EAL 2+: AWS services
 
 ### Compliance Verification
+
 ```bash
 # Verify S3 encryption
 aws s3api get-bucket-encryption \
@@ -677,6 +703,7 @@ aws kms get-key-rotation-status \
 ### KMS Key Access Errors
 
 #### Problem: "AccessDenied" on Decrypt
+
 ```
 Cause: IAM role lacks kms:Decrypt permission
 
@@ -688,6 +715,7 @@ Solution:
 ```
 
 #### Problem: "InvalidKeyId" Error
+
 ```
 Cause: Key doesn't exist or access denied
 
@@ -701,6 +729,7 @@ Solution:
 ### Certificate Issues
 
 #### Problem: Certificate Validation Failed
+
 ```
 Cause: DNS validation not completed
 
@@ -712,6 +741,7 @@ Solution:
 ```
 
 #### Problem: Certificate Expired
+
 ```
 Cause: Auto-renewal failed or missed
 
@@ -724,6 +754,5 @@ Solution:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Next Review**: May 2025
+**Document Version**: 1.0 **Last Updated**: November 2024 **Next Review**: May
+2025

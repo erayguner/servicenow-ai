@@ -17,7 +17,8 @@
 
 ### Compliance Scope
 
-The Bedrock Agents Infrastructure is designed to support compliance with multiple regulatory and industry frameworks:
+The Bedrock Agents Infrastructure is designed to support compliance with
+multiple regulatory and industry frameworks:
 
 - **SOC 2 Type II**: Security, availability, and confidentiality
 - **ISO 27001**: Information security management system
@@ -61,7 +62,9 @@ Security Team    Audit Team    Operations    Development
 ### SOC 2 Type II
 
 #### Scope
+
 Trust Service Categories:
+
 - Security (CC): Access controls and data protection
 - Availability (A): System uptime and performance
 - Confidentiality (C): Data privacy and protection
@@ -69,6 +72,7 @@ Trust Service Categories:
 - Privacy (P): Personal information handling
 
 #### Key Requirements
+
 - Document all security policies and procedures
 - Design and implement technical controls
 - Operate controls for minimum 6 months
@@ -76,6 +80,7 @@ Trust Service Categories:
 - Generate SOC 2 Type II report
 
 #### Audit Timeline
+
 - Planning and scoping: 2 weeks
 - On-site audit: 2-3 weeks
 - Remediation: 2-4 weeks (if needed)
@@ -85,7 +90,9 @@ Trust Service Categories:
 ### ISO 27001
 
 #### Scope
+
 Information Security Management System (ISMS) covering:
+
 - Access control
 - Cryptography
 - Physical and environmental security
@@ -96,6 +103,7 @@ Information Security Management System (ISMS) covering:
 - Information security incident management
 
 #### Key Requirements
+
 - Implement 114 controls (from 14 control categories)
 - Document ISMS policies and procedures
 - Risk assessment and treatment
@@ -104,6 +112,7 @@ Information Security Management System (ISMS) covering:
 - Certification audit
 
 #### Certification Process
+
 - Gap analysis: 4 weeks
 - Implementation: 8-12 weeks
 - Internal audit: 2 weeks
@@ -114,13 +123,16 @@ Information Security Management System (ISMS) covering:
 ### HIPAA (If Applicable)
 
 #### Scope
+
 Privacy and security rules for protected health information (PHI):
+
 - Administrative safeguards
 - Physical safeguards
 - Technical safeguards
 - Organizational requirements and documentation
 
 #### Key Requirements
+
 - Business Associate Agreements (BAA)
 - Encryption of PHI at rest and in transit
 - Access controls and audit logs
@@ -129,6 +141,7 @@ Privacy and security rules for protected health information (PHI):
 - Risk assessment and management plan
 
 #### Risk Assessment
+
 - Annual review required
 - Document vulnerabilities
 - Implement safeguards
@@ -138,7 +151,9 @@ Privacy and security rules for protected health information (PHI):
 ### GDPR (EU Customers)
 
 #### Scope
+
 Data protection for personal information of EU residents:
+
 - Lawful basis for processing
 - Data subject rights
 - Privacy by design
@@ -147,6 +162,7 @@ Data protection for personal information of EU residents:
 - Breach notification
 
 #### Key Requirements
+
 - Privacy policies and notices
 - Data processing agreements (DPA)
 - Data retention and deletion
@@ -155,6 +171,7 @@ Data protection for personal information of EU residents:
 - Breach notification (72 hours)
 
 #### Data Subject Rights
+
 - Right to access
 - Right to rectification
 - Right to erasure ("right to be forgotten")
@@ -166,7 +183,9 @@ Data protection for personal information of EU residents:
 ### PCI DSS (If Applicable)
 
 #### Scope
+
 Payment card data protection:
+
 - Network security
 - Cardholder data protection
 - Vulnerability management
@@ -175,6 +194,7 @@ Payment card data protection:
 - Information security policy
 
 #### Key Requirements
+
 - Secure network architecture
 - Data encryption at rest and in transit
 - Access control and authentication
@@ -206,37 +226,41 @@ Control Categories:
 ### Mapping Examples
 
 #### Access Control
-| Requirement | AWS Service | Implementation |
-|-------------|-------------|-----------------|
-| Authentication | IAM | MFA, API keys with rotation |
-| Authorization | IAM policies | Least privilege, resource-based |
-| Audit trails | CloudTrail | Comprehensive logging |
-| Account management | IAM | User/role lifecycle |
-| Segregation of duties | IAM | Role-based access control |
+
+| Requirement           | AWS Service  | Implementation                  |
+| --------------------- | ------------ | ------------------------------- |
+| Authentication        | IAM          | MFA, API keys with rotation     |
+| Authorization         | IAM policies | Least privilege, resource-based |
+| Audit trails          | CloudTrail   | Comprehensive logging           |
+| Account management    | IAM          | User/role lifecycle             |
+| Segregation of duties | IAM          | Role-based access control       |
 
 #### Cryptography
-| Requirement | AWS Service | Implementation |
-|-------------|-------------|-----------------|
-| Key management | KMS | Customer-managed keys |
-| Key rotation | KMS | Automatic annual rotation |
-| Data at rest | KMS | S3, RDS, EBS encryption |
-| Data in transit | ACM | TLS 1.3, HTTPS only |
-| Algorithm strength | AWS service defaults | AES-256, RSA-2048+ |
+
+| Requirement        | AWS Service          | Implementation            |
+| ------------------ | -------------------- | ------------------------- |
+| Key management     | KMS                  | Customer-managed keys     |
+| Key rotation       | KMS                  | Automatic annual rotation |
+| Data at rest       | KMS                  | S3, RDS, EBS encryption   |
+| Data in transit    | ACM                  | TLS 1.3, HTTPS only       |
+| Algorithm strength | AWS service defaults | AES-256, RSA-2048+        |
 
 #### Monitoring and Logging
-| Requirement | AWS Service | Implementation |
-|-------------|-------------|-----------------|
-| Comprehensive logging | CloudTrail | All API calls logged |
-| Log protection | S3 + KMS | Encrypted, MFA delete |
-| Real-time alerting | CloudWatch | Alarms on suspicious activity |
-| Threat detection | GuardDuty | Continuous threat analysis |
-| Compliance monitoring | Security Hub | Automated findings |
+
+| Requirement           | AWS Service  | Implementation                |
+| --------------------- | ------------ | ----------------------------- |
+| Comprehensive logging | CloudTrail   | All API calls logged          |
+| Log protection        | S3 + KMS     | Encrypted, MFA delete         |
+| Real-time alerting    | CloudWatch   | Alarms on suspicious activity |
+| Threat detection      | GuardDuty    | Continuous threat analysis    |
+| Compliance monitoring | Security Hub | Automated findings            |
 
 ## Audit Procedures
 
 ### Internal Audit Program
 
 #### Quarterly Audits
+
 ```
 Scope:
 - Access control review (25% of users per quarter)
@@ -255,6 +279,7 @@ Process:
 ```
 
 #### Annual Comprehensive Audit
+
 ```
 Scope:
 - Review all 114 ISO 27001 controls
@@ -276,6 +301,7 @@ Process:
 ### External Audit Procedures
 
 #### SOC 2 Type II Audit
+
 ```
 Phase 1: Planning (2 weeks)
 - Scope confirmation
@@ -299,6 +325,7 @@ Phase 3: Reporting (2-4 weeks)
 ```
 
 #### ISO 27001 Certification Audit
+
 ```
 Stage 1 Audit (1 week)
 - Review ISMS documentation
@@ -324,6 +351,7 @@ Post-Audit (2 weeks)
 ### Documentation Requirements
 
 #### Control Documentation
+
 ```
 For each control, maintain:
 1. Policy document - what is required
@@ -337,6 +365,7 @@ For each control, maintain:
 #### Evidence Categories
 
 ##### Access Control Evidence
+
 ```
 Documentation:
 - User access lists (quarterly)
@@ -353,6 +382,7 @@ Logs:
 ```
 
 ##### Encryption Evidence
+
 ```
 Documentation:
 - Key management procedures
@@ -369,6 +399,7 @@ Logs:
 ```
 
 ##### Change Management Evidence
+
 ```
 Documentation:
 - Change requests and approvals
@@ -385,6 +416,7 @@ Logs:
 ```
 
 ##### Incident Response Evidence
+
 ```
 Documentation:
 - Incident response plan
@@ -404,6 +436,7 @@ Records:
 ### Evidence Collection Process
 
 #### Automated Collection
+
 ```
 Scheduled Daily:
 - CloudTrail logs → S3 with encryption
@@ -420,6 +453,7 @@ Scheduled Weekly:
 ```
 
 #### Manual Collection
+
 ```
 Quarterly:
 - Interview security team
@@ -467,6 +501,7 @@ Evidence Structure:
 ### SOC 2 Type II Certification Path
 
 #### Step 1: Readiness Assessment
+
 ```
 Timeline: 4 weeks
 Activities:
@@ -480,6 +515,7 @@ Deliverable: SOC 2 readiness assessment report
 ```
 
 #### Step 2: Design and Implementation
+
 ```
 Timeline: 8 weeks
 Activities:
@@ -493,6 +529,7 @@ Deliverable: Complete policy and procedure documentation
 ```
 
 #### Step 3: Operating Period
+
 ```
 Timeline: 6+ months
 Activities:
@@ -506,6 +543,7 @@ Deliverable: 6+ months of operating evidence
 ```
 
 #### Step 4: External Audit
+
 ```
 Timeline: 2-3 weeks
 Activities:
@@ -519,6 +557,7 @@ Deliverable: SOC 2 Type II audit report
 ```
 
 #### Step 5: Certification
+
 ```
 Timeline: 1 week
 Activities:
@@ -535,6 +574,7 @@ Renewal: Annual audit recommended
 ### ISO 27001 Certification Path
 
 #### Step 1: Gap Analysis
+
 ```
 Timeline: 4 weeks
 Scope: All 114 controls
@@ -549,6 +589,7 @@ Output: Gap analysis report with roadmap
 ```
 
 #### Step 2: ISMS Documentation
+
 ```
 Timeline: 6 weeks
 Deliverables:
@@ -562,6 +603,7 @@ Output: Complete ISMS documentation package
 ```
 
 #### Step 3: Control Implementation
+
 ```
 Timeline: 12 weeks
 Activities:
@@ -575,6 +617,7 @@ Output: Fully operational ISMS
 ```
 
 #### Step 4: Internal Audit
+
 ```
 Timeline: 2 weeks
 Activities:
@@ -588,6 +631,7 @@ Output: Internal audit report
 ```
 
 #### Step 5: Management Review
+
 ```
 Timeline: 1 week
 Activities:
@@ -600,6 +644,7 @@ Output: Management review meeting minutes
 ```
 
 #### Step 6: Stage 1 Audit
+
 ```
 Timeline: 1 week
 Activities:
@@ -612,6 +657,7 @@ Output: Stage 1 audit report with conditionals
 ```
 
 #### Step 7: Stage 2 Audit
+
 ```
 Timeline: 2 weeks
 Activities:
@@ -624,6 +670,7 @@ Output: Stage 2 audit report with findings
 ```
 
 #### Step 8: Certification
+
 ```
 Timeline: 2 weeks
 Activities:
@@ -643,6 +690,7 @@ Recertification: Year 3, before expiration
 ### Pre-Review Planning
 
 #### Timeline: 1 month before annual review
+
 ```
 Activities:
 1. Schedule review meeting (executive team)
@@ -656,6 +704,7 @@ Activities:
 ### Annual Review Execution
 
 #### Review Meeting Agenda (3-4 hours)
+
 ```
 1. Welcome and objectives (15 min)
 2. Year review: What changed? (30 min)
@@ -687,6 +736,7 @@ Activities:
 ### Post-Review Documentation
 
 #### Annual Review Report
+
 ```
 Contents:
 1. Executive summary
@@ -707,6 +757,7 @@ Distribution:
 ```
 
 #### Action Planning
+
 ```
 For each recommendation:
 1. Specific action required
@@ -723,6 +774,7 @@ For each recommendation:
 ### Gap Analysis Process
 
 #### Step 1: Requirement Definition
+
 ```
 For each compliance standard:
 1. List all requirements
@@ -732,6 +784,7 @@ For each compliance standard:
 ```
 
 #### Step 2: Current State Assessment
+
 ```
 For each requirement:
 1. Determine current implementation level
@@ -741,6 +794,7 @@ For each requirement:
 ```
 
 #### Step 3: Gap Identification
+
 ```
 Gap categories:
 1. Design gap - control doesn't exist
@@ -751,6 +805,7 @@ Gap categories:
 ```
 
 #### Step 4: Impact Analysis
+
 ```
 For each gap, assess:
 1. Regulatory risk (non-compliance)
@@ -763,6 +818,7 @@ For each gap, assess:
 ### Remediation Roadmap
 
 #### Priority Matrix
+
 ```
           Impact
           High    Medium    Low
@@ -781,6 +837,7 @@ P4 (Priority 4): Low impact, high effort - monitor
 ```
 
 #### Remediation Timeline
+
 ```
 Priority 1: Complete within 30 days
 Priority 2: Complete within 90 days
@@ -793,6 +850,7 @@ Priority 4: Monitor and address as resources allow
 ### Internal Stakeholders
 
 #### Executive Leadership
+
 ```
 Communication:
 - Quarterly compliance briefing
@@ -809,6 +867,7 @@ Information Needed:
 ```
 
 #### Security Team
+
 ```
 Responsibilities:
 - Maintain security policies
@@ -825,6 +884,7 @@ Communication:
 ```
 
 #### Operations Team
+
 ```
 Responsibilities:
 - Follow security procedures
@@ -844,6 +904,7 @@ Communication:
 ### External Stakeholders
 
 #### Customers
+
 ```
 Communication:
 - SOC 2 report (annually)
@@ -859,6 +920,7 @@ Frequency:
 ```
 
 #### Auditors
+
 ```
 Coordination:
 - Annual audit scheduling
@@ -873,6 +935,7 @@ Timing:
 ```
 
 #### Regulators (If Applicable)
+
 ```
 Reporting:
 - HIPAA: Breach notification
@@ -891,6 +954,7 @@ Documentation:
 ### Automated Compliance Monitoring
 
 #### AWS Config Rules
+
 ```
 Enabled Rules:
 - iam-policy-no-statements-with-admin-access
@@ -910,6 +974,7 @@ Remediation: Automated or manual
 ```
 
 #### Security Hub Compliance Standards
+
 ```
 Enabled Standards:
 - AWS Foundational Security Best Practices
@@ -923,6 +988,7 @@ Remediation: Automated where available
 ```
 
 #### GuardDuty Threat Detection
+
 ```
 Enabled Findings:
 - EC2 compromise
@@ -939,6 +1005,7 @@ Response: Automated playbooks
 ### Compliance Reporting
 
 #### Automated Report Generation
+
 ```
 Daily Reports:
 - Compliance status dashboard
@@ -958,6 +1025,7 @@ Monthly Reports:
 ```
 
 #### Evidence Preservation
+
 ```
 Automated Collection:
 - CloudTrail logs → S3 (encrypted, MFA delete)
@@ -974,6 +1042,5 @@ Retention:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Next Review**: May 2025
+**Document Version**: 1.0 **Last Updated**: November 2024 **Next Review**: May
+2025

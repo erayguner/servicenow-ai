@@ -1,6 +1,7 @@
 # Contributing to ServiceNow AI Infrastructure
 
-Thank you for your interest in contributing! This document provides guidelines for contributing to this project.
+Thank you for your interest in contributing! This document provides guidelines
+for contributing to this project.
 
 ---
 
@@ -18,7 +19,8 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ## Code of Conduct
 
-This project adheres to a code of conduct. By participating, you are expected to uphold this code.
+This project adheres to a code of conduct. By participating, you are expected to
+uphold this code.
 
 ---
 
@@ -37,12 +39,14 @@ This project adheres to a code of conduct. By participating, you are expected to
 ### Setup
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/erayguner/servicenow-ai.git
    cd servicenow-ai
    ```
 
 2. **Install dependencies**:
+
    ```bash
    # Install Terraform
    brew install terraform
@@ -58,6 +62,7 @@ This project adheres to a code of conduct. By participating, you are expected to
    ```
 
 3. **Install pre-commit hooks**:
+
    ```bash
    # Install git hooks
    pre-commit install
@@ -78,7 +83,9 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 ## Conventional Commits
 
-This project uses **[Conventional Commits](https://www.conventionalcommits.org/)** for automated versioning and changelog generation.
+This project uses
+**[Conventional Commits](https://www.conventionalcommits.org/)** for automated
+versioning and changelog generation.
 
 ### Commit Message Format
 
@@ -92,19 +99,19 @@ This project uses **[Conventional Commits](https://www.conventionalcommits.org/)
 
 ### Commit Types
 
-| Type | Description | Version Bump |
-|------|-------------|--------------|
-| `feat` | A new feature | Minor (0.x.0) |
-| `fix` | A bug fix | Patch (0.0.x) |
-| `docs` | Documentation only changes | None |
-| `style` | Code style changes (formatting, etc.) | None |
-| `refactor` | Code refactoring | None |
-| `perf` | Performance improvements | Patch |
-| `test` | Adding/updating tests | None |
-| `build` | Build system changes | None |
-| `ci` | CI/CD changes | None |
-| `chore` | Other changes (dependencies, etc.) | None |
-| `revert` | Revert a previous commit | Patch |
+| Type       | Description                           | Version Bump  |
+| ---------- | ------------------------------------- | ------------- |
+| `feat`     | A new feature                         | Minor (0.x.0) |
+| `fix`      | A bug fix                             | Patch (0.0.x) |
+| `docs`     | Documentation only changes            | None          |
+| `style`    | Code style changes (formatting, etc.) | None          |
+| `refactor` | Code refactoring                      | None          |
+| `perf`     | Performance improvements              | Patch         |
+| `test`     | Adding/updating tests                 | None          |
+| `build`    | Build system changes                  | None          |
+| `ci`       | CI/CD changes                         | None          |
+| `chore`    | Other changes (dependencies, etc.)    | None          |
+| `revert`   | Revert a previous commit              | Patch         |
 
 ### Breaking Changes
 
@@ -212,7 +219,8 @@ git add -u
 git commit -m "feat(module-name): add new feature"
 ```
 
-> **Note**: Pre-commit hooks will run automatically and may auto-fix issues. If files are modified, you'll need to stage and commit again.
+> **Note**: Pre-commit hooks will run automatically and may auto-fix issues. If
+> files are modified, you'll need to stage and commit again.
 
 ### 5. Push and Create PR
 
@@ -253,15 +261,18 @@ docs: update deployment guide
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix (patch)
 - [ ] New feature (minor)
 - [ ] Breaking change (major)
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Pre-commit checks pass (`make pre-commit`)
 - [ ] Terraform validate passes
 - [ ] Terraform test passes
@@ -270,6 +281,7 @@ Brief description of changes
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows project style
 - [ ] Self-review completed
 - [ ] Documentation updated
@@ -305,20 +317,22 @@ run "plan_example" {
 
 ### Frontend Tests
 
-Frontend tests use npm scripts and are automatically detected by the CI/CD pipeline:
+Frontend tests use npm scripts and are automatically detected by the CI/CD
+pipeline:
 
 ```json
 {
   "scripts": {
-    "test": "jest",                              // Unit tests
-    "test:integration": "jest --config jest.integration.config.js",  // Integration
-    "test:e2e": "playwright test",               // End-to-end
-    "test:security": "jest --config jest.security.config.js"  // Security
+    "test": "jest", // Unit tests
+    "test:integration": "jest --config jest.integration.config.js", // Integration
+    "test:e2e": "playwright test", // End-to-end
+    "test:security": "jest --config jest.security.config.js" // Security
   }
 }
 ```
 
-The workflow uses **conditional execution** - tests are automatically skipped if scripts don't exist yet.
+The workflow uses **conditional execution** - tests are automatically skipped if
+scripts don't exist yet.
 
 ### Running Tests
 
@@ -350,11 +364,13 @@ npm run test:e2e          # E2E tests
 npm run test:security     # Security tests
 ```
 
-**📚 For comprehensive testing documentation, see [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md)**
+**📚 For comprehensive testing documentation, see
+[docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md)**
 
 ### Pre-commit Checks
 
 Pre-commit runs the following automatically:
+
 - **trailing-whitespace** - Remove trailing spaces
 - **end-of-file-fixer** - Ensure files end with newline
 - **check-yaml** - Validate YAML syntax
@@ -371,7 +387,9 @@ Pre-commit runs the following automatically:
 
 ## Release Process
 
-This project uses **[Release Please](https://github.com/googleapis/release-please)** for automated releases.
+This project uses
+**[Release Please](https://github.com/googleapis/release-please)** for automated
+releases.
 
 ### How Releases Work
 
@@ -400,11 +418,11 @@ graph LR
 
 ### Version Bumping
 
-| Commit Type | Example | Version Change |
-|-------------|---------|----------------|
-| `fix:` | fix(vpc): correct subnet CIDR | 1.0.0 → 1.0.1 |
-| `feat:` | feat(gke): add autopilot mode | 1.0.0 → 1.1.0 |
-| `feat!:` | feat!: remove deprecated API | 1.0.0 → 2.0.0 |
+| Commit Type | Example                       | Version Change |
+| ----------- | ----------------------------- | -------------- |
+| `fix:`      | fix(vpc): correct subnet CIDR | 1.0.0 → 1.0.1  |
+| `feat:`     | feat(gke): add autopilot mode | 1.0.0 → 1.1.0  |
+| `feat!:`    | feat!: remove deprecated API  | 1.0.0 → 2.0.0  |
 
 ### Manual Release Trigger
 
@@ -460,6 +478,7 @@ gh workflow run release-please.yml
 ### Branch Protection
 
 The `main` branch is protected with:
+
 - ✅ Require pull request reviews
 - ✅ Require status checks to pass
 - ✅ Require branches to be up to date
@@ -472,14 +491,16 @@ The `main` branch is protected with:
 
 - 📖 Read the [Documentation](./README.md)
 - 🐛 Open an [Issue](https://github.com/erayguner/servicenow-ai/issues)
-- 💬 Start a [Discussion](https://github.com/erayguner/servicenow-ai/discussions)
+- 💬 Start a
+  [Discussion](https://github.com/erayguner/servicenow-ai/discussions)
 - 📧 Contact maintainers
 
 ---
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the same license as the project.
+By contributing, you agree that your contributions will be licensed under the
+same license as the project.
 
 ---
 

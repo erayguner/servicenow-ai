@@ -1,11 +1,13 @@
 # Security Incident Response
 
-Automated incident response system for security threats detected in Bedrock agents infrastructure.
+Automated incident response system for security threats detected in Bedrock
+agents infrastructure.
 
 ## Features
 
 - **GuardDuty Integration**: Automatically responds to GuardDuty findings
-- **Resource Isolation**: Isolates compromised EC2 instances, Bedrock agents, and Lambda functions
+- **Resource Isolation**: Isolates compromised EC2 instances, Bedrock agents,
+  and Lambda functions
 - **Forensic Snapshots**: Creates EBS snapshots for forensic analysis
 - **Security Team Notifications**: Sends SNS notifications to security team
 - **Incident Ticketing**: Creates tickets in incident management system
@@ -13,17 +15,18 @@ Automated incident response system for security threats detected in Bedrock agen
 
 ## Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `SECURITY_TOPIC_ARN` | SNS topic for security notifications | Yes | - |
-| `INCIDENT_QUEUE_URL` | SQS queue for incident tickets | Yes | - |
-| `AUTO_ISOLATE` | Auto-isolate compromised resources | No | false |
-| `DRY_RUN` | Test mode without actual changes | No | false |
-| `STOP_COMPROMISED_INSTANCES` | Stop compromised EC2 instances | No | false |
+| Variable                     | Description                          | Required | Default |
+| ---------------------------- | ------------------------------------ | -------- | ------- |
+| `SECURITY_TOPIC_ARN`         | SNS topic for security notifications | Yes      | -       |
+| `INCIDENT_QUEUE_URL`         | SQS queue for incident tickets       | Yes      | -       |
+| `AUTO_ISOLATE`               | Auto-isolate compromised resources   | No       | false   |
+| `DRY_RUN`                    | Test mode without actual changes     | No       | false   |
+| `STOP_COMPROMISED_INSTANCES` | Stop compromised EC2 instances       | No       | false   |
 
 ## Event Structure
 
 ### GuardDuty Event
+
 ```json
 {
   "detectorId": "abc123",
@@ -33,6 +36,7 @@ Automated incident response system for security threats detected in Bedrock agen
 ```
 
 ### EventBridge Event
+
 ```json
 {
   "source": "aws.guardduty",
@@ -74,15 +78,18 @@ Automated incident response system for security threats detected in Bedrock agen
 ### 1. Resource Isolation
 
 **EC2 Instances**:
+
 - Modify security groups to deny all traffic
 - Tag instance as ISOLATED
 - Optionally stop the instance
 
 **Bedrock Agents**:
+
 - Update IAM role to deny all actions
 - Log isolation for manual review
 
 **Lambda Functions**:
+
 - Set reserved concurrency to 0
 - Update IAM role to deny all actions
 
@@ -106,12 +113,12 @@ Automated incident response system for security threats detected in Bedrock agen
 
 ## Severity Assessment
 
-| GuardDuty Score | Severity | Actions |
-|-----------------|----------|---------|
-| 9.0 - 10.0 | CRITICAL | Immediate isolation + notification + snapshot |
-| 7.0 - 8.9 | HIGH | Isolation (if AUTO_ISOLATE) + notification + snapshot |
-| 4.0 - 6.9 | MEDIUM | Ticket creation + notification |
-| 0.0 - 3.9 | LOW | Ticket creation only |
+| GuardDuty Score | Severity | Actions                                               |
+| --------------- | -------- | ----------------------------------------------------- |
+| 9.0 - 10.0      | CRITICAL | Immediate isolation + notification + snapshot         |
+| 7.0 - 8.9       | HIGH     | Isolation (if AUTO_ISOLATE) + notification + snapshot |
+| 4.0 - 6.9       | MEDIUM   | Ticket creation + notification                        |
+| 0.0 - 3.9       | LOW      | Ticket creation only                                  |
 
 ## IAM Permissions Required
 
@@ -160,6 +167,7 @@ DRY_RUN=true AUTO_ISOLATE=true node index.js
 ## Rollback Procedures
 
 Each isolation action includes rollback instructions:
+
 - **EC2**: Restore original security groups and restart
 - **Bedrock**: Restore original IAM role
 - **Lambda**: Restore IAM role and VPC configuration

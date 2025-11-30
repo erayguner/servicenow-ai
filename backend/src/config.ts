@@ -40,7 +40,7 @@ export const config = {
 
 // Validate required config
 const requiredEnvVars = ['GCP_PROJECT_ID'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
   throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);

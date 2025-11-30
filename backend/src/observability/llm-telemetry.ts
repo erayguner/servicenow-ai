@@ -60,11 +60,7 @@ const PRICING = {
 /**
  * Calculate cost based on token usage and model
  */
-function calculateCost(
-  model: string,
-  inputTokens: number,
-  outputTokens: number
-): number {
+function calculateCost(model: string, inputTokens: number, outputTokens: number): number {
   const pricing = PRICING[model as keyof typeof PRICING] || PRICING.default;
   const inputCost = (inputTokens / 1_000_000) * pricing.input;
   const outputCost = (outputTokens / 1_000_000) * pricing.output;
@@ -247,11 +243,7 @@ export function recordPromptInjectionAttempt(
 /**
  * Record PII detection in prompts
  */
-export function recordPIIDetection(
-  userId: string,
-  sessionId: string,
-  piiTypes: string[]
-): void {
+export function recordPIIDetection(userId: string, sessionId: string, piiTypes: string[]): void {
   const piiCounter = meter.createCounter('llm.security.pii_detected', {
     description: 'PII detected in prompts',
     unit: 'detections',

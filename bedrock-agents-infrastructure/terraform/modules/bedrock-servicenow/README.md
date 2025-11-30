@@ -1,10 +1,14 @@
 # ServiceNow Integration Module for Amazon Bedrock
 
-This Terraform module creates a comprehensive ServiceNow integration powered by Amazon Bedrock agents, enabling AI-driven automation for incident management, ticket triage, change management, problem resolution, knowledge base synchronization, and SLA monitoring.
+This Terraform module creates a comprehensive ServiceNow integration powered by
+Amazon Bedrock agents, enabling AI-driven automation for incident management,
+ticket triage, change management, problem resolution, knowledge base
+synchronization, and SLA monitoring.
 
 ## Features
 
 - **6 Specialized Bedrock Agents**:
+
   - Incident Management Agent
   - Ticket Triage Agent
   - Change Management Agent
@@ -13,16 +17,19 @@ This Terraform module creates a comprehensive ServiceNow integration powered by 
   - SLA Monitoring Agent
 
 - **API Integration**:
+
   - REST API webhooks for ServiceNow events
   - API Gateway with authentication and rate limiting
   - Lambda functions for ServiceNow API integration
 
 - **Automated Workflows**:
+
   - Step Functions for incident and change management
   - EventBridge for event-driven automation
   - Automatic escalation and assignment
 
 - **State Management**:
+
   - DynamoDB for ticket state tracking
   - Cross-session context preservation
   - Audit trail and compliance logging
@@ -200,13 +207,15 @@ aws secretsmanager update-secret \
 
 ### 2. Configure ServiceNow Webhooks
 
-In ServiceNow, configure Business Rules or Outbound REST Messages to send webhooks:
+In ServiceNow, configure Business Rules or Outbound REST Messages to send
+webhooks:
 
-**Incident Webhook URL**: `{api_gateway_url}/webhooks/incident`
-**Change Webhook URL**: `{api_gateway_url}/webhooks/change`
-**Problem Webhook URL**: `{api_gateway_url}/webhooks/problem`
+**Incident Webhook URL**: `{api_gateway_url}/webhooks/incident` **Change Webhook
+URL**: `{api_gateway_url}/webhooks/change` **Problem Webhook URL**:
+`{api_gateway_url}/webhooks/problem`
 
 **Headers**:
+
 - `x-api-key`: `{api_key_value}` (from outputs)
 - `Content-Type`: `application/json`
 
@@ -234,45 +243,47 @@ curl -X POST "{api_gateway_url}/webhooks/incident" \
 
 ### 4. Subscribe to SNS Notifications
 
-Confirm email subscriptions sent to the addresses specified in `alarm_notification_emails`.
+Confirm email subscriptions sent to the addresses specified in
+`alarm_notification_emails`.
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| servicenow_instance_url | ServiceNow instance URL | string | - | yes |
-| servicenow_auth_type | Authentication type (oauth/basic) | string | "oauth" | no |
-| enable_incident_automation | Enable incident management | bool | true | no |
-| enable_ticket_triage | Enable ticket triage | bool | true | no |
-| enable_change_management | Enable change management | bool | true | no |
-| enable_problem_management | Enable problem management | bool | true | no |
-| enable_knowledge_sync | Enable knowledge sync | bool | true | no |
-| enable_sla_monitoring | Enable SLA monitoring | bool | true | no |
-| auto_assignment_enabled | Enable auto-assignment | bool | true | no |
-| auto_assignment_confidence_threshold | Confidence threshold (0-1) | number | 0.85 | no |
-| sla_breach_threshold | SLA breach threshold (0-100) | number | 80 | no |
-| alarm_notification_emails | Email addresses for alarms | list(string) | [] | no |
+| Name                                 | Description                       | Type         | Default | Required |
+| ------------------------------------ | --------------------------------- | ------------ | ------- | -------- |
+| servicenow_instance_url              | ServiceNow instance URL           | string       | -       | yes      |
+| servicenow_auth_type                 | Authentication type (oauth/basic) | string       | "oauth" | no       |
+| enable_incident_automation           | Enable incident management        | bool         | true    | no       |
+| enable_ticket_triage                 | Enable ticket triage              | bool         | true    | no       |
+| enable_change_management             | Enable change management          | bool         | true    | no       |
+| enable_problem_management            | Enable problem management         | bool         | true    | no       |
+| enable_knowledge_sync                | Enable knowledge sync             | bool         | true    | no       |
+| enable_sla_monitoring                | Enable SLA monitoring             | bool         | true    | no       |
+| auto_assignment_enabled              | Enable auto-assignment            | bool         | true    | no       |
+| auto_assignment_confidence_threshold | Confidence threshold (0-1)        | number       | 0.85    | no       |
+| sla_breach_threshold                 | SLA breach threshold (0-100)      | number       | 80      | no       |
+| alarm_notification_emails            | Email addresses for alarms        | list(string) | []      | no       |
 
 See [variables.tf](./variables.tf) for complete list of inputs.
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| bedrock_agents | Details of all Bedrock agents |
-| webhook_endpoints | Webhook URLs for ServiceNow |
-| api_key_value | API Gateway API key (sensitive) |
-| incident_workflow_arn | ARN of incident workflow |
-| state_table_name | DynamoDB table name |
-| notification_topic_arn | SNS topic ARN |
-| configuration | Configuration summary |
-| integration_instructions | Setup instructions |
+| Name                     | Description                     |
+| ------------------------ | ------------------------------- |
+| bedrock_agents           | Details of all Bedrock agents   |
+| webhook_endpoints        | Webhook URLs for ServiceNow     |
+| api_key_value            | API Gateway API key (sensitive) |
+| incident_workflow_arn    | ARN of incident workflow        |
+| state_table_name         | DynamoDB table name             |
+| notification_topic_arn   | SNS topic ARN                   |
+| configuration            | Configuration summary           |
+| integration_instructions | Setup instructions              |
 
 See [outputs.tf](./outputs.tf) for complete list of outputs.
 
 ## Agent Capabilities
 
 ### Incident Management Agent
+
 - Analyzes incident severity and priority
 - Categorizes incidents by type and affected services
 - Recommends assignment groups
@@ -281,6 +292,7 @@ See [outputs.tf](./outputs.tf) for complete list of outputs.
 - Identifies patterns for problem management
 
 ### Ticket Triage Agent
+
 - Determines ticket type automatically
 - Extracts key information and business impact
 - Routes tickets to appropriate teams
@@ -289,6 +301,7 @@ See [outputs.tf](./outputs.tf) for complete list of outputs.
 - Flags urgent tickets
 
 ### Change Management Agent
+
 - Assesses change risk and impact
 - Recommends approval/rejection
 - Identifies conflicts and dependencies
@@ -297,6 +310,7 @@ See [outputs.tf](./outputs.tf) for complete list of outputs.
 - Tracks compliance requirements
 
 ### Problem Management Agent
+
 - Analyzes incident patterns
 - Conducts root cause analysis
 - Suggests permanent fixes and workarounds
@@ -305,6 +319,7 @@ See [outputs.tf](./outputs.tf) for complete list of outputs.
 - Documents lessons learned
 
 ### Knowledge Base Agent
+
 - Creates knowledge articles from resolutions
 - Maintains knowledge accuracy
 - Suggests article improvements
@@ -313,6 +328,7 @@ See [outputs.tf](./outputs.tf) for complete list of outputs.
 - Syncs with ServiceNow knowledge base
 
 ### SLA Monitor Agent
+
 - Monitors SLA compliance real-time
 - Predicts potential breaches
 - Recommends preventive actions
@@ -323,6 +339,7 @@ See [outputs.tf](./outputs.tf) for complete list of outputs.
 ## Workflows
 
 ### Incident Workflow
+
 1. Analyze incident with Bedrock agent
 2. Determine severity and priority
 3. Critical incidents: immediate escalation
@@ -333,6 +350,7 @@ See [outputs.tf](./outputs.tf) for complete list of outputs.
 8. Capture knowledge when resolved
 
 ### Change Workflow
+
 1. Analyze change request
 2. Assess risk level
 3. High risk: require CAB approval
@@ -376,22 +394,26 @@ The module creates comprehensive monitoring:
 ### Common Issues
 
 **Agents not responding:**
+
 - Check CloudWatch logs: `/aws/bedrock/agents/{agent-name}`
 - Verify agent preparation completed
 - Check IAM permissions
 
 **Webhooks failing:**
+
 - Verify API key is correct
 - Check API Gateway logs
 - Validate webhook payload format
 - Check IP restrictions
 
 **Workflows timing out:**
+
 - Increase timeout values in variables
 - Check Step Functions execution logs
 - Verify Lambda function performance
 
 **SLA monitoring not triggering:**
+
 - Check EventBridge rule patterns
 - Verify SNS topic subscriptions
 - Review CloudWatch metric filters
@@ -399,6 +421,7 @@ The module creates comprehensive monitoring:
 ## Support
 
 For issues and questions:
+
 - Check CloudWatch Logs and metrics
 - Review Step Functions execution history
 - Examine DynamoDB state table
@@ -411,6 +434,7 @@ This module is provided as-is under the MIT License.
 ## Contributing
 
 Contributions welcome! Please submit pull requests with:
+
 - Clear descriptions
 - Updated documentation
 - Test coverage
@@ -419,6 +443,7 @@ Contributions welcome! Please submit pull requests with:
 ## Changelog
 
 ### Version 1.0.0
+
 - Initial release
 - 6 Bedrock agents for ServiceNow
 - Complete workflow automation

@@ -61,11 +61,7 @@ export async function authMiddleware(
 /**
  * Admin middleware - requires user to be in admin group
  */
-export function requireAdmin(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-): void {
+export function requireAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   const user = req.user;
 
   if (!user || !user.groups?.includes('ai-assist-admins')) {

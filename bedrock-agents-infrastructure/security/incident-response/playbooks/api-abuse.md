@@ -1,9 +1,12 @@
 # API Abuse Response Playbook
 
 ## Overview
-Response procedures for API abuse and misuse of Bedrock agents infrastructure APIs.
+
+Response procedures for API abuse and misuse of Bedrock agents infrastructure
+APIs.
 
 ## Detection Criteria
+
 - Excessive API calls from single source
 - Quota/rate limit violations
 - API calls outside business hours
@@ -20,6 +23,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Severity Classification
 
 ### Critical (P1)
+
 - Data exfiltration in progress
 - Active system compromise via API
 - Multiple API keys compromised
@@ -27,6 +31,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Sustained attack with high impact
 
 ### High (P2)
+
 - Significant degradation of service
 - Unauthorized data access via API
 - Malicious payload injection
@@ -34,6 +39,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Credential theft attempts
 
 ### Medium (P3)
+
 - Moderate API rate violations
 - Single source abuse
 - Limited data access
@@ -41,6 +47,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - No production impact
 
 ### Low (P4)
+
 - Minor rate limit violations
 - Test/non-malicious activity
 - Single failed request
@@ -52,6 +59,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ### Phase 1: Detection & Assessment (0-5 minutes)
 
 1. **Alert Verification**
+
    - Confirm API abuse detection
    - Identify affected endpoint
    - Determine attack source
@@ -59,6 +67,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
    - Check for legitimate explanations
 
 2. **Impact Assessment**
+
    - Monitor API availability
    - Check error rates
    - Review affected services
@@ -66,6 +75,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
    - Estimate blast radius
 
 3. **Threat Characterization**
+
    - Identify attack type (DDoS, enumeration, exploitation)
    - Determine target endpoints
    - Analyze request payload
@@ -82,6 +92,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ### Phase 2: Investigation (5-30 minutes)
 
 1. **API Usage Analysis**
+
    - Query API Gateway logs
    - Analyze CloudWatch metrics
    - Review authentication logs
@@ -89,6 +100,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
    - Determine API endpoints targeted
 
 2. **Attack Pattern Analysis**
+
    - Identify request patterns
    - Analyze payload content
    - Check for malicious payloads
@@ -96,6 +108,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
    - Identify attack signatures
 
 3. **Source Identification**
+
    - Trace source IP address
    - Check geolocation
    - Identify ASN/ISP
@@ -112,6 +125,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ### Phase 3: Containment (5-60 minutes)
 
 1. **API Protection**
+
    - Block offending IP addresses
    - Revoke API keys if compromised
    - Implement rate limiting
@@ -119,6 +133,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
    - Activate WAF rules
 
 2. **API Key Management**
+
    - Identify potentially exposed keys
    - Revoke compromised keys
    - Generate new keys
@@ -126,6 +141,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
    - Rotate application credentials
 
 3. **Access Control**
+
    - Restrict API key permissions
    - Enforce API authentication
    - Require API request signing
@@ -142,6 +158,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Containment Procedures
 
 ### API Gateway Protection
+
 ```bash
 # 1. Rate Limiting
 - Implement per-IP rate limits
@@ -166,6 +183,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ```
 
 ### Credential Management
+
 ```bash
 # 1. API Key Rotation
 - Revoke potentially compromised keys
@@ -190,6 +208,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ```
 
 ### Traffic Filtering
+
 ```bash
 # 1. IP Blocking
 - Block known malicious IPs
@@ -216,6 +235,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Eradication Steps
 
 ### Abuse Prevention
+
 - [ ] Implement API rate limiting
 - [ ] Enforce request validation
 - [ ] Enable API authentication
@@ -223,6 +243,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - [ ] Implement monitoring
 
 ### Vulnerability Patching
+
 - [ ] Identify exploited vulnerabilities
 - [ ] Apply security patches
 - [ ] Update API handlers
@@ -230,6 +251,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - [ ] Implement input validation
 
 ### Control Enhancement
+
 - [ ] Improve API key management
 - [ ] Implement usage monitoring
 - [ ] Add anomaly detection
@@ -239,6 +261,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Recovery Procedures
 
 ### API Restoration
+
 1. Gradually lift rate limits
 2. Remove IP blocks (if false positives)
 3. Monitor for attack resurgence
@@ -246,6 +269,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 5. Validate normal operation
 
 ### Service Validation
+
 1. Confirm API availability
 2. Verify endpoint functionality
 3. Test all critical paths
@@ -253,6 +277,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 5. Confirm customer access
 
 ### Post-Incident Verification
+
 1. Review logs for indicators
 2. Analyze for data exfiltration
 3. Validate security controls
@@ -262,6 +287,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Post-Incident Review
 
 ### Attack Analysis
+
 - Attack type and method
 - Duration of abuse
 - API endpoints targeted
@@ -269,6 +295,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Business impact
 
 ### Vulnerability Assessment
+
 - Root cause of abuse
 - Missing security controls
 - Design flaws
@@ -276,6 +303,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Detection gaps
 
 ### Improvement Plan
+
 - API rate limiting improvements
 - Authentication enhancements
 - Monitoring improvements
@@ -285,6 +313,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Prevention Measures
 
 ### API Security
+
 - Implement API authentication
 - Enforce rate limiting
 - Implement request validation
@@ -292,6 +321,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Implement API key rotation
 
 ### Monitoring & Detection
+
 - API Gateway logging
 - CloudWatch metrics
 - Real-time alerting
@@ -299,6 +329,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Anomaly detection
 
 ### Access Control
+
 - Implement least privilege
 - Restrict API key permissions
 - Enforce API quotas
@@ -306,6 +337,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Geolocation restrictions
 
 ### User Education
+
 - API security best practices
 - API key handling
 - Rate limit awareness
@@ -315,6 +347,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Tools & Resources
 
 ### API Protection
+
 - AWS API Gateway
 - AWS WAF
 - AWS API Gateway logging
@@ -322,6 +355,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - VPC endpoint policies
 
 ### Monitoring
+
 - CloudWatch Logs
 - API Gateway metrics
 - Access logs
@@ -329,6 +363,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - Security Hub
 
 ### Response Runbooks
+
 - isolate-compromised-agent.json
 - rotate-all-credentials.json
 - enable-forensics-mode.json
@@ -336,6 +371,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 - notify-stakeholders.json
 
 ### Forensics Tools
+
 - capture-logs.py
 - timeline-builder.py
 - network-capture.py
@@ -344,6 +380,7 @@ Response procedures for API abuse and misuse of Bedrock agents infrastructure AP
 ## Metrics & KPIs
 
 Track during incident:
+
 - **Detection to Blocking**: < 5 minutes
 - **Blocking to Analysis**: < 15 minutes
 - **Analysis to Remediation**: < 1 hour
@@ -372,6 +409,7 @@ API Abuse Detected?
 ```
 
 ## Related Playbooks
+
 - [DDoS Attack Response](./ddos-attack-response.md)
 - [Unauthorized Access Response](./unauthorized-access.md)
 - [Data Breach Response](./data-breach-response.md)
@@ -379,15 +417,18 @@ API Abuse Detected?
 ## Contacts & Escalation
 
 ### Response Team
+
 - **API Owner**: [Engineering lead]
 - **Security Lead**: [On-call rotation]
 - **DevOps Engineer**: [On-call rotation]
 - **CISO**: [For major incidents]
 
 ### Support Resources
+
 - **AWS API Gateway Support**: [Enterprise support]
 - **API Documentation**: [Internal wiki]
 - **Security Team**: [Slack channel #incident-response]
 
 ## Revision History
+
 - v1.0 - Initial creation (2024-11-17)

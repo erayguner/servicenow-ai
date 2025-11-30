@@ -1,13 +1,17 @@
 # GitHub Integration Lambda Function
 
-Lambda function for Bedrock Agent GitHub integration action group. Provides comprehensive GitHub operations including PR management, issue tracking, and code reviews using the GitHub API.
+Lambda function for Bedrock Agent GitHub integration action group. Provides
+comprehensive GitHub operations including PR management, issue tracking, and
+code reviews using the GitHub API.
 
 ## Features
 
 ### 1. Create Pull Request (`create-pr`)
+
 Create pull requests with automatic reviewer assignment and labeling.
 
 **Parameters:**
+
 - `owner` (required): Repository owner/organization
 - `repo` (required): Repository name
 - `title` (required): PR title
@@ -19,6 +23,7 @@ Create pull requests with automatic reviewer assignment and labeling.
 - `reviewers` (optional): Comma-separated reviewer usernames
 
 **Example:**
+
 ```json
 {
   "owner": "myorg",
@@ -34,6 +39,7 @@ Create pull requests with automatic reviewer assignment and labeling.
 ```
 
 **Response:**
+
 ```json
 {
   "prNumber": 123,
@@ -47,19 +53,23 @@ Create pull requests with automatic reviewer assignment and labeling.
 ```
 
 ### 2. Manage Issues (`manage-issues`)
+
 Create, update, close, comment on, and label issues.
 
 **Parameters:**
+
 - `owner` (required): Repository owner
 - `repo` (required): Repository name
 - `operation` (required): Operation type (create, update, close, comment, label)
-- `issueNumber` (conditional): Issue number (required for update, close, comment, label)
+- `issueNumber` (conditional): Issue number (required for update, close,
+  comment, label)
 - `title` (conditional): Issue title (required for create, optional for update)
 - `body` (optional): Issue body/comment content
 - `labels` (optional): Comma-separated labels
 - `assignees` (optional): Comma-separated assignee usernames
 
 **Example (Create):**
+
 ```json
 {
   "owner": "myorg",
@@ -73,6 +83,7 @@ Create, update, close, comment on, and label issues.
 ```
 
 **Example (Comment):**
+
 ```json
 {
   "owner": "myorg",
@@ -84,17 +95,21 @@ Create, update, close, comment on, and label issues.
 ```
 
 ### 3. Code Review (`code-review`)
+
 Perform comprehensive code reviews with inline comments.
 
 **Parameters:**
+
 - `owner` (required): Repository owner
 - `repo` (required): Repository name
 - `prNumber` (required): Pull request number
-- `reviewType` (optional): Review type (APPROVE, REQUEST_CHANGES, COMMENT) - default: COMMENT
+- `reviewType` (optional): Review type (APPROVE, REQUEST_CHANGES, COMMENT) -
+  default: COMMENT
 - `body` (optional): Review summary
 - `comments` (optional): Array of inline comments
 
 **Example:**
+
 ```json
 {
   "owner": "myorg",
@@ -120,14 +135,17 @@ Perform comprehensive code reviews with inline comments.
 ```
 
 ### 4. Merge Status (`merge-status`)
+
 Check if a PR is ready to merge with detailed status information.
 
 **Parameters:**
+
 - `owner` (required): Repository owner
 - `repo` (required): Repository name
 - `prNumber` (required): Pull request number
 
 **Example:**
+
 ```json
 {
   "owner": "myorg",
@@ -137,6 +155,7 @@ Check if a PR is ready to merge with detailed status information.
 ```
 
 **Response:**
+
 ```json
 {
   "prNumber": 123,
@@ -163,9 +182,11 @@ Check if a PR is ready to merge with detailed status information.
 ```
 
 ### 5. Update PR (`update-pr`)
+
 Update pull request metadata and status.
 
 **Parameters:**
+
 - `owner` (required): Repository owner
 - `repo` (required): Repository name
 - `prNumber` (required): Pull request number
@@ -175,6 +196,7 @@ Update pull request metadata and status.
 - `labels` (optional): Updated labels
 
 **Example:**
+
 ```json
 {
   "owner": "myorg",
@@ -189,6 +211,7 @@ Update pull request metadata and status.
 ## GitHub API Integration
 
 ### Authentication
+
 The function retrieves GitHub tokens from AWS Secrets Manager:
 
 ```json
@@ -206,6 +229,7 @@ Or:
 ```
 
 ### Rate Limiting
+
 The function tracks GitHub API rate limits and includes them in responses:
 
 ```json
@@ -222,7 +246,8 @@ The function tracks GitHub API rate limits and includes them in responses:
 ## Environment Variables
 
 - `AWS_REGION`: AWS region (default: us-east-1)
-- `GITHUB_TOKEN_SECRET`: Secrets Manager secret name for GitHub token (default: github/token)
+- `GITHUB_TOKEN_SECRET`: Secrets Manager secret name for GitHub token (default:
+  github/token)
 - `PR_METADATA_TABLE`: DynamoDB table for PR tracking (optional)
 
 ## IAM Permissions Required
@@ -233,18 +258,12 @@ The function tracks GitHub API rate limits and includes them in responses:
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": "arn:aws:secretsmanager:*:*:secret:github/*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "dynamodb:PutItem",
-        "dynamodb:GetItem",
-        "dynamodb:UpdateItem"
-      ],
+      "Action": ["dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:UpdateItem"],
       "Resource": "arn:aws:dynamodb:*:*:table/${PR_METADATA_TABLE}"
     },
     {
@@ -310,6 +329,7 @@ aws secretsmanager create-secret \
 ## Supported Operations
 
 ### Pull Requests
+
 - Create new PRs
 - Update PR metadata
 - Add reviewers and labels
@@ -317,6 +337,7 @@ aws secretsmanager create-secret \
 - Review code changes
 
 ### Issues
+
 - Create issues
 - Update existing issues
 - Close issues
@@ -324,6 +345,7 @@ aws secretsmanager create-secret \
 - Manage labels and assignees
 
 ### Code Reviews
+
 - Submit reviews (approve/request changes/comment)
 - Add inline comments
 - Review file changes
@@ -343,7 +365,8 @@ The function handles GitHub API errors gracefully:
 
 ## Best Practices
 
-1. **Token Security**: Always store GitHub tokens in Secrets Manager, never in code
+1. **Token Security**: Always store GitHub tokens in Secrets Manager, never in
+   code
 2. **Rate Limiting**: Monitor rate limits and implement backoff strategies
 3. **Webhooks**: Consider using GitHub webhooks for real-time updates
 4. **Permissions**: Use fine-grained PATs with minimal required scopes

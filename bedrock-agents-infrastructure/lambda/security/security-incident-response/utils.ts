@@ -8,11 +8,7 @@ import {
 } from '@aws-sdk/client-ec2';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import {
-  BedrockAgentClient,
-  UpdateAgentCommand,
-  GetAgentCommand,
-} from '@aws-sdk/client-bedrock-agent';
+import { BedrockAgentClient, GetAgentCommand } from '@aws-sdk/client-bedrock-agent';
 import {
   GuardDutyFinding,
   IsolationResult,
@@ -45,9 +41,7 @@ export const logger = {
   },
 };
 
-export function assessSeverity(
-  finding: GuardDutyFinding
-): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
+export function assessSeverity(finding: GuardDutyFinding): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
   // GuardDuty severity: 0-3.9 Low, 4-6.9 Medium, 7-8.9 High, 9-10 Critical
   if (finding.severity >= 9) return 'CRITICAL';
   if (finding.severity >= 7) return 'HIGH';
@@ -57,7 +51,7 @@ export function assessSeverity(
 
 export async function isolateResource(
   resourceArn: string,
-  findingType: string
+  _findingType: string
 ): Promise<IsolationResult> {
   try {
     // Determine resource type from ARN
@@ -268,9 +262,7 @@ async function getInstanceVolumes(instanceId: string): Promise<string[]> {
       return [];
     }
 
-    return instance.BlockDeviceMappings.map((bdm) => bdm.Ebs?.VolumeId).filter(
-      Boolean
-    ) as string[];
+    return instance.BlockDeviceMappings.map((bdm) => bdm.Ebs?.VolumeId).filter(Boolean) as string[];
   } catch (error) {
     logger.error('Failed to get instance volumes', { error, instanceId });
     return [];

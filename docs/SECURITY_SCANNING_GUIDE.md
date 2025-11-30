@@ -1,10 +1,12 @@
 # Security Scanning Guide
 
-Comprehensive guide to security scanning tools and processes in the ServiceNow AI platform.
+Comprehensive guide to security scanning tools and processes in the ServiceNow
+AI platform.
 
 ## Overview
 
-The project implements a **multi-layered security scanning approach** covering all stages of the software development lifecycle.
+The project implements a **multi-layered security scanning approach** covering
+all stages of the software development lifecycle.
 
 ## Security Scanning Layers
 
@@ -13,16 +15,20 @@ The project implements a **multi-layered security scanning approach** covering a
 **Tools:** Pre-commit hooks (`.pre-commit-config.yaml`)
 
 **Scans:**
+
 1. **Secret Detection** (detect-secrets)
+
    - Scans all staged files for secrets
    - Baseline: `.secrets.baseline`
    - Updates baseline when new false positives found
 
 2. **Terraform Security**
+
    - `terraform fmt` - Code formatting
    - `terraform validate` - Configuration validation
 
 3. **Python Security**
+
    - Ruff linter and formatter
    - Checks for security anti-patterns
 
@@ -30,11 +36,13 @@ The project implements a **multi-layered security scanning approach** covering a
    - kube-linter - Security best practices
 
 **Setup:**
+
 ```bash
 make pre-commit-install
 ```
 
 **Usage:**
+
 ```bash
 # Automatically runs on git commit
 git commit -m "message"
@@ -53,16 +61,20 @@ pre-commit autoupdate
 **Workflow:** `.github/workflows/lint.yml`
 
 **Scans:**
+
 1. **YAML Linting**
+
    - yamllint (configuration quality)
    - Prettier (formatting)
 
 2. **Infrastructure as Code**
+
    - **Checkov**: 200+ security checks for Terraform
    - **tfsec**: Terraform security scanner
    - **terraform validate**: Syntax and logic validation
 
 3. **Kubernetes Manifests**
+
    - **kube-linter**: 40+ security checks
    - **kubeconform**: Schema validation
 
@@ -70,10 +82,12 @@ pre-commit autoupdate
    - actionlint: Workflow security and correctness
 
 **Conditional Execution:**
+
 - Only runs linters for changed file types
 - Skips if no relevant files modified
 
 **Example:**
+
 ```bash
 # Simulate CI linting locally
 make ci
@@ -88,15 +102,18 @@ make ci
 **Tool:** GitHub CodeQL
 
 **Languages Analyzed:**
+
 - JavaScript
 - TypeScript
 - Python (if .py files exist)
 
 **Query Suites:**
+
 - `security-extended`: Extended security queries
 - `security-and-quality`: Security + code quality
 
 **Features:**
+
 - Runs on push to main/develop
 - Runs on all pull requests
 - Weekly scheduled scan (Mondays 6 AM UTC)
@@ -104,6 +121,7 @@ make ci
 - Uploads SARIF to Security tab
 
 **Detected Issues:**
+
 - SQL injection
 - XSS vulnerabilities
 - Command injection
@@ -113,6 +131,7 @@ make ci
 - And 300+ more patterns
 
 **Viewing Results:**
+
 ```
 GitHub → Security → Code scanning alerts
 ```
@@ -124,7 +143,9 @@ GitHub → Security → Code scanning alerts
 **Workflow:** `.github/workflows/deploy.yml`
 
 **Scans:**
+
 1. **Trivy Container Scanning**
+
    - Scans container images for CVEs
    - Checks: OS packages, application dependencies
    - Severity filter: CRITICAL, HIGH
@@ -138,12 +159,14 @@ GitHub → Security → Code scanning alerts
    - Uploaded as workflow artifact
 
 **What's Scanned:**
+
 - Base image (alpine, node, etc.)
 - OS packages (apk, apt, etc.)
 - Application dependencies (npm, pip, etc.)
 - Embedded binaries
 
 **Example Trivy Output:**
+
 ```
 Total: 5 (CRITICAL: 2, HIGH: 3)
 
@@ -156,6 +179,7 @@ Total: 5 (CRITICAL: 2, HIGH: 3)
 ```
 
 **SBOM Location:**
+
 ```
 Actions → [Workflow Run] → Artifacts → anchore-sbom
 ```
@@ -167,19 +191,24 @@ Actions → [Workflow Run] → Artifacts → anchore-sbom
 **Workflow:** `.github/workflows/security-check.yml`
 
 **Checks:**
+
 1. **No Service Account Keys**
+
    - Scans Terraform for `google_service_account_key`
    - Enforces Workload Identity usage
 
 2. **No Credential Files**
-   - Finds: *credentials*.json, *-key.json, service-account-*.json
+
+   - Finds: _credentials_.json, _-key.json, service-account-_.json
    - Excludes: node_modules, .git
 
 3. **No Hardcoded Credentials**
+
    - Searches for GOOGLE_APPLICATION_CREDENTIALS
    - Excludes: .env.example, workflow files
 
 4. **No Base64 Encoded Keys**
+
    - Detects: "private_key", "client_email" in YAML/JSON
    - Excludes: .github directory
 
@@ -188,6 +217,7 @@ Actions → [Workflow Run] → Artifacts → anchore-sbom
    - Verifies K8s ServiceAccounts have WI annotations
 
 **Runs On:**
+
 - Push to main/develop
 - All pull requests
 
@@ -198,6 +228,7 @@ Actions → [Workflow Run] → Artifacts → anchore-sbom
 **Tool:** Dependabot (`.github/dependabot.yml`)
 
 **Scans:**
+
 - Terraform providers/modules (weekly)
 - GitHub Actions (weekly)
 - Docker base images (weekly)
@@ -205,11 +236,13 @@ Actions → [Workflow Run] → Artifacts → anchore-sbom
 - Python dependencies (weekly)
 
 **Features:**
+
 - Automated security updates
 - Grouped updates (dev + prod dependencies)
 - Version compatibility checks
 
 **Configuration:**
+
 ```yaml
 updates:
   - package-ecosystem: npm
@@ -218,25 +251,25 @@ updates:
       interval: weekly
     groups:
       dev-dependencies:
-        patterns: ["@types/*", "eslint*", "prettier"]
+        patterns: ['@types/*', 'eslint*', 'prettier']
 ```
 
 ---
 
 ## Security Scanning Matrix
 
-| Layer | Tool | Target | Trigger | Fail Build? |
-|-------|------|--------|---------|-------------|
-| Pre-commit | detect-secrets | Secrets | git commit | ✅ Yes |
-| Pre-commit | Ruff | Python code | git commit | ✅ Yes |
-| CI | Checkov | Terraform | PR/Push | ✅ Yes |
-| CI | tfsec | Terraform | PR/Push | ⚠️ Warning |
-| CI | kube-linter | K8s manifests | PR/Push | ✅ Yes |
-| CI | CodeQL | TypeScript/JS | PR/Push/Weekly | ✅ Yes (high) |
-| CI | Trivy | Container images | Deploy | ✅ Yes (crit/high) |
-| CI | Syft | SBOM | Deploy | ℹ️ Info only |
-| CI | Security Check | Secrets/Keys | PR/Push | ✅ Yes |
-| CI | Dependabot | Dependencies | Weekly | ℹ️ PR created |
+| Layer      | Tool           | Target           | Trigger        | Fail Build?        |
+| ---------- | -------------- | ---------------- | -------------- | ------------------ |
+| Pre-commit | detect-secrets | Secrets          | git commit     | ✅ Yes             |
+| Pre-commit | Ruff           | Python code      | git commit     | ✅ Yes             |
+| CI         | Checkov        | Terraform        | PR/Push        | ✅ Yes             |
+| CI         | tfsec          | Terraform        | PR/Push        | ⚠️ Warning         |
+| CI         | kube-linter    | K8s manifests    | PR/Push        | ✅ Yes             |
+| CI         | CodeQL         | TypeScript/JS    | PR/Push/Weekly | ✅ Yes (high)      |
+| CI         | Trivy          | Container images | Deploy         | ✅ Yes (crit/high) |
+| CI         | Syft           | SBOM             | Deploy         | ℹ️ Info only       |
+| CI         | Security Check | Secrets/Keys     | PR/Push        | ✅ Yes             |
+| CI         | Dependabot     | Dependencies     | Weekly         | ℹ️ PR created      |
 
 ---
 
@@ -263,6 +296,7 @@ updates:
 - ⚠️ Non-falsifiable: Needs Sigstore integration
 
 **Path to SLSA 3:**
+
 1. Add SLSA provenance generation
 2. Implement Cosign signing
 3. Use reusable workflows
@@ -285,12 +319,15 @@ updates:
 **Location:** Repository → Security
 
 **Sections:**
+
 1. **Code scanning alerts**
+
    - CodeQL findings (TypeScript/JavaScript)
    - Trivy container scan results
    - Organized by severity
 
 2. **Dependabot alerts**
+
    - Vulnerable dependencies
    - Suggested fixes
    - Auto-generated PRs
@@ -304,11 +341,13 @@ updates:
 **Location:** Actions → [Workflow Name] → [Run]
 
 **Artifacts:**
+
 - CodeQL SARIF files
 - Trivy scan results
 - SBOM (SPDX-JSON)
 
 **Logs:**
+
 - Detailed scan output
 - CVE information
 - Remediation suggestions
@@ -361,6 +400,7 @@ updates:
 ### CodeQL
 
 Mark as false positive in Security tab:
+
 1. Open alert
 2. Click "Dismiss alert"
 3. Select reason: "False positive"
@@ -369,6 +409,7 @@ Mark as false positive in Security tab:
 ### Trivy
 
 Add to `.trivyignore`:
+
 ```
 # False positive - not exploitable in our use case
 CVE-2024-1234
@@ -377,6 +418,7 @@ CVE-2024-1234
 ### detect-secrets
 
 Update `.secrets.baseline`:
+
 ```bash
 detect-secrets scan --baseline .secrets.baseline --update
 ```
@@ -386,6 +428,7 @@ detect-secrets scan --baseline .secrets.baseline --update
 ## Security Scanning Metrics
 
 Track in dashboards:
+
 - CodeQL findings per week
 - Container CVE count over time
 - MTTR (Mean Time To Remediate)
@@ -439,7 +482,7 @@ gh run view <run-id> --log
 
 ```yaml
 # Increase timeout in deploy.yml
-timeout: '15m'  # Default is 10m
+timeout: '15m' # Default is 10m
 ```
 
 ### Pre-commit Hooks Not Running
@@ -467,8 +510,8 @@ pre-commit install
 
 ## Updates
 
-**Last Updated:** 2025-11-16
-**Scanning Tools Version:**
+**Last Updated:** 2025-11-16 **Scanning Tools Version:**
+
 - CodeQL: Latest (GitHub-hosted)
 - Trivy: 0.28.0
 - Checkov: 3.2.493

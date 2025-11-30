@@ -1,16 +1,18 @@
 # Incident Response Policy
+
 ## Amazon Bedrock Agents Infrastructure
 
-**Document Version:** 1.0
-**Effective Date:** 2025-11-17
-**Policy Owner:** Chief Information Security Officer (CISO)
-**Incident Response Team Lead:** Security Operations Manager
+**Document Version:** 1.0 **Effective Date:** 2025-11-17 **Policy Owner:** Chief
+Information Security Officer (CISO) **Incident Response Team Lead:** Security
+Operations Manager
 
 ---
 
 ## 1. Purpose
 
-This Incident Response Policy establishes procedures for detecting, responding to, investigating, and recovering from security incidents affecting Amazon Bedrock Agents infrastructure.
+This Incident Response Policy establishes procedures for detecting, responding
+to, investigating, and recovering from security incidents affecting Amazon
+Bedrock Agents infrastructure.
 
 ## 2. Scope
 
@@ -27,6 +29,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 ### Severity Levels
 
 **CRITICAL (P1):**
+
 - Active data breach with confirmed exfiltration
 - Ransomware encryption of production systems
 - Complete service outage affecting business operations
@@ -34,6 +37,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 - Response time: Immediate (within 1 hour)
 
 **HIGH (P2):**
+
 - Suspected data breach (unconfirmed exfiltration)
 - Malware infection on production systems
 - Unauthorized access to CONFIDENTIAL data
@@ -42,6 +46,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 - Response time: Within 4 hours
 
 **MEDIUM (P3):**
+
 - Security control failure
 - Unauthorized access to INTERNAL data
 - Phishing attempt targeting employees
@@ -50,6 +55,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 - Response time: Within 24 hours
 
 **LOW (P4):**
+
 - Policy violations
 - False positive security alerts
 - Informational security events
@@ -58,6 +64,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 ## 4. Incident Response Team
 
 **Roles:**
+
 - **Incident Commander:** Overall incident coordination
 - **Security Lead:** Technical investigation and containment
 - **Communications Lead:** Internal and external communications
@@ -69,6 +76,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 ## 5. Incident Response Phases
 
 ### Phase 1: Preparation
+
 - Incident response plan documented and tested
 - IR team identified and trained (quarterly)
 - Detection tools configured (GuardDuty, Security Hub, Macie)
@@ -77,7 +85,9 @@ This Incident Response Policy establishes procedures for detecting, responding t
 - Forensic tools and environments ready
 
 ### Phase 2: Detection and Analysis
+
 **Detection Sources:**
+
 - AWS GuardDuty alerts
 - Security Hub findings
 - Macie sensitive data findings
@@ -87,6 +97,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 - Third-party threat intelligence
 
 **Initial Analysis:**
+
 1. Alert triage and validation
 2. Incident classification (severity)
 3. Scope determination
@@ -94,6 +105,7 @@ This Incident Response Policy establishes procedures for detecting, responding t
 5. IR team activation
 
 **Automated Detection:**
+
 ```hcl
 # GuardDuty automated response
 resource "aws_cloudwatch_event_rule" "guardduty_finding" {
@@ -119,6 +131,7 @@ resource "aws_cloudwatch_event_target" "guardduty_lambda" {
 ### Phase 3: Containment
 
 **Short-term Containment:**
+
 - Isolate affected resources (security group modification)
 - Disable compromised credentials
 - Block malicious IP addresses (NACL, WAF)
@@ -126,12 +139,14 @@ resource "aws_cloudwatch_event_target" "guardduty_lambda" {
 - Preserve evidence (CloudTrail logs, memory dumps)
 
 **Long-term Containment:**
+
 - Apply patches and security updates
 - Rebuild compromised systems
 - Implement additional monitoring
 - Deploy compensating controls
 
 **Automated Containment:**
+
 ```python
 # Lambda function for automated containment
 import boto3
@@ -180,6 +195,7 @@ def disable_access_key(iam, access_key_id):
 ```
 
 ### Phase 4: Eradication
+
 - Remove malware and malicious artifacts
 - Close attack vectors
 - Delete unauthorized accounts
@@ -188,6 +204,7 @@ def disable_access_key(iam, access_key_id):
 - Update security controls
 
 ### Phase 5: Recovery
+
 - Restore systems from clean backups
 - Verify system integrity
 - Enable monitoring
@@ -196,6 +213,7 @@ def disable_access_key(iam, access_key_id):
 - Continuous monitoring for re-infection
 
 ### Phase 6: Post-Incident Activity
+
 - Incident report documentation
 - Root cause analysis
 - Lessons learned session
@@ -207,12 +225,14 @@ def disable_access_key(iam, access_key_id):
 ## 6. Data Breach Response
 
 ### GDPR Data Breach (72-hour notification)
+
 1. **Detection:** Identify breach involving EU personal data
 2. **Assessment:** Determine risk to data subjects
 3. **Documentation:** Record breach details
 4. **Notification to Supervisory Authority:**
    - Timeline: 72 hours of becoming aware
-   - Content: Nature, categories, approximate numbers, DPO contact, consequences, measures taken
+   - Content: Nature, categories, approximate numbers, DPO contact,
+     consequences, measures taken
 5. **Notification to Data Subjects:**
    - Condition: High risk to rights and freedoms
    - Timeline: Without undue delay
@@ -220,6 +240,7 @@ def disable_access_key(iam, access_key_id):
 6. **Breach Register:** Update internal breach register
 
 ### HIPAA Breach (60-day notification)
+
 1. **Discovery:** Unauthorized PHI access, use, or disclosure
 2. **Risk Assessment:** Apply HIPAA risk assessment methodology
 3. **Notification to HHS:**
@@ -230,6 +251,7 @@ def disable_access_key(iam, access_key_id):
 6. **Business Associate Notification:** Within 60 days to covered entity
 
 ### PCI DSS Data Breach
+
 1. **Immediate Actions:** Contain breach, preserve evidence
 2. **Notification to Acquirer:** Immediately
 3. **Notification to Card Brands:** Per card brand rules
@@ -238,6 +260,7 @@ def disable_access_key(iam, access_key_id):
 6. **Compliance Validation:** Post-incident PCI DSS assessment
 
 **Automated Breach Detection:**
+
 ```hcl
 # Macie job for sensitive data exposure detection
 resource "aws_macie2_classification_job" "pii_phi_pci_detection" {
@@ -289,6 +312,7 @@ resource "aws_cloudwatch_event_target" "breach_response_lambda" {
 ## 7. Communication Plan
 
 ### Internal Communications
+
 - **Incident Commander:** Overall updates, executive briefings
 - **Security Team:** Technical details, investigation status
 - **Legal:** Regulatory implications, litigation holds
@@ -296,6 +320,7 @@ resource "aws_cloudwatch_event_target" "breach_response_lambda" {
 - **Business Units:** Service impact, recovery timelines
 
 ### External Communications
+
 - **Customers:** Breach notifications, service status
 - **Regulators:** GDPR (72h), HIPAA (60d), PCI DSS (immediate)
 - **Law Enforcement:** If criminal activity suspected
@@ -303,6 +328,7 @@ resource "aws_cloudwatch_event_target" "breach_response_lambda" {
 - **Partners/Vendors:** If third-party data affected
 
 ### Communication Templates
+
 - Critical incident email template
 - Customer breach notification letter (GDPR, HIPAA)
 - Regulatory authority notification template
@@ -312,6 +338,7 @@ resource "aws_cloudwatch_event_target" "breach_response_lambda" {
 ## 8. Evidence Preservation
 
 **Critical Evidence:**
+
 - CloudTrail logs (all regions)
 - VPC Flow Logs
 - S3 access logs
@@ -324,6 +351,7 @@ resource "aws_cloudwatch_event_target" "breach_response_lambda" {
 - Disk snapshots (forensic copies)
 
 **Chain of Custody:**
+
 - Evidence collected by authorized personnel only
 - Hash values calculated and documented
 - Secure storage with encryption
@@ -331,10 +359,12 @@ resource "aws_cloudwatch_event_target" "breach_response_lambda" {
 - Integrity verification before analysis
 
 **Retention:**
+
 - Incident evidence: 7 years minimum
 - Legal hold: Indefinite until lifted by legal counsel
 
 **Implementation:**
+
 ```hcl
 # Forensic S3 bucket for evidence storage
 resource "aws_s3_bucket" "forensic_evidence" {
@@ -372,6 +402,7 @@ resource "aws_s3_bucket_object_lock_configuration" "forensic_evidence" {
 ## 9. Incident Playbooks
 
 ### Playbook 1: Ransomware Attack
+
 1. **Detect:** GuardDuty finding for ransomware or unusual encryption activity
 2. **Contain:**
    - Isolate affected instances (modify security groups)
@@ -391,6 +422,7 @@ resource "aws_s3_bucket_object_lock_configuration" "forensic_evidence" {
    - Update backup procedures
 
 ### Playbook 2: Unauthorized Bedrock Access
+
 1. **Detect:** CloudTrail log shows unauthorized Bedrock agent invocation
 2. **Analyze:**
    - Identify user/role/access key used
@@ -408,6 +440,7 @@ resource "aws_s3_bucket_object_lock_configuration" "forensic_evidence" {
    - If RESTRICTED data accessed, initiate breach notification procedures
 
 ### Playbook 3: Credential Compromise
+
 1. **Detect:** GuardDuty "UnauthorizedAccess" or "Exfiltration" finding
 2. **Contain:**
    - Disable access keys immediately
@@ -425,6 +458,7 @@ resource "aws_s3_bucket_object_lock_configuration" "forensic_evidence" {
 ## 10. Metrics and Reporting
 
 **Key Performance Indicators:**
+
 - Mean Time to Detect (MTTD): <15 minutes for CRITICAL
 - Mean Time to Respond (MTTR): <1 hour for CRITICAL
 - Mean Time to Contain (MTTC): <4 hours for CRITICAL
@@ -432,6 +466,7 @@ resource "aws_s3_bucket_object_lock_configuration" "forensic_evidence" {
 - False Positive Rate: <10%
 
 **Incident Reporting:**
+
 - Executive summary: Within 24 hours of resolution
 - Technical report: Within 7 days
 - Lessons learned: Within 14 days
@@ -441,25 +476,28 @@ resource "aws_s3_bucket_object_lock_configuration" "forensic_evidence" {
 ## 11. Testing and Training
 
 **Tabletop Exercises:**
+
 - Frequency: Quarterly
 - Scenarios: Data breach, ransomware, insider threat, DDoS
 - Participants: IR team, executives, business owners
 
 **Simulated Incidents:**
+
 - Frequency: Annual
 - Technical execution of response procedures
 - Forensic analysis practice
 - Communication drills
 
 **Training:**
+
 - IR team: Advanced training annually
 - All employees: Annual security awareness (incident reporting)
 - New hires: Within first 30 days
 
 ## Document Control
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-11-17 | CISO | Initial policy |
+| Version | Date       | Author | Changes        |
+| ------- | ---------- | ------ | -------------- |
+| 1.0     | 2025-11-17 | CISO   | Initial policy |
 
 **Next Review:** 2026-11-17

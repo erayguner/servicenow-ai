@@ -1,10 +1,12 @@
 # Bedrock Agents Monitoring Modules
 
-Comprehensive monitoring infrastructure for Amazon Bedrock agents, providing observability, compliance, and operational excellence.
+Comprehensive monitoring infrastructure for Amazon Bedrock agents, providing
+observability, compliance, and operational excellence.
 
 ## Overview
 
-This directory contains 6 specialized monitoring modules designed to provide complete visibility into Bedrock agent operations:
+This directory contains 6 specialized monitoring modules designed to provide
+complete visibility into Bedrock agent operations:
 
 1. **bedrock-monitoring-cloudwatch** - Metrics, dashboards, and alarms
 2. **bedrock-monitoring-xray** - Distributed tracing
@@ -66,20 +68,24 @@ monitoring/
 Provides comprehensive CloudWatch monitoring with:
 
 - **Metrics & Alarms**:
+
   - Bedrock agent invocation metrics (errors, latency, throttles)
   - Lambda function metrics (errors, duration, throttles, concurrent executions)
   - Step Functions execution metrics (failures, timeouts)
   - API Gateway metrics (errors, latency)
 
 - **Anomaly Detection**:
+
   - Machine learning-based anomaly detection for invocation patterns
   - Automatic baseline learning
 
 - **Composite Alarms**:
+
   - Multi-condition health checks
   - Critical vs warning severity levels
 
 - **Custom Metrics**:
+
   - Log-based metric filters
   - Error pattern detection
   - Timeout tracking
@@ -90,6 +96,7 @@ Provides comprehensive CloudWatch monitoring with:
   - CloudWatch Logs Insights queries
 
 **Key Features**:
+
 - SNS integration for notifications
 - Configurable thresholds
 - Multi-region support
@@ -100,17 +107,20 @@ Provides comprehensive CloudWatch monitoring with:
 Distributed tracing infrastructure providing:
 
 - **Sampling Rules**:
+
   - Service-specific sampling rates
   - High-priority error sampling (100%)
   - Cost-optimized default sampling
 
 - **Trace Groups**:
+
   - Error traces
   - High-latency requests
   - Cold start tracking
   - Custom filtering
 
 - **Insights**:
+
   - Automatic anomaly detection
   - Root cause analysis
   - EventBridge integration for alerts
@@ -121,6 +131,7 @@ Distributed tracing infrastructure providing:
   - Error propagation tracking
 
 **Key Features**:
+
 - KMS encryption for trace data
 - Configurable retention
 - Analytics queries
@@ -131,20 +142,24 @@ Distributed tracing infrastructure providing:
 AWS Config-based compliance monitoring:
 
 - **Configuration Recording**:
+
   - Continuous or daily snapshots
   - Resource-specific tracking
   - Global resource support
 
 - **Compliance Rules**:
+
   - Encryption compliance (S3, KMS, CloudWatch Logs)
   - Access control validation (S3 public access, IAM policies)
   - Lambda best practices (DLQ, VPC configuration)
 
 - **Remediation**:
+
   - Automatic remediation (optional)
   - SSM Automation integration
 
 - **Multi-Region Aggregation**:
+
   - Cross-region compliance view
   - Multi-account support
 
@@ -153,6 +168,7 @@ AWS Config-based compliance monitoring:
   - Config rule evaluation alerts
 
 **Key Features**:
+
 - S3 lifecycle policies for cost optimization
 - KMS encryption
 - Compliance dashboard URLs
@@ -163,21 +179,25 @@ AWS Config-based compliance monitoring:
 Comprehensive audit logging:
 
 - **Trail Configuration**:
+
   - Multi-region trails
   - Global service events (IAM, etc.)
   - Log file validation for integrity
 
 - **Data Events**:
+
   - S3 object-level logging
   - Lambda invocation logging
   - Advanced event selectors for Bedrock
 
 - **CloudTrail Insights**:
+
   - API call rate anomalies
   - Error rate anomalies
   - Automated detection
 
 - **CloudWatch Logs Integration**:
+
   - Real-time log streaming
   - CloudWatch Insights queries
   - Metric filters
@@ -188,6 +208,7 @@ Comprehensive audit logging:
   - Public access blocked
 
 **Key Features**:
+
 - KMS encryption
 - SNS notifications
 - Pre-built Insights queries
@@ -198,22 +219,26 @@ Comprehensive audit logging:
 Synthetic monitoring with CloudWatch Synthetics:
 
 - **API Canaries**:
+
   - Endpoint availability checks
   - Response time monitoring
   - Status code validation
   - Custom headers and body
 
 - **Bedrock-Specific Tests**:
+
   - Agent invocation testing
   - Knowledge base queries
   - Action group execution
 
 - **Visual Monitoring**:
+
   - Screenshot capture
   - HAR file generation
   - Network waterfall analysis
 
 - **Scheduling**:
+
   - Configurable intervals (1 min - 1 hour)
   - Cron-like expressions
   - On-demand execution
@@ -224,6 +249,7 @@ Synthetic monitoring with CloudWatch Synthetics:
   - SNS integration
 
 **Key Features**:
+
 - VPC support for private endpoints
 - X-Ray integration
 - Artifact retention policies
@@ -234,6 +260,7 @@ Synthetic monitoring with CloudWatch Synthetics:
 Event-driven monitoring and automation:
 
 - **Event Detection**:
+
   - Bedrock state changes
   - API errors and throttling
   - Lambda errors and throttles
@@ -243,17 +270,20 @@ Event-driven monitoring and automation:
   - AWS Health events
 
 - **Event Targets**:
+
   - SNS notifications
   - SQS queues
   - Lambda automation
   - Step Functions workflows
 
 - **Event Archiving**:
+
   - Configurable retention
   - Cross-service event capture
   - Replay capability
 
 - **Dead Letter Queue**:
+
   - Failed event handling
   - Debugging support
   - KMS encryption
@@ -264,6 +294,7 @@ Event-driven monitoring and automation:
   - Multi-condition rules
 
 **Key Features**:
+
 - Custom event bus support
 - Event transformation
 - Cross-account events
@@ -608,7 +639,8 @@ module "cloudtrail_audit" {
 
 ### Security & Compliance
 
-- **Encryption at Rest**: KMS encryption for all data storage (S3, CloudWatch Logs, SQS)
+- **Encryption at Rest**: KMS encryption for all data storage (S3, CloudWatch
+  Logs, SQS)
 - **Encryption in Transit**: TLS 1.2+ for all API communications
 - **Access Control**: IAM policies with least privilege
 - **Audit Trail**: Complete CloudTrail logging of all monitoring activities
@@ -618,7 +650,8 @@ module "cloudtrail_audit" {
 
 - **High Availability**: Multi-region support
 - **Scalability**: Auto-scaling metric collection
-- **Cost Optimization**: Lifecycle policies, sampling rates, retention management
+- **Cost Optimization**: Lifecycle policies, sampling rates, retention
+  management
 - **Automation**: EventBridge-driven responses
 - **Documentation**: Comprehensive inline documentation
 
@@ -683,16 +716,19 @@ These modules integrate with:
 ### Common Issues
 
 1. **Missing Metrics**:
+
    - Verify resource IDs are correct
    - Check IAM permissions for CloudWatch
    - Ensure X-Ray SDK is configured in Lambda
 
 2. **High Costs**:
+
    - Review retention periods
    - Adjust X-Ray sampling rates
    - Implement lifecycle policies
 
 3. **Alarm Noise**:
+
    - Increase evaluation periods
    - Adjust thresholds based on baseline
    - Use composite alarms for complex conditions
@@ -725,6 +761,7 @@ See the main project LICENSE file.
 ## Support
 
 For issues and questions:
+
 - Open a GitHub issue
 - Contact the DevOps team
 - Review AWS documentation for specific services

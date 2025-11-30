@@ -354,5 +354,4 @@ resource "aws_dynamodb_continuous_backups" "agent_state" {
 
 ---
 
-**Version**: 1.0
-**Updated**: November 2024
+**Version**: 1.0 **Updated**: November 2024

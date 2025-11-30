@@ -1,0 +1,246 @@
+---
+# KServe ServingRuntime for vLLM with optimized LLM serving
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  name: vllm-runtime
+  namespace: production
+  labels:
+    serving.kserve.io/runtime: vllm
+spec:
+  supportedModelFormats:
+    - name: pytorch
+      version: '1'
+      autoSelect: true
+    - name: huggingface
+      version: '1'
+      autoSelect: true
+  protocolVersions: [v2, grpc-v2]
+  multiModel: false
+  containers:
+    - name: kserve-container
+      image: vllm/vllm-openai:latest
+      command: [python3, -m, vllm.entrypoints.openai.api_server]
+      args:
+        # Model configuration
+        - --model=/mnt/models
+        - --tensor-parallel-size=1
+        - --pipeline-parallel-size=1
+
+        # Memory optimization - use 90% of GPU memory for better throughput
+        - --gpu-memory-utilization=0.90
+        - --max-model-len=4096
+
+        # Performance tuning
+        - --max-num-batched-tokens=8192
+        - --max-num-seqs=256
+        - --enable-chunked-prefill
+        - --enable-prefix-caching
+
+        # Token limits
+        - --max-seq-len-to-capture=8192
+
+        # Quantization support (for smaller memory footprint)
+        - --quantization=awq
+        - --dtype=auto
+
+        # API configuration
+        - --host=0.0.0.0
+        - --port=8080
+        - --served-model-name=llm-model
+
+        # Observability
+        - --disable-log-requests=false
+        - --disable-log-stats=false
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http
+      resources:
+        requests:
+          cpu: '4'
+          memory: 16Gi
+          nvidia.com/gpu: '1'
+        limits:
+          cpu: '8'
+          memory: 32Gi
+          nvidia.com/gpu: '1'
+      env:
+        - name: VLLM_ATTENTION_BACKEND
+          value: FLASH_ATTN
+        - name: CUDA_VISIBLE_DEVICES
+          value: '0'
+        - name: TOKENIZERS_PARALLELISM
+          value: 'false'
+        - name: HF_HUB_CACHE
+          value: /mnt/models/.cache
+      volumeMounts:
+        - name: model-storage
+          mountPath: /mnt/models
+          readOnly: true
+        - name: shm
+          mountPath: /dev/shm
+  volumes:
+    - name: shm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 8Gi
+---
+# InferenceService with model registry integration
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-service
+  namespace: production
+  annotations:
+    serving.kserve.io/enable-prometheus-scraping: 'true'
+    serving.kserve.io/enable-metric-aggregation: 'true'
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    minReplicas: 2
+    maxReplicas: 10
+    scaleTarget: 80
+    scaleMetric: concurrency
+
+    # Container concurrency for request batching
+    containerConcurrency: 10
+    timeout: 300
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: vllm-runtime
+
+      # Storage URI with multiple source support
+      storageUri: hf://mistralai/Mistral-7B-Instruct-v0.2
+
+      # Alternative storage options:
+      # storageUri: s3://my-bucket/models/llm-model
+      # storageUri: gs://my-bucket/models/llm-model
+      # storageUri: pvc://my-model-pvc
+      # storageUri: model-registry://model-name/version
+      resources:
+        requests:
+          cpu: '4'
+          memory: 16Gi
+          nvidia.com/gpu: '1'
+        limits:
+          cpu: '8'
+          memory: 32Gi
+          nvidia.com/gpu: '1'
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-tesla-t4
+        workload: ai-inference
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+        - key: workload
+          operator: Equal
+          value: ai-inference
+          effect: NoSchedule
+---
+# ConfigMap for storage initializer configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kserve-storage-config
+  namespace: production
+data:
+  # Hugging Face Hub configuration
+  hf-cache-dir: /mnt/models/.cache
+
+  # S3 configuration
+  s3-endpoint: https://storage.googleapis.com
+  s3-use-https: 'true'
+  s3-verify-ssl: 'true'
+
+  # Model download timeout (5 minutes for large models)
+  download-timeout: '300'
+
+  # Enable parallel downloads
+  parallel-downloads: '4'
+---
+# PersistentVolumeClaim for model cache (optional - for persistent caching)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-cache-pvc
+  namespace: production
+spec:
+  accessModes: [ReadWriteMany]
+  storageClassName: standard-rwo
+  resources:
+    requests:
+      storage: 100Gi
+---
+# Service for direct LLM access (bypassing gateway for high-throughput)
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service-direct
+  namespace: production
+  labels:
+    serving.kserve.io/inferenceservice: llm-service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    serving.kserve.io/inferenceservice: llm-service
+---
+# NetworkPolicy for LLM service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: llm-service-policy
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      serving.kserve.io/inferenceservice: llm-service
+  policyTypes: [Ingress, Egress]
+  ingress:
+    # Allow traffic from llm-gateway
+    - from:
+        - podSelector:
+            matchLabels:
+              app: llm-gateway
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # Allow traffic from conversation-manager
+    - from:
+        - podSelector:
+            matchLabels:
+              app: conversation-manager
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # Allow HTTPS for model downloads (Hugging Face, S3, GCS)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+
+    # Allow GCP metadata server
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 80

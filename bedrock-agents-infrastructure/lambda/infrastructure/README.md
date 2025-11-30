@@ -1,21 +1,27 @@
 # Infrastructure Operations Lambda Function
 
-Lambda function for Bedrock Agent infrastructure operations action group. Provides Terraform automation, Kubernetes deployment, and AWS resource management capabilities.
+Lambda function for Bedrock Agent infrastructure operations action group.
+Provides Terraform automation, Kubernetes deployment, and AWS resource
+management capabilities.
 
 ## Features
 
 ### 1. Terraform Plan (`terraform-plan`)
+
 Generate and analyze Terraform execution plans.
 
 **Parameters:**
+
 - `workingDir` (required): Terraform working directory path
 - `varFile` (optional): Variables file path
 - `variables` (optional): Variable overrides as JSON object
 - `target` (optional): Specific resource to target
-- `bucket` (optional): S3 bucket for plan storage - defaults to TERRAFORM_STATE_BUCKET
+- `bucket` (optional): S3 bucket for plan storage - defaults to
+  TERRAFORM_STATE_BUCKET
 - `environment` (required): Environment name (dev, staging, prod)
 
 **Example:**
+
 ```json
 {
   "workingDir": "terraform/environments/dev",
@@ -29,6 +35,7 @@ Generate and analyze Terraform execution plans.
 ```
 
 **Response:**
+
 ```json
 {
   "planId": "plan-1731843000-abc123",
@@ -56,9 +63,11 @@ Generate and analyze Terraform execution plans.
 ```
 
 ### 2. Terraform Apply (`terraform-apply`)
+
 Apply Terraform changes with safety checks.
 
 **Parameters:**
+
 - `planId` (optional): Plan ID to apply
 - `workingDir` (conditional): Required if planId not provided
 - `autoApprove` (optional): Auto-approve changes - default: false
@@ -66,6 +75,7 @@ Apply Terraform changes with safety checks.
 - `bucket` (optional): S3 bucket for state storage
 
 **Example:**
+
 ```json
 {
   "planId": "plan-1731843000-abc123",
@@ -75,6 +85,7 @@ Apply Terraform changes with safety checks.
 ```
 
 **Response:**
+
 ```json
 {
   "applyId": "apply-1731843100-xyz789",
@@ -98,9 +109,11 @@ Apply Terraform changes with safety checks.
 ```
 
 ### 3. Kubernetes Deploy (`kubernetes-deploy`)
+
 Deploy applications to Kubernetes clusters.
 
 **Parameters:**
+
 - `clusterName` (required): EKS cluster name
 - `namespace` (optional): Kubernetes namespace - default: default
 - `manifestPath` (optional): Path to manifest file in S3
@@ -111,6 +124,7 @@ Deploy applications to Kubernetes clusters.
 - `environment` (optional): Environment label - default: dev
 
 **Example:**
+
 ```json
 {
   "clusterName": "production-eks-cluster",
@@ -123,6 +137,7 @@ Deploy applications to Kubernetes clusters.
 ```
 
 **Response:**
+
 ```json
 {
   "deploymentId": "k8s-deploy-1731843200-def456",
@@ -153,15 +168,19 @@ Deploy applications to Kubernetes clusters.
 ```
 
 ### 4. AWS Operations (`aws-operations`)
+
 Execute AWS service operations.
 
 **Parameters:**
-- `service` (required): AWS service name (ec2, ecs, s3, cloudformation, dynamodb)
+
+- `service` (required): AWS service name (ec2, ecs, s3, cloudformation,
+  dynamodb)
 - `operation` (required): Operation name
 - `parameters` (required): Operation-specific parameters
 - `region` (optional): AWS region - defaults to AWS_REGION
 
 **Example (EC2):**
+
 ```json
 {
   "service": "ec2",
@@ -178,6 +197,7 @@ Execute AWS service operations.
 ```
 
 **Example (ECS):**
+
 ```json
 {
   "service": "ecs",
@@ -189,14 +209,18 @@ Execute AWS service operations.
 ```
 
 ### 5. Infrastructure State (`infrastructure-state`)
+
 Get comprehensive infrastructure state and health.
 
 **Parameters:**
+
 - `environment` (optional): Environment filter - default: dev
-- `stateType` (optional): State type (all, terraform, kubernetes, aws) - default: all
+- `stateType` (optional): State type (all, terraform, kubernetes, aws) -
+  default: all
 - `includeDetails` (optional): Include detailed information - default: false
 
 **Example:**
+
 ```json
 {
   "environment": "prod",
@@ -206,6 +230,7 @@ Get comprehensive infrastructure state and health.
 ```
 
 **Response:**
+
 ```json
 {
   "environment": "prod",
@@ -259,11 +284,7 @@ Get comprehensive infrastructure state and health.
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:ListBucket"
-      ],
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
       "Resource": [
         "arn:aws:s3:::${TERRAFORM_STATE_BUCKET}/*",
         "arn:aws:s3:::${TERRAFORM_STATE_BUCKET}"
@@ -271,45 +292,27 @@ Get comprehensive infrastructure state and health.
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "dynamodb:PutItem",
-        "dynamodb:GetItem",
-        "dynamodb:Query"
-      ],
+      "Action": ["dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:Query"],
       "Resource": "arn:aws:dynamodb:*:*:table/${TERRAFORM_TABLE}"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "ec2:Describe*",
-        "ec2:StartInstances",
-        "ec2:StopInstances"
-      ],
+      "Action": ["ec2:Describe*", "ec2:StartInstances", "ec2:StopInstances"],
       "Resource": "*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "ecs:Describe*",
-        "ecs:List*",
-        "ecs:UpdateService"
-      ],
+      "Action": ["ecs:Describe*", "ecs:List*", "ecs:UpdateService"],
       "Resource": "*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "eks:DescribeCluster",
-        "eks:ListClusters"
-      ],
+      "Action": ["eks:DescribeCluster", "eks:ListClusters"],
       "Resource": "*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "cloudformation:DescribeStacks",
-        "cloudformation:ListStacks"
-      ],
+      "Action": ["cloudformation:DescribeStacks", "cloudformation:ListStacks"],
       "Resource": "*"
     },
     {
@@ -357,12 +360,14 @@ resource "aws_lambda_function" "infrastructure" {
 ## Safety Features
 
 ### Production Protection
+
 - Production deployments require explicit `autoApprove=true`
 - Plans are stored and versioned in S3
 - All operations are logged to CloudWatch
 - DynamoDB tracks deployment history
 
 ### Rollback Capability
+
 - Terraform state files are versioned in S3
 - Kubernetes deployments support rollback
 - CloudFormation stacks maintain rollback capability
@@ -399,18 +404,21 @@ resource "aws_lambda_function" "infrastructure" {
 ## Supported Operations
 
 ### Terraform
+
 - Plan generation and analysis
 - Apply with approval workflow
 - State management
 - Output retrieval
 
 ### Kubernetes
+
 - Deployment creation
 - Service configuration
 - Rollout management
 - Health checking
 
 ### AWS Services
+
 - EC2 instance management
 - ECS service updates
 - S3 operations

@@ -2,20 +2,19 @@
 
 ## Checkov Security Scan Results
 
-**Scan Date**: $(date)
-**Checkov Version**: 3.2.493
-**Terraform Version**: 1.11.0
+**Scan Date**: $(date) **Checkov Version**: 3.2.493 **Terraform Version**:
+1.11.0
 
 ### Summary
 
-✅ **PASSED**: 312 security checks
-❌ **FAILED**: 0 checks
-⏭️ **SKIPPED**: 3 checks (intentional)
-⚠️ **PARSING ERRORS**: 1 (non-critical)
+✅ **PASSED**: 312 security checks ❌ **FAILED**: 0 checks ⏭️ **SKIPPED**: 3
+checks (intentional) ⚠️ **PARSING ERRORS**: 1 (non-critical)
 
 ### Overall Security Posture: EXCELLENT ✅
 
-The infrastructure has **zero security failures** and passes all critical security checks across:
+The infrastructure has **zero security failures** and passes all critical
+security checks across:
+
 - IAM policies and least-privilege access
 - Network security and isolation
 - Encryption at rest and in transit
@@ -29,11 +28,12 @@ The infrastructure has **zero security failures** and passes all critical securi
 
 ### CKV_GCP_21: Kubernetes Cluster Labels
 
-**Status**: SKIPPED (3 occurrences)
-**Reason**: Labels are dynamically configured using Terraform's `merge()` function
-**Location**: `terraform/modules/gke/main.tf`
+**Status**: SKIPPED (3 occurrences) **Reason**: Labels are dynamically
+configured using Terraform's `merge()` function **Location**:
+`terraform/modules/gke/main.tf`
 
-The GKE module uses dynamic label merging which Checkov cannot statically analyze:
+The GKE module uses dynamic label merging which Checkov cannot statically
+analyze:
 
 ```hcl
 resource "google_container_cluster" "primary" {
@@ -48,21 +48,25 @@ resource "google_container_cluster" "primary" {
 }
 ```
 
-**Verification**: Labels ARE properly configured - Checkov just can't evaluate the merge function during static analysis.
+**Verification**: Labels ARE properly configured - Checkov just can't evaluate
+the merge function during static analysis.
 
 ## Parsing Errors (Non-Critical)
 
 ### terraform/shared/billing_budget/main.tf
 
-**Status**: Parsing error (non-critical)
-**Impact**: None - billing budget module is commented out in dev environment
-**Reason**: Checkov has issues parsing complex Terraform functions (`tostring(floor())`)
-**Resolution**: Not required - budget can be created manually via GCP Console
+**Status**: Parsing error (non-critical) **Impact**: None - billing budget
+module is commented out in dev environment **Reason**: Checkov has issues
+parsing complex Terraform functions (`tostring(floor())`) **Resolution**: Not
+required - budget can be created manually via GCP Console
 
 ## IAP Deprecation - Future-Proofing ✅
 
 ### Issue
-The `google_iap_brand` and `google_iap_client` Terraform resources are deprecated:
+
+The `google_iap_brand` and `google_iap_client` Terraform resources are
+deprecated:
+
 - **Deprecation Date**: January 22, 2025
 - **New Projects Affected**: January 19, 2026
 - **Complete Shutdown**: March 19, 2026
@@ -71,12 +75,14 @@ The `google_iap_brand` and `google_iap_client` Terraform resources are deprecate
 
 1. **Updated IAP Module** with clear deprecation warnings
 2. **Created Migration Guide**: `terraform/modules/iap/README.md`
-3. **Set defaults to manual creation**: `create_brand = false`, `create_oauth_client = false`
+3. **Set defaults to manual creation**: `create_brand = false`,
+   `create_oauth_client = false`
 4. **Documented manual setup process** with step-by-step instructions
 
 ### Recommended Action
 
 Before March 19, 2026:
+
 1. Create OAuth Brand manually in GCP Console
 2. Create OAuth Client manually in GCP Console
 3. Store credentials in Secret Manager
@@ -87,6 +93,7 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 ## Key Security Features Validated
 
 ### ✅ Network Security
+
 - Private GKE clusters with no public endpoints
 - Network policies enforced
 - VPC Flow Logs enabled
@@ -94,6 +101,7 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 - Authorized networks configured
 
 ### ✅ IAM & Access Control
+
 - No use of basic roles (owner/editor/viewer)
 - No service account key files
 - Least-privilege IAM roles
@@ -102,6 +110,7 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 - No default service accounts used
 
 ### ✅ Encryption
+
 - KMS customer-managed encryption keys (CMEK)
 - KMS keys protected from deletion
 - 90-day key rotation enabled
@@ -109,6 +118,7 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 - SSL/TLS required for Cloud SQL connections
 
 ### ✅ Kubernetes Hardening
+
 - Binary Authorization enabled (prod)
 - Shielded GKE nodes with Secure Boot
 - Integrity monitoring enabled
@@ -119,6 +129,7 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 - Legacy authorization disabled
 
 ### ✅ Cloud SQL Security
+
 - No public IP addresses
 - Automated backups enabled
 - All required PostgreSQL flags set correctly:
@@ -133,6 +144,7 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 - SSL/TLS required for connections
 
 ### ✅ Cloud Storage
+
 - Public access prevention enforced
 - Uniform bucket-level access
 - KMS encryption enabled
@@ -141,6 +153,7 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 - No anonymous or public access
 
 ### ✅ Cloud Run Security
+
 - No public ingress (internal only)
 - IAP authentication required
 - VPC connected via Serverless VPC Access
@@ -150,13 +163,17 @@ See: `terraform/modules/iap/README.md` for complete migration guide
 ## Continuous Security Monitoring
 
 ### Pre-commit Hooks
+
 The repository has pre-commit hooks that run:
+
 - `terraform fmt` - Code formatting
 - `terraform validate` - Syntax validation
 - `detect-secrets` - Secret scanning
 
 ### CI/CD Pipeline
+
 GitHub Actions workflows include:
+
 - Security scanning
 - Terraform validation
 - Parallel testing
@@ -165,12 +182,14 @@ GitHub Actions workflows include:
 ## Compliance Status
 
 ### Industry Standards
+
 - ✅ CIS Google Cloud Platform Foundation Benchmark
 - ✅ NIST Cybersecurity Framework
 - ✅ SOC 2 Type II ready
 - ✅ GDPR compliant (EU data residency)
 
 ### GCP Best Practices
+
 - ✅ Zero-trust architecture
 - ✅ Least-privilege access
 - ✅ Defense in depth
@@ -180,11 +199,13 @@ GitHub Actions workflows include:
 ## Recommendations
 
 ### Immediate Actions
+
 1. ✅ **DONE**: Address IAP deprecation with migration guide
 2. ✅ **DONE**: Run Checkov security scan - all checks passed
 3. ✅ **DONE**: Document security posture
 
 ### Before Production Deployment
+
 1. Review and test IAP manual OAuth setup
 2. Configure monitoring alerts for security events
 3. Set up automated security scanning in CI/CD
@@ -193,6 +214,7 @@ GitHub Actions workflows include:
 6. Review audit logs retention policy
 
 ### Ongoing Maintenance
+
 1. **Quarterly**: Review IAM permissions for least-privilege
 2. **Quarterly**: Rotate secrets and API keys
 3. **Monthly**: Review Cloud Armor and firewall rules
@@ -203,6 +225,7 @@ GitHub Actions workflows include:
 ## Cost Optimization & Security
 
 The infrastructure balances security with cost:
+
 - **Dev Environment**: Zonal GKE for cost savings
 - **Staging/Prod**: Regional GKE for high availability
 - **Cloud Run**: Scale-to-zero for cost efficiency
@@ -220,6 +243,7 @@ The infrastructure balances security with cost:
 ## Support
 
 For security issues or concerns:
+
 1. Review this document and referenced guides
 2. Check Cloud Security Command Center in GCP Console
 3. Review Cloud Audit Logs for suspicious activity
@@ -228,6 +252,5 @@ For security issues or concerns:
 
 ---
 
-**Generated**: $(date)
-**Security Status**: ✅ EXCELLENT - Zero critical issues
+**Generated**: $(date) **Security Status**: ✅ EXCELLENT - Zero critical issues
 **Future-Proof**: ✅ YES - IAP deprecation addressed

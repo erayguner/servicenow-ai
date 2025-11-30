@@ -25,7 +25,7 @@ const SENSITIVE_FIELDS = [
   'credential',
   'credit_card',
   'ssn',
-  'social_security'
+  'social_security',
 ];
 
 /**
@@ -37,7 +37,7 @@ function sanitizeForConsole(entry: LogEntry): LogEntry {
 
   for (const [key, value] of Object.entries(entry)) {
     const lowerKey = key.toLowerCase();
-    const isSensitive = SENSITIVE_FIELDS.some(field => lowerKey.includes(field));
+    const isSensitive = SENSITIVE_FIELDS.some((field) => lowerKey.includes(field));
 
     if (isSensitive) {
       sanitized[key] = '[REDACTED]';

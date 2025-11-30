@@ -257,11 +257,7 @@ export interface ChangeActionParams {
 }
 
 export interface ProblemActionParams {
-  action:
-    | 'create-problem'
-    | 'link-incidents-to-problem'
-    | 'update-problem'
-    | 'resolve-problem';
+  action: 'create-problem' | 'link-incidents-to-problem' | 'update-problem' | 'resolve-problem';
   sys_id?: string;
   number?: string;
   problem?: Partial<Problem>;
@@ -271,11 +267,7 @@ export interface ProblemActionParams {
 }
 
 export interface KnowledgeActionParams {
-  action:
-    | 'search-knowledge'
-    | 'create-kb-article'
-    | 'update-kb-article'
-    | 'get-kb-article';
+  action: 'search-knowledge' | 'create-kb-article' | 'update-kb-article' | 'get-kb-article';
   sys_id?: string;
   number?: string;
   article?: Partial<KnowledgeArticle>;
@@ -283,10 +275,7 @@ export interface KnowledgeActionParams {
 }
 
 export interface UserGroupActionParams {
-  action:
-    | 'get-user-info'
-    | 'get-group-info'
-    | 'assign-to-group';
+  action: 'get-user-info' | 'get-group-info' | 'assign-to-group';
   user_id?: string;
   user_name?: string;
   group_id?: string;
@@ -295,10 +284,7 @@ export interface UserGroupActionParams {
 }
 
 export interface ReportingActionParams {
-  action:
-    | 'get-incident-metrics'
-    | 'get-sla-status'
-    | 'generate-report';
+  action: 'get-incident-metrics' | 'get-sla-status' | 'generate-report';
   start_date?: string;
   end_date?: string;
   task_sys_id?: string;

@@ -526,6 +526,5 @@
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Next Review**: May 2025
+**Document Version**: 1.0 **Last Updated**: November 2024 **Next Review**: May
+2025

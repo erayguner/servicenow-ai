@@ -1,14 +1,17 @@
 # Orchestration Workflows
 
-This directory contains AWS Step Functions state machine definitions for orchestrating multi-agent workflows.
+This directory contains AWS Step Functions state machine definitions for
+orchestrating multi-agent workflows.
 
 ## Available Workflows
 
 ### 1. SPARC Workflow (`sparc-workflow.json`)
 
-**Purpose:** Implements the complete SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology as an automated workflow.
+**Purpose:** Implements the complete SPARC (Specification, Pseudocode,
+Architecture, Refinement, Completion) methodology as an automated workflow.
 
 **Phases:**
+
 1. **Specification** - Requirements gathering and specification creation
 2. **Pseudocode** - Algorithm design in structured pseudocode
 3. **Architecture** - System design and component architecture
@@ -17,6 +20,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 6. **Code Review** - Quality and security review
 
 **Features:**
+
 - Sequential phase execution
 - Validation gates between phases
 - Automatic retry logic (up to 3 iterations)
@@ -25,6 +29,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 - Review feedback loop
 
 **Input Parameters:**
+
 ```json
 {
   "sessionId": "unique-session-id",
@@ -48,6 +53,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 ```
 
 **Use Cases:**
+
 - New feature development
 - Systematic software development
 - TDD projects
@@ -57,23 +63,29 @@ This directory contains AWS Step Functions state machine definitions for orchest
 
 ### 2. Full-Stack Development Workflow (`full-stack-development-workflow.json`)
 
-**Purpose:** Orchestrates parallel development of backend, frontend, and ML components with integration and deployment preparation.
+**Purpose:** Orchestrates parallel development of backend, frontend, and ML
+components with integration and deployment preparation.
 
 **Phases:**
+
 1. **Planning Phase** (Parallel)
+
    - Project planning
    - Architecture design
 
 2. **Parallel Development**
+
    - Backend development + tests
    - Frontend development + tests
    - ML development + validation
 
 3. **Parallel Review**
+
    - Code quality review
    - Security audit
 
 4. **Integration Phase**
+
    - Component integration
    - End-to-end testing
 
@@ -83,6 +95,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
    - Notifications
 
 **Features:**
+
 - Parallel execution for speed
 - Multi-component coordination
 - Comprehensive testing at each level
@@ -90,6 +103,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 - Deployment readiness
 
 **Input Parameters:**
+
 ```json
 {
   "sessionId": "unique-session-id",
@@ -118,6 +132,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 ```
 
 **Use Cases:**
+
 - Full-stack application development
 - Microservices architecture
 - ML-powered applications
@@ -127,15 +142,18 @@ This directory contains AWS Step Functions state machine definitions for orchest
 
 ### 3. Adaptive Coordination Workflow (`adaptive-coordination-workflow.json`)
 
-**Purpose:** Dynamically selects and adapts coordination strategies based on task characteristics and performance metrics.
+**Purpose:** Dynamically selects and adapts coordination strategies based on
+task characteristics and performance metrics.
 
 **Coordination Strategies:**
+
 1. **Hierarchical** - Top-down delegation for complex tasks
 2. **Mesh** - Peer-to-peer collaboration for innovation
 3. **Hybrid** - Mixed approach for balanced needs
 4. **Autonomous** - Minimal coordination for independent work
 
 **Features:**
+
 - Intelligent strategy selection
 - Performance monitoring
 - Dynamic adaptation (strategy switching)
@@ -143,6 +161,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 - Validation and quality checks
 
 **Decision Factors:**
+
 - Task complexity (1-10)
 - Team size
 - Deadline pressure
@@ -150,6 +169,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 - Team expertise level
 
 **Input Parameters:**
+
 ```json
 {
   "sessionId": "unique-session-id",
@@ -179,6 +199,7 @@ This directory contains AWS Step Functions state machine definitions for orchest
 ```
 
 **Use Cases:**
+
 - Unknown or variable task complexity
 - Long-running projects with evolving needs
 - Learning optimal coordination patterns
@@ -241,39 +262,27 @@ The Step Functions execution role needs permissions for:
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "bedrock:InvokeAgent"
-      ],
+      "Action": ["bedrock:InvokeAgent"],
       "Resource": "arn:aws:bedrock:*:*:agent/*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "sns:Publish"
-      ],
+      "Action": ["sns:Publish"],
       "Resource": "arn:aws:sns:*:*:*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "s3:PutObject",
-        "s3:GetObject"
-      ],
+      "Action": ["s3:PutObject", "s3:GetObject"],
       "Resource": "arn:aws:s3:::artifact-bucket/*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "dynamodb:PutItem",
-        "dynamodb:GetItem"
-      ],
+      "Action": ["dynamodb:PutItem", "dynamodb:GetItem"],
       "Resource": "arn:aws:dynamodb:*:*:table/learnings-table"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "states:StartExecution"
-      ],
+      "Action": ["states:StartExecution"],
       "Resource": "arn:aws:states:*:*:stateMachine:*"
     }
   ]
@@ -338,6 +347,7 @@ history = sfn.get_execution_history(executionArn=execution_arn)
 ### CloudWatch Metrics
 
 Monitor these metrics:
+
 - `ExecutionsFailed`
 - `ExecutionsSucceeded`
 - `ExecutionTime`
@@ -367,26 +377,31 @@ resource "aws_cloudwatch_log_group" "sfn_logs" {
 ## Best Practices
 
 1. **Session ID Management**
+
    - Use unique, trackable session IDs
    - Include timestamp and workflow type
    - Example: `sparc-20240101-123456-abc123`
 
 2. **Error Handling**
+
    - Always include Catch blocks
    - Send notifications on failures
    - Store error context for debugging
 
 3. **Artifact Storage**
+
    - Store all intermediate results
    - Use consistent S3 key patterns
    - Enable versioning on artifact bucket
 
 4. **Retry Logic**
+
    - Set appropriate retry limits
    - Use exponential backoff
    - Track iteration counts
 
 5. **Performance**
+
    - Use parallel execution where possible
    - Set appropriate timeouts
    - Monitor execution duration
@@ -445,16 +460,19 @@ resource "aws_cloudwatch_log_group" "sfn_logs" {
 ### Common Issues
 
 1. **Agent Not Found**
+
    - Verify agent IDs and alias IDs
    - Check agent is in same region
    - Ensure agent is not deleted
 
 2. **Permission Denied**
+
    - Check Step Functions execution role
    - Verify Bedrock agent permissions
    - Review S3 bucket policies
 
 3. **Timeout Errors**
+
    - Increase state timeout values
    - Check agent processing time
    - Review parallel branch limits

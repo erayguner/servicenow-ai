@@ -28,10 +28,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     // Get or create conversation
     let conversationId = body.conversationId;
     if (!conversationId) {
-      const conversation = await agentdb.createConversation(
-        userId,
-        body.message.substring(0, 50)
-      );
+      const conversation = await agentdb.createConversation(userId, body.message.substring(0, 50));
       conversationId = conversation.id;
     } else {
       // Verify conversation belongs to user
@@ -50,7 +47,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
 
     // Get conversation history
     const history = await agentdb.getRecentMessages(conversationId, 20);
-    const messages: ChatMessage[] = history.map(msg => ({
+    const messages: ChatMessage[] = history.map((msg) => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
     }));

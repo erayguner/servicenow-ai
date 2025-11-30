@@ -1,12 +1,13 @@
 # Development Tools Setup
 
-**Date:** 2025-11-16
-**Author:** Claude AI Assistant
-**Session ID:** claude/setup-dev-tools-01NXhnBBL19CQNJokXdcKTZ6
+**Date:** 2025-11-16 **Author:** Claude AI Assistant **Session ID:**
+claude/setup-dev-tools-01NXhnBBL19CQNJokXdcKTZ6
 
 ## Overview
 
-This document describes the development tools installed and configured for the ServiceNow AI project, including the tools added in this setup session and recommendations for future improvements.
+This document describes the development tools installed and configured for the
+ServiceNow AI project, including the tools added in this setup session and
+recommendations for future improvements.
 
 ## Installed Tools
 
@@ -19,6 +20,7 @@ This document describes the development tools installed and configured for the S
 **Status:** ✅ Installed and configured
 
 **Usage:**
+
 ```bash
 terraform --version
 # Terraform v1.9.8
@@ -34,10 +36,12 @@ terraform test
 ```
 
 **Integration:**
+
 - Pre-commit hook: `terraform_fmt` and `terraform_validate`
 - CI workflow: `.github/workflows/terraform-ci-optimized.yml`
 - 17 Terraform modules with comprehensive test coverage
-- Makefile targets: `make terraform-fmt`, `make terraform-validate`, `make terraform-test`
+- Makefile targets: `make terraform-fmt`, `make terraform-validate`,
+  `make terraform-test`
 
 ### 2. Checkov v3.2.493
 
@@ -48,6 +52,7 @@ terraform test
 **Status:** ✅ Installed and configured
 
 **Usage:**
+
 ```bash
 checkov --version
 # 3.2.493
@@ -63,6 +68,7 @@ checkov -f backend/Dockerfile
 ```
 
 **Integration:**
+
 - Used in CI/CD for security scanning
 - Scans: Terraform, Kubernetes, Dockerfiles
 - Security report: `docs/SECURITY_CHECKOV_REPORT.md`
@@ -76,6 +82,7 @@ checkov -f backend/Dockerfile
 **Status:** ✅ Already installed (verified)
 
 **Usage:**
+
 ```bash
 ruff --version
 # ruff 0.14.3
@@ -88,6 +95,7 @@ ruff format .
 ```
 
 **Integration:**
+
 - Pre-commit hook: `.pre-commit-config.yaml`
 - Replaces: Black (formatter) + Flake8 (linter)
 - Makefile target: `make pre-commit-python`
@@ -95,6 +103,7 @@ ruff format .
 ### 4. npx Tools Tested
 
 **Attempted Commands:**
+
 ```bash
 npx agentic flow       # ❌ Package not found
 npx claude flow@alpha  # ⏸️ Attempted but incomplete
@@ -102,6 +111,7 @@ npx agentdb           # ✅ Successfully executed
 ```
 
 **agentdb Features:**
+
 - Frontier memory features for AI agents
 - Vector search and similarity queries
 - Reflexion: Episode storage and retrieval
@@ -116,6 +126,7 @@ npx agentdb           # ✅ Successfully executed
 **File:** `backend/.eslintrc.js`
 
 **Features:**
+
 - TypeScript support with type-aware linting
 - Recommended rules from `@typescript-eslint`
 - Security rules (no-eval, no-implied-eval)
@@ -123,6 +134,7 @@ npx agentdb           # ✅ Successfully executed
 - Custom rules for Express.js backend
 
 **Usage:**
+
 ```bash
 cd backend
 npm run lint        # Check for errors
@@ -132,16 +144,19 @@ npm run lint:fix    # Auto-fix errors
 ### 2. Prettier Configuration
 
 **Files:**
+
 - `.prettierrc.json` - Formatting rules
 - `.prettierignore` - Files to ignore
 
 **Features:**
+
 - Single quotes, semicolons, trailing commas
 - 100 character line length
 - Consistent formatting across all files
 - Special rules for JSON and Markdown
 
 **Usage:**
+
 ```bash
 npm run format       # Format all files
 npm run format:check # Check formatting
@@ -152,6 +167,7 @@ npm run format:check # Check formatting
 **File:** `backend/jest.config.js`
 
 **Features:**
+
 - TypeScript support with ts-jest
 - Coverage thresholds: 70% (branches, functions, lines, statements)
 - Multiple test types supported:
@@ -163,6 +179,7 @@ npm run format:check # Check formatting
 - Test setup file: `backend/src/test/setup.ts`
 
 **Usage:**
+
 ```bash
 cd backend
 npm test                  # Run all tests
@@ -177,11 +194,13 @@ npm run test:coverage    # With coverage
 ### 4. Docker Compose for Local Development
 
 **Files:**
+
 - `docker-compose.yml` - Main configuration
 - `docker-compose.dev.yml` - Development overrides
 - `.env.example` - Environment template
 
 **Services:**
+
 - **postgres** - PostgreSQL 16 database
 - **redis** - Redis 7 cache
 - **backend** - Express.js API (port 3001)
@@ -189,6 +208,7 @@ npm run test:coverage    # With coverage
 - **firestore-emulator** - GCP Firestore emulator
 
 **Usage:**
+
 ```bash
 # Copy environment file
 cp .env.example .env
@@ -210,6 +230,7 @@ docker-compose down -v
 ```
 
 **Ports:**
+
 - 3000 - Frontend (Next.js)
 - 3001 - Backend (Express.js API)
 - 5432 - PostgreSQL
@@ -222,6 +243,7 @@ docker-compose down -v
 **File:** `.editorconfig`
 
 **Features:**
+
 - UTF-8 charset
 - LF line endings
 - 2-space indentation for TS/JS/YAML
@@ -229,8 +251,8 @@ docker-compose down -v
 - Tab indentation for Go and Makefiles
 - Consistent settings across editors (VS Code, IntelliJ, Vim, etc.)
 
-**Supported Editors:**
-Most modern editors support EditorConfig natively or via plugin.
+**Supported Editors:** Most modern editors support EditorConfig natively or via
+plugin.
 
 ## Package.json Updates
 
@@ -264,7 +286,8 @@ Most modern editors support EditorConfig natively or via plugin.
 
 ## Integration with CI/CD
 
-All new configurations integrate seamlessly with existing GitHub Actions workflows:
+All new configurations integrate seamlessly with existing GitHub Actions
+workflows:
 
 ### 1. Lint Workflow (`.github/workflows/lint.yml`)
 
@@ -286,6 +309,7 @@ All new configurations integrate seamlessly with existing GitHub Actions workflo
 ### 3. Pre-commit Hooks
 
 All tools integrate with existing pre-commit configuration:
+
 - Terraform: fmt + validate
 - Python: Ruff linting + formatting
 - Secrets: detect-secrets
@@ -297,11 +321,13 @@ All tools integrate with existing pre-commit configuration:
 ### High Priority (Implement Next)
 
 1. **Write Test Suites**
+
    - Create initial test files for critical paths
    - Target: 70%+ code coverage
    - Focus: API endpoints, authentication, database operations
 
 2. **Install Missing Dependencies**
+
    ```bash
    cd backend
    npm install  # Will install @types/jest and ts-jest
@@ -315,11 +341,13 @@ All tools integrate with existing pre-commit configuration:
 ### Medium Priority (Within 2 Weeks)
 
 4. **Frontend Testing Setup**
+
    - React Testing Library
    - Playwright or Cypress for E2E
    - Visual regression testing
 
 5. **Code Coverage Enforcement**
+
    - Enforce 70% threshold in CI
    - Upload to Codecov
    - Block PRs below threshold
@@ -332,11 +360,13 @@ All tools integrate with existing pre-commit configuration:
 ### Low Priority (Nice to Have)
 
 7. **Enhanced Git Hooks**
+
    - Commitlint for conventional commits
    - Branch name validation
    - Ticket reference enforcement
 
 8. **Code Quality Metrics**
+
    - SonarCloud integration
    - Technical debt tracking
    - Maintainability scores
@@ -480,21 +510,18 @@ docker-compose down -v
 
 ### What We Accomplished
 
-✅ Installed Terraform v1.9.8
-✅ Installed Checkov v3.2.493
-✅ Verified Ruff v0.14.3 installation
-✅ Created ESLint configuration for backend
-✅ Created Prettier configuration (root level)
-✅ Created Jest configuration with test setup
-✅ Added missing npm test scripts
-✅ Created Docker Compose for local development
-✅ Created .editorconfig for editor consistency
-✅ Updated backend package.json with new dependencies
+✅ Installed Terraform v1.9.8 ✅ Installed Checkov v3.2.493 ✅ Verified Ruff
+v0.14.3 installation ✅ Created ESLint configuration for backend ✅ Created
+Prettier configuration (root level) ✅ Created Jest configuration with test
+setup ✅ Added missing npm test scripts ✅ Created Docker Compose for local
+development ✅ Created .editorconfig for editor consistency ✅ Updated backend
+package.json with new dependencies
 
 ### Key Benefits
 
 1. **Consistent Code Quality:** ESLint + Prettier ensure code consistency
-2. **Comprehensive Testing:** Jest config supports unit, integration, E2E, and security tests
+2. **Comprehensive Testing:** Jest config supports unit, integration, E2E, and
+   security tests
 3. **Local Development:** Docker Compose provides full-stack local environment
 4. **Security:** Checkov scans infrastructure for security issues
 5. **Infrastructure:** Terraform manages cloud resources
@@ -502,11 +529,12 @@ docker-compose down -v
 
 ### What's Missing (Needs Implementation)
 
-⚠️ **Test Files:** No actual test files exist yet (*.test.ts, *.integration.test.ts)
-⚠️ **Dependencies:** Need to run `npm install` to install new packages
-⚠️ **API Docs:** No OpenAPI/Swagger specification
-⚠️ **Frontend Testing:** No testing framework configured for Next.js
+⚠️ **Test Files:** No actual test files exist yet (_.test.ts,
+_.integration.test.ts) ⚠️ **Dependencies:** Need to run `npm install` to install
+new packages ⚠️ **API Docs:** No OpenAPI/Swagger specification ⚠️ **Frontend
+Testing:** No testing framework configured for Next.js
 
 ---
 
-**Next Session:** Focus on implementing test suites to achieve 70%+ code coverage
+**Next Session:** Focus on implementing test suites to achieve 70%+ code
+coverage

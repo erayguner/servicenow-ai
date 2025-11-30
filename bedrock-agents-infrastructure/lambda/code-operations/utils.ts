@@ -1,4 +1,9 @@
-import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+  ListObjectsV2Command,
+} from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import { SearchOptions, SearchResult, GitOperationOptions, GitOperationResult } from './types';
 
@@ -9,12 +14,12 @@ export async function readFileContent(
   s3Client: S3Client,
   bucket: string,
   key: string,
-  encoding: string = 'utf-8'
+  encoding: BufferEncoding = 'utf-8'
 ): Promise<string> {
   try {
     const command = new GetObjectCommand({
       Bucket: bucket,
-      Key: key
+      Key: key,
     });
 
     const response = await s3Client.send(command);
@@ -34,7 +39,9 @@ export async function readFileContent(
     return Buffer.concat(chunks).toString(encoding);
   } catch (error) {
     console.error(`Error reading file ${key} from bucket ${bucket}:`, error);
-    throw new Error(`Failed to read file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to read file: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -57,15 +64,17 @@ export async function writeFileContent(
       ContentType: getContentType(key),
       Metadata: {
         ...metadata,
-        lastModified: new Date().toISOString()
-      }
+        lastModified: new Date().toISOString(),
+      },
     });
 
     await s3Client.send(command);
     console.log(`Successfully wrote file ${key} to bucket ${bucket}`);
   } catch (error) {
     console.error(`Error writing file ${key} to bucket ${bucket}:`, error);
-    throw new Error(`Failed to write file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to write file: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -82,7 +91,7 @@ export async function searchInCode(
     pattern,
     fileTypes = ['.ts', '.js', '.tsx', '.jsx', '.py', '.java'],
     maxResults = 50,
-    caseSensitive = false
+    caseSensitive = false,
   } = options;
 
   const results: SearchResult[] = [];
@@ -91,16 +100,16 @@ export async function searchInCode(
     // List all objects in the bucket
     const listCommand = new ListObjectsV2Command({
       Bucket: bucket,
-      MaxKeys: 1000
+      MaxKeys: 1000,
     });
 
     const listResponse = await s3Client.send(listCommand);
     const objects = listResponse.Contents || [];
 
     // Filter by file type
-    const relevantFiles = objects.filter(obj => {
+    const relevantFiles = objects.filter((obj) => {
       const key = obj.Key || '';
-      return fileTypes.some(ext => key.endsWith(ext));
+      return fileTypes.some((ext) => key.endsWith(ext));
     });
 
     console.log(`Searching in ${relevantFiles.length} files...`);
@@ -132,8 +141,8 @@ export async function searchInCode(
               match: matches[0],
               context: {
                 before: lines.slice(Math.max(0, index - 2), index),
-                after: lines.slice(index + 1, Math.min(lines.length, index + 3))
-              }
+                after: lines.slice(index + 1, Math.min(lines.length, index + 3)),
+              },
             });
           }
         });
@@ -145,10 +154,11 @@ export async function searchInCode(
 
     console.log(`Found ${results.length} matches for query: ${query}`);
     return results;
-
   } catch (error) {
     console.error('Error searching code:', error);
-    throw new Error(`Failed to search code: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to search code: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -177,8 +187,8 @@ export async function executeGitOperation(
         changedFiles: files.length,
         details: {
           repository,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
 
     case 'push':
@@ -188,8 +198,8 @@ export async function executeGitOperation(
         branch,
         details: {
           repository,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
 
     case 'pull':
@@ -200,8 +210,8 @@ export async function executeGitOperation(
         details: {
           repository,
           updatedFiles: 0,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
 
     case 'branch':
@@ -212,8 +222,8 @@ export async function executeGitOperation(
         details: {
           repository,
           created: true,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
 
     case 'status':
@@ -225,8 +235,8 @@ export async function executeGitOperation(
           repository,
           modifiedFiles: 0,
           untrackedFiles: 0,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
 
     default:
@@ -241,20 +251,20 @@ function getContentType(filePath: string): string {
   const ext = filePath.split('.').pop()?.toLowerCase();
 
   const contentTypes: Record<string, string> = {
-    'ts': 'text/typescript',
-    'tsx': 'text/typescript',
-    'js': 'application/javascript',
-    'jsx': 'application/javascript',
-    'json': 'application/json',
-    'py': 'text/x-python',
-    'java': 'text/x-java',
-    'md': 'text/markdown',
-    'txt': 'text/plain',
-    'html': 'text/html',
-    'css': 'text/css',
-    'xml': 'application/xml',
-    'yaml': 'application/x-yaml',
-    'yml': 'application/x-yaml'
+    ts: 'text/typescript',
+    tsx: 'text/typescript',
+    js: 'application/javascript',
+    jsx: 'application/javascript',
+    json: 'application/json',
+    py: 'text/x-python',
+    java: 'text/x-java',
+    md: 'text/markdown',
+    txt: 'text/plain',
+    html: 'text/html',
+    css: 'text/css',
+    xml: 'application/xml',
+    yaml: 'application/x-yaml',
+    yml: 'application/x-yaml',
   };
 
   return contentTypes[ext || ''] || 'application/octet-stream';
@@ -264,9 +274,7 @@ function getContentType(filePath: string): string {
  * Generate mock commit SHA (for demonstration)
  */
 function generateMockCommitSha(): string {
-  return Array.from({ length: 40 }, () =>
-    Math.floor(Math.random() * 16).toString(16)
-  ).join('');
+  return Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
 }
 
 /**

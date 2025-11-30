@@ -1,31 +1,35 @@
 # Security Log Analyzer
 
-Automated CloudTrail log analyzer for detecting suspicious activity, privilege escalation, and anomalous behavior.
+Automated CloudTrail log analyzer for detecting suspicious activity, privilege
+escalation, and anomalous behavior.
 
 ## Features
 
 - **CloudTrail Analysis**: Analyzes CloudTrail logs for security events
 - **Suspicious API Detection**: Identifies dangerous or unusual API calls
-- **Privilege Escalation Detection**: Detects IAM permission changes and escalation attempts
-- **Unauthorized Access Monitoring**: Tracks failed access attempts and brute force patterns
+- **Privilege Escalation Detection**: Detects IAM permission changes and
+  escalation attempts
+- **Unauthorized Access Monitoring**: Tracks failed access attempts and brute
+  force patterns
 - **Anomaly Detection**: Identifies unusual behavior based on baseline patterns
 - **Real-time Alerts**: SNS notifications for critical security events
 - **Security Hub Integration**: Reports findings to AWS Security Hub
 
 ## Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `NOTIFICATION_TOPIC_ARN` | SNS topic for security alerts | Yes | - |
-| `SECURITY_HUB_ENABLED` | Enable Security Hub reporting | No | true |
-| `LOOKBACK_HOURS` | Hours of logs to analyze | No | 24 |
-| `ALERT_THRESHOLD` | Minimum severity for alerts | No | MEDIUM |
-| `AWS_ACCOUNT_ID` | AWS Account ID | Yes | - |
-| `AWS_REGION` | AWS Region | Yes | - |
+| Variable                 | Description                   | Required | Default |
+| ------------------------ | ----------------------------- | -------- | ------- |
+| `NOTIFICATION_TOPIC_ARN` | SNS topic for security alerts | Yes      | -       |
+| `SECURITY_HUB_ENABLED`   | Enable Security Hub reporting | No       | true    |
+| `LOOKBACK_HOURS`         | Hours of logs to analyze      | No       | 24      |
+| `ALERT_THRESHOLD`        | Minimum severity for alerts   | No       | MEDIUM  |
+| `AWS_ACCOUNT_ID`         | AWS Account ID                | Yes      | -       |
+| `AWS_REGION`             | AWS Region                    | Yes      | -       |
 
 ## Event Structure
 
 ### Basic Analysis
+
 ```json
 {
   "analyzeCloudTrail": true,
@@ -37,6 +41,7 @@ Automated CloudTrail log analyzer for detecting suspicious activity, privilege e
 ```
 
 ### Custom Suspicious Actions
+
 ```json
 {
   "detectSuspiciousAPI": true,
@@ -51,6 +56,7 @@ Automated CloudTrail log analyzer for detecting suspicious activity, privilege e
 ```
 
 ### With Baseline Data for Anomaly Detection
+
 ```json
 {
   "detectAnomalies": true,
@@ -132,6 +138,7 @@ Automated CloudTrail log analyzer for detecting suspicious activity, privilege e
 ### 1. Suspicious API Calls
 
 Monitors for security-relevant API calls:
+
 - **Logging/Monitoring Evasion**: DeleteTrail, StopLogging, DeleteFlowLogs
 - **Security Service Tampering**: DeleteDetector, DisassociateFromMasterAccount
 - **Credential Access**: GetSecretValue, GetPasswordData, GetFederationToken
@@ -141,6 +148,7 @@ Monitors for security-relevant API calls:
 ### 2. Privilege Escalation
 
 Detects escalation attempts:
+
 - IAM policy modifications granting admin access
 - Policy attachments with wildcard permissions
 - Role assumption changes
@@ -150,6 +158,7 @@ Detects escalation attempts:
 ### 3. Unauthorized Access
 
 Identifies access violations:
+
 - Repeated AccessDenied errors (potential brute force)
 - Failed authentication attempts
 - Unauthorized API calls
@@ -159,6 +168,7 @@ Identifies access violations:
 ### 4. Anomalous Behavior
 
 Detects deviations from baseline:
+
 - Activity from new source IPs
 - Unusual user agents
 - Off-hours activity
@@ -167,33 +177,34 @@ Detects deviations from baseline:
 
 ## Anomaly Types
 
-| Type | Description | Typical Severity |
-|------|-------------|------------------|
-| PRIVILEGE_ESCALATION | IAM permission changes | CRITICAL/HIGH |
-| UNAUTHORIZED_ACCESS | Failed access attempts | HIGH/MEDIUM |
-| SUSPICIOUS_API_CALL | Dangerous API calls | CRITICAL/HIGH |
-| UNUSUAL_LOCATION | New source IP/region | MEDIUM |
-| ANOMALOUS_BEHAVIOR | Deviation from baseline | MEDIUM/LOW |
-| DATA_EXFILTRATION | Large data transfers | CRITICAL |
-| CREDENTIAL_ACCESS | Secret/password access | HIGH |
-| LATERAL_MOVEMENT | Cross-account activity | HIGH |
+| Type                 | Description             | Typical Severity |
+| -------------------- | ----------------------- | ---------------- |
+| PRIVILEGE_ESCALATION | IAM permission changes  | CRITICAL/HIGH    |
+| UNAUTHORIZED_ACCESS  | Failed access attempts  | HIGH/MEDIUM      |
+| SUSPICIOUS_API_CALL  | Dangerous API calls     | CRITICAL/HIGH    |
+| UNUSUAL_LOCATION     | New source IP/region    | MEDIUM           |
+| ANOMALOUS_BEHAVIOR   | Deviation from baseline | MEDIUM/LOW       |
+| DATA_EXFILTRATION    | Large data transfers    | CRITICAL         |
+| CREDENTIAL_ACCESS    | Secret/password access  | HIGH             |
+| LATERAL_MOVEMENT     | Cross-account activity  | HIGH             |
 
 ## Risk Score Calculation
 
 Risk score (0-100) based on:
+
 - **Number of indicators**: +15 per indicator
 - **Evidence count**: +10 per evidence
-- **High-risk keywords**: +20 per keyword (admin, full access, *:*)
+- **High-risk keywords**: +20 per keyword (admin, full access, _:_)
 - **Occurrence frequency**: +5 per occurrence
 
 ## Severity Thresholds
 
-| Severity | Risk Score | Failed Attempts | Action |
-|----------|------------|-----------------|--------|
-| CRITICAL | 80-100 | 20+ | Immediate investigation |
-| HIGH | 60-79 | 10-19 | Investigate within 4 hours |
-| MEDIUM | 40-59 | 5-9 | Review within 24 hours |
-| LOW | 0-39 | <5 | Review as time permits |
+| Severity | Risk Score | Failed Attempts | Action                     |
+| -------- | ---------- | --------------- | -------------------------- |
+| CRITICAL | 80-100     | 20+             | Immediate investigation    |
+| HIGH     | 60-79      | 10-19           | Investigate within 4 hours |
+| MEDIUM   | 40-59      | 5-9             | Review within 24 hours     |
+| LOW      | 0-39       | <5              | Review as time permits     |
 
 ## Baseline Data
 
@@ -260,6 +271,7 @@ aws events put-targets \
 ## Common Suspicious Patterns
 
 ### Critical Severity
+
 - Deletion of CloudTrail trails
 - Stopping of logging services
 - Attachment of AdministratorAccess policy
@@ -267,6 +279,7 @@ aws events put-targets \
 - Deletion of VPC Flow Logs
 
 ### High Severity
+
 - Multiple failed login attempts (10+)
 - IAM policy changes
 - Access key creation
@@ -274,6 +287,7 @@ aws events put-targets \
 - Off-hours administrative activity
 
 ### Medium Severity
+
 - Unusual source IP addresses
 - Failed API calls (5-9)
 - Off-hours standard activity
@@ -282,14 +296,18 @@ aws events put-targets \
 ## Alert Configuration
 
 ### Critical Alerts
+
 Sent immediately for:
+
 - Privilege escalation attempts
 - Security service tampering
 - Data exfiltration patterns
 - 20+ failed access attempts
 
 ### High Alerts
+
 Sent within minutes for:
+
 - Suspicious API patterns
 - 10+ failed access attempts
 - Unusual administrative actions
@@ -320,24 +338,28 @@ Sent within minutes for:
 ## Example Use Cases
 
 ### Detect Compromised Credentials
+
 - Monitor for unusual source IPs
 - Track off-hours access
 - Identify privilege escalation attempts
 - Alert on suspicious API patterns
 
 ### Prevent Data Exfiltration
+
 - Monitor S3 GetObject calls
 - Track large data transfers
 - Identify unusual download patterns
 - Alert on public bucket access
 
 ### Insider Threat Detection
+
 - Baseline normal user behavior
 - Detect permission changes
 - Monitor access to sensitive resources
 - Track after-hours activity
 
 ### Compliance Monitoring
+
 - Log all administrative actions
 - Track policy changes
 - Monitor access to protected data

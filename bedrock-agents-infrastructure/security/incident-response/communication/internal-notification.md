@@ -6,11 +6,9 @@
 
 ## INCIDENT ALERT
 
-**Incident ID:** {INCIDENT_ID}
-**Severity Level:** {SEVERITY_LEVEL} (P1/P2/P3/P4)
-**Detection Time:** {DETECTION_TIME}
-**Notification Time:** {NOTIFICATION_TIME}
-**Incident Commander:** {INCIDENT_COMMANDER}
+**Incident ID:** {INCIDENT_ID} **Severity Level:** {SEVERITY_LEVEL}
+(P1/P2/P3/P4) **Detection Time:** {DETECTION_TIME} **Notification Time:**
+{NOTIFICATION_TIME} **Incident Commander:** {INCIDENT_COMMANDER}
 
 ---
 
@@ -18,13 +16,14 @@
 
 **Incident Type:** {INCIDENT_TYPE}
 
-A security incident has been detected and confirmed within the Bedrock agents infrastructure.
+A security incident has been detected and confirmed within the Bedrock agents
+infrastructure.
 
-**Status:** {STATUS}
-**Business Impact:** {BUSINESS_IMPACT}
-**Customer Impact:** {CUSTOMER_IMPACT}
+**Status:** {STATUS} **Business Impact:** {BUSINESS_IMPACT} **Customer Impact:**
+{CUSTOMER_IMPACT}
 
 ### Key Facts
+
 - **Affected Systems:** {AFFECTED_SYSTEMS}
 - **Detection Method:** {DETECTION_METHOD}
 - **Estimated Duration:** {ESTIMATED_DURATION}
@@ -36,12 +35,14 @@ A security incident has been detected and confirmed within the Bedrock agents in
 ## IMMEDIATE ACTIONS TAKEN
 
 1. **Containment:**
+
    - [ ] Affected systems isolated
    - [ ] Suspicious credentials revoked
    - [ ] Network access restricted
    - [ ] Traffic blocked at WAF
 
 2. **Forensics:**
+
    - [ ] Forensics mode enabled
    - [ ] Logs captured
    - [ ] Snapshots created
@@ -58,19 +59,21 @@ A security incident has been detected and confirmed within the Bedrock agents in
 ## INCIDENT DETAILS
 
 ### Timeline
-**{TIME_1}** - Initial detection via {DETECTION_SOURCE}
-**{TIME_2}** - Verification and confirmation
-**{TIME_3}** - Containment measures initiated
-**{TIME_4}** - Forensics collection started
-**{TIME_5}** - Stakeholder notification
+
+**{TIME_1}** - Initial detection via {DETECTION_SOURCE} **{TIME_2}** -
+Verification and confirmation **{TIME_3}** - Containment measures initiated
+**{TIME_4}** - Forensics collection started **{TIME_5}** - Stakeholder
+notification
 
 ### Affected Resources
+
 - **Accounts/Systems:** {RESOURCES_LIST}
 - **Data Classifications:** {DATA_CLASSIFICATIONS}
 - **Geographic Scope:** {GEOGRAPHIC_SCOPE}
 - **User Impact:** {USER_COUNT} users potentially affected
 
 ### Initial Assessment
+
 {INITIAL_ASSESSMENT_DETAILS}
 
 ---
@@ -78,16 +81,19 @@ A security incident has been detected and confirmed within the Bedrock agents in
 ## RESPONSE COORDINATION
 
 ### War Room Details
+
 - **Location:** Slack #{WAR_ROOM_CHANNEL}
 - **Conference Bridge:** {CONFERENCE_BRIDGE}
 - **Incident Page:** {INCIDENT_PAGE_URL}
 
 ### Incident Command Structure
+
 - **Incident Commander:** {IC_NAME} ({IC_CONTACT})
 - **Technical Lead:** {TECH_LEAD_NAME} ({TECH_LEAD_CONTACT})
 - **Communications Lead:** {COMM_LEAD_NAME} ({COMM_LEAD_CONTACT})
 
 ### Next Steps
+
 1. {NEXT_STEP_1}
 2. {NEXT_STEP_2}
 3. {NEXT_STEP_3}
@@ -98,8 +104,8 @@ A security incident has been detected and confirmed within the Bedrock agents in
 
 ## STATUS UPDATES
 
-| Time | Status | Details |
-|------|--------|---------|
+| Time   | Status   | Details   |
+| ------ | -------- | --------- |
 | {TIME} | {STATUS} | {DETAILS} |
 | {TIME} | {STATUS} | {DETAILS} |
 | {TIME} | {STATUS} | {DETAILS} |
@@ -111,6 +117,7 @@ A security incident has been detected and confirmed within the Bedrock agents in
 ## REQUIRED ACTIONS
 
 ### For Security Team
+
 - [ ] Conduct detailed forensic analysis
 - [ ] Determine root cause
 - [ ] Identify extent of compromise
@@ -118,6 +125,7 @@ A security incident has been detected and confirmed within the Bedrock agents in
 - [ ] Participate in war room
 
 ### For Engineering Teams
+
 - [ ] Join war room
 - [ ] Validate containment
 - [ ] Prepare recovery procedures
@@ -125,6 +133,7 @@ A security incident has been detected and confirmed within the Bedrock agents in
 - [ ] Monitor systems for anomalies
 
 ### For Operations
+
 - [ ] Monitor resource utilization
 - [ ] Maintain infrastructure
 - [ ] Support forensics team
@@ -132,6 +141,7 @@ A security incident has been detected and confirmed within the Bedrock agents in
 - [ ] Document all actions
 
 ### For Leadership
+
 - [ ] Monitor incident progress
 - [ ] Prepare for potential disclosure
 - [ ] Brief legal/regulatory if needed
@@ -154,9 +164,11 @@ A security incident has been detected and confirmed within the Bedrock agents in
 
 **CONFIDENTIAL - Law Firm Privileged & Confidential**
 
-This notification contains attorney-client privileged information and should not be distributed outside of the response team without authorization.
+This notification contains attorney-client privileged information and should not
+be distributed outside of the response team without authorization.
 
 **Distribution:**
+
 - Incident Response Team
 - Executive Leadership (if P1)
 - Legal Department (if P1)
@@ -182,20 +194,18 @@ CEO/General Counsel (Legal/PR decision)
 
 ## FREQUENTLY ASKED QUESTIONS
 
-**Q: How did this happen?**
-A: Investigation ongoing. Initial assessment indicates {INITIAL_CAUSE}
+**Q: How did this happen?** A: Investigation ongoing. Initial assessment
+indicates {INITIAL_CAUSE}
 
-**Q: Is my data at risk?**
-A: Possibly. Details being determined. {DATA_RISK_DETAILS}
+**Q: Is my data at risk?** A: Possibly. Details being determined.
+{DATA_RISK_DETAILS}
 
-**Q: What's being done?**
-A: Comprehensive response underway. See "Immediate Actions" section above.
+**Q: What's being done?** A: Comprehensive response underway. See "Immediate
+Actions" section above.
 
-**Q: When will this be resolved?**
-A: Estimated {ESTIMATED_RESOLUTION_TIME}
+**Q: When will this be resolved?** A: Estimated {ESTIMATED_RESOLUTION_TIME}
 
-**Q: Do I need to change my password?**
-A: {PASSWORD_GUIDANCE}
+**Q: Do I need to change my password?** A: {PASSWORD_GUIDANCE}
 
 ---
 
@@ -209,4 +219,3 @@ A: {PASSWORD_GUIDANCE}
 
 **This is an automated notification from the Incident Response System.**
 **Acknowledgment:** Please reply to confirm receipt of this notification.
-

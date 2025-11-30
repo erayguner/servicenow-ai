@@ -1,15 +1,19 @@
 # Bedrock Agents Infrastructure - Operational Scripts
 
-This directory contains comprehensive deployment and operational scripts for managing Bedrock agents infrastructure on AWS. All scripts include error handling, logging, dry-run support, and interactive modes where applicable.
+This directory contains comprehensive deployment and operational scripts for
+managing Bedrock agents infrastructure on AWS. All scripts include error
+handling, logging, dry-run support, and interactive modes where applicable.
 
 ## Overview
 
 ### Main Scripts
 
 #### 1. **deploy.sh** - Main Deployment Script
+
 Complete deployment orchestration for Bedrock agents infrastructure.
 
 **Features:**
+
 - Environment selection (dev/staging/prod)
 - Terraform initialization, planning, and application
 - Lambda function deployment and packaging
@@ -18,6 +22,7 @@ Complete deployment orchestration for Bedrock agents infrastructure.
 - Dry-run mode for safe planning
 
 **Usage:**
+
 ```bash
 # Deploy to development environment
 ./deploy.sh -e dev
@@ -33,6 +38,7 @@ Complete deployment orchestration for Bedrock agents infrastructure.
 ```
 
 **Options:**
+
 - `-e, --environment ENV` - Target environment (dev/staging/prod)
 - `-d, --dry-run` - Show changes without applying
 - `-l, --list-resources` - List deployed resources
@@ -43,9 +49,12 @@ Complete deployment orchestration for Bedrock agents infrastructure.
 ---
 
 #### 2. **setup-knowledge-base.sh** - Knowledge Base Management
-Creates and manages Bedrock knowledge bases with document uploads and embeddings.
+
+Creates and manages Bedrock knowledge bases with document uploads and
+embeddings.
 
 **Features:**
+
 - S3 bucket creation with versioning and security
 - Document upload with metadata tagging
 - Embeddings generation using Titan models
@@ -53,6 +62,7 @@ Creates and manages Bedrock knowledge bases with document uploads and embeddings
 - Chunking configuration support
 
 **Usage:**
+
 ```bash
 # Create new knowledge base with documents
 ./setup-knowledge-base.sh -c -n "policies" -d ./docs/policies
@@ -68,6 +78,7 @@ Creates and manages Bedrock knowledge bases with document uploads and embeddings
 ```
 
 **Options:**
+
 - `-e, --environment ENV` - Environment name (default: dev)
 - `-n, --name NAME` - Knowledge base name (required)
 - `-d, --documents DIR` - Directory with documents to upload
@@ -80,9 +91,11 @@ Creates and manages Bedrock knowledge bases with document uploads and embeddings
 ---
 
 #### 3. **invoke-agent.sh** - Test Agent Invocation
+
 Interactive CLI for testing Bedrock agents with session management.
 
 **Features:**
+
 - List available agents
 - Interactive multi-turn conversations
 - Session management and persistence
@@ -90,6 +103,7 @@ Interactive CLI for testing Bedrock agents with session management.
 - Response formatting and history tracking
 
 **Usage:**
+
 ```bash
 # List available agents
 ./invoke-agent.sh --list-agents
@@ -108,6 +122,7 @@ Interactive CLI for testing Bedrock agents with session management.
 ```
 
 **Options:**
+
 - `-e, --environment ENV` - Environment (default: dev)
 - `-a, --agent AGENT_NAME` - Agent to invoke
 - `-m, --message MESSAGE` - User message/prompt
@@ -122,9 +137,11 @@ Interactive CLI for testing Bedrock agents with session management.
 ---
 
 #### 4. **orchestrate-workflow.sh** - Step Functions Workflow Management
+
 Manages AWS Step Functions workflows for multi-agent orchestration.
 
 **Features:**
+
 - List available workflows
 - Start new workflow executions
 - Monitor execution progress in real-time
@@ -133,6 +150,7 @@ Manages AWS Step Functions workflows for multi-agent orchestration.
 - Timeout management
 
 **Usage:**
+
 ```bash
 # List available workflows
 ./orchestrate-workflow.sh --list-workflows
@@ -154,6 +172,7 @@ Manages AWS Step Functions workflows for multi-agent orchestration.
 ```
 
 **Options:**
+
 - `-e, --environment ENV` - Environment (dev/staging/prod)
 - `-w, --workflow NAME` - Workflow name
 - `-i, --input FILE` - JSON input file
@@ -170,9 +189,11 @@ Manages AWS Step Functions workflows for multi-agent orchestration.
 ---
 
 #### 5. **cleanup.sh** - Resource Cleanup
+
 Safely cleans up Bedrock agents infrastructure with confirmation prompts.
 
 **Features:**
+
 - Terraform resource destruction
 - S3 bucket emptying and deletion
 - CloudWatch logs cleanup
@@ -182,6 +203,7 @@ Safely cleans up Bedrock agents infrastructure with confirmation prompts.
 - Dry-run mode for safe preview
 
 **Usage:**
+
 ```bash
 # Preview cleanup with dry-run
 ./cleanup.sh -e dev --dry-run
@@ -200,6 +222,7 @@ Safely cleans up Bedrock agents infrastructure with confirmation prompts.
 ```
 
 **Options:**
+
 - `-e, --environment ENV` - Environment (required)
 - `-a, --all` - Remove all resources
 - `--tf-destroy` - Destroy Terraform resources
@@ -217,9 +240,11 @@ Safely cleans up Bedrock agents infrastructure with confirmation prompts.
 Located in the `monitoring/` subdirectory:
 
 #### **monitoring/setup-dashboards.sh** - CloudWatch Dashboards
+
 Creates and manages CloudWatch dashboards for infrastructure monitoring.
 
 **Usage:**
+
 ```bash
 ./monitoring/setup-dashboards.sh -e dev -c
 ./monitoring/setup-dashboards.sh -e prod -u
@@ -227,18 +252,22 @@ Creates and manages CloudWatch dashboards for infrastructure monitoring.
 ```
 
 #### **monitoring/export-metrics.sh** - Metrics Export
+
 Exports CloudWatch metrics to CSV for analysis.
 
 **Usage:**
+
 ```bash
 ./monitoring/export-metrics.sh -e dev -m lambda
 ./monitoring/export-metrics.sh -e prod -m all -o metrics.csv
 ```
 
 #### **monitoring/cost-analysis.sh** - Cost Analysis
+
 Analyzes AWS resource costs for the infrastructure.
 
 **Usage:**
+
 ```bash
 ./monitoring/cost-analysis.sh -e prod -m 2024-11
 ./monitoring/cost-analysis.sh -e dev -s bedrock -o cost_report.txt
@@ -251,19 +280,21 @@ Analyzes AWS resource costs for the infrastructure.
 ### Prerequisites
 
 **Required Tools:**
+
 - AWS CLI (v2 or later)
 - Terraform (v1.0 or later)
 - Bash 4.0+
 - jq (JSON processor)
 - Python 3.8+
 
-**AWS Permissions:**
-Scripts require permissions for:
+**AWS Permissions:** Scripts require permissions for:
+
 - Bedrock, Lambda, S3, CloudWatch
 - API Gateway, Step Functions, IAM
 - CloudWatch Logs, EC2 (for networking)
 
 **Installation:**
+
 ```bash
 # Clone repository
 git clone <repository-url>
@@ -373,6 +404,7 @@ grep "deploy" logs/*.log
 ```
 
 Log files include:
+
 - Timestamps for all operations
 - Command outputs and errors
 - Resource ARNs and IDs
@@ -392,12 +424,12 @@ Scripts include comprehensive error handling:
 
 **Common Issues:**
 
-| Issue | Solution |
-|-------|----------|
-| AWS credentials not found | Run `aws configure` |
-| Terraform state locked | Use `terraform force-unlock` |
-| Permission denied on scripts | Run `chmod +x *.sh` |
-| Missing dependencies | Install with `pip install -r requirements.txt` |
+| Issue                        | Solution                                       |
+| ---------------------------- | ---------------------------------------------- |
+| AWS credentials not found    | Run `aws configure`                            |
+| Terraform state locked       | Use `terraform force-unlock`                   |
+| Permission denied on scripts | Run `chmod +x *.sh`                            |
+| Missing dependencies         | Install with `pip install -r requirements.txt` |
 
 ---
 
@@ -497,6 +529,7 @@ Agent configurations are stored in `config/agents/`:
 ## Support & Contributing
 
 For issues or questions:
+
 1. Check logs in `logs/` directory
 2. Review this README
 3. Run with `-h` flag for script help
@@ -513,6 +546,7 @@ MIT License - See LICENSE file for details
 ## Changelog
 
 ### v1.0.0 (2024-11-17)
+
 - Initial release
 - All core deployment scripts
 - Monitoring and cost analysis tools

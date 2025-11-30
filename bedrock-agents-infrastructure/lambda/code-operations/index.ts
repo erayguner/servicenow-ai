@@ -1,11 +1,9 @@
 import { Handler } from 'aws-lambda';
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { BedrockAgentRuntimeClient, InvokeAgentCommand } from '@aws-sdk/client-bedrock-agent-runtime';
-import { CodeOperationRequest, CodeOperationResponse, ActionType } from './types';
+import { S3Client } from '@aws-sdk/client-s3';
+import { CodeOperationResponse, ActionType } from './types';
 import { readFileContent, writeFileContent, searchInCode, executeGitOperation } from './utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
-const bedrockClient = new BedrockAgentRuntimeClient({ region: process.env.AWS_REGION || 'us-east-1' });
 
 /**
  * Lambda handler for code operations action group
@@ -74,13 +72,12 @@ export const handler: Handler = async (event: any): Promise<CodeOperationRespons
               success: true,
               action,
               result,
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
-
   } catch (error) {
     console.error('Error in code operations:', error);
 
@@ -96,11 +93,11 @@ export const handler: Handler = async (event: any): Promise<CodeOperationRespons
             body: JSON.stringify({
               success: false,
               error: error instanceof Error ? error.message : 'Unknown error',
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
   }
 };
@@ -125,7 +122,7 @@ async function handleReadFile(params: Record<string, string>, body: any): Promis
     filePath,
     content,
     size: content.length,
-    encoding
+    encoding,
   };
 }
 
@@ -150,7 +147,7 @@ async function handleWriteFile(params: Record<string, string>, body: any): Promi
     filePath,
     size: content.length,
     success: true,
-    bucket
+    bucket,
   };
 }
 
@@ -173,14 +170,14 @@ async function handleSearchCode(params: Record<string, string>, body: any): Prom
   const results = await searchInCode(s3Client, bucket!, query, {
     pattern,
     fileTypes: Array.isArray(fileTypes) ? fileTypes : fileTypes.split(','),
-    maxResults
+    maxResults,
   });
 
   return {
     query,
     resultsCount: results.length,
     results: results.slice(0, maxResults),
-    bucket
+    bucket,
   };
 }
 
@@ -204,7 +201,7 @@ async function handleGitOperations(params: Record<string, string>, body: any): P
     repository,
     branch,
     message,
-    ...data
+    ...data,
   });
 
   return {
@@ -212,6 +209,6 @@ async function handleGitOperations(params: Record<string, string>, body: any): P
     repository,
     branch,
     result,
-    success: true
+    success: true,
   };
 }

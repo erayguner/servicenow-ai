@@ -56,10 +56,7 @@ describe('Security Compliance Checker', () => {
       expect(result.mediumFindings).toBeGreaterThanOrEqual(0);
       expect(result.lowFindings).toBeGreaterThanOrEqual(0);
       expect(
-        result.criticalFindings +
-          result.highFindings +
-          result.mediumFindings +
-          result.lowFindings
+        result.criticalFindings + result.highFindings + result.mediumFindings + result.lowFindings
       ).toBe(result.totalFindings);
     });
 
@@ -92,8 +89,8 @@ describe('Security Compliance Checker', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const encryptionFindings = result.findings.filter(
-        (f) => f.title.includes('customer-managed encryption')
+      const encryptionFindings = result.findings.filter((f) =>
+        f.title.includes('customer-managed encryption')
       );
       expect(encryptionFindings).toBeDefined();
     });
@@ -108,9 +105,7 @@ describe('Security Compliance Checker', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const wildcardFindings = result.findings.filter(
-        (f) => f.title.includes('wildcard')
-      );
+      const wildcardFindings = result.findings.filter((f) => f.title.includes('wildcard'));
       expect(wildcardFindings).toBeDefined();
     });
 
@@ -122,8 +117,8 @@ describe('Security Compliance Checker', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const overPrivilegedFindings = result.findings.filter(
-        (f) => f.title.includes('overly permissive')
+      const overPrivilegedFindings = result.findings.filter((f) =>
+        f.title.includes('overly permissive')
       );
       expect(overPrivilegedFindings).toBeDefined();
     });
@@ -147,9 +142,7 @@ describe('Security Compliance Checker', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const rotationFindings = result.findings.filter(
-        (f) => f.title.includes('rotation')
-      );
+      const rotationFindings = result.findings.filter((f) => f.title.includes('rotation'));
       expect(rotationFindings).toBeDefined();
     });
   });

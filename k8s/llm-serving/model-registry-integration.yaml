@@ -1,0 +1,295 @@
+---
+# ConfigMap for Model Registry Configuration (MLflow, Kubeflow, Hugging Face)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-registry-config
+  namespace: production
+data:
+  # Hugging Face Hub Configuration
+  huggingface-hub-url: https://huggingface.co
+  huggingface-cache-dir: /mnt/models/.cache/huggingface
+
+  # MLflow Model Registry Configuration
+  mlflow-tracking-uri: https://mlflow.example.com
+  mlflow-registry-uri: https://mlflow.example.com
+  mlflow-model-uri-format: models:/{model_name}/{version}
+
+  # Kubeflow Model Registry Configuration (Kubernetes-native)
+  kubeflow-model-registry-url: http://model-registry-service.kubeflow.svc.cluster.local:8080
+  kubeflow-mlmd-url: http://metadata-service.kubeflow.svc.cluster.local:8080
+
+  # Model format preferences
+  preferred-format: safetensors # safetensors, gguf, pytorch
+  fallback-format: pytorch
+
+  # Quantization settings
+  quantization-enabled: 'true'
+  quantization-bits: '4' # 4-bit, 8-bit quantization for smaller memory footprint
+
+  # Model loading optimization
+  use-model-streaming: 'true' # Use tensorizer or model streamer for faster GPU loading
+  parallel-loading: 'true'
+  preload-layers: '4' # Number of layers to preload
+---
+# Secret for Model Registry Credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: model-registry-credentials
+  namespace: production
+type: Opaque
+stringData:
+  # Hugging Face API Token (for private models)
+  huggingface-token: hf_REPLACE_WITH_YOUR_TOKEN
+
+  # MLflow credentials
+  mlflow-username: admin
+  mlflow-password: REPLACE_WITH_PASSWORD
+
+  # AWS S3 credentials (if using S3 for model storage)
+  aws-access-key-id: REPLACE_WITH_KEY
+  aws-secret-access-key: REPLACE_WITH_SECRET
+---
+# StorageClass for fast model loading (SSD-backed)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-model-storage
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+  replication-type: regional-pd
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+---
+# PVC for shared model cache across pods
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-model-cache
+  namespace: production
+  labels:
+    app: llm-serving
+spec:
+  accessModes: [ReadWriteMany]
+  storageClassName: fast-model-storage
+  resources:
+    requests:
+      storage: 500Gi # Large enough for multiple models
+---
+# InferenceService with Hugging Face model
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-mistral-7b
+  namespace: production
+  annotations:
+    serving.kserve.io/model-format: safetensors
+    serving.kserve.io/model-source: huggingface
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    minReplicas: 1
+    maxReplicas: 5
+    model:
+      modelFormat:
+        name: huggingface
+      runtime: vllm-runtime
+
+      # Hugging Face Hub URI with automatic storage initializer
+      storageUri: hf://mistralai/Mistral-7B-Instruct-v0.2
+
+      # Storage initializer configuration
+      storageInitializer:
+        image: kserve/storage-initializer:v0.11.0
+        env:
+          - name: HUGGINGFACE_HUB_CACHE
+            valueFrom:
+              configMapKeyRef:
+                name: model-registry-config
+                key: huggingface-cache-dir
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: model-registry-credentials
+                key: huggingface-token
+                optional: true
+      resources:
+        requests:
+          cpu: '6'
+          memory: 24Gi
+          nvidia.com/gpu: '1'
+        limits:
+          cpu: '12'
+          memory: 48Gi
+          nvidia.com/gpu: '1'
+---
+# InferenceService with MLflow model registry
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-from-mlflow
+  namespace: production
+  annotations:
+    serving.kserve.io/model-format: pytorch
+    serving.kserve.io/model-source: mlflow
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    minReplicas: 1
+    maxReplicas: 3
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: vllm-runtime
+
+      # MLflow model registry URI
+      storageUri: models:/llm-production/1
+      storageInitializer:
+        image: kserve/storage-initializer:v0.11.0
+        env:
+          - name: MLFLOW_TRACKING_URI
+            valueFrom:
+              configMapKeyRef:
+                name: model-registry-config
+                key: mlflow-tracking-uri
+          - name: MLFLOW_TRACKING_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: model-registry-credentials
+                key: mlflow-username
+          - name: MLFLOW_TRACKING_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: model-registry-credentials
+                key: mlflow-password
+---
+# InferenceService with Kubeflow Model Registry (Kubernetes-native)
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-from-kubeflow
+  namespace: production
+  annotations:
+    serving.kserve.io/model-format: safetensors
+    serving.kserve.io/model-source: kubeflow
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    minReplicas: 1
+    maxReplicas: 3
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: vllm-runtime
+
+      # Kubeflow Model Registry URI
+      storageUri: model-registry://llm-production/v1
+      storageInitializer:
+        image: kserve/storage-initializer:v0.11.0
+        env:
+          - name: MODEL_REGISTRY_BASE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: model-registry-config
+                key: kubeflow-model-registry-url
+---
+# InferenceService with GCS bucket (direct storage)
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-from-gcs
+  namespace: production
+  annotations:
+    serving.kserve.io/model-format: safetensors
+    serving.kserve.io/model-source: gcs
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa # Uses Workload Identity
+    minReplicas: 1
+    maxReplicas: 3
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: vllm-runtime
+
+      # Google Cloud Storage URI (no credentials needed with Workload Identity)
+      storageUri: gs://PROJECT_ID-llm-models/mistral-7b-instruct
+      resources:
+        requests:
+          cpu: '4'
+          memory: 16Gi
+          nvidia.com/gpu: '1'
+        limits:
+          cpu: '8'
+          memory: 32Gi
+          nvidia.com/gpu: '1'
+---
+# Job to download and cache models (run once at deployment)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: model-cache-preload
+  namespace: production
+spec:
+  ttlSecondsAfterFinished: 3600 # Clean up after 1 hour
+  template:
+    spec:
+      serviceAccountName: llm-gateway-sa
+      restartPolicy: OnFailure
+      initContainers:
+        # Download models from Hugging Face
+        - name: download-mistral-7b
+          image: huggingface/transformers-pytorch-gpu:latest
+          command: [/bin/bash, -c]
+          args:
+            - |
+              set -e
+              echo "Downloading Mistral-7B model..."
+              python3 -c "
+              from transformers import AutoModelForCausalLM, AutoTokenizer
+              import os
+              model_name = 'mistralai/Mistral-7B-Instruct-v0.2'
+              cache_dir = '/mnt/models/.cache/huggingface'
+              print(f'Downloading {model_name}...')
+              tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir)
+              model = AutoModelForCausalLM.from_pretrained(
+                  model_name,
+                  cache_dir=cache_dir,
+                  low_cpu_mem_usage=True
+              )
+              print('Download complete!')
+              "
+          volumeMounts:
+            - name: model-cache
+              mountPath: /mnt/models
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: model-registry-credentials
+                  key: huggingface-token
+                  optional: true
+      containers:
+        - name: verify
+          image: busybox:latest
+          command: [sh, -c]
+          args:
+            - |
+              echo "Verifying model cache..."
+              ls -lh /mnt/models/.cache/huggingface/
+              echo "Model cache ready!"
+          volumeMounts:
+            - name: model-cache
+              mountPath: /mnt/models
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: shared-model-cache
+      nodeSelector:
+        workload: ai-inference
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule

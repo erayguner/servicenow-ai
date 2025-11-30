@@ -329,6 +329,5 @@ User/Client
 
 ---
 
-**Version**: 1.0
-**Updated**: November 2024
-**Format**: ASCII Diagrams (PlantUML compatible)
+**Version**: 1.0 **Updated**: November 2024 **Format**: ASCII Diagrams (PlantUML
+compatible)

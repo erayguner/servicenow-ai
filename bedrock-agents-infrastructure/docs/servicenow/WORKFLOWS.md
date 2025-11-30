@@ -19,6 +19,7 @@ The incident resolution workflow consists of the following phases:
 **Trigger**: New incident created or existing incident modified in ServiceNow
 
 **Process**:
+
 ```
 1. ServiceNow Business Rule detects incident creation/modification
 2. HTTP POST sent to API Gateway with incident data
@@ -29,6 +30,7 @@ The incident resolution workflow consists of the following phases:
 ```
 
 **Input Data**:
+
 ```json
 {
   "incident_id": "sys_id",
@@ -49,6 +51,7 @@ The incident resolution workflow consists of the following phases:
 **Objective**: Analyze incident to understand symptoms and identify root cause
 
 **Agent Actions**:
+
 ```
 1. Extract key information from incident description
    - What is the problem?
@@ -73,6 +76,7 @@ The incident resolution workflow consists of the following phases:
 ```
 
 **Processing Logic**:
+
 ```javascript
 if (symptoms match known pattern) {
   confidence = high;
@@ -95,6 +99,7 @@ if (symptoms match known pattern) {
 **Objective**: Assign incident to appropriate team with correct categorization
 
 **Actions**:
+
 ```
 1. Determine incident category
    - Service category (Email, Network, Hardware, etc.)
@@ -122,6 +127,7 @@ if (symptoms match known pattern) {
 ```
 
 **Assignment Rules Example**:
+
 ```
 Rule: If category = "Email" then assign to "Email Support Team"
 Rule: If category = "Network" and priority = 1 then assign to "Network NOC"
@@ -134,6 +140,7 @@ Rule: If multiple KB searches with no result then assign to "Tier-2 Support"
 **Objective**: Provide detailed troubleshooting or solution steps
 
 **Output Format**:
+
 ```
 SOLUTION STEPS FOR INCIDENT {incident_number}
 
@@ -177,6 +184,7 @@ References:
 ```
 
 **Example Response**:
+
 ```
 SOLUTION FOR INC0001234 - Email Access Issue
 
@@ -233,6 +241,7 @@ Confidence Level: 95%
 **Objective**: Track incident progress toward resolution
 
 **Monitoring Loop**:
+
 ```
 Every 5 minutes (while In Progress):
 1. Check incident status for updates
@@ -249,6 +258,7 @@ Status Updates:
 ```
 
 **Alert Conditions**:
+
 ```
 High Priority + No Progress = Immediate escalation
 Blocked on information = Contact caller
@@ -261,6 +271,7 @@ Cannot implement solution = Escalate to senior team
 **Objective**: Close incident with proper documentation
 
 **Closure Process**:
+
 ```
 When incident marked "Resolved":
 1. Verify resolution with requester
@@ -275,6 +286,7 @@ When incident marked "Resolved":
 ```
 
 **Closure Checklist**:
+
 ```
 ☐ Solution verified by end user
 ☐ All steps documented in work notes
@@ -289,6 +301,7 @@ When incident marked "Resolved":
 ```
 
 **Feedback Survey**:
+
 ```
 User receives:
 1. Was your issue resolved? (Yes/No)
@@ -388,6 +401,7 @@ Feedback Integration:
 **Trigger**: New change request submitted in ServiceNow
 
 **Process**:
+
 ```
 1. Change request submitted by change manager/requester
 2. Change data validated for completeness
@@ -412,6 +426,7 @@ Validation Checks:
 **Objective**: Evaluate change risk and determine governance requirements
 
 **Risk Calculation Formula**:
+
 ```
 Risk Score = (Technical Risk × 0.4) + (Business Risk × 0.4) + (Operational Risk × 0.2)
 
@@ -428,6 +443,7 @@ Risk Level:
 ```
 
 **Assessment Process**:
+
 ```
 1. Extract change scope and impact
    - How many systems affected?
@@ -461,6 +477,7 @@ Risk Level:
 #### Phase 3: CAB Determination and Coordination
 
 **Decision Logic**:
+
 ```
 if (risk_score >= 60) {
   cab_required = true;
@@ -477,6 +494,7 @@ if (risk_score >= 60) {
 ```
 
 **CAB Coordination Steps**:
+
 ```
 When CAB Required:
 1. Extract CAB members for affected systems
@@ -504,6 +522,7 @@ CAB Summary Includes:
 #### Phase 4: Approval
 
 **Approval Paths**:
+
 ```
 Standard Path (Risk < 60):
 1. Change manager approves
@@ -528,6 +547,7 @@ Emergency Path (Emergency change):
 #### Phase 5: Scheduling
 
 **Process**:
+
 ```
 1. Identify maintenance windows
    - Preferred: Sunday 2 AM - 6 AM
@@ -558,6 +578,7 @@ Emergency Path (Emergency change):
 #### Phase 6: Pre-Implementation
 
 **Preparation Checklist**:
+
 ```
 72 Hours Before Implementation:
 ☐ Implementation team confirmed
@@ -590,6 +611,7 @@ Emergency Path (Emergency change):
 #### Phase 7: Implementation
 
 **Execution Process**:
+
 ```
 1. Pre-implementation verification
    - System baseline captured
@@ -622,6 +644,7 @@ Emergency Path (Emergency change):
 ```
 
 **Implementation Decision Tree**:
+
 ```
 Implementation starts
         │
@@ -657,6 +680,7 @@ Implementation starts
 #### Phase 8: Post-Implementation
 
 **Process**:
+
 ```
 Immediately (30 minutes):
 - Monitor for critical issues
@@ -684,6 +708,7 @@ Long-term (1 week):
 ```
 
 **Post-Implementation Review**:
+
 ```
 Performed 3-5 days after implementation:
 
@@ -743,6 +768,7 @@ Incident Resolved
 ### Scheduled Maintenance Workflow
 
 **Daily Workflow (2 AM):**
+
 ```
 1. Analyze KB search logs
    - What did users search for?
@@ -761,6 +787,7 @@ Incident Resolved
 ```
 
 **Weekly Workflow (Sunday 3 AM):**
+
 ```
 1. Analyze article effectiveness
    - View counts by article
@@ -786,6 +813,7 @@ Incident Resolved
 ```
 
 **Monthly Workflow (1st of month):**
+
 ```
 1. Comprehensive KB audit
    - Review all articles for accuracy
@@ -878,6 +906,7 @@ For Confidence-Based Escalation:
 ### Creating a New Workflow
 
 **Step 1: Define Workflow Requirements**
+
 ```
 1. Identify trigger event(s)
 2. Define process phases
@@ -888,37 +917,37 @@ For Confidence-Based Escalation:
 ```
 
 **Step 2: Create Workflow Configuration**
+
 ```json
 {
   "workflow_name": "Custom Workflow",
   "trigger": "incident_created",
   "phases": [
-    {"name": "Detection", "timeout": 300},
-    {"name": "Analysis", "timeout": 600},
-    {"name": "Action", "timeout": 900}
+    { "name": "Detection", "timeout": 300 },
+    { "name": "Analysis", "timeout": 600 },
+    { "name": "Action", "timeout": 900 }
   ],
-  "decision_points": [
-    {"condition": "priority = 1", "then": "escalate"}
-  ],
+  "decision_points": [{ "condition": "priority = 1", "then": "escalate" }],
   "error_handling": "exponential_backoff",
   "notifications": true
 }
 ```
 
 **Step 3: Implement Phase Logic**
+
 ```javascript
 async function executePhase(phaseName, context) {
-  const phase = workflow.phases.find(p => p.name === phaseName);
+  const phase = workflow.phases.find((p) => p.name === phaseName);
 
   try {
     const result = await phase.execute(context, {
-      timeout: phase.timeout
+      timeout: phase.timeout,
     });
 
     return {
       phase: phaseName,
       status: 'completed',
-      result: result
+      result: result,
     };
   } catch (error) {
     return await handlePhaseError(error, phase, context);
@@ -927,6 +956,7 @@ async function executePhase(phaseName, context) {
 ```
 
 **Step 4: Test Workflow**
+
 ```
 1. Unit test each phase independently
 2. Integration test phase sequence
@@ -937,6 +967,7 @@ async function executePhase(phaseName, context) {
 ```
 
 **Step 5: Deploy and Monitor**
+
 ```
 1. Deploy to staging environment
 2. Run smoke tests
@@ -947,6 +978,7 @@ async function executePhase(phaseName, context) {
 ```
 
 For more detailed information, refer to:
+
 - [AGENT_GUIDE.md](AGENT_GUIDE.md) - Agent capabilities and prompting
 - [API_REFERENCE.md](API_REFERENCE.md) - API methods used in workflows
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common workflow issues

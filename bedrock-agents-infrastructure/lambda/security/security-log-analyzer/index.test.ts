@@ -109,9 +109,7 @@ describe('Security Log Analyzer', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const escalations = result.anomalies.filter(
-        (a) => a.type === 'PRIVILEGE_ESCALATION'
-      );
+      const escalations = result.anomalies.filter((a) => a.type === 'PRIVILEGE_ESCALATION');
       expect(escalations).toBeDefined();
     });
 
@@ -134,9 +132,7 @@ describe('Security Log Analyzer', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const unauthorized = result.anomalies.filter(
-        (a) => a.type === 'UNAUTHORIZED_ACCESS'
-      );
+      const unauthorized = result.anomalies.filter((a) => a.type === 'UNAUTHORIZED_ACCESS');
       expect(unauthorized).toBeDefined();
     });
 

@@ -87,9 +87,7 @@ describe('Security Incident Response', () => {
 
       const result = await handler(event, {} as any, {} as any);
 
-      const isolationActions = result.findings.filter((f) =>
-        f.resourceArn.includes('instance')
-      );
+      const isolationActions = result.findings.filter((f) => f.resourceArn.includes('instance'));
       expect(isolationActions).toBeDefined();
     });
 

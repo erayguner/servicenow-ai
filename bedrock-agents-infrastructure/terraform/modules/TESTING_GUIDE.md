@@ -2,7 +2,8 @@
 
 ## Overview
 
-This repository now includes comprehensive Terraform native test files (tftest.hcl) for all 16 modules using Terraform 1.6+ testing framework.
+This repository now includes comprehensive Terraform native test files
+(tftest.hcl) for all 16 modules using Terraform 1.6+ testing framework.
 
 ## Test Structure
 
@@ -16,12 +17,14 @@ Each module includes 4 comprehensive test files:
 ## Modules with Tests (16 total)
 
 ### Core Bedrock Modules (4)
+
 - ✅ bedrock-agent (4 test files)
 - ✅ bedrock-knowledge-base (4 test files)
 - ✅ bedrock-action-group (4 test files)
 - ✅ bedrock-orchestration (4 test files)
 
 ### Security Modules (6)
+
 - ✅ security/bedrock-security-iam (4 test files)
 - ✅ security/bedrock-security-kms (4 test files)
 - ✅ security/bedrock-security-guardduty (4 test files)
@@ -30,6 +33,7 @@ Each module includes 4 comprehensive test files:
 - ✅ security/bedrock-security-secrets (4 test files)
 
 ### Monitoring Modules (6)
+
 - ✅ monitoring/bedrock-monitoring-cloudwatch (4 test files)
 - ✅ monitoring/bedrock-monitoring-cloudtrail (4 test files)
 - ✅ monitoring/bedrock-monitoring-config (4 test files)
@@ -42,22 +46,26 @@ Each module includes 4 comprehensive test files:
 ## Running Tests
 
 ### Run all tests for a module
+
 ```bash
 cd bedrock-agents-infrastructure/terraform/modules/bedrock-agent
 terraform test
 ```
 
 ### Run a specific test file
+
 ```bash
 terraform test -test-directory=tests tests/basic.tftest.hcl
 ```
 
 ### Run tests with verbose output
+
 ```bash
 terraform test -verbose
 ```
 
 ### Run only plan tests (no apply)
+
 ```bash
 terraform test -filter="command=plan"
 ```
@@ -65,6 +73,7 @@ terraform test -filter="command=plan"
 ## Test Features
 
 ### Basic Tests
+
 - Resource creation verification
 - Default value validation
 - Required resource existence
@@ -72,6 +81,7 @@ terraform test -filter="command=plan"
 - Tag validation
 
 ### Advanced Tests
+
 - Multi-resource scenarios
 - Complex configurations
 - Encryption settings
@@ -80,6 +90,7 @@ terraform test -filter="command=plan"
 - Performance settings
 
 ### Integration Tests
+
 - Cross-module dependencies
 - Service integrations (S3, DynamoDB, SNS, etc.)
 - IAM permission chains
@@ -87,6 +98,7 @@ terraform test -filter="command=plan"
 - Data flow validation
 
 ### Validation Tests
+
 - Output value verification
 - ARN format validation
 - Resource naming conventions
@@ -96,6 +108,7 @@ terraform test -filter="command=plan"
 ## Test Coverage
 
 Each module tests:
+
 - ✅ Resource creation
 - ✅ Configuration options
 - ✅ IAM permissions
@@ -110,6 +123,7 @@ Each module tests:
 ### bedrock-agent Module Tests
 
 **Basic Test Example:**
+
 ```hcl
 run "verify_agent_creation" {
   command = plan
@@ -122,6 +136,7 @@ run "verify_agent_creation" {
 ```
 
 **Advanced Test Example:**
+
 ```hcl
 run "verify_knowledge_base_association" {
   command = plan
@@ -136,6 +151,7 @@ run "verify_knowledge_base_association" {
 ### Security IAM Module Tests
 
 **Permission Validation:**
+
 ```hcl
 run "verify_bedrock_permissions" {
   command = plan
@@ -150,6 +166,7 @@ run "verify_bedrock_permissions" {
 ### Monitoring CloudWatch Module Tests
 
 **Alarm Creation:**
+
 ```hcl
 run "verify_bedrock_invocation_errors_alarm" {
   command = plan
@@ -164,6 +181,7 @@ run "verify_bedrock_invocation_errors_alarm" {
 ## CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 name: Terraform Tests
 
@@ -176,8 +194,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: "1.6.0"
-      
+          terraform_version: '1.6.0'
+
       - name: Run Terraform Tests
         run: |
           cd bedrock-agents-infrastructure/terraform/modules
@@ -203,12 +221,16 @@ jobs:
 ### Common Issues
 
 **Issue: Test fails with "resource not found"**
-- Solution: Ensure you're using `command = plan` for tests that don't create resources
+
+- Solution: Ensure you're using `command = plan` for tests that don't create
+  resources
 
 **Issue: Variable validation errors**
+
 - Solution: Check that test variables match module variable definitions
 
 **Issue: Assert condition fails**
+
 - Solution: Use `can()` function for optional attributes
 
 ## Next Steps
@@ -228,6 +250,7 @@ jobs:
 ## Support
 
 For issues or questions:
+
 1. Check test error messages
 2. Review module documentation
 3. Validate test variable values

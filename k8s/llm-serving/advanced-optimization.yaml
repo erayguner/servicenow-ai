@@ -1,0 +1,348 @@
+---
+# Advanced LLM Optimization Configurations
+# Based on "Generative AI on Kubernetes" best practices
+
+# ConfigMap for vLLM runtime optimization
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vllm-optimization-config
+  namespace: production
+data:
+  # Memory optimization
+  gpu-memory-utilization: '0.90' # Use 90% of GPU memory for KV cache
+  max-model-len: '8192' # Maximum sequence length
+  max-num-batched-tokens: '16384' # Larger batches for higher throughput
+  max-num-seqs: '512' # Maximum concurrent sequences
+
+  # Parallelization strategies
+  tensor-parallel-size: '1' # Number of GPUs for tensor parallelism
+  pipeline-parallel-size: '1' # Number of GPUs for pipeline parallelism
+
+  # Performance features
+  enable-chunked-prefill: 'true' # Process prefill in chunks for better scheduling
+  enable-prefix-caching: 'true' # Cache common prompt prefixes
+  enable-flash-attention: 'true' # Use Flash Attention 2 for faster inference
+
+  # Quantization for memory efficiency
+  quantization: awq # AWQ, GPTQ, or none
+  quantization-bits: '4' # 4-bit or 8-bit
+
+  # Batching strategy
+  use-v2-block-manager: 'true' # Use improved block manager
+  disable-log-requests: 'false' # Keep request logging for observability
+---
+# InferenceService with disaggregated serving (prefill + decode separation)
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-disaggregated-prefill
+  namespace: production
+  labels:
+    serving-component: prefill
+  annotations:
+    serving.kserve.io/disaggregated-serving: 'true'
+    serving.kserve.io/component: prefill
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    minReplicas: 2
+    maxReplicas: 8
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: vllm-runtime
+      storageUri: hf://mistralai/Mistral-7B-Instruct-v0.2
+      args:
+        # Prefill-optimized configuration
+        - --model=/mnt/models
+        - --gpu-memory-utilization=0.85
+        - --max-model-len=8192
+
+        # Optimize for prefill (compute-bound)
+        - --enable-chunked-prefill
+        - --max-num-batched-tokens=32768 # Larger for prefill
+        - --max-num-seqs=64 # Fewer concurrent sequences
+
+        # Disable decode-specific optimizations
+        - --disable-sliding-window
+        - --enforce-eager # Eager mode for better prefill performance
+      resources:
+        requests:
+          cpu: '8'
+          memory: 32Gi
+          nvidia.com/gpu: '2' # More GPUs for parallel processing
+        limits:
+          cpu: '16'
+          memory: 64Gi
+          nvidia.com/gpu: '2'
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-disaggregated-decode
+  namespace: production
+  labels:
+    serving-component: decode
+  annotations:
+    serving.kserve.io/disaggregated-serving: 'true'
+    serving.kserve.io/component: decode
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    minReplicas: 4
+    maxReplicas: 20
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: vllm-runtime
+      storageUri: hf://mistralai/Mistral-7B-Instruct-v0.2
+      args:
+        # Decode-optimized configuration
+        - --model=/mnt/models
+        - --gpu-memory-utilization=0.95 # More memory for KV cache
+
+        # Optimize for decode (memory-bound)
+        - --max-num-seqs=256 # Many concurrent sequences
+        - --max-num-batched-tokens=4096 # Smaller batches
+        - --enable-prefix-caching # Reuse cached prefixes
+
+        # Decode-specific optimizations
+        - --use-v2-block-manager
+        - --enable-sliding-window
+        - --swap-space=4 # 4GB swap space for overflow
+      resources:
+        requests:
+          cpu: '4'
+          memory: 16Gi
+          nvidia.com/gpu: '1' # Single GPU per decode instance
+        limits:
+          cpu: '8'
+          memory: 32Gi
+          nvidia.com/gpu: '1'
+---
+# LLM-aware routing service (routes to prefill or decode based on request type)
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-router
+  namespace: production
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  selector:
+    app: llm-router
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-router
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: llm-router
+  template:
+    metadata:
+      labels:
+        app: llm-router
+    spec:
+      serviceAccountName: llm-gateway-sa
+      containers:
+        - name: router
+          image: envoyproxy/envoy:v1.28-latest
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9901
+              name: admin
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy
+              readOnly: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: llm-router-config
+---
+# Envoy configuration for LLM-aware routing
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-router-config
+  namespace: production
+data:
+  envoy.yaml: |
+    static_resources:
+      listeners:
+        - name: listener_0
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 8080
+          filter_chains:
+            - filters:
+                - name: envoy.filters.network.http_connection_manager
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                    stat_prefix: ingress_http
+                    route_config:
+                      name: local_route
+                      virtual_hosts:
+                        - name: llm_service
+                          domains: [ "*" ]
+                          routes:
+                            # Route prefill requests (new prompts)
+                            - match:
+                                prefix: "/v1/completions"
+                                headers:
+                                  - name: "x-request-type"
+                                    exact_match: "prefill"
+                              route:
+                                cluster: prefill_cluster
+                                timeout: 60s
+
+                            # Route decode requests (continuation)
+                            - match:
+                                prefix: "/v1/completions"
+                                headers:
+                                  - name: "x-request-type"
+                                    exact_match: "decode"
+                              route:
+                                cluster: decode_cluster
+                                timeout: 300s
+
+                            # Default: route to combined service
+                            - match:
+                                prefix: "/"
+                              route:
+                                cluster: combined_cluster
+                                timeout: 120s
+                    http_filters:
+                      - name: envoy.filters.http.router
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+      clusters:
+        - name: prefill_cluster
+          type: STRICT_DNS
+          lb_policy: LEAST_REQUEST
+          load_assignment:
+            cluster_name: prefill_cluster
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: llm-disaggregated-prefill.production.svc.cluster.local
+                          port_value: 80
+        - name: decode_cluster
+          type: STRICT_DNS
+          lb_policy: LEAST_REQUEST
+          load_assignment:
+            cluster_name: decode_cluster
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: llm-disaggregated-decode.production.svc.cluster.local
+                          port_value: 80
+        - name: combined_cluster
+          type: STRICT_DNS
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: combined_cluster
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: llm-service.production.svc.cluster.local
+                          port_value: 80
+    admin:
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 9901
+---
+# ServiceMonitor for token-based metrics (throughput, latency)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: llm-token-metrics
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      serving.kserve.io/inferenceservice: llm-service
+  endpoints:
+    - port: metrics
+      interval: 15s
+      path: /metrics
+      relabelings:
+        # Add custom labels
+        - sourceLabels: [__meta_kubernetes_pod_label_serving_component]
+          targetLabel: component
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+---
+# PrometheusRule for LLM-specific alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: llm-serving-alerts
+  namespace: production
+spec:
+  groups:
+    - name: llm-serving
+      interval: 30s
+      rules:
+        # Token throughput alerts
+        - alert: LowTokenThroughput
+          expr: rate(vllm_request_success_total[5m]) < 10
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Low LLM token throughput
+            description: Token throughput is {{ $value }} tokens/sec on {{ $labels.pod }}
+
+        # KV Cache utilization alerts
+        - alert: HighKVCacheUsage
+          expr: vllm_gpu_cache_usage_perc > 0.95
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: High KV cache usage
+            description: KV cache usage is {{ $value }}% on {{ $labels.pod }}
+
+        # GPU OOM warnings
+        - alert: GPUOutOfMemory
+          expr: rate(vllm_gpu_oom_total[5m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: GPU out of memory
+            description: GPU OOM errors detected on {{ $labels.pod }}
+
+        # Request queue depth
+        - alert: HighRequestQueueDepth
+          expr: vllm_num_requests_waiting > 100
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: High request queue depth
+            description: '{{ $value }} requests waiting on {{ $labels.pod }}'

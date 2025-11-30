@@ -1,117 +1,9 @@
 {
-  "reportMetadata": {
-    "reportName": "Security Assessment Report - Amazon Bedrock Agents Infrastructure",
-    "reportType": "Comprehensive Security Assessment",
-    "assessmentPeriod": {
-      "startDate": "YYYY-MM-DD",
-      "endDate": "YYYY-MM-DD"
-    },
-    "generatedDate": "YYYY-MM-DD",
-    "assessmentType": "Internal|External|Third-Party",
-    "assessors": [
-      {
-        "name": "Assessor Name",
-        "role": "Security Architect|Penetration Tester|Auditor",
-        "organization": "Internal Security Team|External Firm Name"
-      }
-    ],
-    "version": "1.0",
-    "classification": "RESTRICTED",
-    "distribution": [
-      "CISO",
-      "CTO",
-      "CEO",
-      "Board of Directors (Executive Summary)",
-      "External Auditor"
-    ]
-  },
-  "executiveSummary": {
-    "overallSecurityPosture": {
-      "rating": "Excellent|Good|Fair|Poor",
-      "score": 0,
-      "maxScore": 100,
-      "previousAssessmentScore": 0,
-      "trend": "Improving|Stable|Declining"
-    },
-    "keyFindings": [
-      {
-        "finding": "Critical finding summary",
-        "severity": "Critical|High|Medium|Low",
-        "impact": "Description of business/security impact",
-        "recommendation": "High-level remediation recommendation",
-        "status": "Open|In Progress|Resolved"
-      }
-    ],
-    "riskSummary": {
-      "criticalRisks": 0,
-      "highRisks": 0,
-      "mediumRisks": 0,
-      "lowRisks": 0,
-      "overallRiskLevel": "Critical|High|Medium|Low",
-      "riskTrend": "Increasing|Stable|Decreasing"
-    },
-    "compliancePosture": {
-      "soc2": "Compliant|Non-Compliant|Partially Compliant",
-      "hipaa": "Compliant|Non-Compliant|Partially Compliant",
-      "pciDss": "Compliant|Non-Compliant|Partially Compliant",
-      "gdpr": "Compliant|Non-Compliant|Partially Compliant",
-      "iso27001": "Compliant|Non-Compliant|Partially Compliant"
-    },
-    "recommendations": [
-      {
-        "priority": "Critical|High|Medium|Low",
-        "recommendation": "Short description",
-        "estimatedCost": "$X,XXX",
-        "estimatedEffort": "X weeks/months",
-        "expectedBenefit": "Description of security improvement"
-      }
-    ]
-  },
-  "assessmentScope": {
-    "inScope": {
-      "awsAccounts": [
-        {
-          "accountId": "123456789012",
-          "accountName": "bedrock-production",
-          "environment": "Production"
-        },
-        {
-          "accountId": "123456789013",
-          "accountName": "bedrock-staging",
-          "environment": "Staging"
-        }
-      ],
-      "services": [
-        "Amazon Bedrock",
-        "Amazon Bedrock Agents",
-        "Amazon Bedrock Knowledge Bases",
-        "AWS Lambda",
-        "Amazon S3",
-        "Amazon DynamoDB",
-        "AWS KMS",
-        "Amazon VPC",
-        "AWS IAM",
-        "Amazon CloudWatch",
-        "AWS CloudTrail"
-      ],
-      "dataClassifications": [
-        "RESTRICTED",
-        "CONFIDENTIAL",
-        "INTERNAL"
-      ],
-      "regions": [
-        "us-east-1",
-        "us-west-2",
-        "eu-west-1"
-      ]
-    },
-    "outOfScope": {
-      "exclusions": [
-        "Development environment (testing only)",
-        "Third-party SaaS integrations (separate assessment)",
-        "Physical security (AWS responsibility)"
-      ]
-    }
+  "appendices": {
+    "a_detailed_findings": "Link to detailed findings report",
+    "b_vulnerability_scans": "Link to vulnerability scan results",
+    "c_penetration_test_report": "Link to full pentest report",
+    "d_evidence_repository": "s3://compliance-evidence/security-assessments/YYYY-MM/"
   },
   "assessmentMethodology": {
     "approachUsed": [
@@ -130,141 +22,160 @@
     ],
     "tools": [
       {
-        "tool": "AWS Security Hub",
-        "purpose": "Compliance and security findings aggregation"
+        "purpose": "Compliance and security findings aggregation",
+        "tool": "AWS Security Hub"
       },
       {
-        "tool": "Amazon Inspector",
-        "purpose": "Vulnerability and network reachability assessment"
+        "purpose": "Vulnerability and network reachability assessment",
+        "tool": "Amazon Inspector"
       },
       {
-        "tool": "Amazon GuardDuty",
-        "purpose": "Threat detection"
+        "purpose": "Threat detection",
+        "tool": "Amazon GuardDuty"
       },
       {
-        "tool": "Amazon Macie",
-        "purpose": "Sensitive data discovery"
+        "purpose": "Sensitive data discovery",
+        "tool": "Amazon Macie"
       },
       {
-        "tool": "AWS Config",
-        "purpose": "Configuration compliance assessment"
+        "purpose": "Configuration compliance assessment",
+        "tool": "AWS Config"
       },
       {
-        "tool": "IAM Access Analyzer",
-        "purpose": "Access policy analysis"
+        "purpose": "Access policy analysis",
+        "tool": "IAM Access Analyzer"
       },
       {
-        "tool": "Prowler",
-        "purpose": "CIS benchmark assessment"
+        "purpose": "CIS benchmark assessment",
+        "tool": "Prowler"
       },
       {
-        "tool": "ScoutSuite",
-        "purpose": "Multi-cloud security auditing"
+        "purpose": "Multi-cloud security auditing",
+        "tool": "ScoutSuite"
       }
     ]
   },
-  "detailedFindings": {
-    "identityAndAccessManagement": {
-      "category": "Identity and Access Management",
-      "overallScore": 0,
-      "maxScore": 100,
-      "findings": [
+  "assessmentScope": {
+    "inScope": {
+      "awsAccounts": [
         {
-          "findingId": "IAM-001",
-          "title": "MFA Not Enabled for All Users",
-          "severity": "High",
-          "description": "X out of Y IAM users do not have MFA enabled, violating security policy requiring MFA for all users accessing CONFIDENTIAL/RESTRICTED data.",
-          "affectedResources": [
-            "arn:aws:iam::123456789012:user/username1",
-            "arn:aws:iam::123456789012:user/username2"
-          ],
-          "cvssScore": "N/A",
-          "exploitability": "High",
-          "impact": "Unauthorized access to AWS resources if credentials compromised",
-          "likelihood": "Medium",
-          "riskRating": "High",
-          "recommendation": {
-            "shortTerm": "Enable MFA for all users immediately",
-            "longTerm": "Implement automated enforcement via AWS Config rule and IAM policy requiring MFA",
-            "steps": [
-              "1. Identify users without MFA via IAM credential report",
-              "2. Notify users to enable MFA (send setup instructions)",
-              "3. Set deadline for MFA enablement (7 days)",
-              "4. After deadline, apply IAM policy denying all actions without MFA",
-              "5. Implement AWS Config rule for continuous monitoring"
-            ]
-          },
-          "references": [
-            "SOC 2: CC6.1",
-            "HIPAA: 164.312(a)(2)(i)",
-            "PCI DSS: Requirement 8.3",
-            "ISO 27001: A.9.4.2"
-          ],
-          "status": "Open|In Progress|Resolved|Accepted Risk",
-          "assignedTo": "Security Team",
-          "dueDate": "YYYY-MM-DD",
-          "estimatedEffort": "2 days",
-          "estimatedCost": "$0 (policy change only)"
+          "accountId": "123456789012",
+          "accountName": "bedrock-production",
+          "environment": "Production"
         },
         {
-          "findingId": "IAM-002",
-          "title": "Overly Permissive IAM Policies",
-          "severity": "High",
-          "description": "Bedrock agent IAM role has wildcard (*) permissions for S3, violating least privilege principle.",
-          "affectedResources": [
-            "arn:aws:iam::123456789012:role/BedrockAgentRole"
-          ],
-          "cvssScore": "N/A",
-          "exploitability": "Medium",
-          "impact": "If role compromised, attacker could access all S3 buckets",
-          "likelihood": "Low",
-          "riskRating": "Medium",
-          "recommendation": {
-            "shortTerm": "Restrict IAM policy to specific S3 buckets required by agent",
-            "longTerm": "Implement least privilege policy generation using IAM Access Analyzer",
-            "steps": [
-              "1. Use CloudTrail to analyze S3 API calls by role (past 90 days)",
-              "2. Identify specific buckets and actions used",
-              "3. Create restrictive policy allowing only necessary actions and resources",
-              "4. Test policy in non-production environment",
-              "5. Apply policy to production role",
-              "6. Monitor for access denied errors and adjust if needed"
-            ]
-          },
-          "references": [
-            "SOC 2: CC6.3",
-            "PCI DSS: Requirement 7.1",
-            "ISO 27001: A.9.2.3"
-          ],
-          "status": "Open",
-          "assignedTo": "DevOps Team",
-          "dueDate": "YYYY-MM-DD",
-          "estimatedEffort": "1 week",
-          "estimatedCost": "$0 (policy change only)"
+          "accountId": "123456789013",
+          "accountName": "bedrock-staging",
+          "environment": "Staging"
         }
+      ],
+      "dataClassifications": [
+        "RESTRICTED",
+        "CONFIDENTIAL",
+        "INTERNAL"
+      ],
+      "regions": [
+        "us-east-1",
+        "us-west-2",
+        "eu-west-1"
+      ],
+      "services": [
+        "Amazon Bedrock",
+        "Amazon Bedrock Agents",
+        "Amazon Bedrock Knowledge Bases",
+        "AWS Lambda",
+        "Amazon S3",
+        "Amazon DynamoDB",
+        "AWS KMS",
+        "Amazon VPC",
+        "AWS IAM",
+        "Amazon CloudWatch",
+        "AWS CloudTrail"
       ]
     },
+    "outOfScope": {
+      "exclusions": [
+        "Development environment (testing only)",
+        "Third-party SaaS integrations (separate assessment)",
+        "Physical security (AWS responsibility)"
+      ]
+    }
+  },
+  "complianceGapAnalysis": {
+    "gdpr": {
+      "compliantArticles": 0,
+      "gaps": [],
+      "nonCompliantArticles": 0,
+      "totalArticles": 0
+    },
+    "hipaa": {
+      "compliantControls": 0,
+      "gaps": [],
+      "nonCompliantControls": 0,
+      "totalControls": 0
+    },
+    "iso27001": {
+      "compliantControls": 0,
+      "gaps": [],
+      "nonCompliantControls": 0,
+      "totalControls": 0
+    },
+    "pciDss": {
+      "compliantRequirements": 0,
+      "gaps": [],
+      "nonCompliantRequirements": 0,
+      "totalRequirements": 0
+    },
+    "soc2": {
+      "compliantControls": 0,
+      "gaps": [
+        {
+          "control": "CC6.7",
+          "gap": "Description of gap",
+          "recommendation": "How to close gap"
+        }
+      ],
+      "nonCompliantControls": 0,
+      "totalControls": 0
+    }
+  },
+  "conclusion": {
+    "nextSteps": [
+      "Step 1",
+      "Step 2"
+    ],
+    "reassessmentDate": "YYYY-MM-DD",
+    "strengths": [
+      "Strength 1",
+      "Strength 2"
+    ],
+    "summary": "Overall assessment conclusion and security posture evaluation",
+    "weaknesses": [
+      "Weakness 1",
+      "Weakness 2"
+    ]
+  },
+  "detailedFindings": {
     "dataProtection": {
       "category": "Data Protection",
-      "overallScore": 0,
-      "maxScore": 100,
       "findings": [
         {
-          "findingId": "DATA-001",
-          "title": "Bedrock Knowledge Base Not Encrypted with Customer-Managed Key",
-          "severity": "Critical",
-          "description": "Knowledge base 'customer-support-kb' contains RESTRICTED data (PII) but is not encrypted with customer-managed KMS key.",
           "affectedResources": [
             "arn:aws:bedrock:us-east-1:123456789012:knowledge-base/kb-abc123"
           ],
+          "assignedTo": "Security Team + DevOps",
           "cvssScore": "N/A",
+          "description": "Knowledge base 'customer-support-kb' contains RESTRICTED data (PII) but is not encrypted with customer-managed KMS key.",
+          "dueDate": "YYYY-MM-DD (7 days)",
+          "estimatedCost": "$50/month (KMS key cost)",
+          "estimatedEffort": "3 days",
           "exploitability": "Low",
+          "findingId": "DATA-001",
           "impact": "Potential unauthorized decryption if AWS-managed key compromised; non-compliance with HIPAA, PCI-DSS, GDPR",
           "likelihood": "Low",
-          "riskRating": "Critical (due to compliance requirements)",
           "recommendation": {
-            "shortTerm": "Disable knowledge base immediately until re-created with CMK",
             "longTerm": "Migrate all knowledge bases to CMK encryption",
+            "shortTerm": "Disable knowledge base immediately until re-created with CMK",
             "steps": [
               "1. Create customer-managed KMS key with appropriate key policy",
               "2. Create new knowledge base with CMK encryption",
@@ -281,35 +192,157 @@
             "GDPR: Article 32",
             "SOC 2: CC6.7"
           ],
+          "riskRating": "Critical (due to compliance requirements)",
+          "severity": "Critical",
           "status": "In Progress",
-          "assignedTo": "Security Team + DevOps",
-          "dueDate": "YYYY-MM-DD (7 days)",
-          "estimatedEffort": "3 days",
-          "estimatedCost": "$50/month (KMS key cost)"
+          "title": "Bedrock Knowledge Base Not Encrypted with Customer-Managed Key"
         }
-      ]
+      ],
+      "maxScore": 100,
+      "overallScore": 0
+    },
+    "identityAndAccessManagement": {
+      "category": "Identity and Access Management",
+      "findings": [
+        {
+          "affectedResources": [
+            "arn:aws:iam::123456789012:user/username1",
+            "arn:aws:iam::123456789012:user/username2"
+          ],
+          "assignedTo": "Security Team",
+          "cvssScore": "N/A",
+          "description": "X out of Y IAM users do not have MFA enabled, violating security policy requiring MFA for all users accessing CONFIDENTIAL/RESTRICTED data.",
+          "dueDate": "YYYY-MM-DD",
+          "estimatedCost": "$0 (policy change only)",
+          "estimatedEffort": "2 days",
+          "exploitability": "High",
+          "findingId": "IAM-001",
+          "impact": "Unauthorized access to AWS resources if credentials compromised",
+          "likelihood": "Medium",
+          "recommendation": {
+            "longTerm": "Implement automated enforcement via AWS Config rule and IAM policy requiring MFA",
+            "shortTerm": "Enable MFA for all users immediately",
+            "steps": [
+              "1. Identify users without MFA via IAM credential report",
+              "2. Notify users to enable MFA (send setup instructions)",
+              "3. Set deadline for MFA enablement (7 days)",
+              "4. After deadline, apply IAM policy denying all actions without MFA",
+              "5. Implement AWS Config rule for continuous monitoring"
+            ]
+          },
+          "references": [
+            "SOC 2: CC6.1",
+            "HIPAA: 164.312(a)(2)(i)",
+            "PCI DSS: Requirement 8.3",
+            "ISO 27001: A.9.4.2"
+          ],
+          "riskRating": "High",
+          "severity": "High",
+          "status": "Open|In Progress|Resolved|Accepted Risk",
+          "title": "MFA Not Enabled for All Users"
+        },
+        {
+          "affectedResources": [
+            "arn:aws:iam::123456789012:role/BedrockAgentRole"
+          ],
+          "assignedTo": "DevOps Team",
+          "cvssScore": "N/A",
+          "description": "Bedrock agent IAM role has wildcard (*) permissions for S3, violating least privilege principle.",
+          "dueDate": "YYYY-MM-DD",
+          "estimatedCost": "$0 (policy change only)",
+          "estimatedEffort": "1 week",
+          "exploitability": "Medium",
+          "findingId": "IAM-002",
+          "impact": "If role compromised, attacker could access all S3 buckets",
+          "likelihood": "Low",
+          "recommendation": {
+            "longTerm": "Implement least privilege policy generation using IAM Access Analyzer",
+            "shortTerm": "Restrict IAM policy to specific S3 buckets required by agent",
+            "steps": [
+              "1. Use CloudTrail to analyze S3 API calls by role (past 90 days)",
+              "2. Identify specific buckets and actions used",
+              "3. Create restrictive policy allowing only necessary actions and resources",
+              "4. Test policy in non-production environment",
+              "5. Apply policy to production role",
+              "6. Monitor for access denied errors and adjust if needed"
+            ]
+          },
+          "references": [
+            "SOC 2: CC6.3",
+            "PCI DSS: Requirement 7.1",
+            "ISO 27001: A.9.2.3"
+          ],
+          "riskRating": "Medium",
+          "severity": "High",
+          "status": "Open",
+          "title": "Overly Permissive IAM Policies"
+        }
+      ],
+      "maxScore": 100,
+      "overallScore": 0
+    },
+    "loggingAndMonitoring": {
+      "category": "Logging and Monitoring",
+      "findings": [
+        {
+          "affectedResources": [
+            "/aws/bedrock/modelinvocations"
+          ],
+          "assignedTo": "DevOps Team",
+          "cvssScore": "N/A",
+          "description": "Bedrock invocation log group has 90-day retention instead of required 7-year retention for RESTRICTED data.",
+          "dueDate": "YYYY-MM-DD (3 days)",
+          "estimatedCost": "$X/month (CloudWatch Logs storage cost increase)",
+          "estimatedEffort": "1 hour",
+          "exploitability": "N/A",
+          "findingId": "LOG-001",
+          "impact": "Potential loss of audit trail; non-compliance with retention requirements for SOC 2, HIPAA",
+          "likelihood": "High (automatic deletion after 90 days)",
+          "recommendation": {
+            "longTerm": "Implement AWS Config rule to enforce minimum retention for all log groups containing RESTRICTED data",
+            "shortTerm": "Update log group retention to 2557 days (7 years) immediately",
+            "steps": [
+              "1. Update CloudWatch log group retention via Terraform or CLI",
+              "2. Verify retention applied correctly",
+              "3. Implement lifecycle policy for long-term archival to S3 Glacier (cost optimization)",
+              "4. Create AWS Config custom rule to check log retention compliance",
+              "5. Add retention requirement to IaC templates"
+            ]
+          },
+          "references": [
+            "SOC 2: CC7.2",
+            "HIPAA: 164.308(a)(1)(ii)(D)",
+            "PCI DSS: Requirement 10.7"
+          ],
+          "riskRating": "Medium",
+          "severity": "Medium",
+          "status": "Open",
+          "title": "CloudWatch Log Group Retention Too Short"
+        }
+      ],
+      "maxScore": 100,
+      "overallScore": 0
     },
     "networkSecurity": {
       "category": "Network Security",
-      "overallScore": 0,
-      "maxScore": 100,
       "findings": [
         {
-          "findingId": "NET-001",
-          "title": "Bedrock Accessed Without VPC Endpoint",
-          "severity": "High",
-          "description": "Bedrock API calls for RESTRICTED data are not routed through VPC endpoint, allowing potential internet-routable access.",
           "affectedResources": [
             "Bedrock API endpoint: bedrock-runtime.us-east-1.amazonaws.com"
           ],
+          "assignedTo": "Network Team + DevOps",
           "cvssScore": "N/A",
+          "description": "Bedrock API calls for RESTRICTED data are not routed through VPC endpoint, allowing potential internet-routable access.",
+          "dueDate": "YYYY-MM-DD (14 days)",
+          "estimatedCost": "$50-100/month (VPC endpoint charges)",
+          "estimatedEffort": "1 week",
           "exploitability": "Medium",
+          "findingId": "NET-001",
           "impact": "Potential man-in-the-middle attack; non-compliance with network isolation requirements for RESTRICTED data",
           "likelihood": "Low",
-          "riskRating": "High",
           "recommendation": {
-            "shortTerm": "Create VPC endpoints for all Bedrock services immediately",
             "longTerm": "Enforce VPC endpoint usage via Service Control Policy (SCP)",
+            "shortTerm": "Create VPC endpoints for all Bedrock services immediately",
             "steps": [
               "1. Create interface VPC endpoints for bedrock-runtime, bedrock-agent, bedrock-agent-runtime",
               "2. Deploy endpoints in private subnets across multiple AZs",
@@ -326,77 +359,35 @@
             "SOC 2: CC6.6",
             "ISO 27001: A.13.1.1"
           ],
+          "riskRating": "High",
+          "severity": "High",
           "status": "Open",
-          "assignedTo": "Network Team + DevOps",
-          "dueDate": "YYYY-MM-DD (14 days)",
-          "estimatedEffort": "1 week",
-          "estimatedCost": "$50-100/month (VPC endpoint charges)"
+          "title": "Bedrock Accessed Without VPC Endpoint"
         }
-      ]
-    },
-    "loggingAndMonitoring": {
-      "category": "Logging and Monitoring",
-      "overallScore": 0,
+      ],
       "maxScore": 100,
-      "findings": [
-        {
-          "findingId": "LOG-001",
-          "title": "CloudWatch Log Group Retention Too Short",
-          "severity": "Medium",
-          "description": "Bedrock invocation log group has 90-day retention instead of required 7-year retention for RESTRICTED data.",
-          "affectedResources": [
-            "/aws/bedrock/modelinvocations"
-          ],
-          "cvssScore": "N/A",
-          "exploitability": "N/A",
-          "impact": "Potential loss of audit trail; non-compliance with retention requirements for SOC 2, HIPAA",
-          "likelihood": "High (automatic deletion after 90 days)",
-          "riskRating": "Medium",
-          "recommendation": {
-            "shortTerm": "Update log group retention to 2557 days (7 years) immediately",
-            "longTerm": "Implement AWS Config rule to enforce minimum retention for all log groups containing RESTRICTED data",
-            "steps": [
-              "1. Update CloudWatch log group retention via Terraform or CLI",
-              "2. Verify retention applied correctly",
-              "3. Implement lifecycle policy for long-term archival to S3 Glacier (cost optimization)",
-              "4. Create AWS Config custom rule to check log retention compliance",
-              "5. Add retention requirement to IaC templates"
-            ]
-          },
-          "references": [
-            "SOC 2: CC7.2",
-            "HIPAA: 164.308(a)(1)(ii)(D)",
-            "PCI DSS: Requirement 10.7"
-          ],
-          "status": "Open",
-          "assignedTo": "DevOps Team",
-          "dueDate": "YYYY-MM-DD (3 days)",
-          "estimatedEffort": "1 hour",
-          "estimatedCost": "$X/month (CloudWatch Logs storage cost increase)"
-        }
-      ]
+      "overallScore": 0
     },
     "vulnerabilityManagement": {
       "category": "Vulnerability Management",
-      "overallScore": 0,
-      "maxScore": 100,
       "findings": [
         {
-          "findingId": "VULN-001",
-          "title": "Outdated Lambda Runtime for Bedrock Agent Action",
-          "severity": "Medium",
-          "description": "Lambda function 'bedrock-agent-action-payment' uses Python 3.9 runtime which is approaching end-of-support.",
           "affectedResources": [
             "arn:aws:lambda:us-east-1:123456789012:function:bedrock-agent-action-payment"
           ],
+          "assignedTo": "Development Team",
           "cvssScore": "N/A",
+          "description": "Lambda function 'bedrock-agent-action-payment' uses Python 3.9 runtime which is approaching end-of-support.",
+          "dueDate": "YYYY-MM-DD (30 days)",
+          "estimatedCost": "$0 (runtime upgrade free)",
+          "estimatedEffort": "2 days",
           "exploitability": "Low",
+          "findingId": "VULN-001",
           "impact": "Potential security vulnerabilities in outdated runtime; lack of security patches",
           "likelihood": "Medium",
-          "riskRating": "Medium",
           "recommendation": {
-            "shortTerm": "Upgrade Lambda runtime to Python 3.12",
             "longTerm": "Implement automated runtime upgrade process and deprecation monitoring",
+            "shortTerm": "Upgrade Lambda runtime to Python 3.12",
             "steps": [
               "1. Test Lambda function with Python 3.12 in development",
               "2. Update dependencies to compatible versions",
@@ -411,164 +402,173 @@
             "CIS AWS Foundations Benchmark: 4.15",
             "AWS Well-Architected: Security Pillar"
           ],
+          "riskRating": "Medium",
+          "severity": "Medium",
           "status": "Open",
-          "assignedTo": "Development Team",
-          "dueDate": "YYYY-MM-DD (30 days)",
-          "estimatedEffort": "2 days",
-          "estimatedCost": "$0 (runtime upgrade free)"
+          "title": "Outdated Lambda Runtime for Bedrock Agent Action"
         }
-      ]
+      ],
+      "maxScore": 100,
+      "overallScore": 0
+    }
+  },
+  "executiveSummary": {
+    "compliancePosture": {
+      "gdpr": "Compliant|Non-Compliant|Partially Compliant",
+      "hipaa": "Compliant|Non-Compliant|Partially Compliant",
+      "iso27001": "Compliant|Non-Compliant|Partially Compliant",
+      "pciDss": "Compliant|Non-Compliant|Partially Compliant",
+      "soc2": "Compliant|Non-Compliant|Partially Compliant"
+    },
+    "keyFindings": [
+      {
+        "finding": "Critical finding summary",
+        "impact": "Description of business/security impact",
+        "recommendation": "High-level remediation recommendation",
+        "severity": "Critical|High|Medium|Low",
+        "status": "Open|In Progress|Resolved"
+      }
+    ],
+    "overallSecurityPosture": {
+      "maxScore": 100,
+      "previousAssessmentScore": 0,
+      "rating": "Excellent|Good|Fair|Poor",
+      "score": 0,
+      "trend": "Improving|Stable|Declining"
+    },
+    "recommendations": [
+      {
+        "estimatedCost": "$X,XXX",
+        "estimatedEffort": "X weeks/months",
+        "expectedBenefit": "Description of security improvement",
+        "priority": "Critical|High|Medium|Low",
+        "recommendation": "Short description"
+      }
+    ],
+    "riskSummary": {
+      "criticalRisks": 0,
+      "highRisks": 0,
+      "lowRisks": 0,
+      "mediumRisks": 0,
+      "overallRiskLevel": "Critical|High|Medium|Low",
+      "riskTrend": "Increasing|Stable|Decreasing"
     }
   },
   "penetrationTestingResults": {
-    "testingPerformed": true,
-    "testingType": "External Black Box|Internal White Box|Both",
-    "tester": "External Firm Name or Internal Team",
-    "testDates": {
-      "startDate": "YYYY-MM-DD",
-      "endDate": "YYYY-MM-DD"
-    },
-    "summary": {
-      "totalVulnerabilities": 0,
-      "criticalVulnerabilities": 0,
-      "highVulnerabilities": 0,
-      "mediumVulnerabilities": 0,
-      "lowVulnerabilities": 0,
-      "informationalVulnerabilities": 0
-    },
     "findings": [
       {
-        "findingId": "PENTEST-001",
-        "title": "Vulnerability title",
-        "severity": "Critical|High|Medium|Low",
         "cvssScore": 0.0,
         "description": "Detailed description of vulnerability",
         "exploitPOC": "Proof of concept (sanitized)",
+        "findingId": "PENTEST-001",
         "recommendation": "Remediation steps",
-        "status": "Open|Remediated|Accepted Risk"
+        "severity": "Critical|High|Medium|Low",
+        "status": "Open|Remediated|Accepted Risk",
+        "title": "Vulnerability title"
       }
     ],
     "retestResults": {
+      "newVulnerabilitiesFound": 0,
       "retestDate": "YYYY-MM-DD",
       "vulnerabilitiesRemediated": 0,
-      "vulnerabilitiesStillOpen": 0,
-      "newVulnerabilitiesFound": 0
-    }
-  },
-  "riskAssessment": {
-    "riskMatrix": [
-      {
-        "riskId": "RISK-001",
-        "riskCategory": "Data Breach|Unauthorized Access|Service Disruption|Compliance Violation",
-        "description": "Risk description",
-        "likelihood": "Critical|High|Medium|Low",
-        "impact": "Critical|High|Medium|Low",
-        "inherentRisk": "Critical|High|Medium|Low",
-        "mitigatingControls": [
-          "Control 1",
-          "Control 2"
-        ],
-        "residualRisk": "High|Medium|Low",
-        "riskOwner": "Owner name/role",
-        "riskResponse": "Mitigate|Accept|Transfer|Avoid",
-        "actionPlan": "Description of risk treatment plan",
-        "targetDate": "YYYY-MM-DD"
-      }
-    ]
-  },
-  "complianceGapAnalysis": {
-    "soc2": {
-      "totalControls": 0,
-      "compliantControls": 0,
-      "nonCompliantControls": 0,
-      "gaps": [
-        {
-          "control": "CC6.7",
-          "gap": "Description of gap",
-          "recommendation": "How to close gap"
-        }
-      ]
+      "vulnerabilitiesStillOpen": 0
     },
-    "hipaa": {
-      "totalControls": 0,
-      "compliantControls": 0,
-      "nonCompliantControls": 0,
-      "gaps": []
+    "summary": {
+      "criticalVulnerabilities": 0,
+      "highVulnerabilities": 0,
+      "informationalVulnerabilities": 0,
+      "lowVulnerabilities": 0,
+      "mediumVulnerabilities": 0,
+      "totalVulnerabilities": 0
     },
-    "pciDss": {
-      "totalRequirements": 0,
-      "compliantRequirements": 0,
-      "nonCompliantRequirements": 0,
-      "gaps": []
+    "testDates": {
+      "endDate": "YYYY-MM-DD",
+      "startDate": "YYYY-MM-DD"
     },
-    "gdpr": {
-      "totalArticles": 0,
-      "compliantArticles": 0,
-      "nonCompliantArticles": 0,
-      "gaps": []
-    },
-    "iso27001": {
-      "totalControls": 0,
-      "compliantControls": 0,
-      "nonCompliantControls": 0,
-      "gaps": []
-    }
+    "tester": "External Firm Name or Internal Team",
+    "testingPerformed": true,
+    "testingType": "External Black Box|Internal White Box|Both"
   },
   "recommendations": {
     "immediate": [
       {
-        "priority": "P0",
-        "recommendation": "Critical action required",
         "estimatedCost": "$X,XXX",
         "estimatedEffort": "X hours/days",
         "expectedBenefit": "Security improvement description",
         "owner": "Team/Person",
-        "targetDate": "YYYY-MM-DD"
-      }
-    ],
-    "shortTerm": [
-      {
-        "priority": "P1",
-        "recommendation": "High priority action (1-3 months)",
-        "estimatedCost": "$X,XXX",
-        "estimatedEffort": "X weeks",
-        "expectedBenefit": "Description",
-        "owner": "Team/Person",
+        "priority": "P0",
+        "recommendation": "Critical action required",
         "targetDate": "YYYY-MM-DD"
       }
     ],
     "longTerm": [
       {
-        "priority": "P2",
-        "recommendation": "Strategic improvement (3-12 months)",
         "estimatedCost": "$X,XXX",
         "estimatedEffort": "X months",
         "expectedBenefit": "Description",
         "owner": "Team/Person",
+        "priority": "P2",
+        "recommendation": "Strategic improvement (3-12 months)",
+        "targetDate": "YYYY-MM-DD"
+      }
+    ],
+    "shortTerm": [
+      {
+        "estimatedCost": "$X,XXX",
+        "estimatedEffort": "X weeks",
+        "expectedBenefit": "Description",
+        "owner": "Team/Person",
+        "priority": "P1",
+        "recommendation": "High priority action (1-3 months)",
         "targetDate": "YYYY-MM-DD"
       }
     ]
   },
-  "conclusion": {
-    "summary": "Overall assessment conclusion and security posture evaluation",
-    "strengths": [
-      "Strength 1",
-      "Strength 2"
+  "reportMetadata": {
+    "assessmentPeriod": {
+      "endDate": "YYYY-MM-DD",
+      "startDate": "YYYY-MM-DD"
+    },
+    "assessmentType": "Internal|External|Third-Party",
+    "assessors": [
+      {
+        "name": "Assessor Name",
+        "organization": "Internal Security Team|External Firm Name",
+        "role": "Security Architect|Penetration Tester|Auditor"
+      }
     ],
-    "weaknesses": [
-      "Weakness 1",
-      "Weakness 2"
+    "classification": "RESTRICTED",
+    "distribution": [
+      "CISO",
+      "CTO",
+      "CEO",
+      "Board of Directors (Executive Summary)",
+      "External Auditor"
     ],
-    "nextSteps": [
-      "Step 1",
-      "Step 2"
-    ],
-    "reassessmentDate": "YYYY-MM-DD"
+    "generatedDate": "YYYY-MM-DD",
+    "reportName": "Security Assessment Report - Amazon Bedrock Agents Infrastructure",
+    "reportType": "Comprehensive Security Assessment",
+    "version": "1.0"
   },
-  "appendices": {
-    "a_detailed_findings": "Link to detailed findings report",
-    "b_vulnerability_scans": "Link to vulnerability scan results",
-    "c_penetration_test_report": "Link to full pentest report",
-    "d_evidence_repository": "s3://compliance-evidence/security-assessments/YYYY-MM/"
+  "riskAssessment": {
+    "riskMatrix": [
+      {
+        "actionPlan": "Description of risk treatment plan",
+        "description": "Risk description",
+        "impact": "Critical|High|Medium|Low",
+        "inherentRisk": "Critical|High|Medium|Low",
+        "likelihood": "Critical|High|Medium|Low",
+        "mitigatingControls": [
+          "Control 1",
+          "Control 2"
+        ],
+        "residualRisk": "High|Medium|Low",
+        "riskCategory": "Data Breach|Unauthorized Access|Service Disruption|Compliance Violation",
+        "riskId": "RISK-001",
+        "riskOwner": "Owner name/role",
+        "riskResponse": "Mitigate|Accept|Transfer|Avoid",
+        "targetDate": "YYYY-MM-DD"
+      }
+    ]
   }
 }

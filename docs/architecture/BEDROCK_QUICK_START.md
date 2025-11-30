@@ -89,12 +89,12 @@ def test_agent(agent_id, alias_id, prompt):
         sessionId='test-session-001',
         inputText=prompt
     )
-    
+
     result = ""
     for event in response['completion']:
         if 'chunk' in event:
             result += event['chunk']['bytes'].decode('utf-8')
-    
+
     return result
 
 # Test
@@ -169,15 +169,18 @@ agent_config = {
 ## Cost Optimization Tips
 
 1. **Use Haiku for Simple Tasks**
+
    - 75% cheaper than Sonnet
    - Perfect for testing, simple queries
 
 2. **Implement Caching**
+
    - Cache knowledge base results
    - Cache common prompts
    - Use ElastiCache Redis
 
 3. **Optimize Prompts**
+
    - Shorter prompts = fewer tokens
    - Be specific to reduce iterations
 

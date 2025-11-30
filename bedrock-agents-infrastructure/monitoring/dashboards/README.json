@@ -1,19 +1,54 @@
 {
   "documentation": {
-    "title": "Bedrock Agents Infrastructure - CloudWatch Monitoring",
-    "version": "1.0.0",
-    "lastUpdated": "2024-11-17",
-    "description": "Comprehensive CloudWatch monitoring dashboards, alarms, and log insights for Bedrock agents infrastructure",
-    "maintainers": [
-      "Platform Team",
-      "DevOps Team",
-      "Security Team"
-    ],
+    "alarmDefinitions": {
+      "bedrock-agent-alarms.json": {
+        "alarm_count": 13,
+        "categories": [
+          "Agent Performance",
+          "Lambda Functions",
+          "Step Functions",
+          "API Gateway",
+          "DynamoDB",
+          "Security",
+          "Compliance",
+          "Cost Management"
+        ],
+        "description": "Standard operational alarms for Bedrock agent infrastructure",
+        "severity_levels": [
+          "HIGH",
+          "MEDIUM",
+          "LOW"
+        ]
+      },
+      "critical-alarms.json": {
+        "alarm_count": 8,
+        "categories": [
+          "Orchestration Failures",
+          "Database Connectivity",
+          "Service Availability",
+          "Security Breaches",
+          "Compliance Violations",
+          "Deployment Failures"
+        ],
+        "description": "Critical system alarms requiring immediate escalation",
+        "response_actions": [
+          "SNS notifications",
+          "Auto-scaling triggers",
+          "Lambda incident handlers",
+          "Automated remediation"
+        ],
+        "severity_levels": [
+          "CRITICAL"
+        ]
+      }
+    },
     "dashboards": {
       "bedrock-agents-overview.json": {
-        "title": "Bedrock Agents Overview",
-        "purpose": "High-level operational dashboard for monitoring agent performance",
-        "widgets": 8,
+        "intended_audience": [
+          "Operations Team",
+          "Product Managers",
+          "Engineering Leadership"
+        ],
         "key_metrics": [
           "Agent invocation count and latency",
           "Success/error rates",
@@ -24,88 +59,21 @@
           "API Gateway request metrics",
           "Knowledge base query performance"
         ],
+        "purpose": "High-level operational dashboard for monitoring agent performance",
         "refresh_interval_seconds": 60,
-        "intended_audience": [
-          "Operations Team",
-          "Product Managers",
-          "Engineering Leadership"
-        ]
-      },
-      "bedrock-security-dashboard.json": {
-        "title": "Bedrock Security Dashboard",
-        "purpose": "Security posture and threat detection monitoring",
-        "widgets": 8,
-        "key_metrics": [
-          "Security Hub compliance score",
-          "GuardDuty findings by severity",
-          "Authentication failure attempts",
-          "IAM policy and security group changes",
-          "Secrets Manager access patterns",
-          "WAF blocked/allowed requests",
-          "KMS encryption operations",
-          "Suspicious security events"
-        ],
-        "refresh_interval_seconds": 30,
-        "intended_audience": [
-          "Security Team",
-          "Compliance Officers",
-          "Security Engineers"
-        ],
-        "alert_channels": [
-          "security-alerts SNS topic"
-        ]
-      },
-      "bedrock-performance-dashboard.json": {
-        "title": "Bedrock Performance Dashboard",
-        "purpose": "Application and infrastructure performance monitoring",
-        "widgets": 8,
-        "key_metrics": [
-          "Lambda execution time distribution (avg, p99, max)",
-          "Lambda concurrency and throttling",
-          "Step Functions duration metrics",
-          "API Gateway latency percentiles",
-          "DynamoDB capacity usage and throttling",
-          "OpenSearch query performance",
-          "OpenSearch resource utilization",
-          "Lambda performance over time"
-        ],
-        "refresh_interval_seconds": 60,
-        "period_seconds": 60,
-        "intended_audience": [
-          "Performance Engineers",
-          "DevOps Team",
-          "Software Engineers"
-        ]
-      },
-      "bedrock-cost-dashboard.json": {
-        "title": "Bedrock Cost Dashboard",
-        "purpose": "Cost analysis and budget tracking",
-        "widgets": 8,
-        "key_metrics": [
-          "Daily service costs (Bedrock, Lambda, DynamoDB)",
-          "Bedrock token costs (input/output)",
-          "Lambda cost breakdown (invocation + compute)",
-          "Data transfer costs",
-          "Storage costs (S3, EBS)",
-          "Cost by agent type",
-          "Projected monthly spending",
-          "Unit economics (cost per invocation, per token)"
-        ],
-        "refresh_interval_seconds": 3600,
-        "period_seconds": 86400,
-        "intended_audience": [
-          "Finance Team",
-          "Engineering Managers",
-          "Cost Optimization Team"
-        ],
-        "alert_channels": [
-          "cost-alerts SNS topic"
-        ]
+        "title": "Bedrock Agents Overview",
+        "widgets": 8
       },
       "bedrock-compliance-dashboard.json": {
-        "title": "Bedrock Compliance Dashboard",
-        "purpose": "Regulatory compliance and audit monitoring",
-        "widgets": 9,
+        "alert_channels": [
+          "compliance-alerts SNS topic"
+        ],
+        "intended_audience": [
+          "Compliance Officers",
+          "Auditors",
+          "Security Team",
+          "DevOps Team"
+        ],
         "key_metrics": [
           "Overall compliance health score",
           "AWS Config rule compliance status",
@@ -117,84 +85,165 @@
           "IAM access compliance",
           "Network security policy enforcement"
         ],
-        "refresh_interval_seconds": 300,
         "period_seconds": 300,
-        "intended_audience": [
-          "Compliance Officers",
-          "Auditors",
-          "Security Team",
-          "DevOps Team"
-        ],
-        "alert_channels": [
-          "compliance-alerts SNS topic"
-        ]
-      }
-    },
-    "alarmDefinitions": {
-      "bedrock-agent-alarms.json": {
-        "description": "Standard operational alarms for Bedrock agent infrastructure",
-        "alarm_count": 13,
-        "severity_levels": ["HIGH", "MEDIUM", "LOW"],
-        "categories": [
-          "Agent Performance",
-          "Lambda Functions",
-          "Step Functions",
-          "API Gateway",
-          "DynamoDB",
-          "Security",
-          "Compliance",
-          "Cost Management"
-        ]
+        "purpose": "Regulatory compliance and audit monitoring",
+        "refresh_interval_seconds": 300,
+        "title": "Bedrock Compliance Dashboard",
+        "widgets": 9
       },
-      "critical-alarms.json": {
-        "description": "Critical system alarms requiring immediate escalation",
-        "alarm_count": 8,
-        "severity_levels": ["CRITICAL"],
-        "categories": [
-          "Orchestration Failures",
-          "Database Connectivity",
-          "Service Availability",
-          "Security Breaches",
-          "Compliance Violations",
-          "Deployment Failures"
+      "bedrock-cost-dashboard.json": {
+        "alert_channels": [
+          "cost-alerts SNS topic"
         ],
-        "response_actions": [
-          "SNS notifications",
-          "Auto-scaling triggers",
-          "Lambda incident handlers",
-          "Automated remediation"
+        "intended_audience": [
+          "Finance Team",
+          "Engineering Managers",
+          "Cost Optimization Team"
+        ],
+        "key_metrics": [
+          "Daily service costs (Bedrock, Lambda, DynamoDB)",
+          "Bedrock token costs (input/output)",
+          "Lambda cost breakdown (invocation + compute)",
+          "Data transfer costs",
+          "Storage costs (S3, EBS)",
+          "Cost by agent type",
+          "Projected monthly spending",
+          "Unit economics (cost per invocation, per token)"
+        ],
+        "period_seconds": 86400,
+        "purpose": "Cost analysis and budget tracking",
+        "refresh_interval_seconds": 3600,
+        "title": "Bedrock Cost Dashboard",
+        "widgets": 8
+      },
+      "bedrock-performance-dashboard.json": {
+        "intended_audience": [
+          "Performance Engineers",
+          "DevOps Team",
+          "Software Engineers"
+        ],
+        "key_metrics": [
+          "Lambda execution time distribution (avg, p99, max)",
+          "Lambda concurrency and throttling",
+          "Step Functions duration metrics",
+          "API Gateway latency percentiles",
+          "DynamoDB capacity usage and throttling",
+          "OpenSearch query performance",
+          "OpenSearch resource utilization",
+          "Lambda performance over time"
+        ],
+        "period_seconds": 60,
+        "purpose": "Application and infrastructure performance monitoring",
+        "refresh_interval_seconds": 60,
+        "title": "Bedrock Performance Dashboard",
+        "widgets": 8
+      },
+      "bedrock-security-dashboard.json": {
+        "alert_channels": [
+          "security-alerts SNS topic"
+        ],
+        "intended_audience": [
+          "Security Team",
+          "Compliance Officers",
+          "Security Engineers"
+        ],
+        "key_metrics": [
+          "Security Hub compliance score",
+          "GuardDuty findings by severity",
+          "Authentication failure attempts",
+          "IAM policy and security group changes",
+          "Secrets Manager access patterns",
+          "WAF blocked/allowed requests",
+          "KMS encryption operations",
+          "Suspicious security events"
+        ],
+        "purpose": "Security posture and threat detection monitoring",
+        "refresh_interval_seconds": 30,
+        "title": "Bedrock Security Dashboard",
+        "widgets": 8
+      }
+    },
+    "deployment": {
+      "deployment-config.json": {
+        "data_retention": {
+          "detailed_metrics_days": 14,
+          "logs_days": 30,
+          "metrics_days": 63
+        },
+        "description": "Configuration file for dashboard deployment",
+        "managed_alarms": 21,
+        "managed_dashboards": 5,
+        "sns_topics": 4,
+        "supported_regions": [
+          "us-east-1",
+          "us-west-2",
+          "eu-west-1"
         ]
       }
     },
-    "metricFilters": {
-      "log-metric-filters.json": {
-        "description": "CloudWatch Logs metric filter definitions",
-        "filter_count": 13,
-        "log_groups_monitored": [
-          "/aws/lambda/bedrock-agent-orchestrator",
-          "/aws/apigateway/bedrock-agent-api",
-          "/aws/stepfunctions/bedrock-workflows"
-        ],
-        "custom_metrics_created": [
-          "AgentInvocationCount",
-          "AgentInvocationLatency",
-          "AgentErrorCount",
-          "InputTokenCount",
-          "OutputTokenCount",
-          "KnowledgeBaseQueryCount",
-          "AuthenticationFailureCount",
-          "APIClientErrorCount",
-          "APIServerErrorCount",
-          "DynamoDBWriteErrorCount",
-          "SearchQueryLatency",
-          "EstimatedCost"
-        ]
-      }
+    "deployment_instructions": {
+      "prerequisites": [
+        "AWS CLI configured with appropriate credentials",
+        "Sufficient IAM permissions (CloudWatch, SNS, Lambda, etc.)",
+        "SNS topics created for alert channels",
+        "Lambda functions for incident response handlers",
+        "CloudWatch Log Groups created for monitored services"
+      ],
+      "steps": [
+        {
+          "description": "Configure SNS topics in deployment-config.json",
+          "file": "deployment-config.json",
+          "required": true,
+          "step": 1
+        },
+        {
+          "command": "aws logs create-log-group --log-group-name /aws/lambda/bedrock-agent-orchestrator",
+          "description": "Create CloudWatch Log Groups for services",
+          "required": true,
+          "step": 2
+        },
+        {
+          "description": "Deploy metric filters",
+          "file": "metric-filters/log-metric-filters.json",
+          "required": true,
+          "script": "scripts/deploy-metric-filters.sh",
+          "step": 3
+        },
+        {
+          "description": "Deploy dashboards",
+          "files": [
+            "bedrock-agents-overview.json",
+            "bedrock-security-dashboard.json",
+            "bedrock-performance-dashboard.json",
+            "bedrock-cost-dashboard.json",
+            "bedrock-compliance-dashboard.json"
+          ],
+          "required": true,
+          "script": "scripts/deploy-dashboards.sh",
+          "step": 4
+        },
+        {
+          "description": "Deploy alarms",
+          "files": [
+            "alarm-definitions/bedrock-agent-alarms.json",
+            "alarm-definitions/critical-alarms.json"
+          ],
+          "required": true,
+          "script": "scripts/deploy-alarms.sh",
+          "step": 5
+        },
+        {
+          "description": "Verify CloudWatch Insights queries",
+          "file": "insights-queries/cloudwatch-insights-queries.json",
+          "manual_step": true,
+          "required": false,
+          "step": 6
+        }
+      ]
     },
+    "description": "Comprehensive CloudWatch monitoring dashboards, alarms, and log insights for Bedrock agents infrastructure",
     "insightsQueries": {
       "cloudwatch-insights-queries.json": {
-        "description": "CloudWatch Insights queries for deep analysis",
-        "query_count": 18,
         "analysis_categories": [
           "Agent Performance",
           "Error Analysis",
@@ -214,86 +263,41 @@
           "Resource Utilization",
           "Agent Interactions",
           "Compliance Violations"
+        ],
+        "description": "CloudWatch Insights queries for deep analysis",
+        "query_count": 18
+      }
+    },
+    "lastUpdated": "2024-11-17",
+    "maintainers": [
+      "Platform Team",
+      "DevOps Team",
+      "Security Team"
+    ],
+    "metricFilters": {
+      "log-metric-filters.json": {
+        "custom_metrics_created": [
+          "AgentInvocationCount",
+          "AgentInvocationLatency",
+          "AgentErrorCount",
+          "InputTokenCount",
+          "OutputTokenCount",
+          "KnowledgeBaseQueryCount",
+          "AuthenticationFailureCount",
+          "APIClientErrorCount",
+          "APIServerErrorCount",
+          "DynamoDBWriteErrorCount",
+          "SearchQueryLatency",
+          "EstimatedCost"
+        ],
+        "description": "CloudWatch Logs metric filter definitions",
+        "filter_count": 13,
+        "log_groups_monitored": [
+          "/aws/lambda/bedrock-agent-orchestrator",
+          "/aws/apigateway/bedrock-agent-api",
+          "/aws/stepfunctions/bedrock-workflows"
         ]
       }
-    },
-    "deployment": {
-      "deployment-config.json": {
-        "description": "Configuration file for dashboard deployment",
-        "managed_dashboards": 5,
-        "managed_alarms": 21,
-        "sns_topics": 4,
-        "supported_regions": [
-          "us-east-1",
-          "us-west-2",
-          "eu-west-1"
-        ],
-        "data_retention": {
-          "metrics_days": 63,
-          "logs_days": 30,
-          "detailed_metrics_days": 14
-        }
-      }
-    },
-    "deployment_instructions": {
-      "prerequisites": [
-        "AWS CLI configured with appropriate credentials",
-        "Sufficient IAM permissions (CloudWatch, SNS, Lambda, etc.)",
-        "SNS topics created for alert channels",
-        "Lambda functions for incident response handlers",
-        "CloudWatch Log Groups created for monitored services"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "description": "Configure SNS topics in deployment-config.json",
-          "file": "deployment-config.json",
-          "required": true
-        },
-        {
-          "step": 2,
-          "description": "Create CloudWatch Log Groups for services",
-          "command": "aws logs create-log-group --log-group-name /aws/lambda/bedrock-agent-orchestrator",
-          "required": true
-        },
-        {
-          "step": 3,
-          "description": "Deploy metric filters",
-          "file": "metric-filters/log-metric-filters.json",
-          "script": "scripts/deploy-metric-filters.sh",
-          "required": true
-        },
-        {
-          "step": 4,
-          "description": "Deploy dashboards",
-          "files": [
-            "bedrock-agents-overview.json",
-            "bedrock-security-dashboard.json",
-            "bedrock-performance-dashboard.json",
-            "bedrock-cost-dashboard.json",
-            "bedrock-compliance-dashboard.json"
-          ],
-          "script": "scripts/deploy-dashboards.sh",
-          "required": true
-        },
-        {
-          "step": 5,
-          "description": "Deploy alarms",
-          "files": [
-            "alarm-definitions/bedrock-agent-alarms.json",
-            "alarm-definitions/critical-alarms.json"
-          ],
-          "script": "scripts/deploy-alarms.sh",
-          "required": true
-        },
-        {
-          "step": 6,
-          "description": "Verify CloudWatch Insights queries",
-          "file": "insights-queries/cloudwatch-insights-queries.json",
-          "manual_step": true,
-          "required": false
-        }
-      ]
     },
     "monitoring_best_practices": [
       "Review security dashboard daily",
@@ -308,22 +312,24 @@
     "support_and_troubleshooting": {
       "common_issues": [
         {
-          "issue": "Metrics not appearing in dashboard",
           "cause": "Metric filters not deployed or log entries don't match filter pattern",
+          "issue": "Metrics not appearing in dashboard",
           "solution": "Verify log group name, check filter pattern, ensure service is writing logs"
         },
         {
-          "issue": "Alarms firing unexpectedly",
           "cause": "Threshold too sensitive or baseline changed",
+          "issue": "Alarms firing unexpectedly",
           "solution": "Review recent changes, adjust thresholds based on new baseline"
         },
         {
-          "issue": "CloudWatch Insights queries timing out",
           "cause": "Too much data or complex query",
+          "issue": "CloudWatch Insights queries timing out",
           "solution": "Narrow time range, add more specific filters, optimize query"
         }
       ],
       "contact": "platform-team@example.com"
-    }
+    },
+    "title": "Bedrock Agents Infrastructure - CloudWatch Monitoring",
+    "version": "1.0.0"
   }
 }

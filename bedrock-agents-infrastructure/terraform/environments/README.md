@@ -1,6 +1,8 @@
 # Bedrock Agents Infrastructure - Environment Configurations
 
-This directory contains environment-specific Terraform configurations for deploying AWS Bedrock agents across development, staging, and production environments.
+This directory contains environment-specific Terraform configurations for
+deploying AWS Bedrock agents across development, staging, and production
+environments.
 
 ## Directory Structure
 
@@ -28,18 +30,18 @@ environments/
 
 ## Environment Comparison
 
-| Feature | Dev | Staging | Production |
-|---------|-----|---------|------------|
-| **Agent Instances** | 1 | 3 | 5-20 (auto-scaling) |
-| **Pricing Model** | On-demand | On-demand | Provisioned throughput |
-| **Knowledge Base** | Basic (OpenSearch Serverless) | Full (OpenSearch Serverless) | Enterprise (Provisioned) |
-| **Action Groups** | Limited | All | All + Security |
-| **Auto-scaling** | No | No | Yes |
-| **Multi-region** | No | No | Yes (3 regions) |
-| **Monitoring** | Basic CloudWatch | Enhanced + X-Ray | Full observability + Synthetics |
-| **Backup** | Disabled | 7 days | 30 days + PITR |
-| **Log Retention** | 7 days | 30 days | 90 days |
-| **Cost Estimate** | $50-100/month | $300-500/month | $2,500-4,000/month |
+| Feature             | Dev                           | Staging                      | Production                      |
+| ------------------- | ----------------------------- | ---------------------------- | ------------------------------- |
+| **Agent Instances** | 1                             | 3                            | 5-20 (auto-scaling)             |
+| **Pricing Model**   | On-demand                     | On-demand                    | Provisioned throughput          |
+| **Knowledge Base**  | Basic (OpenSearch Serverless) | Full (OpenSearch Serverless) | Enterprise (Provisioned)        |
+| **Action Groups**   | Limited                       | All                          | All + Security                  |
+| **Auto-scaling**    | No                            | No                           | Yes                             |
+| **Multi-region**    | No                            | No                           | Yes (3 regions)                 |
+| **Monitoring**      | Basic CloudWatch              | Enhanced + X-Ray             | Full observability + Synthetics |
+| **Backup**          | Disabled                      | 7 days                       | 30 days + PITR                  |
+| **Log Retention**   | 7 days                        | 30 days                      | 90 days                         |
+| **Cost Estimate**   | $50-100/month                 | $300-500/month               | $2,500-4,000/month              |
 
 ## Prerequisites
 
@@ -63,6 +65,7 @@ aws configure
 ### 3. Backend Resources
 
 Each environment requires:
+
 - S3 bucket for Terraform state
 - DynamoDB table for state locking
 - KMS key for state encryption
@@ -91,34 +94,40 @@ aws dynamodb create-table \
 **Steps**:
 
 1. Navigate to dev environment:
+
 ```bash
 cd bedrock-agents-infrastructure/terraform/environments/dev
 ```
 
 2. Copy and configure variables:
+
 ```bash
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars with your values
 ```
 
 3. Initialize Terraform:
+
 ```bash
 terraform init \
   -backend-config="bucket=servicenow-ai-terraform-state-dev"
 ```
 
 4. Plan and apply:
+
 ```bash
 terraform plan -var-file="terraform.tfvars" -out=dev.plan
 terraform apply dev.plan
 ```
 
 5. Verify deployment:
+
 ```bash
 terraform output
 ```
 
 **Key Features**:
+
 - Single agent instance
 - Auto-shutdown outside business hours (cost savings)
 - Minimal monitoring
@@ -134,29 +143,34 @@ terraform output
 **Steps**:
 
 1. Navigate to staging environment:
+
 ```bash
 cd bedrock-agents-infrastructure/terraform/environments/staging
 ```
 
 2. Copy and configure variables:
+
 ```bash
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars with your values
 ```
 
 3. Initialize Terraform:
+
 ```bash
 terraform init \
   -backend-config="bucket=servicenow-ai-terraform-state-staging"
 ```
 
 4. Plan and apply:
+
 ```bash
 terraform plan -var-file="terraform.tfvars" -out=staging.plan
 terraform apply staging.plan
 ```
 
 5. Run validation tests:
+
 ```bash
 # Test agent invocation
 aws bedrock-agent-runtime invoke-agent \
@@ -168,6 +182,7 @@ aws bedrock-agent-runtime invoke-agent \
 ```
 
 **Key Features**:
+
 - 3 agent instances
 - Full action groups enabled
 - Enhanced monitoring with X-Ray
@@ -183,11 +198,13 @@ aws bedrock-agent-runtime invoke-agent \
 **Steps**:
 
 1. Navigate to production environment:
+
 ```bash
 cd bedrock-agents-infrastructure/terraform/environments/prod
 ```
 
 2. Copy and configure variables:
+
 ```bash
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars with PRODUCTION values
@@ -195,28 +212,33 @@ cp terraform.tfvars.example terraform.tfvars
 ```
 
 3. Initialize Terraform:
+
 ```bash
 terraform init \
   -backend-config="bucket=servicenow-ai-terraform-state-prod"
 ```
 
 4. Create workspace (optional, for blue/green):
+
 ```bash
 terraform workspace new prod
 terraform workspace select prod
 ```
 
 5. Plan changes (review carefully):
+
 ```bash
 terraform plan -var-file="terraform.tfvars" -out=prod.plan
 ```
 
 6. Apply changes (requires approval):
+
 ```bash
 terraform apply prod.plan
 ```
 
 7. Verify deployment:
+
 ```bash
 # Check health
 terraform output global_endpoint
@@ -226,6 +248,7 @@ terraform output operational_dashboards
 ```
 
 **Key Features**:
+
 - 5-20 auto-scaling agent instances
 - Multi-region deployment (3 regions)
 - Provisioned throughput
@@ -252,16 +275,19 @@ alert_email            = "alerts@example.com"
 ### Environment-Specific Variables
 
 **Dev**:
+
 - `enable_debug_mode` - Enable verbose logging
 - `auto_shutdown_enabled` - Auto-shutdown outside business hours
 - `dev_team_members` - List of developer emails
 
 **Staging**:
+
 - `enable_load_testing` - Enable load testing tools
 - `enable_chaos_testing` - Enable chaos engineering
 - `qa_team_members` - List of QA team emails
 
 **Prod**:
+
 - `secondary_region` - Failover region
 - `enable_pagerduty` - PagerDuty integration
 - `kms_key_id` - KMS key for encryption
@@ -270,6 +296,7 @@ alert_email            = "alerts@example.com"
 ## Cost Optimization
 
 ### Development
+
 - ✅ Auto-shutdown outside business hours
 - ✅ On-demand pricing (no provisioned throughput)
 - ✅ Minimal logging (7 days)
@@ -278,6 +305,7 @@ alert_email            = "alerts@example.com"
 - ✅ OpenSearch Serverless
 
 ### Staging
+
 - ⚠️ No auto-shutdown (testing availability)
 - ✅ On-demand pricing
 - ⚠️ Enhanced monitoring (30 days)
@@ -285,6 +313,7 @@ alert_email            = "alerts@example.com"
 - ⚠️ X-Ray enabled
 
 ### Production
+
 - ❌ Always on (99.9% SLA)
 - ❌ Provisioned throughput (better performance)
 - ❌ Full monitoring (90 days)
@@ -295,11 +324,13 @@ alert_email            = "alerts@example.com"
 ## Monitoring & Alerts
 
 ### Development
+
 - CloudWatch Logs (7 days)
 - Basic metrics
 - No alerting (optional)
 
 ### Staging
+
 - CloudWatch Logs (30 days)
 - CloudWatch metrics
 - X-Ray tracing
@@ -307,6 +338,7 @@ alert_email            = "alerts@example.com"
 - Load testing metrics
 
 ### Production
+
 - CloudWatch Logs (90 days)
 - CloudWatch metrics
 - X-Ray tracing
@@ -319,12 +351,14 @@ alert_email            = "alerts@example.com"
 ## Security & Compliance
 
 ### All Environments
+
 - ✅ Encryption at rest (KMS)
 - ✅ Encryption in transit (TLS)
 - ✅ IAM least privilege
 - ✅ VPC endpoints (optional)
 
 ### Production Only
+
 - ✅ WAF enabled
 - ✅ AWS Shield Advanced
 - ✅ SOX/PCI/HIPAA compliance
@@ -335,17 +369,18 @@ alert_email            = "alerts@example.com"
 
 ## Backup & Disaster Recovery
 
-| Environment | Backup | Retention | PITR | Multi-region |
-|-------------|--------|-----------|------|--------------|
-| Dev | No | N/A | No | No |
-| Staging | Yes | 7 days | No | No |
-| Prod | Yes | 30 days | Yes | Yes (3 regions) |
+| Environment | Backup | Retention | PITR | Multi-region    |
+| ----------- | ------ | --------- | ---- | --------------- |
+| Dev         | No     | N/A       | No   | No              |
+| Staging     | Yes    | 7 days    | No   | No              |
+| Prod        | Yes    | 30 days   | Yes  | Yes (3 regions) |
 
 ## Troubleshooting
 
 ### Common Issues
 
 **1. Backend initialization fails**
+
 ```bash
 # Verify S3 bucket exists
 aws s3 ls s3://servicenow-ai-terraform-state-dev
@@ -355,6 +390,7 @@ aws dynamodb describe-table --table-name servicenow-ai-terraform-locks-dev
 ```
 
 **2. Permission denied errors**
+
 ```bash
 # Check IAM permissions
 aws sts get-caller-identity
@@ -362,12 +398,14 @@ aws iam get-user
 ```
 
 **3. State lock errors**
+
 ```bash
 # Force unlock (use with caution)
 terraform force-unlock LOCK_ID
 ```
 
 **4. Module not found**
+
 ```bash
 # Re-initialize modules
 terraform init -upgrade
@@ -395,17 +433,20 @@ terraform show -json plan.tfplan | infracost breakdown --path -
 ### Regular Tasks
 
 **Weekly** (Dev/Staging):
+
 - Review logs for errors
 - Check cost reports
 - Update dependencies
 
 **Monthly** (All):
+
 - Review IAM permissions
 - Check compliance status
 - Review backup integrity
 - Update Terraform providers
 
 **Quarterly** (Production):
+
 - Disaster recovery drill
 - Security audit
 - Performance review

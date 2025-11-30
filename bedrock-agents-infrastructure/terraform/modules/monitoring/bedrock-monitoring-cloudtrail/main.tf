@@ -15,48 +15,8 @@ locals {
     }
   )
 
-  # Default advanced event selectors for Bedrock
-  bedrock_advanced_selectors = var.use_advanced_event_selectors && length(var.advanced_event_selectors) == 0 ? [
-    {
-      name = "Log Bedrock API calls"
-      field_selectors = [
-        {
-          field  = "eventCategory"
-          equals = ["Management"]
-        },
-        {
-          field  = "resources.type"
-          equals = ["AWS::Bedrock::Agent", "AWS::Bedrock::KnowledgeBase"]
-        }
-      ]
-    },
-    {
-      name = "Log Lambda function invocations"
-      field_selectors = [
-        {
-          field  = "eventCategory"
-          equals = ["Data"]
-        },
-        {
-          field  = "resources.type"
-          equals = ["AWS::Lambda::Function"]
-        }
-      ]
-    },
-    {
-      name = "Log S3 object-level API activity"
-      field_selectors = [
-        {
-          field  = "eventCategory"
-          equals = ["Data"]
-        },
-        {
-          field  = "resources.type"
-          equals = ["AWS::S3::Object"]
-        }
-      ]
-    }
-  ] : var.advanced_event_selectors
+  # Use advanced event selectors from variable (which has proper defaults)
+  bedrock_advanced_selectors = var.advanced_event_selectors
 }
 
 # ============================================================================

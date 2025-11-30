@@ -3,24 +3,7 @@ import {
   GetFindingsCommand,
   ArchiveFindingsCommand,
 } from '@aws-sdk/client-guardduty';
-import {
-  EC2Client,
-  CreateSnapshotCommand,
-  StopInstancesCommand,
-  CreateTagsCommand,
-  ModifyInstanceAttributeCommand,
-} from '@aws-sdk/client-ec2';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
-import {
-  BedrockAgentClient,
-  UpdateAgentCommand,
-  GetAgentCommand,
-} from '@aws-sdk/client-bedrock-agent';
-import {
-  LambdaClient,
-  UpdateFunctionConfigurationCommand,
-  GetFunctionConfigurationCommand,
-} from '@aws-sdk/client-lambda';
 import { Handler } from 'aws-lambda';
 import {
   IncidentEvent,
@@ -39,10 +22,7 @@ import {
 } from './utils';
 
 const guarddutyClient = new GuardDutyClient({});
-const ec2Client = new EC2Client({});
 const snsClient = new SNSClient({});
-const bedrockClient = new BedrockAgentClient({});
-const lambdaClient = new LambdaClient({});
 
 const SECURITY_TOPIC_ARN = process.env.SECURITY_TOPIC_ARN || '';
 const INCIDENT_QUEUE_URL = process.env.INCIDENT_QUEUE_URL || '';

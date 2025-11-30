@@ -3,26 +3,15 @@ import {
   GetAgentCommand,
   ListAgentsCommand,
 } from '@aws-sdk/client-bedrock-agent';
-import { IAMClient, GetPolicyCommand, GetRoleCommand } from '@aws-sdk/client-iam';
-import { KMSClient, DescribeKeyCommand } from '@aws-sdk/client-kms';
-import {
-  SecurityHubClient,
-  BatchImportFindingsCommand,
-} from '@aws-sdk/client-securityhub';
+import { IAMClient, GetRoleCommand } from '@aws-sdk/client-iam';
+import { SecurityHubClient, BatchImportFindingsCommand } from '@aws-sdk/client-securityhub';
 import { SecretsManagerClient, ListSecretsCommand } from '@aws-sdk/client-secrets-manager';
 import { Handler } from 'aws-lambda';
 import { ComplianceCheckEvent, ComplianceCheckResult, ComplianceFinding } from './types';
-import {
-  checkEncryption,
-  checkIAMPolicy,
-  scanForSecrets,
-  createSecurityHubFinding,
-  logger,
-} from './utils';
+import { checkEncryption, checkIAMPolicy, createSecurityHubFinding, logger } from './utils';
 
 const bedrockClient = new BedrockAgentClient({});
 const iamClient = new IAMClient({});
-const kmsClient = new KMSClient({});
 const securityHubClient = new SecurityHubClient({});
 const secretsClient = new SecretsManagerClient({});
 
@@ -76,8 +65,8 @@ export const handler: Handler<ComplianceCheckEvent, ComplianceCheckResult> = asy
 };
 
 async function checkBedrockAgents(
-  accountId: string,
-  region: string
+  _accountId: string,
+  _region: string
 ): Promise<ComplianceFinding[]> {
   const findings: ComplianceFinding[] = [];
 
@@ -177,8 +166,8 @@ async function checkIAMPolicies(targetRoles: string[]): Promise<ComplianceFindin
 }
 
 async function checkSecretsExposure(
-  accountId: string,
-  region: string
+  _accountId: string,
+  _region: string
 ): Promise<ComplianceFinding[]> {
   const findings: ComplianceFinding[] = [];
 

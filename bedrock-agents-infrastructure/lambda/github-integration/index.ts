@@ -1,13 +1,13 @@
 import { Handler } from 'aws-lambda';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { GitHubRequest, GitHubResponse, GitHubAction } from './types';
+import { GitHubResponse, GitHubAction } from './types';
 import {
   createPullRequest,
   manageIssue,
   performCodeReview,
   getMergeStatus,
-  updatePRStatus
+  updatePRStatus,
 } from './utils';
 
 const secretsClient = new SecretsManagerClient({ region: process.env.AWS_REGION || 'us-east-1' });
@@ -86,13 +86,12 @@ export const handler: Handler = async (event: any): Promise<GitHubResponse> => {
               success: true,
               action,
               result,
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
-
   } catch (error) {
     console.error('Error in GitHub integration:', error);
 
@@ -108,11 +107,11 @@ export const handler: Handler = async (event: any): Promise<GitHubResponse> => {
             body: JSON.stringify({
               success: false,
               error: error instanceof Error ? error.message : 'Unknown error',
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
   }
 };
@@ -125,7 +124,7 @@ async function getGitHubToken(): Promise<string> {
 
   try {
     const command = new GetSecretValueCommand({
-      SecretId: secretName
+      SecretId: secretName,
     });
 
     const response = await secretsClient.send(command);
@@ -175,7 +174,7 @@ async function handleCreatePR(
     baseBranch,
     draft,
     labels,
-    reviewers
+    reviewers,
   });
 
   // Store PR metadata in DynamoDB
@@ -188,7 +187,7 @@ async function handleCreatePR(
     draft: pr.draft,
     headBranch,
     baseBranch,
-    createdAt: pr.createdAt
+    createdAt: pr.createdAt,
   };
 }
 
@@ -223,7 +222,7 @@ async function handleManageIssues(
     title,
     body: issueBody,
     labels,
-    assignees
+    assignees,
   });
 
   return {
@@ -232,7 +231,7 @@ async function handleManageIssues(
     state: issue.state,
     title: issue.title,
     operation,
-    updatedAt: issue.updatedAt
+    updatedAt: issue.updatedAt,
   };
 }
 
@@ -263,7 +262,7 @@ async function handleCodeReview(
     prNumber,
     reviewType,
     body: reviewBody,
-    comments
+    comments,
   });
 
   return {
@@ -272,7 +271,7 @@ async function handleCodeReview(
     reviewType: review.state,
     commentsCount: review.commentsCount,
     submittedAt: review.submittedAt,
-    reviewUrl: review.url
+    reviewUrl: review.url,
   };
 }
 
@@ -297,7 +296,7 @@ async function handleMergeStatus(
   const status = await getMergeStatus(githubToken, {
     owner,
     repo,
-    prNumber
+    prNumber,
   });
 
   return {
@@ -307,7 +306,7 @@ async function handleMergeStatus(
     canMerge: status.canMerge,
     conflicts: status.conflicts,
     checksStatus: status.checksStatus,
-    reviewStatus: status.reviewStatus
+    reviewStatus: status.reviewStatus,
   };
 }
 
@@ -340,7 +339,7 @@ async function handleUpdatePR(
     title,
     description,
     state,
-    labels
+    labels,
   });
 
   return {
@@ -348,14 +347,14 @@ async function handleUpdatePR(
     title: pr.title,
     state: pr.state,
     updatedAt: pr.updatedAt,
-    prUrl: pr.url
+    prUrl: pr.url,
   };
 }
 
 /**
  * Store PR metadata in DynamoDB
  */
-async function storePRMetadata(dynamoClient: DynamoDBClient, pr: any): Promise<void> {
+async function storePRMetadata(_dynamoClient: DynamoDBClient, pr: any): Promise<void> {
   // Implementation for storing PR metadata
   console.log('Storing PR metadata:', pr.number);
   // This would store PR data in DynamoDB for tracking

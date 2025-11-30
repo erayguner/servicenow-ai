@@ -2,26 +2,18 @@ import {
   IAMClient,
   GetPolicyCommand,
   GetPolicyVersionCommand,
-  SimulatePrincipalPolicyCommand,
   GetServiceLastAccessedDetailsCommand,
   GenerateServiceLastAccessedDetailsCommand,
 } from '@aws-sdk/client-iam';
 import {
-  AccessAnalyzerClient,
-  StartPolicyGenerationCommand,
-  GetGeneratedPolicyCommand,
-} from '@aws-sdk/client-accessanalyzer';
-import {
   PolicyAnalysis,
   PolicyRecommendation,
   UnusedPermission,
-  AccessFinding,
   PolicyDocument,
   LoggerContext,
 } from './types';
 
 const iamClient = new IAMClient({});
-const accessAnalyzerClient = new AccessAnalyzerClient({});
 
 export const logger = {
   info: (message: string, context?: LoggerContext) => {
@@ -54,9 +46,7 @@ export async function analyzeIAMPolicy(policyArn: string): Promise<PolicyAnalysi
 
   try {
     // Get policy details
-    const policyResponse = await iamClient.send(
-      new GetPolicyCommand({ PolicyArn: policyArn })
-    );
+    const policyResponse = await iamClient.send(new GetPolicyCommand({ PolicyArn: policyArn }));
 
     const policy = policyResponse.Policy;
     if (!policy || !policy.DefaultVersionId) {
@@ -271,9 +261,7 @@ async function getCurrentRolePolicy(roleArn: string): Promise<PolicyDocument | n
   }
 }
 
-async function createLeastPrivilegePolicy(
-  currentPolicy: PolicyDocument
-): Promise<PolicyDocument> {
+async function createLeastPrivilegePolicy(currentPolicy: PolicyDocument): Promise<PolicyDocument> {
   // This is a mock implementation
   // In production, use IAM Access Analyzer's policy generation based on CloudTrail
 
@@ -305,10 +293,7 @@ async function createLeastPrivilegePolicy(
   };
 }
 
-function generateChangeSummary(
-  current: PolicyDocument,
-  recommended: PolicyDocument
-): string[] {
+function generateChangeSummary(current: PolicyDocument, recommended: PolicyDocument): string[] {
   const summary: string[] = [];
 
   // Count wildcard reductions
@@ -329,7 +314,9 @@ function generateChangeSummary(
 
   // Statement count changes
   if (current.Statement.length !== recommended.Statement.length) {
-    summary.push(`Statements changed from ${current.Statement.length} to ${recommended.Statement.length}`);
+    summary.push(
+      `Statements changed from ${current.Statement.length} to ${recommended.Statement.length}`
+    );
   }
 
   return summary;
@@ -387,7 +374,7 @@ function calculateRiskReduction(removed: string[], added: string[]): number {
   const totalReduction = removed.length - added.length;
 
   // Weight wildcard reduction higher
-  const riskReduction = (wildcardReduction * 20 + totalReduction * 5);
+  const riskReduction = wildcardReduction * 20 + totalReduction * 5;
 
   return Math.max(0, Math.min(100, riskReduction));
 }

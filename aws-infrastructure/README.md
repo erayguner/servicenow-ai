@@ -1,10 +1,13 @@
 # ServiceNow AI - AWS Infrastructure
 
-This directory contains the complete AWS infrastructure implementation, equivalent to the GCP services in the parent directory. It follows AWS 2025 best practices with modern services and security configurations.
+This directory contains the complete AWS infrastructure implementation,
+equivalent to the GCP services in the parent directory. It follows AWS 2025 best
+practices with modern services and security configurations.
 
 ## Overview
 
 This infrastructure provides a production-ready AWS deployment with:
+
 - **Amazon EKS** for container orchestration (equivalent to GKE)
 - **Amazon RDS PostgreSQL** for relational database (equivalent to Cloud SQL)
 - **Amazon DynamoDB** for NoSQL database (equivalent to Firestore)
@@ -49,15 +52,18 @@ aws-infrastructure/
 
 ## Environments
 
-This infrastructure supports multiple environments with different configurations:
+This infrastructure supports multiple environments with different
+configurations:
 
 ### 🚀 Production Environment
+
 - **Purpose**: Customer-facing production workloads
 - **Cost**: ~$3,112/month (with Reserved Instances: ~$2,000/month)
 - **Features**: Multi-AZ HA, Enhanced monitoring, 30-day backups
 - **Documentation**: [Production README](terraform/environments/prod/README.md)
 
 ### 💻 Development Environment
+
 - **Purpose**: Feature development and testing
 - **Cost**: ~$50-80/month (with Spot instances and optimizations)
 - **Features**: Single-AZ, Spot instances, minimal redundancy
@@ -115,11 +121,13 @@ aws dynamodb create-table \
 ### 2. Choose Your Environment
 
 **For Development** (recommended for testing):
+
 ```bash
 cd terraform/environments/dev
 ```
 
 **For Production**:
+
 ```bash
 cd terraform/environments/prod
 ```
@@ -155,7 +163,8 @@ terraform plan
 terraform apply
 ```
 
-This will create all AWS resources. The process takes approximately 20-30 minutes.
+This will create all AWS resources. The process takes approximately 20-30
+minutes.
 
 ### 5. Configure kubectl
 
@@ -196,7 +205,8 @@ npm start
 
 ### Security
 
-- **VPC Endpoints**: For S3, DynamoDB, ECR, Secrets Manager (reduces NAT Gateway costs)
+- **VPC Endpoints**: For S3, DynamoDB, ECR, Secrets Manager (reduces NAT Gateway
+  costs)
 - **Security Groups**: Least privilege access control
 - **KMS Encryption**: All data encrypted at rest
 - **TLS Encryption**: All data encrypted in transit
@@ -224,26 +234,27 @@ npm start
 
 ### Estimated Monthly Costs (Production)
 
-| Service | Configuration | Estimated Cost |
-|---------|--------------|----------------|
-| EKS Control Plane | 1 cluster | $72 |
-| EKS Nodes (General) | 3x t3.xlarge | $450 |
-| EKS Nodes (AI) | 2x r6i.2xlarge | $950 |
-| RDS PostgreSQL | db.r6i.xlarge Multi-AZ | $850 |
-| ElastiCache Redis | 3x cache.r7g.large | $550 |
-| DynamoDB | On-Demand | $100 |
-| S3 | 500GB + requests | $50 |
-| Data Transfer | 1TB/month | $90 |
-| **Total** | | **~$3,112/month** |
+| Service             | Configuration          | Estimated Cost    |
+| ------------------- | ---------------------- | ----------------- |
+| EKS Control Plane   | 1 cluster              | $72               |
+| EKS Nodes (General) | 3x t3.xlarge           | $450              |
+| EKS Nodes (AI)      | 2x r6i.2xlarge         | $950              |
+| RDS PostgreSQL      | db.r6i.xlarge Multi-AZ | $850              |
+| ElastiCache Redis   | 3x cache.r7g.large     | $550              |
+| DynamoDB            | On-Demand              | $100              |
+| S3                  | 500GB + requests       | $50               |
+| Data Transfer       | 1TB/month              | $90               |
+| **Total**           |                        | **~$3,112/month** |
 
-*Costs can be reduced by 30-40% using Spot instances and Graviton3*
+_Costs can be reduced by 30-40% using Spot instances and Graviton3_
 
 ## Monitoring & Logging
 
 - **CloudWatch Logs**: Centralized logging for all services
 - **CloudWatch Metrics**: Service metrics and dashboards
 - **AWS X-Ray**: Distributed tracing
-- **EKS Control Plane Logs**: API, audit, authenticator, controller manager, scheduler
+- **EKS Control Plane Logs**: API, audit, authenticator, controller manager,
+  scheduler
 - **VPC Flow Logs**: Network traffic analysis
 
 ## Security Best Practices
@@ -306,7 +317,8 @@ kubectl run -it --rm debug --image=redis:7 --restart=Never -- \
 
 ## Migration from GCP
 
-See [GCP_TO_AWS_MAPPING.md](docs/GCP_TO_AWS_MAPPING.md) for detailed service mapping and migration guide.
+See [GCP_TO_AWS_MAPPING.md](docs/GCP_TO_AWS_MAPPING.md) for detailed service
+mapping and migration guide.
 
 ## Additional Resources
 
@@ -317,6 +329,7 @@ See [GCP_TO_AWS_MAPPING.md](docs/GCP_TO_AWS_MAPPING.md) for detailed service map
 ## Support
 
 For issues or questions:
+
 1. Check the [Troubleshooting](#troubleshooting) section
 2. Review AWS service health dashboard
 3. Check CloudWatch Logs for errors

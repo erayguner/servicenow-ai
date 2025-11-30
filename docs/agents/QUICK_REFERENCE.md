@@ -3,23 +3,27 @@
 ## 🚀 Quick Start
 
 ### Check Agent Status
+
 ```bash
 ./scripts/agents/agent-status.sh
 ```
 
 ### Run Security Scan
+
 ```bash
 ./scripts/agents/run-security-scan.sh
 ./scripts/agents/run-security-scan.sh /home/user/servicenow-ai/terraform/modules/gke
 ```
 
 ### Run Terraform Tests
+
 ```bash
 ./scripts/agents/run-terraform-tests.sh all
 ./scripts/agents/run-terraform-tests.sh gke
 ```
 
 ### Run Code Review
+
 ```bash
 ./scripts/agents/run-code-review.sh
 ./scripts/agents/run-code-review.sh /home/user/servicenow-ai/terraform/modules/vpc
@@ -27,20 +31,21 @@
 
 ## 🤖 Deployed Agents
 
-| Agent ID | Type | Primary Use |
-|----------|------|-------------|
+| Agent ID                  | Type             | Primary Use                          |
+| ------------------------- | ---------------- | ------------------------------------ |
 | `terraform-architect-001` | system-architect | Infrastructure design & architecture |
-| `terraform-analyzer-001` | code-analyzer | Code quality & analysis |
-| `security-auditor-001` | security-auditor | Security scanning & compliance |
-| `cicd-engineer-001` | cicd-engineer | CI/CD pipeline management |
-| `code-reviewer-001` | reviewer | Code quality & formatting |
-| `test-validator-001` | tester | Testing & validation |
-| `performance-monitor-001` | perf-analyzer | Performance & cost optimization |
-| `repo-organizer-001` | repo-architect | Repository organization |
+| `terraform-analyzer-001`  | code-analyzer    | Code quality & analysis              |
+| `security-auditor-001`    | security-auditor | Security scanning & compliance       |
+| `cicd-engineer-001`       | cicd-engineer    | CI/CD pipeline management            |
+| `code-reviewer-001`       | reviewer         | Code quality & formatting            |
+| `test-validator-001`      | tester           | Testing & validation                 |
+| `performance-monitor-001` | perf-analyzer    | Performance & cost optimization      |
+| `repo-organizer-001`      | repo-architect   | Repository organization              |
 
 ## 📋 Common Workflows
 
 ### Pre-Deployment Checklist
+
 ```bash
 # 1. Run all tests
 ./scripts/agents/run-terraform-tests.sh all
@@ -56,6 +61,7 @@
 ```
 
 ### New Module Development
+
 ```bash
 # 1. Design review
 # Request architecture review from terraform-architect-001
@@ -74,6 +80,7 @@
 ```
 
 ### Cost Optimization
+
 ```bash
 # 1. Analyze current costs
 # Use performance-monitor-001 agent
@@ -91,6 +98,7 @@
 ## 🔧 Tool Commands
 
 ### Terraform
+
 ```bash
 # Format all files
 terraform fmt -recursive
@@ -103,6 +111,7 @@ terraform test
 ```
 
 ### Security (Checkov)
+
 ```bash
 # Scan Terraform
 checkov -d terraform/ --framework terraform
@@ -115,6 +124,7 @@ checkov -d terraform/ --soft-fail
 ```
 
 ### YAML Linting
+
 ```bash
 # Lint all YAML files
 yamllint .
@@ -127,6 +137,7 @@ yamllint -c .yamllint.yaml .
 ```
 
 ### Code Formatting
+
 ```bash
 # Prettier (JSON, Markdown)
 prettier --check "**/*.{json,md}"
@@ -138,6 +149,7 @@ shfmt -w scripts/
 ```
 
 ### Pre-commit Hooks
+
 ```bash
 # Run all hooks
 pre-commit run --all-files
@@ -153,30 +165,35 @@ pre-commit autoupdate
 ## 🎯 Agent-Specific Commands
 
 ### Architecture Review
+
 ```bash
 npx claude-flow@alpha agent execute terraform-architect-001 \
   "Review the Bedrock agents infrastructure module"
 ```
 
 ### Code Analysis
+
 ```bash
 npx claude-flow@alpha agent execute terraform-analyzer-001 \
   "Analyze the VPC module for code quality issues"
 ```
 
 ### Security Audit
+
 ```bash
 npx claude-flow@alpha agent execute security-auditor-001 \
   "Run comprehensive security scan on staging environment"
 ```
 
 ### CI/CD Optimization
+
 ```bash
 npx claude-flow@alpha agent execute cicd-engineer-001 \
   "Analyze GitHub Actions workflows for optimization opportunities"
 ```
 
 ### Performance Analysis
+
 ```bash
 npx claude-flow@alpha agent execute performance-monitor-001 \
   "Analyze GKE cluster costs and resource utilization"
@@ -185,23 +202,27 @@ npx claude-flow@alpha agent execute performance-monitor-001 \
 ## 💾 Memory Commands
 
 ### Store Information
+
 ```bash
 npx claude-flow@alpha memory store "swarm/global/decisions" \
   '{"decision": "Use mesh topology for agent coordination"}'
 ```
 
 ### Retrieve Information
+
 ```bash
 npx claude-flow@alpha memory retrieve "swarm/global/decisions"
 npx claude-flow@alpha memory retrieve "swarm/security/findings"
 ```
 
 ### List All Keys
+
 ```bash
 npx claude-flow@alpha memory list
 ```
 
 ### Clear Memory
+
 ```bash
 npx claude-flow@alpha memory clear "swarm/agent/*"
 ```
@@ -209,16 +230,19 @@ npx claude-flow@alpha memory clear "swarm/agent/*"
 ## 🔄 Session Management
 
 ### Start New Session
+
 ```bash
 npx claude-flow@alpha hooks session-restore --session-id "servicenow-ai-infra-dev"
 ```
 
 ### End Session
+
 ```bash
 npx claude-flow@alpha hooks session-end --export-metrics true
 ```
 
 ### Session Status
+
 ```bash
 npx claude-flow@alpha swarm status --session-id "servicenow-ai-infra-dev"
 ```
@@ -226,16 +250,19 @@ npx claude-flow@alpha swarm status --session-id "servicenow-ai-infra-dev"
 ## 📊 Monitoring & Metrics
 
 ### Agent Metrics
+
 ```bash
 npx claude-flow@alpha agent metrics terraform-architect-001
 ```
 
 ### Swarm Metrics
+
 ```bash
 npx claude-flow@alpha swarm metrics --session-id "servicenow-ai-infra-dev"
 ```
 
 ### Agent Status
+
 ```bash
 npx claude-flow@alpha swarm status
 ```
@@ -243,6 +270,7 @@ npx claude-flow@alpha swarm status
 ## 🚨 Troubleshooting
 
 ### Agent Not Responding
+
 ```bash
 # Check status
 npx claude-flow@alpha agent status terraform-architect-001
@@ -252,6 +280,7 @@ npx claude-flow@alpha agent restart terraform-architect-001
 ```
 
 ### Clear Stuck Session
+
 ```bash
 # Export current state
 npx claude-flow@alpha hooks session-end --export-metrics true
@@ -261,6 +290,7 @@ npx claude-flow@alpha swarm init --topology mesh --session-id "servicenow-ai-inf
 ```
 
 ### Tool Not Found
+
 ```bash
 # Check installation
 ./scripts/agents/agent-status.sh
@@ -275,8 +305,10 @@ npx claude-flow@alpha swarm init --topology mesh --session-id "servicenow-ai-inf
 
 ## 📚 Documentation
 
-- **Complete Guide**: [docs/agents/AGENT_DEPLOYMENT_GUIDE.md](AGENT_DEPLOYMENT_GUIDE.md)
-- **Configuration**: [coordination/agents/agent-deployment-manifest.json](/home/user/servicenow-ai/coordination/agents/agent-deployment-manifest.json)
+- **Complete Guide**:
+  [docs/agents/AGENT_DEPLOYMENT_GUIDE.md](AGENT_DEPLOYMENT_GUIDE.md)
+- **Configuration**:
+  [coordination/agents/agent-deployment-manifest.json](/home/user/servicenow-ai/coordination/agents/agent-deployment-manifest.json)
 - **Scripts**: [scripts/agents/](/home/user/servicenow-ai/scripts/agents/)
 
 ## 🔗 Useful Links

@@ -1,6 +1,7 @@
 # Bedrock Agents Documentation
 
-Complete guide to agent types, configuration, action groups, and knowledge base setup.
+Complete guide to agent types, configuration, action groups, and knowledge base
+setup.
 
 ## Agent Types & Purposes
 
@@ -9,11 +10,13 @@ Complete guide to agent types, configuration, action groups, and knowledge base 
 Focused agents specialized for specific domains.
 
 #### Research Agent
+
 - **Purpose**: Research and gather information
 - **Inputs**: Query, research domain, depth level
 - **Outputs**: Findings, sources, summary
 - **Action Groups**: Web search, document retrieval, database query
 - **Example**:
+
 ```python
 research_agent = {
     "name": "research-agent",
@@ -24,11 +27,13 @@ research_agent = {
 ```
 
 #### Analysis Agent
+
 - **Purpose**: Analyze data and generate insights
 - **Inputs**: Dataset, analysis type, metrics
 - **Outputs**: Analysis report, visualizations, recommendations
 - **Action Groups**: Data processing, statistical analysis, charting
 - **Example**:
+
 ```python
 analysis_agent = {
     "name": "analysis-agent",
@@ -39,11 +44,13 @@ analysis_agent = {
 ```
 
 #### Code Agent
+
 - **Purpose**: Write and review code
 - **Inputs**: Specification, language, constraints
 - **Outputs**: Code, documentation, tests
 - **Action Groups**: Code generation, linting, testing
 - **Example**:
+
 ```python
 code_agent = {
     "name": "code-agent",
@@ -58,11 +65,13 @@ code_agent = {
 Coordinate multiple agents and manage workflows.
 
 #### Coordinator Agent
+
 - **Purpose**: Manage multi-agent workflows
 - **Inputs**: Task, agent registry, constraints
 - **Outputs**: Workflow results, agent decisions log
 - **Action Groups**: Agent delegation, workflow management, consensus building
 - **Configuration**:
+
 ```yaml
 name: coordinator-agent
 model: anthropic.claude-3-opus-20240229-v1:0
@@ -74,11 +83,13 @@ instructions: |
 ```
 
 #### Router Agent
+
 - **Purpose**: Route requests to appropriate agents
 - **Inputs**: User request, agent capabilities
 - **Outputs**: Routed request, selected agent
 - **Action Groups**: Agent lookup, request parsing
 - **Configuration**:
+
 ```yaml
 name: router-agent
 model: anthropic.claude-3-haiku-20240307-v1:0
@@ -90,24 +101,29 @@ instructions: |
 
 ### 3. SPARC Agents
 
-Implement Specification, Pseudocode, Architecture, Refinement, Completion methodology.
+Implement Specification, Pseudocode, Architecture, Refinement, Completion
+methodology.
 
 #### Specification Agent
+
 - **Purpose**: Define requirements and specifications
 - **Action Groups**: Requirement gathering, documentation, validation
 - **Outputs**: Detailed specifications document
 
 #### Pseudocode Agent
+
 - **Purpose**: Design algorithms and high-level logic
 - **Action Groups**: Algorithm design, optimization analysis
 - **Outputs**: Pseudocode, design rationale
 
 #### Architecture Agent
+
 - **Purpose**: Design system architecture
 - **Action Groups**: Architecture documentation, diagram generation
 - **Outputs**: Architecture design, component definitions
 
 #### Refinement Agent
+
 - **Purpose**: Implement and test code
 - **Action Groups**: Code generation, testing, debugging
 - **Outputs**: Production code, test suites
@@ -117,12 +133,14 @@ Implement Specification, Pseudocode, Architecture, Refinement, Completion method
 Custom agents for specific business logic.
 
 #### ServiceNow Integration Agent
+
 - **Purpose**: Interact with ServiceNow APIs
 - **Action Groups**:
   - Create/update incidents
   - Query knowledge base
   - Change management
 - **Configuration**:
+
 ```python
 servicenow_agent = {
     "name": "servicenow-agent",
@@ -139,6 +157,7 @@ servicenow_agent = {
 ```
 
 #### Email Agent
+
 - **Purpose**: Send and manage emails
 - **Action Groups**:
   - Send email
@@ -146,6 +165,7 @@ servicenow_agent = {
   - Create calendar events
 
 #### Document Processing Agent
+
 - **Purpose**: Extract and process documents
 - **Action Groups**:
   - Text extraction
@@ -157,14 +177,17 @@ servicenow_agent = {
 Implement consensus and distributed coordination patterns.
 
 #### Byzantine Fault Tolerant Coordinator
+
 - **Purpose**: Reach consensus despite faulty agents
 - **Outputs**: Consensus decision with validation proof
 
 #### RAFT Consensus Manager
+
 - **Purpose**: Manage distributed state with RAFT protocol
 - **Features**: Leader election, log replication
 
 #### Gossip Protocol Coordinator
+
 - **Purpose**: Propagate information across agent network
 - **Features**: Eventual consistency, anti-entropy
 
@@ -585,5 +608,4 @@ See [examples/](examples/) for complete implementations.
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-17
+**Version**: 1.0.0 **Last Updated**: 2025-01-17

@@ -1,20 +1,28 @@
 # Test Operations Lambda Function
 
-Lambda function for Bedrock Agent test operations action group. Provides test generation, execution, and coverage reporting capabilities with Jest integration.
+Lambda function for Bedrock Agent test operations action group. Provides test
+generation, execution, and coverage reporting capabilities with Jest
+integration.
 
 ## Features
 
 ### 1. Generate Tests (`generate-tests`)
+
 Automatically generate comprehensive test suites for source files.
 
 **Parameters:**
+
 - `sourceFile` (required): Path to source file to generate tests for
-- `testFramework` (optional): Testing framework (jest, mocha, vitest, pytest) - default: jest
-- `testType` (optional): Type of tests (unit, integration, e2e, performance) - default: unit
-- `coverage` (optional): Coverage level (basic, comprehensive, exhaustive) - default: comprehensive
+- `testFramework` (optional): Testing framework (jest, mocha, vitest, pytest) -
+  default: jest
+- `testType` (optional): Type of tests (unit, integration, e2e, performance) -
+  default: unit
+- `coverage` (optional): Coverage level (basic, comprehensive, exhaustive) -
+  default: comprehensive
 - `bucket` (optional): S3 bucket name
 
 **Example:**
+
 ```json
 {
   "sourceFile": "src/utils/calculator.ts",
@@ -25,6 +33,7 @@ Automatically generate comprehensive test suites for source files.
 ```
 
 **Response:**
+
 ```json
 {
   "sourceFile": "src/utils/calculator.ts",
@@ -38,9 +47,11 @@ Automatically generate comprehensive test suites for source files.
 ```
 
 ### 2. Run Tests (`run-tests`)
+
 Execute test suites and collect results.
 
 **Parameters:**
+
 - `testPath` (optional): Specific test file or directory - default: all tests
 - `testFramework` (optional): Testing framework - default: jest
 - `environment` (optional): Test environment - default: test
@@ -48,6 +59,7 @@ Execute test suites and collect results.
 - `timeout` (optional): Test timeout in ms - default: 300000
 
 **Example:**
+
 ```json
 {
   "testPath": "src/utils/calculator.test.ts",
@@ -58,6 +70,7 @@ Execute test suites and collect results.
 ```
 
 **Response:**
+
 ```json
 {
   "testRunId": "test-run-1234567890",
@@ -82,15 +95,18 @@ Execute test suites and collect results.
 ```
 
 ### 3. Coverage Report (`coverage-report`)
+
 Generate detailed coverage reports with metrics and recommendations.
 
 **Parameters:**
+
 - `testRunId` (optional): Specific test run ID - default: latest
 - `format` (optional): Report format (json, html, text) - default: json
 - `threshold` (optional): Coverage threshold percentage - default: 80
 - `includeFiles` (optional): Comma-separated list of files to include
 
 **Example:**
+
 ```json
 {
   "testRunId": "test-run-1234567890",
@@ -100,6 +116,7 @@ Generate detailed coverage reports with metrics and recommendations.
 ```
 
 **Response:**
+
 ```json
 {
   "testRunId": "test-run-1234567890",
@@ -140,6 +157,7 @@ Generate detailed coverage reports with metrics and recommendations.
 ## Test Generation Capabilities
 
 ### Unit Tests
+
 - Function-level testing
 - Input validation tests
 - Edge case handling
@@ -147,17 +165,20 @@ Generate detailed coverage reports with metrics and recommendations.
 - Mock dependencies
 
 ### Integration Tests
+
 - Component interaction testing
 - API endpoint testing
 - Database integration
 - External service mocking
 
 ### E2E Tests
+
 - Full workflow testing
 - User journey simulation
 - Cross-system integration
 
 ### Performance Tests
+
 - Load testing
 - Stress testing
 - Response time validation
@@ -175,6 +196,7 @@ The function tracks and reports on:
 ## DynamoDB Schema
 
 ### Test Results Table
+
 ```
 testRunId (PK): string
 timestamp: string
@@ -187,6 +209,7 @@ failures: array
 ```
 
 ### Test Metrics Table
+
 ```
 testRunId (PK): string
 timestamp: string
@@ -203,11 +226,7 @@ coverageScore: number
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:ListBucket"
-      ],
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
       "Resource": [
         "arn:aws:s3:::${CODE_BUCKET}/*",
         "arn:aws:s3:::${CODE_BUCKET}"

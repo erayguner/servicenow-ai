@@ -1,7 +1,7 @@
 import { Handler } from 'aws-lambda';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { TestOperationRequest, TestOperationResponse, TestAction } from './types';
+import { TestOperationResponse, TestAction } from './types';
 import { generateTests, runTests, generateCoverageReport, analyzeTestResults } from './utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
@@ -69,13 +69,12 @@ export const handler: Handler = async (event: any): Promise<TestOperationRespons
               success: true,
               action,
               result,
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
-
   } catch (error) {
     console.error('Error in test operations:', error);
 
@@ -91,11 +90,11 @@ export const handler: Handler = async (event: any): Promise<TestOperationRespons
             body: JSON.stringify({
               success: false,
               error: error instanceof Error ? error.message : 'Unknown error',
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
   }
 };
@@ -120,7 +119,7 @@ async function handleGenerateTests(params: Record<string, string>, body: any): P
     sourceFile,
     testFramework,
     testType,
-    coverage
+    coverage,
   });
 
   return {
@@ -130,7 +129,7 @@ async function handleGenerateTests(params: Record<string, string>, body: any): P
     testType,
     testsGenerated: tests.testCount,
     coverage: tests.estimatedCoverage,
-    content: tests.content
+    content: tests.content,
   };
 }
 
@@ -151,7 +150,7 @@ async function handleRunTests(params: Record<string, string>, body: any): Promis
     testFramework,
     environment,
     parallel,
-    timeout
+    timeout,
   });
 
   // Store results in DynamoDB for historical tracking
@@ -167,7 +166,7 @@ async function handleRunTests(params: Record<string, string>, body: any): Promis
     duration: results.duration,
     coverage: results.coverage,
     failures: results.failures,
-    success: results.failed === 0
+    success: results.failed === 0,
   };
 }
 
@@ -186,7 +185,7 @@ async function handleCoverageReport(params: Record<string, string>, body: any): 
     testRunId,
     format,
     threshold,
-    includeFiles: includeFiles ? includeFiles.split(',') : undefined
+    includeFiles: includeFiles ? includeFiles.split(',') : undefined,
   });
 
   return {
@@ -199,6 +198,6 @@ async function handleCoverageReport(params: Record<string, string>, body: any): 
     meetsThreshold: report.overall.total >= threshold,
     threshold,
     uncoveredLines: report.uncoveredLines,
-    reportUrl: report.reportUrl
+    reportUrl: report.reportUrl,
   };
 }
