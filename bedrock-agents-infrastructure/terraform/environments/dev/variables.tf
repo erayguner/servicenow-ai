@@ -109,7 +109,7 @@ variable "lambda_function_names" {
 # ==============================================================================
 
 variable "servicenow_instance_url" {
-  description = "ServiceNow instance URL (e.g., https://your-instance.service-now.com)"
+  description = "ServiceNow instance URL (e.g., https://your-instance.service-now.com/)"
   type        = string
   default     = ""
 
