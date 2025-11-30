@@ -33,6 +33,61 @@ variable "alert_email" {
   default     = ""
 }
 
+# Optional dev-only toggles and metadata
+variable "enable_cost_optimization" {
+  description = "Enable cost optimization features in dev"
+  type        = bool
+  default     = false
+}
+
+variable "auto_shutdown_enabled" {
+  description = "Toggle auto-shutdown behaviour for dev resources"
+  type        = bool
+  default     = false
+}
+
+variable "enable_debug_mode" {
+  description = "Enable verbose/debug behaviours in dev"
+  type        = bool
+  default     = false
+}
+
+variable "test_data_enabled" {
+  description = "Whether to load or use test data in dev"
+  type        = bool
+  default     = false
+}
+
+variable "dev_team_members" {
+  description = "List of dev team member emails for tagging or notifications"
+  type = list(string)
+  default = []
+}
+
+variable "data_source_bucket_arn" {
+  description = "Optional S3 bucket ARN for knowledge base or data sources"
+  type        = string
+  default     = null
+}
+
+variable "action_lambda_arn" {
+  description = "Optional Lambda ARN for action groups"
+  type        = string
+  default     = null
+}
+
+variable "state_bucket_name" {
+  description = "S3 bucket name for Terraform state (informational)"
+  type        = string
+  default     = null
+}
+
+variable "bedrock_agent_endpoints" {
+  description = "List of Bedrock agent endpoint URLs for synthetic monitoring"
+  type = list(string)
+  default = []
+}
+
 # ==============================================================================
 # Security Module Variables
 # ==============================================================================
@@ -59,7 +114,7 @@ variable "servicenow_instance_url" {
   default     = ""
 
   validation {
-    condition     = var.servicenow_instance_url == "" || can(regex("^https://.*\\.service-now\\.com$", var.servicenow_instance_url))
+    condition = var.servicenow_instance_url == "" || can(regex("^https://.*\\.service-now\\.com/?$", var.servicenow_instance_url))
     error_message = "ServiceNow instance URL must be a valid HTTPS URL ending with .service-now.com"
   }
 }

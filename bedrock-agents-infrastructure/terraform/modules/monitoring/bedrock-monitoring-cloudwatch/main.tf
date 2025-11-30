@@ -48,7 +48,7 @@ resource "aws_sns_topic_subscription" "email" {
 
 # Bedrock Agent Invocation Errors
 resource "aws_cloudwatch_metric_alarm" "bedrock_invocation_errors" {
-  count = var.bedrock_agent_id != null ? 1 : 0
+  count = var.enable_bedrock_agent_alarms ? 1 : 0
 
   alarm_name          = "${var.project_name}-${var.environment}-bedrock-invocation-errors"
   alarm_description   = "Bedrock agent invocation error rate is too high"
@@ -99,7 +99,7 @@ resource "aws_cloudwatch_metric_alarm" "bedrock_invocation_errors" {
 
 # Bedrock Agent Invocation Latency
 resource "aws_cloudwatch_metric_alarm" "bedrock_invocation_latency" {
-  count = var.bedrock_agent_id != null ? 1 : 0
+  count = var.enable_bedrock_agent_alarms ? 1 : 0
 
   alarm_name          = "${var.project_name}-${var.environment}-bedrock-invocation-latency"
   alarm_description   = "Bedrock agent invocation latency is too high"
@@ -124,7 +124,7 @@ resource "aws_cloudwatch_metric_alarm" "bedrock_invocation_latency" {
 
 # Bedrock Agent Throttles
 resource "aws_cloudwatch_metric_alarm" "bedrock_throttles" {
-  count = var.bedrock_agent_id != null ? 1 : 0
+  count = var.enable_bedrock_agent_alarms ? 1 : 0
 
   alarm_name          = "${var.project_name}-${var.environment}-bedrock-throttles"
   alarm_description   = "Bedrock agent is being throttled"
