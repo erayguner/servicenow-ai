@@ -1,15 +1,28 @@
----
 extends: default
+
 rules:
   line-length:
-    max: 160
+    max: 200
     level: warning
-  truthy:
-    level: warning
-  document-start:
-    present: false
-  trailing-spaces:
-    level: error
   indentation:
     spaces: 2
-    indent-sequences: consistent
+    indent-sequences: true
+  comments:
+    min-spaces-from-content: 1
+    level: warning
+  comments-indentation:
+    level: warning
+  document-start: disable
+  truthy:
+    allowed-values: [ 'true', 'false', 'yes', 'no', 'on', 'off' ]
+    level: warning
+
+ignore: |
+  node_modules/
+  .git/
+  dist/
+  dist-cjs/
+  coverage/
+  .terraform/
+  *.tfstate
+  *.tfstate.backup
