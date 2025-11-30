@@ -65,6 +65,7 @@
 ### GuardDuty Overview
 
 GuardDuty is an intelligent threat detection service that analyzes:
+
 - CloudTrail logs (API activity)
 - VPC Flow Logs (network traffic)
 - DNS logs (query patterns)
@@ -74,6 +75,7 @@ GuardDuty is an intelligent threat detection service that analyzes:
 ### Enabling GuardDuty
 
 #### Create Detector
+
 ```bash
 aws guardduty create-detector \
   --enable \
@@ -81,6 +83,7 @@ aws guardduty create-detector \
 ```
 
 #### Enable S3 Protection
+
 ```bash
 aws guardduty create-s3-protection-enabled-auditing \
   --detector-id DETECTOR_ID \
@@ -88,6 +91,7 @@ aws guardduty create-s3-protection-enabled-auditing \
 ```
 
 #### Enable EKS Protection (if applicable)
+
 ```bash
 aws guardduty create-eks-protection-enabled-auditing \
   --detector-id DETECTOR_ID \
@@ -97,6 +101,7 @@ aws guardduty create-eks-protection-enabled-auditing \
 ### Finding Types and Severity
 
 #### EC2 Findings
+
 ```
 High Severity:
 - EC2_UnauthorizedAccess - Unusual port activity
@@ -114,6 +119,7 @@ Low Severity:
 ```
 
 #### IAM Findings
+
 ```
 High Severity:
 - IAM_AnomalousUserActivity - Unusual API calls
@@ -129,6 +135,7 @@ Low Severity:
 ```
 
 #### S3 Findings
+
 ```
 High Severity:
 - S3_DataExfiltration - Large download
@@ -143,6 +150,7 @@ Medium Severity:
 ### GuardDuty Findings Processing
 
 #### Query Findings
+
 ```bash
 # List findings
 aws guardduty list-findings \
@@ -170,6 +178,7 @@ aws guardduty create-filter \
 ```
 
 #### Export Findings
+
 ```bash
 # Create SNS topic for findings
 aws sns create-topic --name guardduty-findings
@@ -191,6 +200,7 @@ aws guardduty update-detector \
 ### Security Hub Overview
 
 Security Hub aggregates findings from:
+
 - GuardDuty (threat detection)
 - AWS Config (configuration compliance)
 - Inspector (vulnerability assessment)
@@ -200,6 +210,7 @@ Security Hub aggregates findings from:
 ### Enabled Standards
 
 #### Enable AWS Foundational Security Best Practices
+
 ```bash
 aws securityhub batch-enable-standards \
   --standards-subscription-requests '[
@@ -210,6 +221,7 @@ aws securityhub batch-enable-standards \
 ```
 
 #### Enable CIS AWS Foundations Benchmark
+
 ```bash
 aws securityhub batch-enable-standards \
   --standards-subscription-requests '[
@@ -220,6 +232,7 @@ aws securityhub batch-enable-standards \
 ```
 
 #### Enable PCI DSS (if applicable)
+
 ```bash
 aws securityhub batch-enable-standards \
   --standards-subscription-requests '[
@@ -232,6 +245,7 @@ aws securityhub batch-enable-standards \
 ### Custom Insights
 
 #### High-Risk IAM Changes
+
 ```bash
 aws securityhub create-insight \
   --name "High-Risk-IAM-Changes" \
@@ -249,6 +263,7 @@ aws securityhub create-insight \
 ```
 
 #### Unresolved Security Issues
+
 ```bash
 aws securityhub create-insight \
   --name "Unresolved-Critical-Issues" \
@@ -271,6 +286,7 @@ aws securityhub create-insight \
 ### CloudWatch Anomaly Detector
 
 #### Configure Anomaly Detection
+
 ```bash
 # Enable anomaly detection on metric
 aws cloudwatch put-metric-alarm \
@@ -313,6 +329,7 @@ aws cloudwatch put-metric-alarm \
 ### Statistical Anomaly Detection
 
 #### Baseline Establishment
+
 ```
 Procedure:
 1. Collect 1-2 weeks of normal metrics
@@ -331,6 +348,7 @@ Metrics to monitor:
 ```
 
 #### Anomaly Scoring
+
 ```
 Calculation:
 Score = (Observed - Baseline) / StandardDeviation
@@ -352,6 +370,7 @@ Alert thresholds:
 ### AWS Threat Intelligence Integration
 
 #### GuardDuty Threat Intelligence
+
 ```
 Built-in Intelligence:
 - Malicious IP reputation
@@ -371,6 +390,7 @@ Feeds from:
 ### External Threat Intelligence
 
 #### Integrate Third-Party Feeds
+
 ```bash
 # Store threat intelligence in DynamoDB
 aws dynamodb create-table \
@@ -396,6 +416,7 @@ def check_threat_intelligence(ip_address, feed):
 ### Threat Intelligence Sharing
 
 #### STIX Format Export
+
 ```json
 {
   "type": "bundle",
@@ -422,6 +443,7 @@ def check_threat_intelligence(ip_address, feed):
 ### IOC Categories
 
 #### File-Based IOCs
+
 ```
 Hash values:
 - MD5: d41d8cd98f00b204e9800998ecf8427e
@@ -441,6 +463,7 @@ Paths:
 ```
 
 #### Network IOCs
+
 ```
 Malicious IPs:
 - 192.0.2.0/24 (known botnet)
@@ -459,6 +482,7 @@ URLs:
 ```
 
 #### Behavioral IOCs
+
 ```
 Suspicious Process Activity:
 - cmd.exe spawning powershell
@@ -474,6 +498,7 @@ Suspicious Network Activity:
 ```
 
 #### Log IOCs
+
 ```
 Suspicious log entries:
 - Failed login attempts (>5 in 5 min)
@@ -486,6 +511,7 @@ Suspicious log entries:
 ### IOC Detection Implementation
 
 #### CloudWatch Logs Insights Query
+
 ```
 # Detect known malicious IP connections
 fields @timestamp, sourceIP, destinationIP, bytes_out
@@ -499,6 +525,7 @@ fields @timestamp, process_name, parent_process
 ```
 
 #### Lambda Detection Function
+
 ```python
 import json
 import hashlib
@@ -565,6 +592,7 @@ def detect_compromise(event, context):
 ### Automated Response Workflows
 
 #### High-Severity GuardDuty Finding
+
 ```python
 import boto3
 
@@ -650,6 +678,7 @@ def lambda_handler(event, context):
 ### Analysis Procedures
 
 #### Severity Assessment
+
 ```
 High Severity Factors:
 - Data access (confidentiality impact)
@@ -667,6 +696,7 @@ Low Severity Factors:
 ```
 
 #### Context Enrichment
+
 ```
 Add to finding:
 1. Business Context
@@ -692,6 +722,7 @@ Add to finding:
 ### Proactive Hunting Procedures
 
 #### Hunt Scenario: Unauthorized Data Access
+
 ```
 Hypothesis: Attacker gained access and exfiltrated data
 
@@ -727,6 +758,7 @@ Queries:
 ```
 
 #### Hunt Scenario: Lateral Movement
+
 ```
 Hypothesis: Attacker gained initial access and moved laterally
 
@@ -761,6 +793,7 @@ Investigation steps:
 ### Reducing False Positives
 
 #### Whitelist Known Activity
+
 ```bash
 # Create Security Hub custom insight to exclude known-good
 aws securityhub create-insight \
@@ -774,6 +807,7 @@ aws securityhub create-insight \
 ```
 
 #### Suppress Known False Positives
+
 ```python
 def suppress_finding(finding_id, reason):
     """Suppress low-value finding"""
@@ -795,6 +829,7 @@ def suppress_finding(finding_id, reason):
 ### Alert Tuning
 
 #### Adjust GuardDuty Sensitivity
+
 ```bash
 # Update finding publishing frequency
 aws guardduty update-detector \
@@ -803,6 +838,7 @@ aws guardduty update-detector \
 ```
 
 #### Alert Threshold Adjustment
+
 ```bash
 # Increase alert threshold for low-risk metric
 aws cloudwatch put-metric-alarm \
@@ -813,6 +849,5 @@ aws cloudwatch put-metric-alarm \
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Next Review**: May 2025
+**Document Version**: 1.0 **Last Updated**: November 2024 **Next Review**: May
+2025

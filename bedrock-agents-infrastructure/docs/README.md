@@ -1,15 +1,21 @@
 # Bedrock Agents Infrastructure
 
-Production-ready AWS Bedrock Agents infrastructure for autonomous multi-agent systems using Terraform and AWS Lambda.
+Production-ready AWS Bedrock Agents infrastructure for autonomous multi-agent
+systems using Terraform and AWS Lambda.
 
 ## Overview
 
-This infrastructure provides a comprehensive foundation for deploying intelligent, autonomous agents using Amazon Bedrock. The system is designed for:
+This infrastructure provides a comprehensive foundation for deploying
+intelligent, autonomous agents using Amazon Bedrock. The system is designed for:
 
-- **Multi-agent orchestration** - Coordinated agent workflows with Step Functions
-- **Knowledge base integration** - RAG (Retrieval-Augmented Generation) with Vector Store
-- **Autonomous action execution** - Lambda-based action groups for external integrations
-- **Enterprise-grade scalability** - Auto-scaling, monitoring, and cost optimization
+- **Multi-agent orchestration** - Coordinated agent workflows with Step
+  Functions
+- **Knowledge base integration** - RAG (Retrieval-Augmented Generation) with
+  Vector Store
+- **Autonomous action execution** - Lambda-based action groups for external
+  integrations
+- **Enterprise-grade scalability** - Auto-scaling, monitoring, and cost
+  optimization
 - **Security-first design** - IAM roles, encryption, and compliance built-in
 
 ## Key Features
@@ -18,14 +24,16 @@ This infrastructure provides a comprehensive foundation for deploying intelligen
 
 - **Specialist Agents** (Core Agents) - Domain-specific task executors
 - **Orchestration Agents** - Multi-agent coordination and workflow management
-- **SPARC Agents** - Specification, Pseudocode, Architecture, Refinement, Completion
+- **SPARC Agents** - Specification, Pseudocode, Architecture, Refinement,
+  Completion
 - **Coordinator Agents** - Consensus and distributed coordination
 - **Specialized Agents** - Custom task-specific implementations
 - **Template Agents** - Reusable agent blueprints
 
 ### Infrastructure Components
 
-- **Amazon Bedrock** - Managed generative AI service with Claude, Mistral, and other models
+- **Amazon Bedrock** - Managed generative AI service with Claude, Mistral, and
+  other models
 - **AWS Lambda** - Serverless compute for action groups
 - **AWS Step Functions** - Workflow orchestration and multi-agent coordination
 - **Amazon OpenSearch** - Vector database for knowledge base
@@ -192,6 +200,7 @@ bedrock-agents-infrastructure/
 ### Agents
 
 An agent is an autonomous entity that:
+
 - Receives instructions and context
 - Reason about available tools/action groups
 - Decides on actions to take
@@ -201,6 +210,7 @@ An agent is an autonomous entity that:
 ### Action Groups
 
 Lambda functions that agents can invoke:
+
 - **REST APIs** - Integration with external services
 - **Database Operations** - Direct data manipulation
 - **System Tasks** - Infrastructure management
@@ -209,6 +219,7 @@ Lambda functions that agents can invoke:
 ### Knowledge Bases
 
 Vector databases storing searchable information:
+
 - **Document storage** - PDFs, text files, structured data
 - **Semantic search** - Find relevant information by meaning
 - **RAG Integration** - Provide context to agents for accurate responses
@@ -216,6 +227,7 @@ Vector databases storing searchable information:
 ### Orchestration
 
 Step Functions workflows coordinating multiple agents:
+
 - **Sequential flows** - Agent A then Agent B
 - **Parallel execution** - Multiple agents simultaneously
 - **Conditional routing** - Branch based on conditions
@@ -288,10 +300,10 @@ See [COST.md](COST.md) for detailed cost analysis.
 
 ## Support & Contributions
 
-For issues, feature requests, or contributions, please refer to the main project's CONTRIBUTING.md.
+For issues, feature requests, or contributions, please refer to the main
+project's CONTRIBUTING.md.
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-17
-**Maintainers**: AI Infrastructure Team
+**Version**: 1.0.0 **Last Updated**: 2025-01-17 **Maintainers**: AI
+Infrastructure Team

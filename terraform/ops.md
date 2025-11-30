@@ -1,355 +1,388 @@
 ⏺ 🚀 Local Deployment Guide with Terraform
 
-  Here's how to deploy the infrastructure to GCP from your local machine:
+Here's how to deploy the infrastructure to GCP from your local machine:
 
-  Prerequisites
+Prerequisites
 
-  1. Install Required Tools
+1. Install Required Tools
 
-  # Terraform
-  brew install terraform  # macOS
-  # or download from https://www.terraform.io/downloads
+# Terraform
 
-  # Google Cloud SDK
-  brew install google-cloud-sdk  # macOS
-  # or follow: https://cloud.google.com/sdk/docs/install
+brew install terraform # macOS
 
-  # kubectl
-  brew install kubectl  # macOS
+# or download from https://www.terraform.io/downloads
 
-  # Verify installations
-  terraform --version  # Should be >= 1.0
-  gcloud --version
-  kubectl version --client
+# Google Cloud SDK
 
-  2. Configure GCP Authentication
+brew install google-cloud-sdk # macOS
 
-  # Login to GCP
-  gcloud auth login
+# or follow: https://cloud.google.com/sdk/docs/install
 
-  # Set application default credentials (for Terraform)
-  gcloud auth application-default login
+# kubectl
 
-  # Set your project
-  gcloud config set project servicenow-ai-477221
+brew install kubectl # macOS
 
-  # Verify authentication
-  gcloud auth list
+# Verify installations
 
-  3. Enable Required APIs
+terraform --version # Should be >= 1.0 gcloud --version kubectl version --client
 
-  # Enable all necessary GCP APIs
-  gcloud services enable \
-    compute.googleapis.com \
-    container.googleapis.com \
-    sqladmin.googleapis.com \
-    cloudkms.googleapis.com \
-    secretmanager.googleapis.com \
-    artifactregistry.googleapis.com \
-    pubsub.googleapis.com \
-    firestore.googleapis.com \
-    aiplatform.googleapis.com \
-    redis.googleapis.com \
-    servicenetworking.googleapis.com \
-    cloudresourcemanager.googleapis.com \
-    iam.googleapis.com \
-    cloudbilling.googleapis.com
+2. Configure GCP Authentication
 
-  # Wait for APIs to be enabled (takes ~2 minutes)
-  sleep 120
+# Login to GCP
 
-  Deployment Steps
+gcloud auth login
 
-  1. Navigate to Environment
+# Set application default credentials (for Terraform)
 
-  cd /Users/eray/servicenow-ai/terraform/environments/dev
+gcloud auth application-default login
 
-  2. Review Configuration
+# Set your project
 
-  The terraform.tfvars file already exists with your settings:
-  project_id      = "servicenow-ai-477221"
-  region          = "europe-west2"
-  billing_account = "012307-BBE074-F2333C"
-  github_org      = "erayguner"
-  github_repo     = "servicenow-ai"
+gcloud config set project servicenow-ai-477221
 
-  3. Initialize Terraform
+# Verify authentication
 
-  # Initialize Terraform (downloads providers and modules)
-  terraform init
+gcloud auth list
 
-  # Expected output:
-  # Terraform has been successfully initialized!
+3. Enable Required APIs
 
-  4. Validate Configuration
+# Enable all necessary GCP APIs
 
-  # Validate all Terraform files
-  terraform validate
+gcloud services enable \
+ compute.googleapis.com \
+ container.googleapis.com \
+ sqladmin.googleapis.com \
+ cloudkms.googleapis.com \
+ secretmanager.googleapis.com \
+ artifactregistry.googleapis.com \
+ pubsub.googleapis.com \
+ firestore.googleapis.com \
+ aiplatform.googleapis.com \
+ redis.googleapis.com \
+ servicenetworking.googleapis.com \
+ cloudresourcemanager.googleapis.com \
+ iam.googleapis.com \
+ cloudbilling.googleapis.com
 
-  # Expected output:
-  # Success! The configuration is valid.
+# Wait for APIs to be enabled (takes ~2 minutes)
 
-  5. Review What Will Be Created
+sleep 120
 
-  # Generate and review execution plan
-  terraform plan -var-file=terraform.tfvars
+Deployment Steps
 
-  # This shows all resources that will be created
-  # Review carefully before proceeding
+1. Navigate to Environment
 
-  6. Deploy Infrastructure
+cd /Users/eray/servicenow-ai/terraform/environments/dev
 
-  # Apply the configuration (creates all resources)
-  terraform apply -var-file=terraform.tfvars
+2. Review Configuration
 
-  # You'll be prompted to confirm
-  # Type 'yes' to proceed
+The terraform.tfvars file already exists with your settings: project_id =
+"servicenow-ai-477221" region = "europe-west2" billing_account =
+"012307-BBE074-F2333C" github_org = "erayguner" github_repo = "servicenow-ai"
 
-  # Deployment takes approximately 15-20 minutes
+3. Initialize Terraform
 
-  Post-Deployment Steps
+# Initialize Terraform (downloads providers and modules)
 
-  1. Get GKE Cluster Credentials
+terraform init
 
-  # Configure kubectl to use your new cluster
-  gcloud container clusters get-credentials servicenow-ai-dev \
-    --region europe-west2 \
-    --project servicenow-ai-477221
+# Expected output:
 
-  # Verify cluster access
-  kubectl get nodes
+# Terraform has been successfully initialized!
 
-  2. Deploy Kubernetes Resources
+4. Validate Configuration
 
-  # Navigate back to project root
-  cd /Users/eray/servicenow-ai
+# Validate all Terraform files
 
-  # Deploy service accounts (Workload Identity)
-  kubectl apply -f k8s/service-accounts/all-service-accounts.yaml
+terraform validate
 
-  # Deploy network policies (security)
-  kubectl apply -f k8s/network-policies/default-deny.yaml
-  kubectl apply -f k8s/network-policies/microservices-policies.yaml
+# Expected output:
 
-  # Verify deployments
-  kubectl get serviceaccounts -n production
-  kubectl get networkpolicies -n production
+# Success! The configuration is valid.
 
-  3. Deploy LLM Infrastructure (Optional)
+5. Review What Will Be Created
 
-  # Deploy self-hosted LLM serving
-  kubectl apply -f k8s/llm-serving/kserve-runtime.yaml
-  kubectl apply -f k8s/llm-serving/gpu-operator.yaml
+# Generate and review execution plan
 
-  # Deploy foundational models integration
-  kubectl apply -f k8s/llm-serving/foundational-models.yaml
+terraform plan -var-file=terraform.tfvars
 
-  # Deploy hybrid router (recommended)
-  kubectl apply -f k8s/llm-serving/hybrid-routing.yaml
+# This shows all resources that will be created
 
-  # Verify LLM deployments
-  kubectl get pods -n production -l app=llm-router
+# Review carefully before proceeding
 
-  4. Verify Deployment
+6. Deploy Infrastructure
 
-  # Check all Terraform-created resources
-  terraform show
+# Apply the configuration (creates all resources)
 
-  # Check GKE cluster
-  kubectl cluster-info
+terraform apply -var-file=terraform.tfvars
 
-  # Check Workload Identity configuration
-  kubectl get serviceaccounts -n production -o yaml | grep "iam.gke.io"
+# You'll be prompted to confirm
 
-  # Run security audit
-  ./scripts/audit-workload-identity.sh
+# Type 'yes' to proceed
 
-  Environment-Specific Deployments
+# Deployment takes approximately 15-20 minutes
 
-  Development (already configured)
+Post-Deployment Steps
 
-  cd terraform/environments/dev
-  terraform apply -var-file=terraform.tfvars
+1. Get GKE Cluster Credentials
 
-  Staging
+# Configure kubectl to use your new cluster
 
-  cd terraform/environments/staging
+gcloud container clusters get-credentials servicenow-ai-dev \
+ --region europe-west2 \
+ --project servicenow-ai-477221
 
-  # Create terraform.tfvars
-  cat > terraform.tfvars <<EOF
-  project_id      = "servicenow-ai-staging-477221"
-  region          = "europe-west2"
-  billing_account = "012307-BBE074-F2333C"
-  github_org      = "erayguner"
-  github_repo     = "servicenow-ai"
-  EOF
+# Verify cluster access
 
-  terraform init
-  terraform apply -var-file=terraform.tfvars
+kubectl get nodes
 
-  Production
+2. Deploy Kubernetes Resources
 
-  cd terraform/environments/prod
+# Navigate back to project root
 
-  # Create terraform.tfvars
-  cat > terraform.tfvars <<EOF
-  project_id      = "servicenow-ai-prod-477221"
-  region          = "europe-west2"
-  billing_account = "012307-BBE074-F2333C"
-  github_org      = "erayguner"
-  github_repo     = "servicenow-ai"
-  EOF
+cd /Users/eray/servicenow-ai
 
-  terraform init
-  terraform apply -var-file=terraform.tfvars
+# Deploy service accounts (Workload Identity)
 
-  Common Issues & Solutions
+kubectl apply -f k8s/service-accounts/all-service-accounts.yaml
 
-  Issue 1: API Not Enabled
+# Deploy network policies (security)
 
-  # Error: "API [service] has not been used in project"
-  # Solution: Enable the specific API
-  gcloud services enable SERVICE_NAME.googleapis.com
+kubectl apply -f k8s/network-policies/default-deny.yaml kubectl apply -f
+k8s/network-policies/microservices-policies.yaml
 
-  Issue 2: Insufficient Permissions
+# Verify deployments
 
-  # Error: "Permission denied"
-  # Solution: Ensure you have required roles
-  gcloud projects add-iam-policy-binding servicenow-ai-477221 \
-    --member="user:YOUR_EMAIL" \
-    --role="roles/owner"
+kubectl get serviceaccounts -n production kubectl get networkpolicies -n
+production
 
-  Issue 3: Quota Exceeded
+3. Deploy LLM Infrastructure (Optional)
 
-  # Error: "Quota exceeded"
-  # Solution: Request quota increase in GCP Console
-  # Navigation: IAM & Admin > Quotas
+# Deploy self-hosted LLM serving
 
-  Issue 4: State Lock
+kubectl apply -f k8s/llm-serving/kserve-runtime.yaml kubectl apply -f
+k8s/llm-serving/gpu-operator.yaml
 
-  # Error: "State is locked"
-  # Solution: Force unlock (use with caution)
-  terraform force-unlock LOCK_ID
+# Deploy foundational models integration
 
-  Terraform State Management
+kubectl apply -f k8s/llm-serving/foundational-models.yaml
 
-  View State
+# Deploy hybrid router (recommended)
 
-  # List all resources in state
-  terraform state list
+kubectl apply -f k8s/llm-serving/hybrid-routing.yaml
 
-  # Show specific resource
-  terraform state show google_container_cluster.primary
+# Verify LLM deployments
 
-  Backend Configuration (Optional - Remote State)
+kubectl get pods -n production -l app=llm-router
 
-  For team collaboration, use remote state:
+4. Verify Deployment
 
-  # Create GCS bucket for state
-  gsutil mb -p servicenow-ai-477221 -l europe-west2
-  gs://servicenow-ai-terraform-state
+# Check all Terraform-created resources
 
-  # Enable versioning
-  gsutil versioning set on gs://servicenow-ai-terraform-state
+terraform show
 
-  # Update backend.tf
-  cat > backend.tf <<EOF
-  terraform {
-    backend "gcs" {
-      bucket = "servicenow-ai-terraform-state"
-      prefix = "terraform/state"
-    }
-  }
-  EOF
+# Check GKE cluster
 
-  # Migrate state
-  terraform init -migrate-state
+kubectl cluster-info
 
-  Cleanup / Destroy
+# Check Workload Identity configuration
 
-  Destroy Specific Environment
+kubectl get serviceaccounts -n production -o yaml | grep "iam.gke.io"
 
-  cd terraform/environments/dev
+# Run security audit
 
-  # Destroy all resources (CAREFUL!)
-  terraform destroy -var-file=terraform.tfvars
+./scripts/audit-workload-identity.sh
 
-  # You'll be prompted to confirm
-  # Type 'yes' to proceed
+Environment-Specific Deployments
 
-  Delete Kubernetes Resources First
+Development (already configured)
 
-  # Delete LLM infrastructure
-  kubectl delete -f k8s/llm-serving/hybrid-routing.yaml
-  kubectl delete -f k8s/llm-serving/foundational-models.yaml
-  kubectl delete -f k8s/llm-serving/kserve-runtime.yaml
+cd terraform/environments/dev terraform apply -var-file=terraform.tfvars
 
-  # Delete network policies
-  kubectl delete -f k8s/network-policies/
+Staging
 
-  # Delete service accounts
-  kubectl delete -f k8s/service-accounts/
+cd terraform/environments/staging
 
-  Cost Estimation
+# Create terraform.tfvars
 
-  Development Environment
+cat > terraform.tfvars <<EOF project_id = "servicenow-ai-staging-477221" region
+= "europe-west2" billing_account = "012307-BBE074-F2333C" github_org =
+"erayguner" github_repo = "servicenow-ai" EOF
 
-  - GKE Cluster: ~$100-150/month
-  - Cloud SQL: ~$50-80/month
-  - GPUs (if deployed): ~$300-500/month per GPU
-  - Storage: ~$20-30/month
-  - Other services: ~$30-50/month
-  - Total: ~$200-$800/month (depending on GPU usage)
+terraform init terraform apply -var-file=terraform.tfvars
 
-  Monitor Costs
+Production
 
-  # View current costs in GCP Console
-  # Navigation: Billing > Cost Table
+cd terraform/environments/prod
 
-  # Or use gcloud
-  gcloud billing projects describe servicenow-ai-477221
+# Create terraform.tfvars
 
-  Useful Commands Reference
+cat > terraform.tfvars <<EOF project_id = "servicenow-ai-prod-477221" region =
+"europe-west2" billing_account = "012307-BBE074-F2333C" github_org = "erayguner"
+github_repo = "servicenow-ai" EOF
 
-  # Terraform
-  terraform init          # Initialize
-  terraform validate      # Validate syntax
-  terraform plan          # Preview changes
-  terraform apply         # Apply changes
-  terraform destroy       # Destroy resources
-  terraform state list    # List resources
-  terraform output        # Show outputs
+terraform init terraform apply -var-file=terraform.tfvars
 
-  # GKE
-  gcloud container clusters list
-  gcloud container clusters describe servicenow-ai-dev --region europe-west2
-  kubectl get nodes
-  kubectl get pods -A
-  kubectl describe pod POD_NAME
+Common Issues & Solutions
 
-  # Debugging
-  terraform apply -var-file=terraform.tfvars -auto-approve  # Skip confirmation
-  terraform apply -var-file=terraform.tfvars -target=MODULE  # Deploy specific
-  module
-  terraform refresh       # Sync state with reality
-  TF_LOG=DEBUG terraform apply  # Verbose logging
+Issue 1: API Not Enabled
 
-  Next Steps After Deployment
+# Error: "API [service] has not been used in project"
 
-  1. ✅ Configure DNS (if using custom domains)
-  2. ✅ Set up monitoring (Grafana dashboards)
-  3. ✅ Configure alerts (PagerDuty, Slack)
-  4. ✅ Deploy applications (your microservices)
-  5. ✅ Run tests (./scripts/test-llm-deployment.sh)
-  6. ✅ Set up CI/CD (GitHub Actions with Workload Identity Federation)
+# Solution: Enable the specific API
 
-  Support & Documentation
+gcloud services enable SERVICE_NAME.googleapis.com
 
-  - Terraform Docs: terraform/environments/*/README.md
-  - LLM Deployment: HYBRID_ROUTING_GUIDE.md
-  - Security: ZERO_SERVICE_ACCOUNT_KEYS.md
-  - Quick Start: FOUNDATIONAL_MODELS_QUICKSTART.md
+Issue 2: Insufficient Permissions
 
-  ---
-  Your infrastructure is now ready for deployment! Start with the development
-  environment and verify everything works before deploying to staging/production.
+# Error: "Permission denied"
+
+# Solution: Ensure you have required roles
+
+gcloud projects add-iam-policy-binding servicenow-ai-477221 \
+ --member="user:YOUR_EMAIL" \
+ --role="roles/owner"
+
+Issue 3: Quota Exceeded
+
+# Error: "Quota exceeded"
+
+# Solution: Request quota increase in GCP Console
+
+# Navigation: IAM & Admin > Quotas
+
+Issue 4: State Lock
+
+# Error: "State is locked"
+
+# Solution: Force unlock (use with caution)
+
+terraform force-unlock LOCK_ID
+
+Terraform State Management
+
+View State
+
+# List all resources in state
+
+terraform state list
+
+# Show specific resource
+
+terraform state show google_container_cluster.primary
+
+Backend Configuration (Optional - Remote State)
+
+For team collaboration, use remote state:
+
+# Create GCS bucket for state
+
+gsutil mb -p servicenow-ai-477221 -l europe-west2
+gs://servicenow-ai-terraform-state
+
+# Enable versioning
+
+gsutil versioning set on gs://servicenow-ai-terraform-state
+
+# Update backend.tf
+
+cat > backend.tf <<EOF terraform { backend "gcs" { bucket =
+"servicenow-ai-terraform-state" prefix = "terraform/state" } } EOF
+
+# Migrate state
+
+terraform init -migrate-state
+
+Cleanup / Destroy
+
+Destroy Specific Environment
+
+cd terraform/environments/dev
+
+# Destroy all resources (CAREFUL!)
+
+terraform destroy -var-file=terraform.tfvars
+
+# You'll be prompted to confirm
+
+# Type 'yes' to proceed
+
+Delete Kubernetes Resources First
+
+# Delete LLM infrastructure
+
+kubectl delete -f k8s/llm-serving/hybrid-routing.yaml kubectl delete -f
+k8s/llm-serving/foundational-models.yaml kubectl delete -f
+k8s/llm-serving/kserve-runtime.yaml
+
+# Delete network policies
+
+kubectl delete -f k8s/network-policies/
+
+# Delete service accounts
+
+kubectl delete -f k8s/service-accounts/
+
+Cost Estimation
+
+Development Environment
+
+- GKE Cluster: ~$100-150/month
+- Cloud SQL: ~$50-80/month
+- GPUs (if deployed): ~$300-500/month per GPU
+- Storage: ~$20-30/month
+- Other services: ~$30-50/month
+- Total: ~$200-$800/month (depending on GPU usage)
+
+Monitor Costs
+
+# View current costs in GCP Console
+
+# Navigation: Billing > Cost Table
+
+# Or use gcloud
+
+gcloud billing projects describe servicenow-ai-477221
+
+Useful Commands Reference
+
+# Terraform
+
+terraform init # Initialize terraform validate # Validate syntax terraform
+plan # Preview changes terraform apply # Apply changes terraform destroy #
+Destroy resources terraform state list # List resources terraform output # Show
+outputs
+
+# GKE
+
+gcloud container clusters list gcloud container clusters describe
+servicenow-ai-dev --region europe-west2 kubectl get nodes kubectl get pods -A
+kubectl describe pod POD_NAME
+
+# Debugging
+
+terraform apply -var-file=terraform.tfvars -auto-approve # Skip confirmation
+terraform apply -var-file=terraform.tfvars -target=MODULE # Deploy specific
+module terraform refresh # Sync state with reality TF_LOG=DEBUG terraform
+apply # Verbose logging
+
+Next Steps After Deployment
+
+1. ✅ Configure DNS (if using custom domains)
+2. ✅ Set up monitoring (Grafana dashboards)
+3. ✅ Configure alerts (PagerDuty, Slack)
+4. ✅ Deploy applications (your microservices)
+5. ✅ Run tests (./scripts/test-llm-deployment.sh)
+6. ✅ Set up CI/CD (GitHub Actions with Workload Identity Federation)
+
+Support & Documentation
+
+- Terraform Docs: terraform/environments/\*/README.md
+- LLM Deployment: HYBRID_ROUTING_GUIDE.md
+- Security: ZERO_SERVICE_ACCOUNT_KEYS.md
+- Quick Start: FOUNDATIONAL_MODELS_QUICKSTART.md
+
+---
+
+Your infrastructure is now ready for deployment! Start with the development
+environment and verify everything works before deploying to staging/production.

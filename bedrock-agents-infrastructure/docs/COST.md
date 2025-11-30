@@ -1,12 +1,14 @@
 # Bedrock Agents Infrastructure - Cost Analysis
 
-Detailed cost analysis, optimization strategies, and monitoring for multi-environment deployments.
+Detailed cost analysis, optimization strategies, and monitoring for
+multi-environment deployments.
 
 ## Monthly Cost Estimates
 
 ### Development Environment
 
 **Configuration**
+
 - 2 agents (basic models)
 - 100 invocations/day
 - Knowledge base: 50 MB
@@ -15,22 +17,23 @@ Detailed cost analysis, optimization strategies, and monitoring for multi-enviro
 
 **Breakdown**
 
-| Service | Usage | Cost |
-|---------|-------|------|
-| Bedrock (Haiku) | 7,300 invocations | $1.50 |
-| Lambda | 7,300 executions × 1s | $0.15 |
-| OpenSearch Serverless | 10 OCU × 730 hours | $50.00 |
-| RDS (t3.micro) | On-demand | $15.00 |
-| S3 | Storage + requests | $5.00 |
-| DynamoDB | On-demand | $5.00 |
-| CloudWatch | Logs + metrics | $10.00 |
-| **Total** | | **$86.65/month** |
+| Service               | Usage                 | Cost             |
+| --------------------- | --------------------- | ---------------- |
+| Bedrock (Haiku)       | 7,300 invocations     | $1.50            |
+| Lambda                | 7,300 executions × 1s | $0.15            |
+| OpenSearch Serverless | 10 OCU × 730 hours    | $50.00           |
+| RDS (t3.micro)        | On-demand             | $15.00           |
+| S3                    | Storage + requests    | $5.00            |
+| DynamoDB              | On-demand             | $5.00            |
+| CloudWatch            | Logs + metrics        | $10.00           |
+| **Total**             |                       | **$86.65/month** |
 
 **Annual Cost**: ~$1,040
 
 ### Staging Environment
 
 **Configuration**
+
 - 5 agents (mixed models)
 - 1,000 invocations/day
 - Knowledge base: 500 MB
@@ -39,23 +42,24 @@ Detailed cost analysis, optimization strategies, and monitoring for multi-enviro
 
 **Breakdown**
 
-| Service | Usage | Cost |
-|---------|-------|------|
-| Bedrock (Sonnet) | 36,500 invocations | $25.00 |
-| Lambda | 36,500 executions × 2s | $1.46 |
-| OpenSearch Serverless | 20 OCU × 730 hours | $100.00 |
-| RDS (db.t3.small) | On-demand, Multi-AZ backup | $80.00 |
-| S3 | Storage + requests | $20.00 |
-| DynamoDB | On-demand | $25.00 |
-| CloudWatch | Logs + metrics | $30.00 |
-| Step Functions | 36,500 state transitions | $1.50 |
-| **Total** | | **$283.00/month** |
+| Service               | Usage                      | Cost              |
+| --------------------- | -------------------------- | ----------------- |
+| Bedrock (Sonnet)      | 36,500 invocations         | $25.00            |
+| Lambda                | 36,500 executions × 2s     | $1.46             |
+| OpenSearch Serverless | 20 OCU × 730 hours         | $100.00           |
+| RDS (db.t3.small)     | On-demand, Multi-AZ backup | $80.00            |
+| S3                    | Storage + requests         | $20.00            |
+| DynamoDB              | On-demand                  | $25.00            |
+| CloudWatch            | Logs + metrics             | $30.00            |
+| Step Functions        | 36,500 state transitions   | $1.50             |
+| **Total**             |                            | **$283.00/month** |
 
 **Annual Cost**: ~$3,400
 
 ### Production Environment
 
 **Configuration**
+
 - 10+ agents (all models)
 - 50,000+ invocations/day
 - Knowledge base: 5+ GB
@@ -64,18 +68,18 @@ Detailed cost analysis, optimization strategies, and monitoring for multi-enviro
 
 **Breakdown**
 
-| Service | Usage | Cost |
-|---------|-------|------|
-| Bedrock (Mixed Models) | 1.8M invocations | $3,500.00 |
-| Lambda | 1.8M executions × 3.5s average | $315.00 |
-| OpenSearch Serverless | 40 OCU × 730 hours | $200.00 |
-| RDS (db.r6i.xlarge) | Multi-AZ HA, backups | $400.00 |
-| S3 | 50 GB storage + heavy access | $150.00 |
-| DynamoDB | On-demand, GSI | $200.00 |
-| CloudWatch | Logs + metrics + alarms | $100.00 |
-| Step Functions | 1.8M state transitions | $90.00 |
-| NAT Gateway | Data transfer + hours | $100.00 |
-| **Total** | | **$5,055.00/month** |
+| Service                | Usage                          | Cost                |
+| ---------------------- | ------------------------------ | ------------------- |
+| Bedrock (Mixed Models) | 1.8M invocations               | $3,500.00           |
+| Lambda                 | 1.8M executions × 3.5s average | $315.00             |
+| OpenSearch Serverless  | 40 OCU × 730 hours             | $200.00             |
+| RDS (db.r6i.xlarge)    | Multi-AZ HA, backups           | $400.00             |
+| S3                     | 50 GB storage + heavy access   | $150.00             |
+| DynamoDB               | On-demand, GSI                 | $200.00             |
+| CloudWatch             | Logs + metrics + alarms        | $100.00             |
+| Step Functions         | 1.8M state transitions         | $90.00              |
+| NAT Gateway            | Data transfer + hours          | $100.00             |
+| **Total**              |                                | **$5,055.00/month** |
 
 **Annual Cost**: ~$60,660
 
@@ -85,11 +89,11 @@ Detailed cost analysis, optimization strategies, and monitoring for multi-enviro
 
 **Claude 3 Models (us-east-1)**
 
-| Model | Input | Output |
-|-------|-------|--------|
-| Haiku | $0.00025/1K tokens | $0.00125/1K tokens |
-| Sonnet | $0.003/1K tokens | $0.015/1K tokens |
-| Opus | $0.015/1K tokens | $0.075/1K tokens |
+| Model  | Input              | Output             |
+| ------ | ------------------ | ------------------ |
+| Haiku  | $0.00025/1K tokens | $0.00125/1K tokens |
+| Sonnet | $0.003/1K tokens   | $0.015/1K tokens   |
+| Opus   | $0.015/1K tokens   | $0.075/1K tokens   |
 
 **Example Calculation (10,000 requests)**
 
@@ -371,15 +375,14 @@ resource "aws_budgets_budget_notification" "bedrock_agents_notification" {
 
 ## Cost Comparison: Bedrock vs Competitors
 
-| Feature | Bedrock | Claude API | Self-Hosted |
-|---------|---------|-----------|------------|
-| Cost/1M tokens | $0.35-$1.50 | $0.30-$0.90 | $50-200 |
-| Setup time | <1 hour | <1 hour | 1-2 weeks |
-| Infrastructure | Managed | Managed | Self-managed |
-| Scalability | Auto | Auto | Manual |
-| Compliance | AWS | Anthropic | Full control |
+| Feature        | Bedrock     | Claude API  | Self-Hosted  |
+| -------------- | ----------- | ----------- | ------------ |
+| Cost/1M tokens | $0.35-$1.50 | $0.30-$0.90 | $50-200      |
+| Setup time     | <1 hour     | <1 hour     | 1-2 weeks    |
+| Infrastructure | Managed     | Managed     | Self-managed |
+| Scalability    | Auto        | Auto        | Manual       |
+| Compliance     | AWS         | Anthropic   | Full control |
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-17
+**Version**: 1.0.0 **Last Updated**: 2025-01-17

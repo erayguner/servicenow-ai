@@ -1,10 +1,13 @@
 # ServiceNow Step Functions Workflows
 
-Comprehensive AWS Step Functions workflows for automating ServiceNow IT Service Management operations with Amazon Bedrock agents.
+Comprehensive AWS Step Functions workflows for automating ServiceNow IT Service
+Management operations with Amazon Bedrock agents.
 
 ## Overview
 
-This directory contains 6 production-ready Step Functions workflows that integrate ServiceNow with AWS Bedrock agents for intelligent automation of ITSM processes.
+This directory contains 6 production-ready Step Functions workflows that
+integrate ServiceNow with AWS Bedrock agents for intelligent automation of ITSM
+processes.
 
 ### Directory Structure
 
@@ -25,9 +28,11 @@ workflows/
 
 **File**: `incident-response-workflow.json`
 
-**Purpose**: Automated incident handling with severity analysis and intelligent escalation
+**Purpose**: Automated incident handling with severity analysis and intelligent
+escalation
 
 **Features**:
+
 - Receives incidents from ServiceNow webhooks
 - Invokes Bedrock Incident Manager agent for analysis
 - Analyzes incident severity (Critical, High, Medium, Low)
@@ -36,6 +41,7 @@ workflows/
 - Monitors critical incidents until resolution
 
 **Key States**:
+
 - `ReceiveIncidentWebhook` - Receive and store incident
 - `InvokeIncidentManagerAgent` - AI-powered incident analysis
 - `AnalyzeSeverity` - Route based on impact level
@@ -43,6 +49,7 @@ workflows/
 - `MonitorCriticalIncident` - 5-minute recurring checks
 
 **Input Schema**:
+
 ```json
 {
   "incident": {
@@ -62,14 +69,17 @@ workflows/
 ```
 
 **DynamoDB Tables Used**:
+
 - `servicenow-incidents` - Incident state tracking
 
 **SNS Topics**:
+
 - Critical alert topic (immediate escalation)
 - Incident notification topic (status updates)
 - Error topic (failure notifications)
 
 **Lambda Functions Called**:
+
 - `servicenow-escalate-incident` - Escalate to critical team
 - `servicenow-auto-assign` - Auto-assign to group
 - `servicenow-auto-resolve-check` - Check if auto-resolvable
@@ -87,6 +97,7 @@ workflows/
 **Purpose**: Intelligent ticket categorization, prioritization, and routing
 
 **Features**:
+
 - Receives new support tickets
 - Invokes Bedrock Ticket Analyzer agent
 - Categorizes and prioritizes tickets
@@ -96,6 +107,7 @@ workflows/
 - Assigns to technicians with best fit
 
 **Key States**:
+
 - `ReceiveNewTicket` - Store ticket in DynamoDB
 - `InvokeTicketAnalyzerAgent` - AI analysis of ticket
 - `SearchKnowledgeBase` - Parallel KB and FAQ search
@@ -104,6 +116,7 @@ workflows/
 - `RoutTicketForAssignment` - Intelligent routing logic
 
 **Input Schema**:
+
 ```json
 {
   "ticket": {
@@ -125,13 +138,16 @@ workflows/
 ```
 
 **DynamoDB Tables Used**:
+
 - `servicenow-tickets` - Ticket state tracking
 
 **Bedrock Features**:
+
 - Knowledge base integration via `bedrock:retrieveAndGenerateQuery`
 - Agent invocation for categorization
 
 **Lambda Functions Called**:
+
 - `servicenow-categorize-ticket` - AI-based categorization
 - `servicenow-search-knowledge-base` - KB article search
 - `servicenow-evaluate-resolution` - Resolution feasibility check
@@ -145,9 +161,11 @@ workflows/
 
 **File**: `change-approval-workflow.json`
 
-**Purpose**: Risk-based change approval with dynamic routing and implementation tracking
+**Purpose**: Risk-based change approval with dynamic routing and implementation
+tracking
 
 **Features**:
+
 - Receives change requests from ServiceNow
 - Bedrock agent performs comprehensive risk assessment
 - Dynamic approval routing based on risk level:
@@ -160,6 +178,7 @@ workflows/
 - Auto-escalation after 72 hours without implementation
 
 **Key States**:
+
 - `ReceiveChangeRequest` - Store change request
 - `PerformRiskAssessment` - Bedrock risk analysis
 - `DetermineDynamicApprovalPath` - Route based on risk
@@ -171,6 +190,7 @@ workflows/
 - `MonitorImplementation` - 72-hour window with checks
 
 **Input Schema**:
+
 ```json
 {
   "change": {
@@ -193,14 +213,17 @@ workflows/
 ```
 
 **DynamoDB Tables Used**:
+
 - `servicenow-changes` - Change request tracking
 
 **Approval Mechanisms**:
+
 - SNS for initial notifications
 - SQS task tokens for synchronous approval waiting
 - 72-hour implementation monitoring window
 
 **Lambda Functions Called**:
+
 - `servicenow-auto-approve-change` - Auto-approve low-risk
 - `servicenow-create-implementation-ticket` - Create tracking ticket
 - `servicenow-check-change-status` - Poll implementation status
@@ -216,6 +239,7 @@ workflows/
 **Purpose**: Root cause analysis and KB article generation from problem records
 
 **Features**:
+
 - Receives problem records with linked incidents
 - Fetches all related incidents for pattern analysis
 - Bedrock agent analyzes incident patterns and root causes
@@ -228,6 +252,7 @@ workflows/
 - Creates permanent fix request for implementation
 
 **Key States**:
+
 - `ReceiveProblemRequest` - Store problem
 - `FetchRelatedIncidents` - Gather linked incidents
 - `AnalyzeIncidentPatterns` - Bedrock pattern analysis
@@ -239,6 +264,7 @@ workflows/
 - `CreatePermanentFix` - Create change request for fix
 
 **Input Schema**:
+
 ```json
 {
   "problem": {
@@ -259,13 +285,16 @@ workflows/
 ```
 
 **DynamoDB Tables Used**:
+
 - `servicenow-problems` - Problem tracking
 
 **Bedrock Integration**:
+
 - Problem Resolver agent for analysis
 - Knowledge Curator agent for KB article creation
 
 **Lambda Functions Called**:
+
 - `servicenow-fetch-related-incidents` - Get incident data
 - `servicenow-analyze-call-tree` - Incident relationship analysis
 - `servicenow-identify-affected-cis` - CI impact analysis
@@ -284,6 +313,7 @@ workflows/
 **Purpose**: Automated knowledge base article creation from resolved incidents
 
 **Features**:
+
 - Continuous monitoring of resolved incidents (hourly)
 - Bedrock Knowledge Curator agent extracts solution steps
 - Quality validation of extracted content
@@ -294,6 +324,7 @@ workflows/
 - Tracks creation metrics and quality scores
 
 **Key States**:
+
 - `MonitorResolvedIncidents` - Wait 1 hour
 - `QueryRecentlyResolvedIncidents` - Fetch last hour's resolutions
 - `ProcessIncidentsForKB` - Map over incidents (max 3 concurrent)
@@ -307,6 +338,7 @@ workflows/
 - `SummarizeCreationResults` - Create execution summary
 
 **Input Schema**:
+
 ```json
 {
   "knowledgeCuratorAgentId": "agent-id",
@@ -317,15 +349,18 @@ workflows/
 ```
 
 **DynamoDB Tables Used**:
+
 - `servicenow-kb-creation-log` - Track created articles
 - `servicenow-kb-workflow-executions` - Execution history
 
 **Map State**:
+
 - Processes up to 10 recent incidents
 - Max 3 concurrent executions per cycle
 - Individual error handling per incident
 
 **Output Metrics**:
+
 - Total incidents processed
 - Articles created
 - Articles skipped
@@ -341,6 +376,7 @@ workflows/
 **Purpose**: Real-time SLA breach prevention and compliance tracking
 
 **Features**:
+
 - Continuous monitoring every 10 minutes
 - Identifies tickets at risk (80%+ of SLA timer)
 - Segments tickets by breach severity
@@ -360,6 +396,7 @@ workflows/
 - DynamoDB SLA compliance tracking
 
 **Key States**:
+
 - `MonitorSLATimers` - Wait 10 minutes
 - `FetchTicketsAtRisk` - Query tickets at 80%+ SLA
 - `AnalyzeRiskLevels` - Categorize by threshold
@@ -377,6 +414,7 @@ workflows/
 - `UpdateComplianceTracker` - Record daily compliance
 
 **Input Schema**:
+
 ```json
 {
   "slaBreachAlertTopic": "arn:aws:sns:...",
@@ -388,19 +426,23 @@ workflows/
 ```
 
 **DynamoDB Tables Used**:
+
 - `servicenow-sla-monitoring` - Monitoring cycle records
 - `servicenow-sla-compliance` - Daily compliance tracking
 
 **CloudWatch Metrics Published**:
+
 - `ServiceNow/SLA:TicketsAtRisk` (Count)
 - `ServiceNow/SLA:BreachedSLAs` (Count)
 - `ServiceNow/SLA:SLACompliancePercentage` (Percent)
 
 **S3 Reports**:
+
 - Path: `sla-reports/{DATE}/sla-report.json`
 - Contents: Risk analysis, segmentation, compliance metrics
 
 **Executive Notifications**:
+
 - Triggered when breaches detected
 - Includes at-risk count and compliance percentage
 
@@ -416,17 +458,12 @@ workflows/
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "bedrock:InvokeAgent",
-        "bedrock:RetrieveAndGenerateQuery"
-      ],
+      "Action": ["bedrock:InvokeAgent", "bedrock:RetrieveAndGenerateQuery"],
       "Resource": "*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "lambda:InvokeFunction"
-      ],
+      "Action": ["lambda:InvokeFunction"],
       "Resource": "arn:aws:lambda:*:*:function:servicenow-*"
     },
     {
@@ -441,31 +478,22 @@ workflows/
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "sns:Publish"
-      ],
+      "Action": ["sns:Publish"],
       "Resource": "arn:aws:sns:*:*:*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "sqs:SendMessage",
-        "sqs:ReceiveMessage"
-      ],
+      "Action": ["sqs:SendMessage", "sqs:ReceiveMessage"],
       "Resource": "arn:aws:sqs:*:*:*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "s3:PutObject"
-      ],
+      "Action": ["s3:PutObject"],
       "Resource": "arn:aws:s3:::*/*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "cloudwatch:PutMetricData"
-      ],
+      "Action": ["cloudwatch:PutMetricData"],
       "Resource": "*"
     }
   ]
@@ -554,11 +582,13 @@ export INCIDENT_NOTIFICATION_TOPIC=arn:aws:sns:...
 Each workflow calls specific Lambda functions. Ensure these are deployed:
 
 ### Common Functions (All Workflows)
+
 - `servicenow-update-incident`
 - `servicenow-update-ticket-urgency`
 - Error handling functions
 
 ### Incident Response
+
 - `servicenow-escalate-incident`
 - `servicenow-auto-assign`
 - `servicenow-auto-resolve-check`
@@ -567,6 +597,7 @@ Each workflow calls specific Lambda functions. Ensure these are deployed:
 - `servicenow-get-incident-status`
 
 ### Ticket Triage
+
 - `servicenow-categorize-ticket`
 - `servicenow-search-knowledge-base`
 - `servicenow-evaluate-resolution`
@@ -575,6 +606,7 @@ Each workflow calls specific Lambda functions. Ensure these are deployed:
 - `servicenow-assign-ticket`
 
 ### Change Approval
+
 - `servicenow-auto-approve-change`
 - `servicenow-create-implementation-ticket`
 - `servicenow-check-change-status`
@@ -582,6 +614,7 @@ Each workflow calls specific Lambda functions. Ensure these are deployed:
 - `servicenow-escalate-change`
 
 ### Problem Investigation
+
 - `servicenow-fetch-related-incidents`
 - `servicenow-analyze-call-tree`
 - `servicenow-identify-affected-cis`
@@ -593,6 +626,7 @@ Each workflow calls specific Lambda functions. Ensure these are deployed:
 - `servicenow-create-permanent-fix`
 
 ### Knowledge Creation
+
 - `servicenow-query-resolved-incidents`
 - `servicenow-validate-kb-quality`
 - `servicenow-create-kb-from-incident`
@@ -600,6 +634,7 @@ Each workflow calls specific Lambda functions. Ensure these are deployed:
 - `servicenow-summarize-kb-creation`
 
 ### SLA Monitoring
+
 - `servicenow-fetch-sla-at-risk`
 - `servicenow-analyze-sla-risk`
 - `servicenow-segment-tickets-sla`
@@ -758,24 +793,28 @@ All workflows include comprehensive error handling:
 ## Best Practices
 
 1. **Bedrock Agent Configuration**:
+
    - Use Claude 3.5 Sonnet for complex analysis
    - Configure appropriate action groups
    - Enable knowledge bases for context
    - Use guardrails for compliance
 
 2. **Lambda Function Design**:
+
    - Implement idempotent operations
    - Return consistent JSON response format
    - Include error details in responses
    - Set appropriate timeouts (30-300 seconds)
 
 3. **SLA & Monitoring**:
+
    - Set up CloudWatch dashboards
    - Create SNS subscriptions for alerts
    - Monitor workflow execution metrics
    - Track DynamoDB consumed capacity
 
 4. **Cost Optimization**:
+
    - Use on-demand DynamoDB billing
    - Batch Lambda invocations where possible
    - Implement workflow result caching
@@ -800,16 +839,22 @@ aws stepfunctions validate-state-machine-definition \
 ### Common Issues
 
 **Issue**: Agent invocation timeout
+
 - **Solution**: Increase agent session TTL, check agent configuration
 
 **Issue**: DynamoDB capacity exceeded
+
 - **Solution**: Use on-demand billing or increase provisioned capacity
 
 **Issue**: SNS notifications not received
-- **Solution**: Verify SNS topic ARN, check IAM permissions, confirm subscriptions
+
+- **Solution**: Verify SNS topic ARN, check IAM permissions, confirm
+  subscriptions
 
 **Issue**: Lambda function execution fails
-- **Solution**: Check CloudWatch logs, verify IAM role permissions, test function directly
+
+- **Solution**: Check CloudWatch logs, verify IAM role permissions, test
+  function directly
 
 ## Support & Documentation
 
@@ -820,6 +865,4 @@ aws stepfunctions validate-state-machine-definition \
 
 ---
 
-**Last Updated**: 2024-11-17
-**Version**: 1.0.0
-**Status**: Production Ready
+**Last Updated**: 2024-11-17 **Version**: 1.0.0 **Status**: Production Ready

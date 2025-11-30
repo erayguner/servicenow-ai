@@ -1,60 +1,67 @@
 # Backup and Retention Policy
+
 ## Amazon Bedrock Agents Infrastructure
 
-**Document Version:** 1.0
-**Effective Date:** 2025-11-17
-**Policy Owner:** Chief Information Security Officer (CISO)
+**Document Version:** 1.0 **Effective Date:** 2025-11-17 **Policy Owner:** Chief
+Information Security Officer (CISO)
 
 ---
 
 ## 1. Purpose
 
-This policy establishes backup and data retention requirements for Amazon Bedrock Agents infrastructure to ensure business continuity, disaster recovery, and regulatory compliance.
+This policy establishes backup and data retention requirements for Amazon
+Bedrock Agents infrastructure to ensure business continuity, disaster recovery,
+and regulatory compliance.
 
 ## 2. Backup Requirements
 
 ### 2.1 Backup Frequency
 
-| Data Classification | Backup Frequency | Retention Period | Cross-Region Copy |
-|---------------------|------------------|------------------|-------------------|
-| RESTRICTED | Continuous (1-hour RPO) | 7 years minimum | Required |
-| CONFIDENTIAL | Daily | 7 years | Required |
-| INTERNAL | Weekly | 3 years | Recommended |
-| PUBLIC | As needed | 1 year | Optional |
+| Data Classification | Backup Frequency        | Retention Period | Cross-Region Copy |
+| ------------------- | ----------------------- | ---------------- | ----------------- |
+| RESTRICTED          | Continuous (1-hour RPO) | 7 years minimum  | Required          |
+| CONFIDENTIAL        | Daily                   | 7 years          | Required          |
+| INTERNAL            | Weekly                  | 3 years          | Recommended       |
+| PUBLIC              | As needed               | 1 year           | Optional          |
 
 ### 2.2 Recovery Objectives
 
 | Data Classification | RPO (Recovery Point Objective) | RTO (Recovery Time Objective) |
-|---------------------|-------------------------------|------------------------------|
-| RESTRICTED | 1 hour | 4 hours |
-| CONFIDENTIAL | 24 hours | 24 hours |
-| INTERNAL | 7 days | 48 hours |
-| PUBLIC | Best effort | Best effort |
+| ------------------- | ------------------------------ | ----------------------------- |
+| RESTRICTED          | 1 hour                         | 4 hours                       |
+| CONFIDENTIAL        | 24 hours                       | 24 hours                      |
+| INTERNAL            | 7 days                         | 48 hours                      |
+| PUBLIC              | Best effort                    | Best effort                   |
 
 ### 2.3 Bedrock-Specific Backups
 
 **Knowledge Bases:**
+
 - Data sources (S3): Versioning enabled + automated backups
 - Vector databases: Daily snapshots
 - Metadata: CloudFormation/Terraform state backups
 
 **Agent Configurations:**
+
 - Agent definitions: Version controlled in Git
 - Lambda functions: Source code in CodeCommit/GitHub
 - IAM roles and policies: Infrastructure as Code
 
 **Model Artifacts:**
+
 - Fine-tuned models: S3 versioning + lifecycle policies
 - Training data: Encrypted backups with separate KMS key
 
 ### 2.4 Backup Encryption
 
 All backups must be encrypted with AWS KMS Customer Managed Keys (CMK):
+
 - Separate encryption key from production data
 - Key rotation enabled
 - Cross-region keys for disaster recovery
 
 **Implementation:**
+
 ```hcl
 resource "aws_kms_key" "backup_cmk" {
   description             = "KMS key for backup encryption"
@@ -84,11 +91,13 @@ resource "aws_backup_vault_lock_configuration" "main" {
 ### 2.5 Backup Testing
 
 **Test Frequency:**
+
 - RESTRICTED data: Quarterly restore testing
 - CONFIDENTIAL data: Semi-annual restore testing
 - INTERNAL data: Annual restore testing
 
 **Test Scope:**
+
 - Full system restore to isolated environment
 - Data integrity verification
 - Application functionality validation
@@ -100,6 +109,7 @@ resource "aws_backup_vault_lock_configuration" "main" {
 ### 3.1 Retention Schedules
 
 **Regulatory Requirements:**
+
 - GDPR: As needed for processing purpose (data minimization)
 - HIPAA: 6 years from creation or last effective date
 - PCI DSS: Per merchant agreement (typically 3-12 months for logs)
@@ -107,20 +117,19 @@ resource "aws_backup_vault_lock_configuration" "main" {
 - ISO 27001: 7 years (best practice)
 - Legal/Tax: 7-10 years depending on jurisdiction
 
-**Organizational Policy:**
-| Data Type | Retention Period | Justification |
-|-----------|------------------|---------------|
-| CloudTrail logs | 7 years | Audit, compliance, forensics |
-| Bedrock invocation logs | 7 years | Compliance, audit trail |
-| Customer data (PII/PHI) | As per consent or purpose | GDPR data minimization |
-| Financial records | 10 years | Tax regulations |
-| Employee records | 7 years post-termination | Legal requirements |
-| Contracts | 7 years post-expiration | Legal requirements |
-| Backup data | Same as source data | Consistency |
+**Organizational Policy:** | Data Type | Retention Period | Justification |
+|-----------|------------------|---------------| | CloudTrail logs | 7 years |
+Audit, compliance, forensics | | Bedrock invocation logs | 7 years | Compliance,
+audit trail | | Customer data (PII/PHI) | As per consent or purpose | GDPR data
+minimization | | Financial records | 10 years | Tax regulations | | Employee
+records | 7 years post-termination | Legal requirements | | Contracts | 7 years
+post-expiration | Legal requirements | | Backup data | Same as source data |
+Consistency |
 
 ### 3.2 Automated Lifecycle Management
 
 **S3 Lifecycle Policies:**
+
 ```hcl
 resource "aws_s3_bucket_lifecycle_configuration" "bedrock_data" {
   bucket = aws_s3_bucket.bedrock_data.id
@@ -160,6 +169,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "bedrock_data" {
 ```
 
 **CloudWatch Logs Retention:**
+
 ```hcl
 resource "aws_cloudwatch_log_group" "bedrock_logs" {
   name              = "/aws/bedrock/${var.environment}/invocations"
@@ -175,6 +185,7 @@ resource "aws_cloudwatch_log_group" "bedrock_logs" {
 ### 3.3 Legal Hold
 
 When legal hold is required:
+
 1. Legal counsel initiates hold
 2. Automated deletion suspended
 3. Data flagged with "LegalHold" tag
@@ -183,6 +194,7 @@ When legal hold is required:
 6. Normal retention resumes after hold lifted
 
 **Implementation:**
+
 ```hcl
 resource "aws_s3_bucket_object_lock_configuration" "legal_hold" {
   bucket = aws_s3_bucket.bedrock_data.id
@@ -204,12 +216,15 @@ resource "aws_s3_bucket_object_lock_configuration" "legal_hold" {
 ### 4.1 Disposal Methods
 
 **Digital Data (End of Retention Period):**
-- **Cryptographic Erasure:** Delete KMS encryption keys (data becomes unrecoverable)
+
+- **Cryptographic Erasure:** Delete KMS encryption keys (data becomes
+  unrecoverable)
 - **S3 Object Deletion:** Permanent deletion (all versions)
 - **EBS Volume Deletion:** With KMS key deletion
 - **Database Deletion:** RDS instance + snapshots + automated backups
 
 **Process:**
+
 1. Retention period expiration verified
 2. Legal hold verification (none active)
 3. Data Owner approval
@@ -218,6 +233,7 @@ resource "aws_s3_bucket_object_lock_configuration" "legal_hold" {
 6. Certificate of destruction generated
 
 **Manual Disposal Verification:**
+
 ```bash
 # S3 object deletion with version purge
 aws s3api delete-object --bucket bedrock-data --key sensitive-file.txt --version-id <version-id>
@@ -228,6 +244,7 @@ aws kms schedule-key-deletion --key-id <key-id> --pending-window-in-days 30
 ```
 
 **Automated Disposal:**
+
 ```python
 # Lambda function for automated disposal
 import boto3
@@ -272,6 +289,7 @@ def dispose_object(s3, bucket, key):
 ### 4.2 Certificate of Destruction
 
 For RESTRICTED data disposal:
+
 - Automated certificate generated
 - Includes: Data description, retention period, disposal date, disposal method
 - Signed by Data Owner and Security Officer
@@ -282,11 +300,13 @@ For RESTRICTED data disposal:
 ### 5.1 Backup Strategy
 
 **3-2-1 Backup Rule:**
+
 - **3 copies** of data: Production + 2 backups
 - **2 different media types**: S3 Standard + S3 Glacier
 - **1 offsite copy**: Cross-region replication
 
 **Multi-Region Backup:**
+
 ```hcl
 resource "aws_backup_plan" "bedrock_dr" {
   name = "bedrock-disaster-recovery-plan"
@@ -331,6 +351,7 @@ resource "aws_backup_vault" "dr_region" {
 ### 5.2 Disaster Recovery Testing
 
 **Annual DR Drill:**
+
 1. **Scenario:** Complete region failure
 2. **Objective:** Restore Bedrock infrastructure in DR region within RTO
 3. **Scope:**
@@ -349,11 +370,13 @@ resource "aws_backup_vault" "dr_region" {
 ### 6.1 Backup Compliance Checks
 
 **AWS Config Rules:**
+
 - `backup-plan-min-frequency-and-min-retention-check`
 - `backup-recovery-point-encrypted`
 - `backup-recovery-point-manual-deletion-disabled`
 
 **Security Hub Controls:**
+
 - Backup compliance status monitoring
 - Backup vault lock verification
 - Cross-region backup validation
@@ -361,6 +384,7 @@ resource "aws_backup_vault" "dr_region" {
 ### 6.2 Audit Evidence
 
 **Maintained Records:**
+
 - Backup success/failure logs (CloudWatch)
 - Restore test results (quarterly for RESTRICTED)
 - Disaster recovery drill reports (annual)
@@ -370,6 +394,7 @@ resource "aws_backup_vault" "dr_region" {
 ## 7. Exceptions
 
 Exceptions to retention periods require:
+
 - Business justification
 - Legal counsel approval
 - Data Owner approval
@@ -379,8 +404,8 @@ Exceptions to retention periods require:
 
 ## Document Control
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-11-17 | CISO | Initial policy |
+| Version | Date       | Author | Changes        |
+| ------- | ---------- | ------ | -------------- |
+| 1.0     | 2025-11-17 | CISO   | Initial policy |
 
 **Next Review:** 2026-11-17

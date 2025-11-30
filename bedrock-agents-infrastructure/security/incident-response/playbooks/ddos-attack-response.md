@@ -1,9 +1,12 @@
 # DDoS Attack Response Playbook
 
 ## Overview
-Response procedures for Distributed Denial of Service (DDoS) attacks targeting Bedrock agents infrastructure.
+
+Response procedures for Distributed Denial of Service (DDoS) attacks targeting
+Bedrock agents infrastructure.
 
 ## Detection Criteria
+
 - CloudWatch alarms for elevated traffic
 - AWS Shield Standard alerts
 - AWS Shield Advanced DDoS detected notification
@@ -18,13 +21,15 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Severity Classification
 
 ### Critical (P1)
-- >50% traffic increase
+
+- > 50% traffic increase
 - Services completely unavailable
 - Sustained attack >1 hour
 - Multiple attack vectors
 - Active exploitation of vulnerabilities
 
 ### High (P2)
+
 - 20-50% traffic increase
 - Degraded service performance
 - Regional unavailability
@@ -32,6 +37,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - API response times >5 seconds
 
 ### Medium (P3)
+
 - 10-20% traffic increase
 - Minor performance degradation
 - Specific endpoints affected
@@ -39,6 +45,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - Response times 1-5 seconds
 
 ### Low (P4)
+
 - <10% traffic increase
 - No user-visible impact
 - Localized effect
@@ -50,6 +57,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ### Phase 1: Detection & Assessment (0-5 minutes)
 
 1. **Verify Attack**
+
    - Confirm CloudWatch alarms triggered
    - Check AWS Shield Advanced (if enabled)
    - Validate traffic patterns
@@ -57,6 +65,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
    - Review recent deployments
 
 2. **Initial Triage**
+
    - Determine attack type (volumetric, protocol, application)
    - Identify targeted endpoints
    - Check geographic source distribution
@@ -64,6 +73,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
    - Estimate attack magnitude
 
 3. **Activate Response**
+
    - Notify on-call incident commander
    - Activate incident channel
    - Page DDoS response team
@@ -80,6 +90,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ### Phase 2: Mitigation (5-30 minutes)
 
 1. **Traffic Filtering**
+
    - Enable AWS WAF rules
    - Block known malicious IP ranges
    - Implement rate limiting
@@ -87,6 +98,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
    - Deploy bot management rules
 
 2. **Auto-Scaling**
+
    - Increase ALB/NLB capacity
    - Scale compute resources
    - Expand database connections
@@ -94,6 +106,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
    - Monitor scaling metrics
 
 3. **Service Protection**
+
    - Enable DDoS protection on CloudFront
    - Activate Route 53 health checks
    - Increase API Gateway throttling
@@ -110,6 +123,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ### Phase 3: Attack Analysis (Ongoing)
 
 1. **Threat Intelligence**
+
    - Analyze traffic source IPs
    - Identify attack patterns
    - Detect attack vectors
@@ -117,6 +131,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
    - Compare with known attacks
 
 2. **Traffic Forensics**
+
    - Capture traffic samples
    - Analyze packet patterns
    - Review request headers
@@ -133,6 +148,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Containment Procedures
 
 ### Network-Level Protection
+
 ```bash
 # 1. BGP Blackhole Routing (if available)
 - Sink malicious traffic at ISP level
@@ -156,6 +172,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ```
 
 ### Application-Level Protection
+
 ```bash
 # 1. Request Validation
 - Verify HTTP headers
@@ -180,6 +197,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ```
 
 ### WAF Rules Implementation
+
 ```bash
 # AWS WAF Configuration
 - AWS IP reputation list
@@ -193,6 +211,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Eradication Steps
 
 ### Attack Persistence
+
 - [ ] Monitor for attack resurgence
 - [ ] Track attack pattern changes
 - [ ] Watch for new attack vectors
@@ -200,6 +219,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - [ ] Maintain elevated protection 24-48 hours
 
 ### Vulnerability Patching
+
 - [ ] Identify vulnerabilities exploited
 - [ ] Deploy security patches
 - [ ] Update WAF signatures
@@ -207,6 +227,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - [ ] Implement compensating controls
 
 ### Traffic Filtering Refinement
+
 - [ ] Analyze logs for false positives
 - [ ] Refine rate limiting thresholds
 - [ ] Optimize WAF rules
@@ -216,6 +237,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Recovery Procedures
 
 ### Gradual De-escalation
+
 1. Monitor for attack continuation
 2. Slowly reduce DDoS protections
 3. Watch for resurgence indicators
@@ -223,6 +245,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 5. Keep auto-scaling at elevated capacity
 
 ### Service Normalization
+
 1. Return to standard configuration
 2. Disable emergency protections
 3. Reduce auto-scaled resources
@@ -230,6 +253,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 5. Confirm performance metrics
 
 ### Post-Incident Verification
+
 1. Confirm all services operational
 2. Validate customer experience
 3. Review business metrics
@@ -239,6 +263,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Post-Incident Review
 
 ### Forensic Analysis
+
 - Root cause of vulnerability
 - Attack duration and timeline
 - Peak traffic levels reached
@@ -246,6 +271,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - Customer impact assessment
 
 ### Detection Improvements
+
 - Tuning of CloudWatch alarms
 - Threshold optimization
 - Alerting mechanism review
@@ -253,6 +279,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - Early warning implementation
 
 ### Response Improvements
+
 - Response team effectiveness
 - Tool adequacy assessment
 - Process gaps identified
@@ -262,6 +289,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Prevention Measures
 
 ### Infrastructure Hardening
+
 - Deploy AWS Shield Standard/Advanced
 - Enable WAF on all public endpoints
 - Implement CloudFront caching
@@ -269,6 +297,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - Optimize origin shields
 
 ### Monitoring & Alerting
+
 - CloudWatch alarms for traffic spikes
 - AWS Shield Advanced notifications
 - VPC Flow Logs analysis
@@ -276,6 +305,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - Automated alert escalation
 
 ### Capacity Planning
+
 - Baseline traffic analysis
 - Peak traffic modeling
 - Auto-scaling policies
@@ -283,6 +313,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - Cost optimization
 
 ### Testing & Drills
+
 - Regular incident response drills
 - DDoS simulation exercises
 - WAF rule testing
@@ -292,6 +323,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Tools & Resources
 
 ### Detection & Protection
+
 - AWS Shield (Standard/Advanced)
 - AWS WAF (Web Application Firewall)
 - CloudFront Distribution
@@ -299,6 +331,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - ElasticLoadBalancing
 
 ### Monitoring
+
 - CloudWatch Metrics
 - VPC Flow Logs
 - CloudTrail
@@ -306,12 +339,14 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 - ALB/NLB Access Logs
 
 ### Response Runbooks
+
 - isolate-compromised-agent.json
 - enable-forensics-mode.json
 - collect-evidence.json
 - notify-stakeholders.json
 
 ### Forensics Tools
+
 - capture-logs.py
 - network-capture.py
 - timeline-builder.py
@@ -319,6 +354,7 @@ Response procedures for Distributed Denial of Service (DDoS) attacks targeting B
 ## Metrics & KPIs
 
 Track during incident:
+
 - **Detection to Alert**: < 1 minute
 - **Alert to Response**: < 5 minutes
 - **Response to Mitigation**: < 15 minutes
@@ -347,20 +383,24 @@ DDoS Detected?
 ```
 
 ## Related Playbooks
+
 - [API Abuse Response](./api-abuse.md)
 - [Unauthorized Access Response](./unauthorized-access.md)
 
 ## Contacts & Escalation
 
 ### Response Team
+
 - **Incident Commander**: [On-call rotation]
 - **Network Engineer**: [On-call rotation]
 - **Cloud Security**: [On-call rotation]
 - **CISO**: [For major incidents]
 
 ### External Contacts
+
 - **AWS Support**: [Enterprise support contact]
 - **ISP**: [DDoS mitigation coordination]
 
 ## Revision History
+
 - v1.0 - Initial creation (2024-11-17)

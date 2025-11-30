@@ -87,7 +87,9 @@ POST-INCIDENT (days to weeks)
 ### Severity Levels
 
 #### Tier 1: CRITICAL
+
 **Criteria:**
+
 - Active security breach in progress
 - Confirmed data exfiltration
 - Complete service unavailability
@@ -95,18 +97,22 @@ POST-INCIDENT (days to weeks)
 - Regulatory reporting required (HIPAA, GDPR)
 
 **Response Time:**
+
 - Incident declared within 5 minutes
 - First mitigation within 15 minutes
 - Full incident team assembled within 30 minutes
 
 **Example Scenarios:**
+
 - Ransomware deployed on servers
 - Database accessed by attacker
 - AWS account credentials compromised
 - Unauthorized data download detected
 
 #### Tier 2: HIGH
+
 **Criteria:**
+
 - Confirmed unauthorized access
 - Sensitive data accessed (not confirmed exfiltration)
 - Service severely impacted (>50% functionality)
@@ -114,18 +120,22 @@ POST-INCIDENT (days to weeks)
 - Potential compliance impact
 
 **Response Time:**
+
 - Incident declared within 15 minutes
 - First response within 1 hour
 - Incident team assembled within 2 hours
 
 **Example Scenarios:**
+
 - Weak API endpoint discovers sensitive data
 - IAM user credentials leaked but not used
 - DDoS attack degrading performance
 - Failed login attempts spike
 
 #### Tier 3: MEDIUM
+
 **Criteria:**
+
 - Suspected unauthorized access
 - Security policy violation
 - Moderate service impact (10-50%)
@@ -133,18 +143,22 @@ POST-INCIDENT (days to weeks)
 - Remediation needed within 24 hours
 
 **Response Time:**
+
 - Incident declared within 1 hour
 - Investigation begins within 4 hours
 - Resolution targeted for 24 hours
 
 **Example Scenarios:**
+
 - Unusual API usage pattern
 - Failed MFA attempts
 - Security group modification
 - Elevated error rates
 
 #### Tier 4: LOW
+
 **Criteria:**
+
 - Informational security event
 - Minor policy violation
 - No confirmed impact
@@ -152,11 +166,13 @@ POST-INCIDENT (days to weeks)
 - Can be resolved in next business day
 
 **Response Time:**
+
 - Logged within business day
 - Assessment within 5 business days
 - Remediation within 30 days
 
 **Example Scenarios:**
+
 - Failed compliance check
 - Outdated library detected
 - Unused credentials identified
@@ -167,6 +183,7 @@ POST-INCIDENT (days to weeks)
 ### Initial Detection and Triage
 
 #### Step 1: Confirm Alert is Real (5 minutes)
+
 ```
 Alert received (automated or manual):
 
@@ -194,6 +211,7 @@ Alert received (automated or manual):
 ```
 
 #### Step 2: Declare Incident (5-15 minutes)
+
 ```
 Incident commander decides:
 
@@ -217,6 +235,7 @@ Incident commander decides:
 ### Investigation Phase
 
 #### Step 1: Preserve Evidence (15 minutes)
+
 ```
 FIRST ACTION: Stop normal operations that might lose evidence
 
@@ -242,6 +261,7 @@ FIRST ACTION: Stop normal operations that might lose evidence
 ```
 
 #### Step 2: Scope Determination (1-2 hours)
+
 ```
 Answer: How bad is this?
 
@@ -280,6 +300,7 @@ Activities:
 ```
 
 #### Step 3: Root Cause Analysis (2-8 hours)
+
 ```
 Answer: How did this happen?
 
@@ -318,6 +339,7 @@ Activities:
 ### Containment Phase
 
 #### Step 1: Immediate Actions (0-30 minutes)
+
 ```
 Goal: Stop ongoing attack
 
@@ -349,6 +371,7 @@ Goal: Stop ongoing attack
 ```
 
 #### Step 2: Investigation Continuation (30 min - 8 hours)
+
 ```
 Goal: Understand full scope
 
@@ -382,6 +405,7 @@ Goal: Understand full scope
 ```
 
 #### Step 3: Eradication (8-24 hours)
+
 ```
 Goal: Remove all attacker presence
 
@@ -420,24 +444,28 @@ Goal: Remove all attacker presence
 ### Escalation Triggers
 
 #### Escalate to Security Director
+
 - **Trigger**: Tier 1 severity confirmed
 - **Action**: Immediate notification, decision on external response
 - **Timeline**: Within 30 minutes of incident declaration
 - **Contact**: Senior Security Manager (name, phone)
 
 #### Escalate to VP Security
+
 - **Trigger**: Data breach suspected or confirmed
 - **Action**: Brief on situation, impact, and legal implications
 - **Timeline**: Within 1 hour
 - **Contact**: VP of Security (name, phone)
 
 #### Escalate to General Counsel
+
 - **Trigger**: Regulatory reporting likely (HIPAA, GDPR, CCPA)
 - **Action**: Discuss legal obligations, notification timing
 - **Timeline**: Within 2 hours
 - **Contact**: General Counsel (name, phone)
 
 #### Escalate to CEO/Board
+
 - **Trigger**: Public disclosure likely or major data breach
 - **Action**: Full briefing, public response plan, investor communication
 - **Timeline**: Within 4 hours
@@ -470,6 +498,7 @@ Is regulatory reporting required?
 ### Evidence Collection
 
 #### Immediate Actions
+
 ```
 Within 15 minutes:
 
@@ -485,6 +514,7 @@ Within 15 minutes:
 ```
 
 #### Evidence Preservation
+
 ```
 For each piece of evidence:
 
@@ -517,6 +547,7 @@ For each piece of evidence:
 ### Analysis Procedures
 
 #### Log Analysis
+
 ```
 Logs to analyze:
 
@@ -549,6 +580,7 @@ Tools: CloudWatch Insights, Athena, manual review
 ```
 
 #### Malware Analysis
+
 ```
 If malware suspected:
 
@@ -737,6 +769,7 @@ Agenda:
 ### Post-Incident Report
 
 #### Report Structure
+
 ```
 1. Executive Summary
    - Incident overview
@@ -791,6 +824,7 @@ Agenda:
 ### Internal Communication
 
 #### During Incident
+
 ```
 Frequency: Every 15-30 minutes (Tier 1), Every 2 hours (Tier 2)
 
@@ -809,6 +843,7 @@ Information to share:
 ```
 
 #### External Communication
+
 ```
 To customers:
 - If data accessed: Notify within 72 hours (per regulations)
@@ -830,6 +865,7 @@ To regulators (if required):
 ### Message Templates
 
 #### Customer Notification
+
 ```
 Subject: [UPDATE] Incident affecting Bedrock Agents Service
 
@@ -858,6 +894,7 @@ committed to protecting your data.
 ```
 
 #### Internal Status Update
+
 ```
 INCIDENT STATUS UPDATE
 
@@ -1016,6 +1053,5 @@ Objectives:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Next Review**: May 2025
+**Document Version**: 1.0 **Last Updated**: November 2024 **Next Review**: May
+2025

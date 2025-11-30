@@ -10,7 +10,7 @@ import {
   executeTerraformApply,
   deployToKubernetes,
   executeAWSOperation,
-  getInfrastructureState
+  getInfrastructureState,
 } from './utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
@@ -89,13 +89,12 @@ export const handler: Handler = async (event: any): Promise<InfrastructureRespon
               success: true,
               action,
               result,
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
-
   } catch (error) {
     console.error('Error in infrastructure operations:', error);
 
@@ -111,11 +110,11 @@ export const handler: Handler = async (event: any): Promise<InfrastructureRespon
             body: JSON.stringify({
               success: false,
               error: error instanceof Error ? error.message : 'Unknown error',
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
   }
 };
@@ -143,7 +142,7 @@ async function handleTerraformPlan(params: Record<string, string>, body: any): P
     variables,
     target,
     bucket: bucket!,
-    environment
+    environment,
   });
 
   return {
@@ -154,13 +153,13 @@ async function handleTerraformPlan(params: Record<string, string>, body: any): P
       create: plan.changes.create,
       update: plan.changes.update,
       delete: plan.changes.delete,
-      total: plan.changes.total
+      total: plan.changes.total,
     },
     resources: plan.resources,
     planOutput: plan.output,
     planFileUrl: plan.planFileUrl,
     executionTime: plan.executionTime,
-    requiresApproval: plan.changes.total > 0
+    requiresApproval: plan.changes.total > 0,
   };
 }
 
@@ -183,14 +182,16 @@ async function handleTerraformApply(params: Record<string, string>, body: any): 
     throw new Error('Production deployments require explicit approval. Set autoApprove=true');
   }
 
-  console.log(`Applying Terraform changes for plan: ${planId || 'new'} in environment: ${environment}`);
+  console.log(
+    `Applying Terraform changes for plan: ${planId || 'new'} in environment: ${environment}`
+  );
 
   const apply = await executeTerraformApply(s3Client, dynamoClient, {
     planId,
     workingDir: workingDir!,
     autoApprove,
     environment,
-    bucket: bucket!
+    bucket: bucket!,
   });
 
   return {
@@ -204,7 +205,7 @@ async function handleTerraformApply(params: Record<string, string>, body: any): 
     totalResources: apply.totalResources,
     stateFileUrl: apply.stateFileUrl,
     executionTime: apply.executionTime,
-    outputs: apply.outputs
+    outputs: apply.outputs,
   };
 }
 
@@ -239,7 +240,7 @@ async function handleKubernetesDeploy(params: Record<string, string>, body: any)
     deploymentType,
     replicas,
     image,
-    environment
+    environment,
   });
 
   return {
@@ -253,7 +254,7 @@ async function handleKubernetesDeploy(params: Record<string, string>, body: any)
     images: deployment.images,
     services: deployment.services,
     deployedAt: deployment.deployedAt,
-    rolloutStatus: deployment.rolloutStatus
+    rolloutStatus: deployment.rolloutStatus,
   };
 }
 
@@ -272,18 +273,21 @@ async function handleAWSOperations(params: Record<string, string>, body: any): P
 
   console.log(`Executing AWS operation: ${service}.${operation}`);
 
-  const result = await executeAWSOperation({
-    s3Client,
-    ecsClient,
-    ec2Client,
-    cfnClient,
-    dynamoClient
-  }, {
-    service,
-    operation,
-    parameters,
-    region: region!
-  });
+  const result = await executeAWSOperation(
+    {
+      s3Client,
+      ecsClient,
+      ec2Client,
+      cfnClient,
+      dynamoClient,
+    },
+    {
+      service,
+      operation,
+      parameters,
+      region: region!,
+    }
+  );
 
   return {
     service,
@@ -291,7 +295,7 @@ async function handleAWSOperations(params: Record<string, string>, body: any): P
     status: result.status,
     data: result.data,
     metadata: result.metadata,
-    executedAt: new Date().toISOString()
+    executedAt: new Date().toISOString(),
   };
 }
 
@@ -314,7 +318,7 @@ async function handleInfrastructureState(params: Record<string, string>, body: a
     {
       environment,
       stateType,
-      includeDetails
+      includeDetails,
     }
   );
 
@@ -325,6 +329,6 @@ async function handleInfrastructureState(params: Record<string, string>, body: a
     kubernetes: state.kubernetes,
     aws: state.aws,
     lastUpdated: state.lastUpdated,
-    healthStatus: state.healthStatus
+    healthStatus: state.healthStatus,
   };
 }

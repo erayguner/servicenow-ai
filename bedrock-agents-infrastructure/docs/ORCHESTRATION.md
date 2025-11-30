@@ -1,10 +1,13 @@
 # Bedrock Agents Orchestration Guide
 
-Comprehensive guide to multi-agent orchestration, Step Functions workflows, consensus mechanisms, and state management.
+Comprehensive guide to multi-agent orchestration, Step Functions workflows,
+consensus mechanisms, and state management.
 
 ## Overview
 
-Orchestration coordinates multiple agents to achieve complex objectives. AWS Step Functions provides a serverless workflow engine for defining and managing multi-agent interactions.
+Orchestration coordinates multiple agents to achieve complex objectives. AWS
+Step Functions provides a serverless workflow engine for defining and managing
+multi-agent interactions.
 
 ## Step Functions Workflows
 
@@ -658,5 +661,4 @@ def get_workflow_metrics(state_machine_arn: str, start_time: str) -> Dict[str, A
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-17
+**Version**: 1.0.0 **Last Updated**: 2025-01-17

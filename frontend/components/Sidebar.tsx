@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { Conversation } from '@/lib/api'
-import { formatDistanceToNow } from 'date-fns'
+import { Conversation } from '@/lib/api';
+import { formatDistanceToNow } from 'date-fns';
 
 interface SidebarProps {
-  conversations: Conversation[]
-  currentConversationId: string | null
-  onNewConversation: () => void
-  onSelectConversation: (conversationId: string) => void
-  loading: boolean
+  conversations: Conversation[];
+  currentConversationId: string | null;
+  onNewConversation: () => void;
+  onSelectConversation: (conversationId: string) => void;
+  loading: boolean;
 }
 
 export default function Sidebar({
@@ -65,5 +65,5 @@ export default function Sidebar({
         <div className="mt-1">Protected by IAP</div>
       </div>
     </div>
-  )
+  );
 }

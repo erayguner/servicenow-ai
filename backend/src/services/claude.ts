@@ -39,7 +39,7 @@ export async function chat(
     const messageParams: Anthropic.MessageCreateParams = {
       model,
       max_tokens: 4096,
-      messages: messages.map(msg => ({
+      messages: messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),
@@ -88,7 +88,7 @@ export async function* chatStream(
     const messageParams: Anthropic.MessageCreateParams = {
       model,
       max_tokens: 4096,
-      messages: messages.map(msg => ({
+      messages: messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),

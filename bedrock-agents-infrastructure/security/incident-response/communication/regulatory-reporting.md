@@ -1,45 +1,48 @@
 # Regulatory Incident Reporting Template
 
 ## Report Title: Security Incident Notification Under Data Protection Regulations
-**Incident ID:** {INCIDENT_ID}
-**Report Date:** {REPORT_DATE}
-**Reporting Organization:** {ORGANIZATION_NAME}
+
+**Incident ID:** {INCIDENT_ID} **Report Date:** {REPORT_DATE} **Reporting
+Organization:** {ORGANIZATION_NAME}
 
 ---
 
 ## EXECUTIVE SUMMARY
 
 This report is submitted in compliance with:
+
 - General Data Protection Regulation (GDPR) Article 33 & 34
 - California Consumer Privacy Act (CCPA)
 - State Breach Notification Laws
 - Industry-Specific Requirements (SOX, HIPAA, PCI-DSS, etc.)
 
-**Incident Overview:**
-A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AFFECTED_COUNT} individuals' personal data.
+**Incident Overview:** A {INCIDENT_TYPE} security incident occurred in our
+infrastructure affecting {AFFECTED_COUNT} individuals' personal data.
 
 ---
 
 ## INCIDENT DETAILS
 
 ### 1. Incident Classification
+
 - **Type:** {INCIDENT_TYPE} (Breach/Unauthorized Access/Data Loss/etc.)
 - **Severity Level:** {SEVERITY_LEVEL}
 - **Category:** {INCIDENT_CATEGORY}
 
 ### 2. Discovery & Notification Timeline
 
-| Date & Time | Event | Actions Taken |
-|---|---|---|
-| {DATE_TIME} | Incident detected | Verification initiated |
-| {DATE_TIME} | Incident confirmed | Response activated |
-| {DATE_TIME} | Containment initiated | Systems isolated |
-| {DATE_TIME} | Investigation begun | Forensics enabled |
-| {DATE_TIME} | Regulatory notification | Authorities contacted |
+| Date & Time | Event                   | Actions Taken          |
+| ----------- | ----------------------- | ---------------------- |
+| {DATE_TIME} | Incident detected       | Verification initiated |
+| {DATE_TIME} | Incident confirmed      | Response activated     |
+| {DATE_TIME} | Containment initiated   | Systems isolated       |
+| {DATE_TIME} | Investigation begun     | Forensics enabled      |
+| {DATE_TIME} | Regulatory notification | Authorities contacted  |
 
 ### 3. Affected Data Categories
 
 **Personal Data Processed:**
+
 - [ ] Names and contact information
 - [ ] Identification numbers
 - [ ] Location data
@@ -57,19 +60,18 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 
 **Number of Affected Individuals:** {AFFECTED_COUNT}
 
-**Data Categories Affected:**
-{AFFECTED_DATA_CATEGORIES}
+**Data Categories Affected:** {AFFECTED_DATA_CATEGORIES}
 
 ### 4. Affected Individuals
 
 **Jurisdiction Breakdown:**
 
-| Jurisdiction | Count | Data Categories | Legal Basis |
-|---|---|---|---|
-| EU/GDPR | {COUNT} | {CATEGORIES} | {BASIS} |
-| California/CCPA | {COUNT} | {CATEGORIES} | {BASIS} |
-| Other US States | {COUNT} | {CATEGORIES} | {BASIS} |
-| Non-US | {COUNT} | {CATEGORIES} | {BASIS} |
+| Jurisdiction    | Count   | Data Categories | Legal Basis |
+| --------------- | ------- | --------------- | ----------- |
+| EU/GDPR         | {COUNT} | {CATEGORIES}    | {BASIS}     |
+| California/CCPA | {COUNT} | {CATEGORIES}    | {BASIS}     |
+| Other US States | {COUNT} | {CATEGORIES}    | {BASIS}     |
+| Non-US          | {COUNT} | {CATEGORIES}    | {BASIS}     |
 
 ---
 
@@ -80,12 +82,14 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 **Primary Cause:** {ROOT_CAUSE}
 
 **Contributing Factors:**
+
 - {FACTOR_1}
 - {FACTOR_2}
 - {FACTOR_3}
 - {FACTOR_4}
 
 **Underlying Vulnerabilities:**
+
 - {VULNERABILITY_1}
 - {VULNERABILITY_2}
 - {VULNERABILITY_3}
@@ -95,6 +99,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 **Compromise Vector:** {ATTACK_VECTOR}
 
 **Attack Timeline:**
+
 1. **Initial Access:** {INITIAL_ACCESS_METHOD}
 2. **Lateral Movement:** {LATERAL_MOVEMENT}
 3. **Privilege Escalation:** {PRIVILEGE_ESCALATION}
@@ -104,16 +109,19 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 3. Scope of Compromise
 
 **Systems Affected:**
+
 - {SYSTEM_1}
 - {SYSTEM_2}
 - {SYSTEM_3}
 
 **Data Accessed:**
+
 - {DATA_1}: {COUNT} records
 - {DATA_2}: {COUNT} records
 - {DATA_3}: {COUNT} records
 
 **Duration of Compromise:**
+
 - Unauthorized access from {START_DATE} to {END_DATE}
 - Duration: {DURATION}
 - Time to detection: {TIME_TO_DETECTION}
@@ -127,6 +135,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 **Overall Risk Level:** {RISK_LEVEL} (High/Medium/Low)
 
 **Risk Factors:**
+
 - [ ] Nature and sensitivity of personal data: {SENSITIVITY}
 - [ ] Volume of affected individuals: {VOLUME_RISK}
 - [ ] Categories of individuals at risk: {INDIVIDUAL_CATEGORIES}
@@ -136,6 +145,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 2. Likelihood of Harm Assessment
 
 **High Harm Risk If:**
+
 - [ ] Personal data involved
 - [ ] Sensitive categories (special category data)
 - [ ] Vulnerable individuals affected
@@ -144,6 +154,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 - [ ] Potential for discrimination/stigmatization
 
 **Risk Mitigated By:**
+
 - [ ] Encryption of affected data
 - [ ] Limited number affected
 - [ ] Data not disclosed publicly
@@ -153,6 +164,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 3. Special Circumstances
 
 **Vulnerable Populations Affected:**
+
 - [ ] Children
 - [ ] Elderly individuals
 - [ ] Persons with disabilities
@@ -164,17 +176,18 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 
 ### 1. Immediate Actions (0-24 Hours)
 
-| Action | Completion Time | Status |
-|---|---|---|
-| Incident verified | {TIME} | ✓ Completed |
-| Response activated | {TIME} | ✓ Completed |
-| Systems isolated | {TIME} | ✓ Completed |
-| Forensics enabled | {TIME} | ✓ Completed |
-| Law enforcement contacted | {TIME} | ✓ Completed |
+| Action                    | Completion Time | Status      |
+| ------------------------- | --------------- | ----------- |
+| Incident verified         | {TIME}          | ✓ Completed |
+| Response activated        | {TIME}          | ✓ Completed |
+| Systems isolated          | {TIME}          | ✓ Completed |
+| Forensics enabled         | {TIME}          | ✓ Completed |
+| Law enforcement contacted | {TIME}          | ✓ Completed |
 
 ### 2. Short-term Measures (24-72 Hours)
 
 **Containment:**
+
 - Isolated affected systems
 - Revoked compromised credentials
 - Deployed patches and fixes
@@ -182,6 +195,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 - Enhanced monitoring
 
 **Investigation:**
+
 - Engaged forensic specialists
 - Collected evidence
 - Determined scope
@@ -189,6 +203,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 - Documented timeline
 
 **Notification:**
+
 - Internal team briefing
 - Regulatory body notification
 - Customer notification initiated
@@ -198,6 +213,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 3. Medium-term Measures (1-2 Weeks)
 
 **Remediation:**
+
 - Applied security patches
 - Updated security controls
 - Hardened infrastructure
@@ -205,6 +221,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 - Enhanced authentication
 
 **Recovery:**
+
 - Restored clean backups
 - Validated data integrity
 - Restored service availability
@@ -214,6 +231,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 4. Long-term Measures (Ongoing)
 
 **Process Improvements:**
+
 - Implemented lessons learned
 - Updated policies and procedures
 - Enhanced training programs
@@ -221,6 +239,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 - Strengthened access controls
 
 **Technical Improvements:**
+
 - Enhanced logging and monitoring
 - Implemented anomaly detection
 - Deployed additional firewalls
@@ -234,11 +253,13 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 1. Data Protection Governance
 
 **Changes to Policies:**
+
 - {POLICY_CHANGE_1}
 - {POLICY_CHANGE_2}
 - {POLICY_CHANGE_3}
 
 **Changes to Procedures:**
+
 - {PROCEDURE_CHANGE_1}
 - {PROCEDURE_CHANGE_2}
 - {PROCEDURE_CHANGE_3}
@@ -246,11 +267,13 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 2. Technical Controls Implementation
 
 **Enhanced Controls:**
+
 - {CONTROL_1}
 - {CONTROL_2}
 - {CONTROL_3}
 
 **Implementation Timeline:**
+
 - Immediate: {IMMEDIATE_CONTROLS}
 - 30 days: {SHORT_TERM_CONTROLS}
 - 90 days: {MEDIUM_TERM_CONTROLS}
@@ -259,6 +282,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 3. Staff Training & Awareness
 
 **Training Initiatives:**
+
 - Security awareness training (All staff)
 - Data protection training (Data processors)
 - Incident response training (Response team)
@@ -273,6 +297,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 1. Notification Method
 
 **Channels Used:**
+
 - [ ] Direct email notification
 - [ ] Website notice
 - [ ] Phone notification
@@ -281,6 +306,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 - [ ] Media notification
 
 **Notification Content:**
+
 - [x] Incident description
 - [x] Data affected
 - [x] Potential consequences
@@ -290,14 +316,14 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 
 ### 2. Notification Timeline
 
-**Notification Date:** {NOTIFICATION_DATE}
-**Days to Notification:** {DAYS_TO_NOTIFICATION}
-**Regulatory Requirement:** {REQUIRED_TIMELINE}
+**Notification Date:** {NOTIFICATION_DATE} **Days to Notification:**
+{DAYS_TO_NOTIFICATION} **Regulatory Requirement:** {REQUIRED_TIMELINE}
 **Compliance Status:** ✓ {COMPLIANCE_STATUS}
 
 ### 3. Additional Support
 
 **Resources Provided:**
+
 - Credit monitoring: {PROVIDER} ({DURATION})
 - Identity theft protection: {PROVIDER} ({DURATION})
 - Fraud resolution services: Available
@@ -311,17 +337,13 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 
 ### 1. Notification to Supervisory Authority
 
-**Authority:** {REGULATORY_BODY}
-**Notification Date:** {NOTIFICATION_DATE}
-**Reference Number:** {REFERENCE_NUMBER}
-**Contact:** {CONTACT_INFO}
+**Authority:** {REGULATORY_BODY} **Notification Date:** {NOTIFICATION_DATE}
+**Reference Number:** {REFERENCE_NUMBER} **Contact:** {CONTACT_INFO}
 
 ### 2. Law Enforcement Notification
 
-**Agency:** {LAW_ENFORCEMENT_AGENCY}
-**Notification Date:** {NOTIFICATION_DATE}
-**Case Number:** {CASE_NUMBER}
-**Investigation Status:** {INVESTIGATION_STATUS}
+**Agency:** {LAW_ENFORCEMENT_AGENCY} **Notification Date:** {NOTIFICATION_DATE}
+**Case Number:** {CASE_NUMBER} **Investigation Status:** {INVESTIGATION_STATUS}
 
 ### 3. Consultations with Other Parties
 
@@ -339,6 +361,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 1. Effectiveness Assessment
 
 **Measures Effective In:**
+
 - Preventing further unauthorized access
 - Containing the incident
 - Securing affected data
@@ -349,12 +372,14 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 2. Compliance with GDPR/CCPA Requirements
 
 **GDPR Article 33 Requirements:**
+
 - [ ] DPA notification within 72 hours
 - [ ] Information documented
 - [ ] "Reasonable measures" assessment complete
 - [ ] Data protection impact assessment prepared
 
 **CCPA Compliance:**
+
 - [ ] California AG notified (if >500 residents)
 - [ ] Affected California residents notified
 - [ ] Without unreasonable delay
@@ -362,6 +387,7 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 ### 3. Commitments for Future
 
 **Enhanced Security:**
+
 - Budget allocation: ${BUDGET}
 - Timeline for improvements: {TIMELINE}
 - Responsible parties: {RESPONSIBLE_PARTIES}
@@ -384,26 +410,25 @@ A {INCIDENT_TYPE} security incident occurred in our infrastructure affecting {AF
 
 ## CERTIFICATION
 
-I hereby certify that the information contained in this report is accurate and complete to the best of my knowledge.
+I hereby certify that the information contained in this report is accurate and
+complete to the best of my knowledge.
 
-**Prepared By:** {PREPARED_BY_NAME}, {TITLE}
-**Organization:** {ORGANIZATION_NAME}
-**Date:** {DATE}
-**Signature:** ___________________________
+**Prepared By:** {PREPARED_BY_NAME}, {TITLE} **Organization:**
+{ORGANIZATION_NAME} **Date:** {DATE} **Signature:**
+************\_\_\_************
 
-**Reviewed By:** {REVIEWED_BY_NAME}, {TITLE}
-**Date:** {DATE}
-**Signature:** ___________________________
+**Reviewed By:** {REVIEWED_BY_NAME}, {TITLE} **Date:** {DATE} **Signature:**
+************\_\_\_************
 
 ---
 
 ## CONFIDENTIALITY NOTICE
 
-This report contains legally privileged and confidential information. It is prepared in anticipation of litigation and at the direction of legal counsel. Distribution should be limited to authorized personnel only.
+This report contains legally privileged and confidential information. It is
+prepared in anticipation of litigation and at the direction of legal counsel.
+Distribution should be limited to authorized personnel only.
 
 ---
 
-**Incident ID:** {INCIDENT_ID}
-**Report Prepared:** {PREPARATION_DATE}
-**Report Submitted:** {SUBMISSION_DATE}
-
+**Incident ID:** {INCIDENT_ID} **Report Prepared:** {PREPARATION_DATE} **Report
+Submitted:** {SUBMISSION_DATE}

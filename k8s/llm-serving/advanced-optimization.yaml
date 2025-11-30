@@ -10,27 +10,27 @@ metadata:
   namespace: production
 data:
   # Memory optimization
-  gpu-memory-utilization: '0.90'  # Use 90% of GPU memory for KV cache
-  max-model-len: '8192'  # Maximum sequence length
-  max-num-batched-tokens: '16384'  # Larger batches for higher throughput
-  max-num-seqs: '512'  # Maximum concurrent sequences
+  gpu-memory-utilization: '0.90' # Use 90% of GPU memory for KV cache
+  max-model-len: '8192' # Maximum sequence length
+  max-num-batched-tokens: '16384' # Larger batches for higher throughput
+  max-num-seqs: '512' # Maximum concurrent sequences
 
   # Parallelization strategies
-  tensor-parallel-size: '1'  # Number of GPUs for tensor parallelism
-  pipeline-parallel-size: '1'  # Number of GPUs for pipeline parallelism
+  tensor-parallel-size: '1' # Number of GPUs for tensor parallelism
+  pipeline-parallel-size: '1' # Number of GPUs for pipeline parallelism
 
   # Performance features
-  enable-chunked-prefill: 'true'  # Process prefill in chunks for better scheduling
-  enable-prefix-caching: 'true'  # Cache common prompt prefixes
-  enable-flash-attention: 'true'  # Use Flash Attention 2 for faster inference
+  enable-chunked-prefill: 'true' # Process prefill in chunks for better scheduling
+  enable-prefix-caching: 'true' # Cache common prompt prefixes
+  enable-flash-attention: 'true' # Use Flash Attention 2 for faster inference
 
   # Quantization for memory efficiency
-  quantization: awq  # AWQ, GPTQ, or none
-  quantization-bits: '4'  # 4-bit or 8-bit
+  quantization: awq # AWQ, GPTQ, or none
+  quantization-bits: '4' # 4-bit or 8-bit
 
   # Batching strategy
-  use-v2-block-manager: 'true'  # Use improved block manager
-  disable-log-requests: 'false'  # Keep request logging for observability
+  use-v2-block-manager: 'true' # Use improved block manager
+  disable-log-requests: 'false' # Keep request logging for observability
 ---
 # InferenceService with disaggregated serving (prefill + decode separation)
 apiVersion: serving.kserve.io/v1beta1
@@ -61,17 +61,17 @@ spec:
 
         # Optimize for prefill (compute-bound)
         - --enable-chunked-prefill
-        - --max-num-batched-tokens=32768  # Larger for prefill
-        - --max-num-seqs=64  # Fewer concurrent sequences
+        - --max-num-batched-tokens=32768 # Larger for prefill
+        - --max-num-seqs=64 # Fewer concurrent sequences
 
         # Disable decode-specific optimizations
         - --disable-sliding-window
-        - --enforce-eager  # Eager mode for better prefill performance
+        - --enforce-eager # Eager mode for better prefill performance
       resources:
         requests:
           cpu: '8'
           memory: 32Gi
-          nvidia.com/gpu: '2'  # More GPUs for parallel processing
+          nvidia.com/gpu: '2' # More GPUs for parallel processing
         limits:
           cpu: '16'
           memory: 64Gi
@@ -100,22 +100,22 @@ spec:
       args:
         # Decode-optimized configuration
         - --model=/mnt/models
-        - --gpu-memory-utilization=0.95  # More memory for KV cache
+        - --gpu-memory-utilization=0.95 # More memory for KV cache
 
         # Optimize for decode (memory-bound)
-        - --max-num-seqs=256  # Many concurrent sequences
-        - --max-num-batched-tokens=4096  # Smaller batches
-        - --enable-prefix-caching  # Reuse cached prefixes
+        - --max-num-seqs=256 # Many concurrent sequences
+        - --max-num-batched-tokens=4096 # Smaller batches
+        - --enable-prefix-caching # Reuse cached prefixes
 
         # Decode-specific optimizations
         - --use-v2-block-manager
         - --enable-sliding-window
-        - --swap-space=4  # 4GB swap space for overflow
+        - --swap-space=4 # 4GB swap space for overflow
       resources:
         requests:
           cpu: '4'
           memory: 16Gi
-          nvidia.com/gpu: '1'  # Single GPU per decode instance
+          nvidia.com/gpu: '1' # Single GPU per decode instance
         limits:
           cpu: '8'
           memory: 32Gi
@@ -292,9 +292,9 @@ spec:
       path: /metrics
       relabelings:
         # Add custom labels
-        - sourceLabels: [ __meta_kubernetes_pod_label_serving_component ]
+        - sourceLabels: [__meta_kubernetes_pod_label_serving_component]
           targetLabel: component
-        - sourceLabels: [ __meta_kubernetes_pod_node_name ]
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
           targetLabel: node
 ---
 # PrometheusRule for LLM-specific alerts

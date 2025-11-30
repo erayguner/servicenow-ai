@@ -1,22 +1,24 @@
 # Access Control Policy
+
 ## Amazon Bedrock Agents Infrastructure
 
-**Document Version:** 1.0
-**Effective Date:** 2025-11-17
-**Last Reviewed:** 2025-11-17
-**Next Review:** 2026-11-17
-**Policy Owner:** Chief Information Security Officer (CISO)
-**Approved By:** Executive Leadership Team
+**Document Version:** 1.0 **Effective Date:** 2025-11-17 **Last Reviewed:**
+2025-11-17 **Next Review:** 2026-11-17 **Policy Owner:** Chief Information
+Security Officer (CISO) **Approved By:** Executive Leadership Team
 
 ---
 
 ## 1. Purpose
 
-This Access Control Policy establishes requirements for managing access to Amazon Bedrock Agents infrastructure and data. The policy ensures that only authorized individuals can access resources based on business needs, regulatory requirements, and the principle of least privilege.
+This Access Control Policy establishes requirements for managing access to
+Amazon Bedrock Agents infrastructure and data. The policy ensures that only
+authorized individuals can access resources based on business needs, regulatory
+requirements, and the principle of least privilege.
 
 ## 2. Scope
 
 This policy applies to:
+
 - All AWS accounts and resources in the Bedrock agents infrastructure
 - All Amazon Bedrock agents, knowledge bases, and models
 - All users, groups, roles, and service principals
@@ -27,18 +29,25 @@ This policy applies to:
 ## 3. Access Control Principles
 
 ### 3.1 Least Privilege
-Users and services receive minimum permissions necessary to perform assigned functions.
+
+Users and services receive minimum permissions necessary to perform assigned
+functions.
 
 ### 3.2 Separation of Duties
-No single individual has control over all phases of a critical or sensitive operation.
+
+No single individual has control over all phases of a critical or sensitive
+operation.
 
 ### 3.3 Defense in Depth
+
 Multiple layers of access controls are implemented.
 
 ### 3.4 Need-to-Know
+
 Access to data is granted only when required for job function.
 
 ### 3.5 Deny by Default
+
 Access is explicitly denied unless explicitly allowed.
 
 ---
@@ -48,6 +57,7 @@ Access is explicitly denied unless explicitly allowed.
 ### 4.1 User Provisioning
 
 **New User Onboarding:**
+
 1. Manager submits access request via ticketing system
 2. HR verification of employment status
 3. Background check completed (for RESTRICTED data access)
@@ -60,12 +70,14 @@ Access is explicitly denied unless explicitly allowed.
 8. Initial password/MFA device setup (in-person or secure channel)
 
 **Account Types:**
+
 - **Human Users:** IAM Identity Center (AWS SSO)
 - **Service Accounts:** IAM roles (no long-term credentials)
 - **Federated Access:** SAML 2.0 integration with corporate IdP
 - **Emergency Access:** Break-glass accounts (highly restricted)
 
 **Prohibited:**
+
 - Shared user accounts
 - Generic user accounts (e.g., "admin", "service")
 - Root account usage for daily operations
@@ -73,6 +85,7 @@ Access is explicitly denied unless explicitly allowed.
 ### 4.2 User Deprovisioning
 
 **Termination Process:**
+
 1. HR notifies security team of termination
 2. Immediate access revocation (within 1 hour):
    - IAM user disabled/deleted
@@ -87,6 +100,7 @@ Access is explicitly denied unless explicitly allowed.
 7. Account deletion after retention period
 
 **Change of Role:**
+
 1. Manager submits role change request
 2. New permissions granted (if additional access needed)
 3. Old permissions removed (if no longer needed)
@@ -95,12 +109,14 @@ Access is explicitly denied unless explicitly allowed.
 ### 4.3 Identity Lifecycle
 
 **Identity States:**
+
 - **Active:** Full access based on assigned permissions
 - **Inactive:** No login for 90 days, disabled automatically
 - **Suspended:** Temporary suspension (e.g., leave of absence)
 - **Terminated:** Access revoked, account deleted
 
 **Automated Processes:**
+
 - Inactive account detection (90 days no login)
 - Inactive credential detection (90 days no use)
 - Unused permission identification (AWS IAM Access Analyzer)
@@ -113,6 +129,7 @@ Access is explicitly denied unless explicitly allowed.
 ### 5.1 Password Policy
 
 **IAM Password Policy (Fallback only - SSO preferred):**
+
 ```yaml
 Minimum password length: 14 characters
 Require uppercase letters: Yes
@@ -127,6 +144,7 @@ Hard expiry: No (to avoid password cycling)
 ```
 
 **AWS SSO Password Policy:**
+
 - Enforced via corporate Identity Provider (IdP)
 - Minimum 14 characters
 - Complexity requirements
@@ -138,27 +156,31 @@ Hard expiry: No (to avoid password cycling)
 
 **MFA Requirements by Classification:**
 
-| User Type | Data Classification | MFA Requirement |
-|-----------|---------------------|-----------------|
-| All users | RESTRICTED | **Mandatory** (hardware/U2F preferred) |
-| All users | CONFIDENTIAL | **Mandatory** |
-| All users | INTERNAL | Recommended |
-| Root account | N/A | **Mandatory** (hardware token required) |
-| Privileged users | N/A | **Mandatory** |
-| Break-glass accounts | N/A | **Mandatory** |
-| Service accounts (IAM roles) | N/A | Not applicable |
+| User Type                    | Data Classification | MFA Requirement                         |
+| ---------------------------- | ------------------- | --------------------------------------- |
+| All users                    | RESTRICTED          | **Mandatory** (hardware/U2F preferred)  |
+| All users                    | CONFIDENTIAL        | **Mandatory**                           |
+| All users                    | INTERNAL            | Recommended                             |
+| Root account                 | N/A                 | **Mandatory** (hardware token required) |
+| Privileged users             | N/A                 | **Mandatory**                           |
+| Break-glass accounts         | N/A                 | **Mandatory**                           |
+| Service accounts (IAM roles) | N/A                 | Not applicable                          |
 
 **Approved MFA Methods (in order of preference):**
-1. **Hardware U2F/WebAuthn tokens** (YubiKey, Titan Security Key) - **Recommended for RESTRICTED**
+
+1. **Hardware U2F/WebAuthn tokens** (YubiKey, Titan Security Key) -
+   **Recommended for RESTRICTED**
 2. **TOTP hardware tokens** (RSA SecurID)
 3. **Virtual MFA apps** (Authy, Microsoft Authenticator, Google Authenticator)
 
 **Prohibited MFA Methods:**
+
 - SMS-based MFA (vulnerable to SIM swapping)
 - Email-based MFA
 - Voice call-based MFA
 
 **MFA Enforcement:**
+
 ```hcl
 # IAM policy requiring MFA for all actions
 resource "aws_iam_policy" "require_mfa" {
@@ -195,12 +217,14 @@ resource "aws_iam_policy" "require_mfa" {
 ### 5.3 Federated Authentication
 
 **Corporate Identity Provider Integration:**
+
 - SAML 2.0 federation with AWS IAM Identity Center
 - Single Sign-On (SSO) for all human users
 - Centralized authentication via corporate IdP (Okta, Azure AD, etc.)
 - Automatic user provisioning and deprovisioning (SCIM)
 
 **Benefits:**
+
 - Centralized identity management
 - Consistent password policy enforcement
 - Automatic access revocation on termination
@@ -208,6 +232,7 @@ resource "aws_iam_policy" "require_mfa" {
 - Conditional access policies (IP restrictions, device compliance)
 
 **Implementation:**
+
 ```hcl
 resource "aws_ssoadmin_account_assignment" "bedrock_admin" {
   instance_arn       = aws_ssoadmin_instance.main.arn
@@ -222,17 +247,21 @@ resource "aws_ssoadmin_account_assignment" "bedrock_admin" {
 ### 5.4 Session Management
 
 **Session Timeouts:**
+
 - **AWS Console:** 12 hours maximum, 1 hour recommended for RESTRICTED data
-- **Programmatic access (STS):** 12 hours maximum, 1 hour recommended for RESTRICTED data
+- **Programmatic access (STS):** 12 hours maximum, 1 hour recommended for
+  RESTRICTED data
 - **Idle timeout:** 15 minutes of inactivity (console)
 
 **Session Security:**
+
 - Session tokens encrypted in transit
 - Session invalidation on logout
 - Concurrent session limits (3 active sessions per user)
 - Session hijacking prevention (IP address binding)
 
 **Implementation:**
+
 ```hcl
 # IAM role with maximum session duration
 resource "aws_iam_role" "bedrock_restricted_access" {
@@ -271,8 +300,10 @@ resource "aws_iam_role" "bedrock_restricted_access" {
 **Standard Roles:**
 
 #### Bedrock Administrator
+
 **Responsibilities:** Manage Bedrock infrastructure, agents, knowledge bases
 **Permissions:**
+
 - Full access to Bedrock services
 - KMS key usage for Bedrock encryption
 - S3 access to Bedrock data sources
@@ -280,6 +311,7 @@ resource "aws_iam_role" "bedrock_restricted_access" {
 - IAM role creation for Bedrock agents
 
 **Implementation:**
+
 ```hcl
 resource "aws_iam_policy" "bedrock_administrator" {
   name        = "BedrockAdministrator"
@@ -327,13 +359,16 @@ resource "aws_iam_policy" "bedrock_administrator" {
 ```
 
 #### Bedrock User (Read-Only)
+
 **Responsibilities:** Invoke Bedrock agents, query knowledge bases
 **Permissions:**
+
 - Invoke Bedrock agents (read-only)
 - Query knowledge bases
 - No configuration changes
 
 **Implementation:**
+
 ```hcl
 resource "aws_iam_policy" "bedrock_user" {
   name        = "BedrockUser"
@@ -370,14 +405,17 @@ resource "aws_iam_policy" "bedrock_user" {
 ```
 
 #### Security Auditor
-**Responsibilities:** Review security configurations, audit logs, compliance status
-**Permissions:**
+
+**Responsibilities:** Review security configurations, audit logs, compliance
+status **Permissions:**
+
 - Read-only access to all resources
 - CloudTrail log access
 - Config compliance reports
 - Security Hub findings
 
 **Implementation:**
+
 ```hcl
 data "aws_iam_policy" "security_audit" {
   arn = "arn:aws:iam::aws:policy/SecurityAudit"
@@ -417,22 +455,26 @@ resource "aws_iam_policy" "security_auditor_additional" {
 ```
 
 #### Data Owner
+
 **Responsibilities:** Classify data, approve access, manage data lifecycle
 **Permissions:**
+
 - Data classification tagging
 - Access approval workflows
 - Data retention configuration
 - Backup management
 
 #### Break-Glass Administrator
-**Responsibilities:** Emergency access for incident response
-**Permissions:**
+
+**Responsibilities:** Emergency access for incident response **Permissions:**
+
 - Full administrative access
 - Usage: Emergency only, all actions logged and reviewed
 - MFA required
 - Approval: CISO notification required within 1 hour
 
 **Implementation:**
+
 ```hcl
 resource "aws_iam_user" "break_glass" {
   name          = "break-glass-admin"
@@ -479,9 +521,11 @@ resource "aws_cloudwatch_metric_alarm" "break_glass_usage_alarm" {
 
 ### 6.2 Attribute-Based Access Control (ABAC)
 
-**Use Case:** Fine-grained access control based on resource tags and user attributes
+**Use Case:** Fine-grained access control based on resource tags and user
+attributes
 
 **Example: Data classification-based access**
+
 ```hcl
 resource "aws_iam_policy" "abac_data_classification" {
   name        = "ABACDataClassification"
@@ -523,6 +567,7 @@ resource "aws_iam_policy" "abac_data_classification" {
 ### 6.3 Service Control Policies (SCPs)
 
 **Organization-wide guardrails:**
+
 ```hcl
 resource "aws_organizations_policy" "bedrock_scp" {
   name        = "BedrockSecurityControls"
@@ -579,6 +624,7 @@ resource "aws_organizations_policy" "bedrock_scp" {
 ### 6.4 Permission Boundaries
 
 **Limit maximum permissions for IAM entities:**
+
 ```hcl
 resource "aws_iam_policy" "permission_boundary" {
   name        = "BedrockPermissionBoundary"
@@ -636,12 +682,14 @@ resource "aws_iam_user" "bedrock_developer" {
 ### 7.1 VPC Endpoints for Bedrock
 
 **RESTRICTED data requirements:**
+
 - All Bedrock API calls via VPC endpoints (AWS PrivateLink)
 - No internet-routable access
 - Interface VPC endpoints in private subnets
 - Security groups restricting access to authorized sources
 
 **Implementation:**
+
 ```hcl
 resource "aws_vpc_endpoint" "bedrock" {
   vpc_id              = var.vpc_id
@@ -722,6 +770,7 @@ resource "aws_vpc_endpoint_policy" "bedrock" {
 ### 7.2 IP Allowlisting
 
 **Conditional access based on source IP:**
+
 ```hcl
 resource "aws_iam_policy" "ip_restriction" {
   name        = "BedrockIPRestriction"
@@ -764,6 +813,7 @@ resource "aws_iam_policy" "ip_restriction" {
 ### 8.1 Access Review Schedule
 
 **RESTRICTED Data Access:**
+
 - **Frequency:** Monthly
 - **Scope:** All users with RESTRICTED data access
 - **Process:**
@@ -775,16 +825,19 @@ resource "aws_iam_policy" "ip_restriction" {
 - **Approval:** Data Owner and CISO
 
 **CONFIDENTIAL Data Access:**
+
 - **Frequency:** Quarterly
 - **Scope:** All users with CONFIDENTIAL data access
 - **Approval:** Data Owner
 
 **INTERNAL Data Access:**
+
 - **Frequency:** Annual
 - **Scope:** Sample-based review (20% of users)
 - **Approval:** Manager
 
 **Automated Access Review:**
+
 ```hcl
 # EventBridge rule for monthly access review reminder
 resource "aws_cloudwatch_event_rule" "monthly_access_review" {
@@ -808,12 +861,14 @@ resource "aws_cloudwatch_event_target" "access_review_notification" {
 ### 8.2 Unused Access Detection
 
 **IAM Access Analyzer Integration:**
+
 - Unused access detection (90 days of inactivity)
 - External access findings (public resources)
 - Unused permissions identification
 - Automated alerts for unused access
 
 **Implementation:**
+
 ```hcl
 resource "aws_accessanalyzer_analyzer" "bedrock_access" {
   analyzer_name = "bedrock-access-analyzer"
@@ -847,6 +902,7 @@ resource "aws_cloudwatch_metric_alarm" "external_access_finding" {
 ### 8.3 Privileged Access Monitoring
 
 **Real-time monitoring of privileged actions:**
+
 - Root account usage
 - IAM policy changes
 - KMS key deletion
@@ -855,6 +911,7 @@ resource "aws_cloudwatch_metric_alarm" "external_access_finding" {
 - Bedrock agent/knowledge base deletion
 
 **Implementation:**
+
 ```hcl
 # CloudWatch log metric filter for root account usage
 resource "aws_cloudwatch_log_metric_filter" "root_account_usage" {
@@ -890,6 +947,7 @@ resource "aws_cloudwatch_metric_alarm" "root_account_usage_alarm" {
 ### 9.1 Automated Enforcement
 
 **AWS Config Rules:**
+
 - `iam-user-mfa-enabled`: Ensure all IAM users have MFA
 - `iam-root-access-key-check`: No access keys for root account
 - `iam-password-policy`: Password policy compliance
@@ -897,6 +955,7 @@ resource "aws_cloudwatch_metric_alarm" "root_account_usage_alarm" {
 - `access-keys-rotated`: Access keys rotated within 90 days
 
 **Implementation:**
+
 ```hcl
 resource "aws_config_config_rule" "iam_user_mfa_enabled" {
   name = "iam-user-mfa-enabled"
@@ -941,12 +1000,14 @@ resource "aws_config_config_rule" "iam_password_policy" {
 ### 9.2 Continuous Monitoring
 
 **Security Hub Integration:**
+
 - CIS AWS Foundations Benchmark
 - AWS Foundational Security Best Practices
 - PCI DSS standard
 - Custom access control standards
 
 **Audit Trail:**
+
 - CloudTrail: All API calls logged
 - VPC Flow Logs: Network traffic logged
 - S3 access logs: Object-level access logged
@@ -958,6 +1019,7 @@ resource "aws_config_config_rule" "iam_password_policy" {
 ## 10. Policy Violations and Enforcement
 
 **Violations:**
+
 - Unauthorized access attempts
 - Sharing credentials
 - Accessing data without business need
@@ -965,12 +1027,14 @@ resource "aws_config_config_rule" "iam_password_policy" {
 - Excessive privilege escalation
 
 **Consequences:**
+
 - First violation: Warning and remedial training
 - Second violation: Temporary access suspension (30 days)
 - Third violation: Permanent access revocation and termination
 - Criminal activity: Law enforcement referral
 
 **Enforcement:**
+
 - Automated detection (AWS Config, Security Hub, GuardDuty)
 - Security team investigation
 - Manager notification
@@ -991,8 +1055,8 @@ resource "aws_config_config_rule" "iam_password_policy" {
 
 ## Document Control
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-11-17 | CISO | Initial policy creation |
+| Version | Date       | Author | Changes                 |
+| ------- | ---------- | ------ | ----------------------- |
+| 1.0     | 2025-11-17 | CISO   | Initial policy creation |
 
 **Next Review Date:** 2026-11-17

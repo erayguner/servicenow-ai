@@ -1,10 +1,10 @@
 # 🚀 LLM Deployment on Kubernetes - Complete Guide
 
-**Based on**: "Generative AI on Kubernetes: Operationalizing Large Language Models" by Roland Huß and Daniele Zonca (O'Reilly)
+**Based on**: "Generative AI on Kubernetes: Operationalizing Large Language
+Models" by Roland Huß and Daniele Zonca (O'Reilly)
 
-**Status**: ✅ Production-Ready
-**Last Updated**: 2025-11-04
-**Architecture**: Disaggregated Serving with KServe + vLLM
+**Status**: ✅ Production-Ready **Last Updated**: 2025-11-04 **Architecture**:
+Disaggregated Serving with KServe + vLLM
 
 ---
 
@@ -27,12 +27,14 @@
 
 This implementation provides enterprise-grade LLM serving on Kubernetes with:
 
-- **🎯 KServe Integration**: Industry-standard model serving with storage initializers
+- **🎯 KServe Integration**: Industry-standard model serving with storage
+  initializers
 - **⚡ vLLM Runtime**: Optimized inference engine with PagedAttention
 - **🔧 Multiple Model Sources**: Hugging Face Hub, MLflow, Kubeflow, GCS, S3
 - **🖥️ GPU Management**: NVIDIA GPU Operator with time-slicing support
 - **📦 OCI Image Volumes**: Zero-copy model loading (Kubernetes 1.31+)
-- **🚀 Disaggregated Serving**: Separate prefill and decode for optimal resource usage
+- **🚀 Disaggregated Serving**: Separate prefill and decode for optimal resource
+  usage
 - **📊 Token-Based Metrics**: Comprehensive observability with Prometheus
 
 ---
@@ -72,13 +74,13 @@ This implementation provides enterprise-grade LLM serving on Kubernetes with:
 
 ### Key Components
 
-| Component | Purpose | Configuration |
-|-----------|---------|---------------|
-| **KServe** | Model serving framework | `kserve-runtime.yaml` |
-| **vLLM** | Inference runtime with PagedAttention | Optimized for throughput |
-| **Storage Initializers** | Download models from registries | Automatic based on `storageUri` |
-| **GPU Operator** | GPU resource management | `gpu-operator.yaml` |
-| **Envoy Router** | LLM-aware request routing | `advanced-optimization.yaml` |
+| Component                | Purpose                               | Configuration                   |
+| ------------------------ | ------------------------------------- | ------------------------------- |
+| **KServe**               | Model serving framework               | `kserve-runtime.yaml`           |
+| **vLLM**                 | Inference runtime with PagedAttention | Optimized for throughput        |
+| **Storage Initializers** | Download models from registries       | Automatic based on `storageUri` |
+| **GPU Operator**         | GPU resource management               | `gpu-operator.yaml`             |
+| **Envoy Router**         | LLM-aware request routing             | `advanced-optimization.yaml`    |
 
 ---
 
@@ -88,15 +90,15 @@ This implementation provides enterprise-grade LLM serving on Kubernetes with:
 
 #### 1. **Safetensors** (Recommended ✅)
 
-**Format**: `.safetensors`
-**Provider**: Hugging Face
-**Benefits**:
+**Format**: `.safetensors` **Provider**: Hugging Face **Benefits**:
+
 - ✅ Secure (no pickle vulnerabilities)
 - ✅ Fast loading with memory mapping
 - ✅ Supports sharding for large models
 - ✅ Widely supported
 
 **Structure**:
+
 ```
 model/
 ├── model-00001-of-00003.safetensors
@@ -109,15 +111,15 @@ model/
 ```
 
 **Example**:
+
 ```yaml
 storageUri: hf://mistralai/Mistral-7B-Instruct-v0.2
 ```
 
 #### 2. **GGUF/GGML** (CPU Optimized)
 
-**Format**: `.gguf`, `.ggml`
-**Provider**: llama.cpp
-**Benefits**:
+**Format**: `.gguf`, `.ggml` **Provider**: llama.cpp **Benefits**:
+
 - ✅ Optimized for CPU inference
 - ✅ Quantized weights (4-bit, 8-bit)
 - ✅ Single-file format
@@ -127,22 +129,22 @@ storageUri: hf://mistralai/Mistral-7B-Instruct-v0.2
 
 #### 3. **PyTorch State Dict**
 
-**Format**: `.pt`, `.pth`
-**Provider**: PyTorch
-**Benefits**:
+**Format**: `.pt`, `.pth` **Provider**: PyTorch **Benefits**:
+
 - ✅ Native PyTorch format
 - ⚠️ Requires architecture definition
 
 #### 4. **OCI Images** (Production ✅)
 
-**Format**: Container images
-**Benefits**:
+**Format**: Container images **Benefits**:
+
 - ✅ Immutable, versioned packages
 - ✅ Leverages container infrastructure
 - ✅ Zero-copy mounting (Kubernetes 1.31+)
 - ✅ Efficient layer caching
 
 **Build**:
+
 ```bash
 # Create Dockerfile
 FROM scratch
@@ -161,6 +163,7 @@ docker push gcr.io/project/llm-models/mistral-7b:v1
 ### 1. Hugging Face Hub
 
 **Configuration**:
+
 ```yaml
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
@@ -180,12 +183,14 @@ spec:
 ```
 
 **Features**:
+
 - ✅ Public and private models
 - ✅ Automatic version tracking
 - ✅ Community model discovery
 - ✅ Built-in authentication
 
 **Private Models**:
+
 ```bash
 # Create secret
 kubectl create secret generic model-registry-credentials \
@@ -196,15 +201,17 @@ kubectl create secret generic model-registry-credentials \
 ### 2. MLflow Model Registry
 
 **Configuration**:
+
 ```yaml
 storageUri: models:/llm-production/1
 
 env:
   - name: MLFLOW_TRACKING_URI
-    value: "https://mlflow.example.com"
+    value: 'https://mlflow.example.com'
 ```
 
 **Features**:
+
 - ✅ Version management
 - ✅ Model lifecycle tracking
 - ✅ Experiment tracking
@@ -213,15 +220,17 @@ env:
 ### 3. Kubeflow Model Registry (Kubernetes-Native)
 
 **Configuration**:
+
 ```yaml
 storageUri: model-registry://llm-production/v1
 
 env:
   - name: MODEL_REGISTRY_BASE_URL
-    value: "http://model-registry-service.kubeflow:8080"
+    value: 'http://model-registry-service.kubeflow:8080'
 ```
 
 **Features**:
+
 - ✅ Kubernetes-native (uses MLMD)
 - ✅ Direct KServe integration
 - ✅ Multi-tenant support
@@ -230,6 +239,7 @@ env:
 ### 4. Google Cloud Storage (GCS)
 
 **Configuration**:
+
 ```yaml
 storageUri: gs://my-bucket/models/mistral-7b
 
@@ -238,6 +248,7 @@ serviceAccountName: llm-gateway-sa
 ```
 
 **Features**:
+
 - ✅ Keyless authentication via Workload Identity
 - ✅ Versioning support
 - ✅ Lifecycle policies
@@ -250,6 +261,7 @@ serviceAccountName: llm-gateway-sa
 ### NVIDIA GPU Operator
 
 **Installation**:
+
 ```bash
 # Add NVIDIA Helm repo
 helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
@@ -264,6 +276,7 @@ helm install gpu-operator nvidia/gpu-operator \
 ```
 
 **Features**:
+
 - ✅ Automatic GPU node configuration
 - ✅ Device plugin for GPU scheduling
 - ✅ DCGM exporter for metrics
@@ -274,15 +287,17 @@ helm install gpu-operator nvidia/gpu-operator \
 **Configuration**: `gpu-operator.yaml`
 
 **Benefits**:
+
 - Share single GPU across multiple pods
 - 4 pods per GPU (configurable)
 - Ideal for development/staging
 
 **Example**:
+
 ```yaml
 sharing:
   timeSlicing:
-    replicas: 4  # 4 pods share each GPU
+    replicas: 4 # 4 pods share each GPU
 ```
 
 ### GPU Resource Quotas
@@ -294,8 +309,8 @@ metadata:
   name: gpu-quota
 spec:
   hard:
-    requests.nvidia.com/gpu: "20"
-    limits.nvidia.com/gpu: "20"
+    requests.nvidia.com/gpu: '20'
+    limits.nvidia.com/gpu: '20'
 ```
 
 ---
@@ -309,6 +324,7 @@ spec:
 **Configuration**: `kserve-runtime.yaml`
 
 **Specs**:
+
 - 2-10 replicas (HPA enabled)
 - 1 GPU per pod
 - Concurrency: 10 requests per pod
@@ -321,6 +337,7 @@ spec:
 **Configuration**: `advanced-optimization.yaml`
 
 **Architecture**:
+
 ```
 Prefill Pods:
 - 2 GPUs per pod
@@ -336,6 +353,7 @@ Decode Pods:
 ```
 
 **Benefits**:
+
 - 🚀 **2.8-4.4x throughput improvement**
 - ⚡ **Better GPU utilization** (>85%)
 - 🎯 **Independent scaling** of prefill vs decode
@@ -348,12 +366,14 @@ Decode Pods:
 **Configuration**: `oci-image-volumes.yaml`
 
 **Benefits**:
+
 - ⚡ **10-100x faster startup** (no model download)
 - 💾 **No local storage needed** (direct mount)
 - 🔒 **Immutable model versions**
 - 📦 **Leverages OCI layer caching**
 
 **Example**:
+
 ```yaml
 volumes:
   - name: model-data
@@ -376,6 +396,7 @@ volumes:
 ```
 
 **Impact**:
+
 - 📈 **+40% throughput** with higher GPU memory utilization
 - 🎯 **Optimal KV cache size** balances requests and memory
 
@@ -390,6 +411,7 @@ volumes:
 ```
 
 **When to Use**:
+
 - **Tensor Parallel**: Large models that don't fit on single GPU (e.g., 70B+)
 - **Pipeline Parallel**: Very large models, better for decode phase
 
@@ -403,6 +425,7 @@ volumes:
 ```
 
 **Impact**:
+
 - ⚡ **Flash Attention**: 2-4x faster attention computation
 - 💾 **Prefix Caching**: 5-10x speedup for repeated prompts
 - 🎯 **Chunked Prefill**: Better scheduling for mixed workloads
@@ -414,12 +437,10 @@ volumes:
 --dtype=auto             # Auto-detect optimal dtype
 ```
 
-**Memory Savings**:
-| Quantization | Memory | Accuracy | Speed |
-|--------------|--------|----------|-------|
-| None (FP16) | 100% | ✅ Best | ⚡ Fast |
-| 8-bit | 50% | ✅ Excellent | ⚡⚡ Faster |
-| 4-bit (AWQ) | 25% | ✅ Good | ⚡⚡⚡ Fastest |
+**Memory Savings**: | Quantization | Memory | Accuracy | Speed |
+|--------------|--------|----------|-------| | None (FP16) | 100% | ✅ Best | ⚡
+Fast | | 8-bit | 50% | ✅ Excellent | ⚡⚡ Faster | | 4-bit (AWQ) | 25% | ✅
+Good | ⚡⚡⚡ Fastest |
 
 ---
 
@@ -480,6 +501,7 @@ echo "✅ All tests passed!"
 ```
 
 **Run**:
+
 ```bash
 chmod +x scripts/test-llm-deployment.sh
 ./scripts/test-llm-deployment.sh
@@ -551,6 +573,7 @@ vllm_gpu_cache_usage_perc
 ### Grafana Dashboards
 
 **LLM Serving Dashboard**:
+
 - Token throughput over time
 - Request latency percentiles (p50, p95, p99)
 - KV cache utilization
@@ -627,6 +650,7 @@ kubectl logs -n gpu-operator \
 **Symptoms**: `vllm_gpu_oom_total` counter increasing
 
 **Solutions**:
+
 - Reduce `--gpu-memory-utilization` (try 0.85)
 - Decrease `--max-num-seqs`
 - Enable quantization (`--quantization=awq`)
@@ -635,6 +659,7 @@ kubectl logs -n gpu-operator \
 #### 3. Slow Model Loading
 
 **Solutions**:
+
 - Use OCI image volumes (Kubernetes 1.31+)
 - Pre-download models with Job
 - Use persistent volume for caching
@@ -643,6 +668,7 @@ kubectl logs -n gpu-operator \
 #### 4. Low Throughput
 
 **Check**:
+
 ```bash
 # Request queue depth
 kubectl exec -n production pod/llm-pod -- curl localhost:8080/metrics | grep vllm_num_requests_waiting
@@ -652,6 +678,7 @@ kubectl exec -n production pod/llm-pod -- curl localhost:8080/metrics | grep vll
 ```
 
 **Solutions**:
+
 - Increase `--max-num-batched-tokens`
 - Enable `--enable-chunked-prefill`
 - Scale up replicas
@@ -661,15 +688,15 @@ kubectl exec -n production pod/llm-pod -- curl localhost:8080/metrics | grep vll
 
 ## References
 
-- 📖 [Generative AI on Kubernetes (O'Reilly)](https://www.oreilly.com/library/view/generative-ai-on/9781098159207/)
+- 📖
+  [Generative AI on Kubernetes (O'Reilly)](https://www.oreilly.com/library/view/generative-ai-on/9781098159207/)
 - 🚀 [vLLM Documentation](https://docs.vllm.ai/)
 - ☸️ [KServe Documentation](https://kserve.github.io/website/)
-- 🖥️ [NVIDIA GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/)
+- 🖥️
+  [NVIDIA GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/)
 - 🤗 [Hugging Face Hub](https://huggingface.co/docs/hub/)
 
 ---
 
-**Document Owner**: AI/ML Team
-**Last Updated**: 2025-11-04
-**Version**: 1.0.0
+**Document Owner**: AI/ML Team **Last Updated**: 2025-11-04 **Version**: 1.0.0
 **Status**: ✅ Production Ready

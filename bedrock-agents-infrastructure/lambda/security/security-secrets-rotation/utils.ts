@@ -133,7 +133,11 @@ export async function verifyRotation(
     }
 
     // Check 4: Type-specific verification
-    const typeCheck = await verifyRotationType(secretArn, rotationType, secretResponse.SecretString);
+    const typeCheck = await verifyRotationType(
+      secretArn,
+      rotationType,
+      secretResponse.SecretString
+    );
     checks.push(typeCheck);
 
     const allPassed = checks.every((check) => check.passed);

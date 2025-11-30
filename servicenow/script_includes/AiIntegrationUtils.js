@@ -1,9 +1,8 @@
 var AiIntegrationUtils = Class.create();
 AiIntegrationUtils.prototype = {
-  initialize: function() {
-  },
+  initialize: function () {},
 
-  logAction: function(incidentSysId, actionType, requestPayload, responsePayload, responseCode) {
+  logAction: function (incidentSysId, actionType, requestPayload, responsePayload, responseCode) {
     var log = new GlideRecord('u_ai_action_log');
     if (!log.isValid()) {
       return;
@@ -19,7 +18,7 @@ AiIntegrationUtils.prototype = {
     log.insert();
   },
 
-  publishCommentToBridge: function(context) {
+  publishCommentToBridge: function (context) {
     if (!context || !context.incidentSysId || !context.comment) {
       gs.error('[AI Bridge] Invalid publish context: ' + JSON.stringify(context));
       return;
@@ -64,13 +63,7 @@ AiIntegrationUtils.prototype = {
       gs.error('[AI Bridge] Publish failed: ' + ex);
     }
 
-    this.logAction(
-      context.incidentSysId,
-      'comment_publish',
-      body,
-      responseBody,
-      responseCode,
-    );
+    this.logAction(context.incidentSysId, 'comment_publish', body, responseBody, responseCode);
   },
 
   type: 'AiIntegrationUtils',

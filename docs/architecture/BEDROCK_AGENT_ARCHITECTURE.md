@@ -1,8 +1,9 @@
 # Amazon Bedrock Agent Architecture
+
 ## Equivalent to Claude-Flow Orchestration System
 
-**Document Version:** 1.0  
-**Date:** 2025-11-17  
+**Document Version:** 1.0
+**Date:** 2025-11-17
 **Status:** Design Specification
 
 ---
@@ -26,9 +27,12 @@
 
 ## Executive Summary
 
-This document describes an Amazon Bedrock-based agent architecture that replicates the functionality of the claude-flow orchestration system. The design leverages AWS native services to provide:
+This document describes an Amazon Bedrock-based agent architecture that
+replicates the functionality of the claude-flow orchestration system. The design
+leverages AWS native services to provide:
 
-- **54 Specialized Agents** across development, testing, architecture, and coordination roles
+- **54 Specialized Agents** across development, testing, architecture, and
+  coordination roles
 - **Multi-Agent Orchestration** with hierarchical, mesh, and adaptive topologies
 - **SPARC Methodology** for systematic Test-Driven Development
 - **Knowledge Management** via OpenSearch Serverless vector databases
@@ -37,11 +41,11 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 
 ### Key Benefits
 
-✅ **Native AWS Integration** - Seamless integration with AWS services  
-✅ **Scalable Architecture** - Auto-scaling agents based on workload  
-✅ **Cost Optimized** - Pay-per-use model with Bedrock pricing  
-✅ **Enterprise Security** - AWS IAM, KMS encryption, VPC isolation  
-✅ **Observability** - CloudWatch metrics, X-Ray tracing, comprehensive logging  
+✅ **Native AWS Integration** - Seamless integration with AWS services
+✅ **Scalable Architecture** - Auto-scaling agents based on workload
+✅ **Cost Optimized** - Pay-per-use model with Bedrock pricing
+✅ **Enterprise Security** - AWS IAM, KMS encryption, VPC isolation
+✅ **Observability** - CloudWatch metrics, X-Ray tracing, comprehensive logging
 
 ---
 
@@ -102,16 +106,16 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 
 ### Component Mapping: Claude-Flow → Bedrock
 
-| Claude-Flow Component | Bedrock Equivalent | Implementation |
-|-----------------------|--------------------|----------------|
-| **Agent Spawning** | Bedrock Agents | Individual Bedrock agents with role-specific configurations |
-| **Swarm Init** | Step Functions | State machine orchestrating agent lifecycle |
-| **Task Orchestration** | EventBridge + Lambda | Event-driven task distribution |
-| **Memory Management** | DynamoDB + ElastiCache | Shared state and session management |
-| **Neural Training** | SageMaker + Bedrock | Pattern learning and optimization |
-| **GitHub Integration** | Lambda + CodeCommit/GitHub API | Repository operations |
-| **Knowledge Bases** | OpenSearch Serverless | Vector search and RAG |
-| **Hooks System** | Lambda Layers + EventBridge | Pre/post operation triggers |
+| Claude-Flow Component  | Bedrock Equivalent             | Implementation                                              |
+| ---------------------- | ------------------------------ | ----------------------------------------------------------- |
+| **Agent Spawning**     | Bedrock Agents                 | Individual Bedrock agents with role-specific configurations |
+| **Swarm Init**         | Step Functions                 | State machine orchestrating agent lifecycle                 |
+| **Task Orchestration** | EventBridge + Lambda           | Event-driven task distribution                              |
+| **Memory Management**  | DynamoDB + ElastiCache         | Shared state and session management                         |
+| **Neural Training**    | SageMaker + Bedrock            | Pattern learning and optimization                           |
+| **GitHub Integration** | Lambda + CodeCommit/GitHub API | Repository operations                                       |
+| **Knowledge Bases**    | OpenSearch Serverless          | Vector search and RAG                                       |
+| **Hooks System**       | Lambda Layers + EventBridge    | Pre/post operation triggers                                 |
 
 ---
 
@@ -122,6 +126,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 #### 1. Core Development Agents
 
 **Agent: Senior Developer (Coder)**
+
 - **Model:** Claude 3.5 Sonnet v2 (claude-3-5-sonnet-20241022)
 - **Purpose:** Code generation, refactoring, implementation
 - **Configuration:**
@@ -158,6 +163,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
   ```
 
 **Agent: Test Engineer (Tester)**
+
 - **Model:** Claude 3.5 Haiku (cost-optimized for fast test generation)
 - **Purpose:** Unit tests, integration tests, test planning
 - **Configuration:**
@@ -178,6 +184,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
   ```
 
 **Agent: Code Reviewer**
+
 - **Model:** Claude 3.5 Sonnet v2
 - **Purpose:** Code review, security analysis, quality assurance
 - **Configuration:**
@@ -202,28 +209,37 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 #### 2. SPARC Methodology Agents
 
 **Agent: Specification Analyst**
+
 - **Model:** Claude 3.5 Sonnet v2
 - **Purpose:** Requirements analysis, specification generation
-- **Instruction:** "Analyze requirements and generate comprehensive specifications following SPARC methodology."
+- **Instruction:** "Analyze requirements and generate comprehensive
+  specifications following SPARC methodology."
 
 **Agent: Pseudocode Designer**
+
 - **Model:** Claude 3.5 Haiku
 - **Purpose:** Algorithm design, pseudocode generation
-- **Instruction:** "Create detailed pseudocode and algorithm designs from specifications."
+- **Instruction:** "Create detailed pseudocode and algorithm designs from
+  specifications."
 
 **Agent: System Architect**
+
 - **Model:** Claude 3 Opus (for complex architectural decisions)
 - **Purpose:** System design, architecture patterns
-- **Instruction:** "Design scalable, maintainable system architectures with detailed component diagrams."
+- **Instruction:** "Design scalable, maintainable system architectures with
+  detailed component diagrams."
 
 **Agent: Refinement Engineer**
+
 - **Model:** Claude 3.5 Sonnet v2
 - **Purpose:** TDD implementation, iterative refinement
-- **Instruction:** "Implement features using test-driven development with continuous refinement."
+- **Instruction:** "Implement features using test-driven development with
+  continuous refinement."
 
 #### 3. Coordination Agents
 
 **Agent: Hierarchical Coordinator**
+
 - **Model:** Claude 3.5 Sonnet v2
 - **Purpose:** Top-down task delegation
 - **Configuration:**
@@ -244,54 +260,69 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
   ```
 
 **Agent: Mesh Coordinator**
+
 - **Model:** Claude 3.5 Sonnet v2
 - **Purpose:** Peer-to-peer agent collaboration
-- **Instruction:** "Facilitate peer-to-peer collaboration between agents with shared memory and consensus mechanisms."
+- **Instruction:** "Facilitate peer-to-peer collaboration between agents with
+  shared memory and consensus mechanisms."
 
 **Agent: Adaptive Coordinator**
+
 - **Model:** Claude 3.5 Sonnet v2 (with SageMaker integration)
 - **Purpose:** Dynamic topology selection based on task complexity
-- **Instruction:** "Analyze task requirements and dynamically select optimal agent topology (hierarchical, mesh, or hybrid)."
+- **Instruction:** "Analyze task requirements and dynamically select optimal
+  agent topology (hierarchical, mesh, or hybrid)."
 
 #### 4. Specialized Domain Agents
 
 **Backend Developer**
+
 - Model: Claude 3.5 Sonnet v2
 - Focus: REST APIs, database design, microservices
 
 **Frontend Developer**
+
 - Model: Claude 3.5 Sonnet v2
 - Focus: React, TypeScript, UI/UX
 
 **Mobile Developer**
+
 - Model: Claude 3.5 Sonnet v2
 - Focus: React Native, iOS/Android
 
 **ML Developer**
+
 - Model: Claude 3.5 Sonnet v2
 - Focus: SageMaker, model training, MLOps
 
 **DevOps Engineer**
+
 - Model: Claude 3.5 Haiku
 - Focus: CI/CD, Terraform, Kubernetes
 
 **Security Analyst**
+
 - Model: Claude 3.5 Sonnet v2
 - Focus: Security scanning, vulnerability assessment
 
 ### Agent Configuration Best Practices
 
 1. **Model Selection Strategy:**
-   - **Sonnet v2:** Complex tasks requiring reasoning (coding, architecture, review)
+
+   - **Sonnet v2:** Complex tasks requiring reasoning (coding, architecture,
+     review)
    - **Haiku:** Fast, cost-effective tasks (testing, DevOps, simple queries)
-   - **Opus:** Critical decisions requiring maximum capability (architecture, security)
+   - **Opus:** Critical decisions requiring maximum capability (architecture,
+     security)
 
 2. **Prompt Engineering:**
+
    - Use clear, role-specific instructions
    - Include context about project standards and patterns
    - Reference knowledge bases for domain-specific information
 
 3. **Resource Management:**
+
    - Set appropriate `idleSessionTTLInSeconds` (300-600 seconds)
    - Use customer-managed KMS keys for encryption
    - Enable CloudWatch logging for all agents
@@ -322,6 +353,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 **Purpose:** Store coding patterns, best practices, and design patterns
 
 **Configuration:**
+
 ```json
 {
   "knowledgeBaseName": "code-patterns-kb",
@@ -349,6 +381,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 ```
 
 **Data Sources:**
+
 - S3 bucket: `s3://bedrock-kb-code-patterns/`
 - Content:
   - Language-specific patterns (TypeScript, Python, Go, etc.)
@@ -357,6 +390,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
   - Security patterns (OWASP, Zero Trust)
 
 **Chunking Strategy:**
+
 ```json
 {
   "chunkingConfiguration": {
@@ -374,6 +408,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 **Purpose:** Store project-specific documentation, API contracts, ADRs
 
 **Configuration:**
+
 ```json
 {
   "knowledgeBaseName": "project-documentation-kb",
@@ -389,6 +424,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 ```
 
 **Data Sources:**
+
 - Architecture Decision Records (ADRs)
 - API documentation (OpenAPI specs)
 - System design documents
@@ -397,9 +433,11 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 
 ### Knowledge Base 3: Security and Compliance
 
-**Purpose:** Security guidelines, compliance requirements, vulnerability databases
+**Purpose:** Security guidelines, compliance requirements, vulnerability
+databases
 
 **Data Sources:**
+
 - OWASP Top 10
 - CWE/CVE databases
 - AWS security best practices
@@ -410,6 +448,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 **Purpose:** Test patterns, testing frameworks, coverage strategies
 
 **Data Sources:**
+
 - Unit testing patterns
 - Integration testing strategies
 - E2E testing frameworks
@@ -419,6 +458,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 ### OpenSearch Serverless Configuration
 
 **Collection Configuration:**
+
 ```json
 {
   "name": "bedrock-agent-collections",
@@ -428,6 +468,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 ```
 
 **Network Access Policy:**
+
 ```json
 {
   "Rules": [
@@ -443,6 +484,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 ```
 
 **Encryption Policy:**
+
 ```json
 {
   "Rules": [
@@ -457,6 +499,7 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 ```
 
 **Data Access Policy:**
+
 ```json
 {
   "Rules": [
@@ -495,18 +538,21 @@ This document describes an Amazon Bedrock-based agent architecture that replicat
 ### Embedding Model Selection
 
 **Amazon Titan Embeddings V2:**
+
 - **Use Case:** General purpose, cost-effective
 - **Dimensions:** 1024 (configurable: 256, 512, 1024)
 - **Max Tokens:** 8,000
 - **Pricing:** $0.00002 per 1,000 tokens
 
 **Cohere Embed English v3:**
+
 - **Use Case:** Superior accuracy for English text
 - **Dimensions:** 1024
 - **Max Tokens:** 512
 - **Pricing:** $0.0001 per 1,000 tokens
 
-**Recommendation:** Use Titan V2 for cost efficiency, Cohere for accuracy-critical applications.
+**Recommendation:** Use Titan V2 for cost efficiency, Cohere for
+accuracy-critical applications.
 
 ### Document Sync Lambda Function
 
@@ -527,17 +573,17 @@ def lambda_handler(event, context):
     for record in event['Records']:
         bucket = record['s3']['bucket']['name']
         key = record['s3']['object']['key']
-        
+
         # Determine knowledge base based on S3 prefix
         kb_id = get_knowledge_base_id(key)
-        
+
         # Start ingestion job
         response = bedrock_agent.start_ingestion_job(
             knowledgeBaseId=kb_id,
             dataSourceId='DATA_SOURCE_ID',
             description=f'Sync {key} to knowledge base'
         )
-        
+
         return {
             'statusCode': 200,
             'body': json.dumps({
@@ -577,6 +623,7 @@ Bedrock Agent → Action Group → Lambda Function → AWS Services
 **Purpose:** File operations, code generation, Git operations
 
 **OpenAPI Schema (`code-operations-schema.json`):**
+
 ```json
 {
   "openapi": "3.0.0",
@@ -620,9 +667,9 @@ Bedrock Agent → Action Group → Lambda Function → AWS Services
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "content": {"type": "string"},
-                    "encoding": {"type": "string"},
-                    "size": {"type": "integer"}
+                    "content": { "type": "string" },
+                    "encoding": { "type": "string" },
+                    "size": { "type": "integer" }
                   }
                 }
               }
@@ -643,10 +690,10 @@ Bedrock Agent → Action Group → Lambda Function → AWS Services
               "schema": {
                 "type": "object",
                 "properties": {
-                  "filePath": {"type": "string"},
-                  "content": {"type": "string"},
-                  "repository": {"type": "string"},
-                  "commitMessage": {"type": "string"}
+                  "filePath": { "type": "string" },
+                  "content": { "type": "string" },
+                  "repository": { "type": "string" },
+                  "commitMessage": { "type": "string" }
                 },
                 "required": ["filePath", "content", "repository"]
               }
@@ -667,9 +714,9 @@ Bedrock Agent → Action Group → Lambda Function → AWS Services
               "schema": {
                 "type": "object",
                 "properties": {
-                  "pattern": {"type": "string"},
-                  "filePattern": {"type": "string"},
-                  "repository": {"type": "string"}
+                  "pattern": { "type": "string" },
+                  "filePattern": { "type": "string" },
+                  "repository": { "type": "string" }
                 },
                 "required": ["pattern", "repository"]
               }
@@ -690,11 +737,11 @@ Bedrock Agent → Action Group → Lambda Function → AWS Services
               "schema": {
                 "type": "object",
                 "properties": {
-                  "repository": {"type": "string"},
-                  "message": {"type": "string"},
+                  "repository": { "type": "string" },
+                  "message": { "type": "string" },
                   "files": {
                     "type": "array",
-                    "items": {"type": "string"}
+                    "items": { "type": "string" }
                   }
                 },
                 "required": ["repository", "message"]
@@ -716,9 +763,9 @@ Bedrock Agent → Action Group → Lambda Function → AWS Services
               "schema": {
                 "type": "object",
                 "properties": {
-                  "repository": {"type": "string"},
-                  "branchName": {"type": "string"},
-                  "sourceBranch": {"type": "string"}
+                  "repository": { "type": "string" },
+                  "branchName": { "type": "string" },
+                  "sourceBranch": { "type": "string" }
                 },
                 "required": ["repository", "branchName"]
               }
@@ -732,6 +779,7 @@ Bedrock Agent → Action Group → Lambda Function → AWS Services
 ```
 
 **Lambda Implementation (`code-operations-lambda.py`):**
+
 ```python
 import json
 import boto3
@@ -747,10 +795,10 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     api_path = event['apiPath']
     parameters = event.get('parameters', [])
-    
+
     # Convert parameters list to dict
     params = {p['name']: p['value'] for p in parameters}
-    
+
     handlers = {
         '/code/read': handle_read_file,
         '/code/write': handle_write_file,
@@ -758,11 +806,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         '/git/commit': handle_git_commit,
         '/git/create-branch': handle_create_branch
     }
-    
+
     handler = handlers.get(api_path)
     if not handler:
         return error_response(f"Unknown API path: {api_path}")
-    
+
     try:
         result = handler(params)
         return success_response(result)
@@ -775,7 +823,7 @@ def handle_read_file(params: Dict[str, str]) -> Dict[str, Any]:
         repositoryName=params['repository'],
         filePath=params['filePath']
     )
-    
+
     return {
         'content': response['fileContent'].decode('utf-8'),
         'encoding': 'utf-8',
@@ -792,7 +840,7 @@ def handle_write_file(params: Dict[str, str]) -> Dict[str, Any]:
         filePath=params['filePath'],
         commitMessage=params.get('commitMessage', 'Update file via Bedrock agent')
     )
-    
+
     return {
         'commitId': response['commitId'],
         'blobId': response['blobId'],
@@ -816,7 +864,7 @@ def handle_git_commit(params: Dict[str, str]) -> Dict[str, Any]:
         branchName=params.get('branch', 'main')
     )
     parent_commit_id = branch_response['branch']['commitId']
-    
+
     # Create commit with multiple files
     put_files = []
     for file_path in params.get('files', []):
@@ -824,7 +872,7 @@ def handle_git_commit(params: Dict[str, str]) -> Dict[str, Any]:
             'filePath': file_path,
             'fileMode': 'NORMAL'
         })
-    
+
     response = codecommit.create_commit(
         repositoryName=params['repository'],
         branchName=params.get('branch', 'main'),
@@ -832,7 +880,7 @@ def handle_git_commit(params: Dict[str, str]) -> Dict[str, Any]:
         commitMessage=params['message'],
         putFiles=put_files
     )
-    
+
     return {
         'commitId': response['commitId']
     }
@@ -846,14 +894,14 @@ def handle_create_branch(params: Dict[str, str]) -> Dict[str, Any]:
         branchName=source_branch
     )
     commit_id = branch_response['branch']['commitId']
-    
+
     # Create branch
     response = codecommit.create_branch(
         repositoryName=params['repository'],
         branchName=params['branchName'],
         commitId=commit_id
     )
-    
+
     return {
         'branchName': params['branchName'],
         'commitId': commit_id
@@ -899,6 +947,7 @@ def error_response(error: str) -> Dict[str, Any]:
 **Purpose:** Test generation, test execution, coverage analysis
 
 **Operations:**
+
 - `/test/generate` - Generate unit tests for code
 - `/test/execute` - Run tests via CodeBuild
 - `/test/coverage` - Get code coverage metrics
@@ -908,6 +957,7 @@ def error_response(error: str) -> Dict[str, Any]:
 **Purpose:** Multi-agent orchestration, task delegation, consensus
 
 **Operations:**
+
 - `/coordination/delegate-task` - Delegate task to another agent
 - `/coordination/get-agent-status` - Check agent availability
 - `/coordination/consensus` - Initiate consensus protocol
@@ -915,6 +965,7 @@ def error_response(error: str) -> Dict[str, Any]:
 - `/coordination/memory-retrieve` - Retrieve shared memory
 
 **Lambda Implementation:**
+
 ```python
 import boto3
 import json
@@ -928,7 +979,7 @@ def lambda_handler(event, context):
     """Handle agent coordination operations"""
     api_path = event['apiPath']
     params = {p['name']: p['value'] for p in event.get('parameters', [])}
-    
+
     handlers = {
         '/coordination/delegate-task': delegate_task,
         '/coordination/get-agent-status': get_agent_status,
@@ -936,7 +987,7 @@ def lambda_handler(event, context):
         '/coordination/memory-store': store_memory,
         '/coordination/memory-retrieve': retrieve_memory
     }
-    
+
     return handlers[api_path](params)
 
 def delegate_task(params):
@@ -944,7 +995,7 @@ def delegate_task(params):
     agent_id = params['targetAgentId']
     agent_alias_id = params['agentAliasId']
     task_description = params['taskDescription']
-    
+
     # Invoke target agent
     response = bedrock_agent_runtime.invoke_agent(
         agentId=agent_id,
@@ -952,13 +1003,13 @@ def delegate_task(params):
         sessionId=params.get('sessionId', generate_session_id()),
         inputText=task_description
     )
-    
+
     # Collect streaming response
     result = ""
     for event in response['completion']:
         if 'chunk' in event:
             result += event['chunk']['bytes'].decode('utf-8')
-    
+
     return {
         'taskId': generate_task_id(),
         'agentId': agent_id,
@@ -969,7 +1020,7 @@ def delegate_task(params):
 def get_agent_status(params):
     """Check availability and status of agents"""
     table = dynamodb.Table('bedrock-agent-status')
-    
+
     response = table.scan(
         FilterExpression='agentType = :type AND #status = :status',
         ExpressionAttributeNames={'#status': 'status'},
@@ -978,7 +1029,7 @@ def get_agent_status(params):
             ':status': 'available'
         }
     )
-    
+
     return {
         'availableAgents': response['Items'],
         'count': len(response['Items'])
@@ -987,7 +1038,7 @@ def get_agent_status(params):
 def store_memory(params):
     """Store data in shared agent memory"""
     table = dynamodb.Table('bedrock-agent-memory')
-    
+
     item = {
         'memoryKey': params['key'],
         'value': params['value'],
@@ -995,9 +1046,9 @@ def store_memory(params):
         'timestamp': datetime.utcnow().isoformat(),
         'ttl': int(datetime.utcnow().timestamp()) + params.get('ttlSeconds', 3600)
     }
-    
+
     table.put_item(Item=item)
-    
+
     return {
         'stored': True,
         'key': params['key']
@@ -1006,15 +1057,15 @@ def store_memory(params):
 def retrieve_memory(params):
     """Retrieve data from shared agent memory"""
     table = dynamodb.Table('bedrock-agent-memory')
-    
+
     response = table.get_item(
         Key={'memoryKey': params['key']}
     )
-    
+
     item = response.get('Item')
     if not item:
         return {'found': False}
-    
+
     return {
         'found': True,
         'value': item['value'],
@@ -1027,6 +1078,7 @@ def retrieve_memory(params):
 **Purpose:** GitHub operations (PRs, issues, releases)
 
 **Operations:**
+
 - `/github/create-pr` - Create pull request
 - `/github/review-pr` - Review pull request
 - `/github/create-issue` - Create issue
@@ -1038,6 +1090,7 @@ def retrieve_memory(params):
 **Purpose:** Terraform, Kubernetes, AWS operations
 
 **Operations:**
+
 - `/terraform/plan` - Generate Terraform plan
 - `/terraform/apply` - Apply Terraform changes
 - `/kubernetes/deploy` - Deploy to Kubernetes
@@ -1072,6 +1125,7 @@ def retrieve_memory(params):
 ```
 
 **Step Functions State Machine:**
+
 ```json
 {
   "Comment": "Hierarchical agent orchestration",
@@ -1085,10 +1139,12 @@ def retrieve_memory(params):
         "Body": {
           "anthropic_version": "bedrock-2023-05-31",
           "max_tokens": 2000,
-          "messages": [{
-            "role": "user",
-            "content.$": "$.taskDescription"
-          }],
+          "messages": [
+            {
+              "role": "user",
+              "content.$": "$.taskDescription"
+            }
+          ],
           "system": "You are a supervisor agent. Analyze the task and break it down into subtasks for backend, frontend, and DevOps teams."
         }
       },
@@ -1155,10 +1211,12 @@ def retrieve_memory(params):
         "Body": {
           "anthropic_version": "bedrock-2023-05-31",
           "max_tokens": 3000,
-          "messages": [{
-            "role": "user",
-            "content.$": "States.Format('Synthesize results from teams: {}', $.teamResults)"
-          }],
+          "messages": [
+            {
+              "role": "user",
+              "content.$": "States.Format('Synthesize results from teams: {}', $.teamResults)"
+            }
+          ],
           "system": "Synthesize results from all teams into a coherent final output."
         }
       },
@@ -1189,6 +1247,7 @@ def retrieve_memory(params):
 ```
 
 **EventBridge Rule for Mesh Coordination:**
+
 ```json
 {
   "source": ["bedrock.agent"],
@@ -1200,6 +1259,7 @@ def retrieve_memory(params):
 ```
 
 **Mesh Coordinator Lambda:**
+
 ```python
 import boto3
 import json
@@ -1215,7 +1275,7 @@ def lambda_handler(event, context):
     task_id = event['detail']['taskId']
     agent_id = event['detail']['agentId']
     result = event['detail']['result']
-    
+
     # Store result in shared memory
     memory_table = dynamodb.Table('mesh-agent-memory')
     memory_table.put_item(
@@ -1226,23 +1286,23 @@ def lambda_handler(event, context):
             'timestamp': event['time']
         }
     )
-    
+
     # Check if all agents completed
     all_results = memory_table.query(
         KeyConditionExpression='taskId = :tid',
         ExpressionAttributeValues={':tid': task_id}
     )
-    
+
     required_agents = get_required_agents(task_id)
     completed_agents = [item['agentId'] for item in all_results['Items']]
-    
+
     if set(required_agents).issubset(set(completed_agents)):
         # All agents completed - synthesize results
         synthesize_mesh_results(task_id, all_results['Items'])
     else:
         # Notify other agents of progress
         notify_peer_agents(task_id, agent_id, result, required_agents)
-    
+
     return {'statusCode': 200}
 
 def notify_peer_agents(task_id, completed_agent, result, all_agents):
@@ -1263,7 +1323,7 @@ def synthesize_mesh_results(task_id, results):
     combined_results = "\n".join([
         f"Agent {r['agentId']}: {r['result']}" for r in results
     ])
-    
+
     # Invoke synthesis agent
     response = bedrock_agent_runtime.invoke_agent(
         agentId='synthesis-agent-id',
@@ -1271,7 +1331,7 @@ def synthesize_mesh_results(task_id, results):
         sessionId=task_id,
         inputText=f"Synthesize these peer agent results:\n{combined_results}"
     )
-    
+
     # Store final result
     # ... (implementation)
 ```
@@ -1281,24 +1341,25 @@ def synthesize_mesh_results(task_id, results):
 **Use Case:** Dynamic selection of coordination pattern based on task complexity
 
 **Decision Logic:**
+
 ```python
 def select_coordination_pattern(task_description, context):
     """
     Use Claude to analyze task and select optimal coordination pattern
     """
     bedrock = boto3.client('bedrock-runtime')
-    
+
     prompt = f"""
     Analyze this task and recommend the optimal agent coordination pattern:
-    
+
     Task: {task_description}
     Context: {context}
-    
+
     Available patterns:
     1. Hierarchical - Best for complex projects with clear subtasks
     2. Mesh - Best for collaborative tasks requiring consensus
     3. Pipeline - Best for sequential processing tasks
-    
+
     Respond with JSON:
     {{
       "pattern": "hierarchical|mesh|pipeline",
@@ -1307,7 +1368,7 @@ def select_coordination_pattern(task_description, context):
       "estimatedDuration": "30 minutes"
     }}
     """
-    
+
     response = bedrock.invoke_model(
         modelId='anthropic.claude-3-5-sonnet-20241022-v2:0',
         body=json.dumps({
@@ -1316,10 +1377,10 @@ def select_coordination_pattern(task_description, context):
             "messages": [{"role": "user", "content": prompt}]
         })
     )
-    
+
     result = json.loads(response['body'].read())
     decision = json.loads(result['content'][0]['text'])
-    
+
     return decision
 ```
 
@@ -1335,6 +1396,7 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 ```
 
 **Step Functions Implementation:**
+
 ```json
 {
   "Comment": "SPARC methodology workflow",
@@ -1433,26 +1495,27 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 ### DynamoDB Tables
 
 **Table 1: Agent State**
+
 ```json
 {
   "TableName": "bedrock-agent-state",
   "KeySchema": [
-    {"AttributeName": "sessionId", "KeyType": "HASH"},
-    {"AttributeName": "timestamp", "KeyType": "RANGE"}
+    { "AttributeName": "sessionId", "KeyType": "HASH" },
+    { "AttributeName": "timestamp", "KeyType": "RANGE" }
   ],
   "AttributeDefinitions": [
-    {"AttributeName": "sessionId", "AttributeType": "S"},
-    {"AttributeName": "timestamp", "AttributeType": "N"},
-    {"AttributeName": "agentId", "AttributeType": "S"}
+    { "AttributeName": "sessionId", "AttributeType": "S" },
+    { "AttributeName": "timestamp", "AttributeType": "N" },
+    { "AttributeName": "agentId", "AttributeType": "S" }
   ],
   "GlobalSecondaryIndexes": [
     {
       "IndexName": "AgentIdIndex",
       "KeySchema": [
-        {"AttributeName": "agentId", "KeyType": "HASH"},
-        {"AttributeName": "timestamp", "KeyType": "RANGE"}
+        { "AttributeName": "agentId", "KeyType": "HASH" },
+        { "AttributeName": "timestamp", "KeyType": "RANGE" }
       ],
-      "Projection": {"ProjectionType": "ALL"}
+      "Projection": { "ProjectionType": "ALL" }
     }
   ],
   "BillingMode": "PAY_PER_REQUEST",
@@ -1472,23 +1535,20 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 ```
 
 **Table 2: Shared Memory**
+
 ```json
 {
   "TableName": "bedrock-agent-memory",
-  "KeySchema": [
-    {"AttributeName": "memoryKey", "KeyType": "HASH"}
-  ],
+  "KeySchema": [{ "AttributeName": "memoryKey", "KeyType": "HASH" }],
   "AttributeDefinitions": [
-    {"AttributeName": "memoryKey", "AttributeType": "S"},
-    {"AttributeName": "sessionId", "AttributeType": "S"}
+    { "AttributeName": "memoryKey", "AttributeType": "S" },
+    { "AttributeName": "sessionId", "AttributeType": "S" }
   ],
   "GlobalSecondaryIndexes": [
     {
       "IndexName": "SessionIndex",
-      "KeySchema": [
-        {"AttributeName": "sessionId", "KeyType": "HASH"}
-      ],
-      "Projection": {"ProjectionType": "ALL"}
+      "KeySchema": [{ "AttributeName": "sessionId", "KeyType": "HASH" }],
+      "Projection": { "ProjectionType": "ALL" }
     }
   ],
   "TimeToLiveSpecification": {
@@ -1499,25 +1559,24 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 ```
 
 **Table 3: Task Queue**
+
 ```json
 {
   "TableName": "bedrock-agent-tasks",
-  "KeySchema": [
-    {"AttributeName": "taskId", "KeyType": "HASH"}
-  ],
+  "KeySchema": [{ "AttributeName": "taskId", "KeyType": "HASH" }],
   "AttributeDefinitions": [
-    {"AttributeName": "taskId", "AttributeType": "S"},
-    {"AttributeName": "status", "AttributeType": "S"},
-    {"AttributeName": "priority", "AttributeType": "N"}
+    { "AttributeName": "taskId", "AttributeType": "S" },
+    { "AttributeName": "status", "AttributeType": "S" },
+    { "AttributeName": "priority", "AttributeType": "N" }
   ],
   "GlobalSecondaryIndexes": [
     {
       "IndexName": "StatusPriorityIndex",
       "KeySchema": [
-        {"AttributeName": "status", "KeyType": "HASH"},
-        {"AttributeName": "priority", "KeyType": "RANGE"}
+        { "AttributeName": "status", "KeyType": "HASH" },
+        { "AttributeName": "priority", "KeyType": "RANGE" }
       ],
-      "Projection": {"ProjectionType": "ALL"}
+      "Projection": { "ProjectionType": "ALL" }
     }
   ]
 }
@@ -1526,6 +1585,7 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 ### S3 Buckets
 
 **Bucket 1: Knowledge Base Documents**
+
 ```json
 {
   "Bucket": "bedrock-kb-documents",
@@ -1562,6 +1622,7 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 ```
 
 **Bucket 2: Agent Artifacts**
+
 ```json
 {
   "Bucket": "bedrock-agent-artifacts",
@@ -1574,6 +1635,7 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 **Purpose:** Session caching, rate limiting, agent coordination
 
 **Configuration:**
+
 ```json
 {
   "CacheClusterId": "bedrock-agent-cache",
@@ -1590,6 +1652,7 @@ Specification → Pseudocode → Architecture → Refinement (TDD) → Completio
 ```
 
 **Use Cases:**
+
 ```python
 import redis
 import json
@@ -1615,10 +1678,10 @@ def check_rate_limit(agent_id, limit=100, window=60):
     """Rate limit agent invocations"""
     key = f"ratelimit:{agent_id}"
     current = redis_client.incr(key)
-    
+
     if current == 1:
         redis_client.expire(key, window)
-    
+
     return current <= limit
 
 # Agent coordination
@@ -1637,6 +1700,7 @@ def acquire_task_lock(task_id, agent_id, ttl=300):
 ### EventBridge Rules
 
 **Rule 1: Agent Task Completion**
+
 ```json
 {
   "Name": "bedrock-agent-task-completion",
@@ -1658,6 +1722,7 @@ def acquire_task_lock(task_id, agent_id, ttl=300):
 ```
 
 **Rule 2: Scheduled Agent Maintenance**
+
 ```json
 {
   "Name": "bedrock-agent-maintenance",
@@ -1676,12 +1741,14 @@ def acquire_task_lock(task_id, agent_id, ttl=300):
 **Use Case:** Complex multi-agent workflows
 
 **Benefits:**
+
 - Visual workflow designer
 - Built-in retry and error handling
 - Integration with 200+ AWS services
 - Execution history and debugging
 
 **Example: TDD Workflow**
+
 ```json
 {
   "Comment": "Test-Driven Development workflow",
@@ -1758,6 +1825,7 @@ def acquire_task_lock(task_id, agent_id, ttl=300):
 ### CloudWatch Monitoring
 
 **Custom Metrics:**
+
 ```python
 import boto3
 from datetime import datetime
@@ -1800,6 +1868,7 @@ def publish_agent_metrics(agent_id, metrics):
 ```
 
 **CloudWatch Dashboard:**
+
 ```json
 {
   "widgets": [
@@ -1807,8 +1876,8 @@ def publish_agent_metrics(agent_id, metrics):
       "type": "metric",
       "properties": {
         "metrics": [
-          ["BedrockAgents", "TaskDuration", {"stat": "Average"}],
-          [".", ".", {"stat": "p99"}]
+          ["BedrockAgents", "TaskDuration", { "stat": "Average" }],
+          [".", ".", { "stat": "p99" }]
         ],
         "period": 300,
         "stat": "Average",
@@ -1819,9 +1888,7 @@ def publish_agent_metrics(agent_id, metrics):
     {
       "type": "metric",
       "properties": {
-        "metrics": [
-          ["BedrockAgents", "TokensUsed", {"stat": "Sum"}]
-        ],
+        "metrics": [["BedrockAgents", "TokensUsed", { "stat": "Sum" }]],
         "period": 3600,
         "stat": "Sum",
         "region": "us-east-1",
@@ -1838,7 +1905,8 @@ def publish_agent_metrics(agent_id, metrics):
 
 ### Role 1: Bedrock Agent Execution Role
 
-**Purpose:** Allow agents to invoke models, access knowledge bases, and execute actions
+**Purpose:** Allow agents to invoke models, access knowledge bases, and execute
+actions
 
 ```json
 {
@@ -1884,10 +1952,7 @@ def publish_agent_metrics(agent_id, metrics):
         {
           "Sid": "AccessKnowledgeBases",
           "Effect": "Allow",
-          "Action": [
-            "bedrock:Retrieve",
-            "bedrock:RetrieveAndGenerate"
-          ],
+          "Action": ["bedrock:Retrieve", "bedrock:RetrieveAndGenerate"],
           "Resource": "arn:aws:bedrock:REGION:ACCOUNT_ID:knowledge-base/*"
         },
         {
@@ -1905,10 +1970,7 @@ def publish_agent_metrics(agent_id, metrics):
         {
           "Sid": "AccessS3Schemas",
           "Effect": "Allow",
-          "Action": [
-            "s3:GetObject",
-            "s3:ListBucket"
-          ],
+          "Action": ["s3:GetObject", "s3:ListBucket"],
           "Resource": [
             "arn:aws:s3:::bedrock-agent-schemas",
             "arn:aws:s3:::bedrock-agent-schemas/*"
@@ -1951,18 +2013,13 @@ def publish_agent_metrics(agent_id, metrics):
         {
           "Sid": "OpenSearchServerlessAccess",
           "Effect": "Allow",
-          "Action": [
-            "aoss:APIAccessAll"
-          ],
+          "Action": ["aoss:APIAccessAll"],
           "Resource": "arn:aws:aoss:REGION:ACCOUNT_ID:collection/*"
         },
         {
           "Sid": "S3DocumentAccess",
           "Effect": "Allow",
-          "Action": [
-            "s3:GetObject",
-            "s3:ListBucket"
-          ],
+          "Action": ["s3:GetObject", "s3:ListBucket"],
           "Resource": [
             "arn:aws:s3:::bedrock-kb-documents",
             "arn:aws:s3:::bedrock-kb-documents/*"
@@ -2040,10 +2097,7 @@ def publish_agent_metrics(agent_id, metrics):
         {
           "Sid": "CodeBuildOperations",
           "Effect": "Allow",
-          "Action": [
-            "codebuild:StartBuild",
-            "codebuild:BatchGetBuilds"
-          ],
+          "Action": ["codebuild:StartBuild", "codebuild:BatchGetBuilds"],
           "Resource": "arn:aws:codebuild:REGION:ACCOUNT_ID:project/agent-*"
         },
         {
@@ -2074,11 +2128,7 @@ def publish_agent_metrics(agent_id, metrics):
         {
           "Sid": "S3ArtifactAccess",
           "Effect": "Allow",
-          "Action": [
-            "s3:GetObject",
-            "s3:PutObject",
-            "s3:ListBucket"
-          ],
+          "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
           "Resource": [
             "arn:aws:s3:::bedrock-agent-artifacts",
             "arn:aws:s3:::bedrock-agent-artifacts/*"
@@ -2116,10 +2166,7 @@ def publish_agent_metrics(agent_id, metrics):
         {
           "Sid": "InvokeBedrockModels",
           "Effect": "Allow",
-          "Action": [
-            "bedrock:InvokeModel",
-            "bedrock:InvokeAgent"
-          ],
+          "Action": ["bedrock:InvokeModel", "bedrock:InvokeAgent"],
           "Resource": [
             "arn:aws:bedrock:REGION::foundation-model/*",
             "arn:aws:bedrock:REGION:ACCOUNT_ID:agent/*"
@@ -2150,10 +2197,7 @@ def publish_agent_metrics(agent_id, metrics):
         {
           "Sid": "CodeBuildAccess",
           "Effect": "Allow",
-          "Action": [
-            "codebuild:StartBuild",
-            "codebuild:BatchGetBuilds"
-          ],
+          "Action": ["codebuild:StartBuild", "codebuild:BatchGetBuilds"],
           "Resource": "*"
         }
       ]
@@ -2165,6 +2209,7 @@ def publish_agent_metrics(agent_id, metrics):
 ### Resource-Based Policies
 
 **Lambda Resource Policy (Allow Bedrock to Invoke):**
+
 ```json
 {
   "Sid": "AllowBedrockInvoke",
@@ -2186,6 +2231,7 @@ def publish_agent_metrics(agent_id, metrics):
 ```
 
 **S3 Bucket Policy (Knowledge Base Access):**
+
 ```json
 {
   "Version": "2012-10-17",
@@ -2196,10 +2242,7 @@ def publish_agent_metrics(agent_id, metrics):
       "Principal": {
         "Service": "bedrock.amazonaws.com"
       },
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
+      "Action": ["s3:GetObject", "s3:ListBucket"],
       "Resource": [
         "arn:aws:s3:::bedrock-kb-documents",
         "arn:aws:s3:::bedrock-kb-documents/*"
@@ -2237,10 +2280,7 @@ def publish_agent_metrics(agent_id, metrics):
       "Principal": {
         "Service": "bedrock.amazonaws.com"
       },
-      "Action": [
-        "kms:Decrypt",
-        "kms:GenerateDataKey"
-      ],
+      "Action": ["kms:Decrypt", "kms:GenerateDataKey"],
       "Resource": "*",
       "Condition": {
         "StringEquals": {
@@ -2258,10 +2298,7 @@ def publish_agent_metrics(agent_id, metrics):
       "Principal": {
         "Service": "aoss.amazonaws.com"
       },
-      "Action": [
-        "kms:Decrypt",
-        "kms:GenerateDataKey"
-      ],
+      "Action": ["kms:Decrypt", "kms:GenerateDataKey"],
       "Resource": "*"
     }
   ]
@@ -2279,6 +2316,7 @@ def publish_agent_metrics(agent_id, metrics):
 **Use Case:** Coordinating multiple agents with leader-based decision making
 
 **Implementation:**
+
 ```python
 import boto3
 import time
@@ -2300,34 +2338,34 @@ class RaftCoordinator:
         self.voted_for = None
         self.leader_id = None
         self.table = dynamodb.Table(cluster_table)
-    
+
     def request_vote(self):
         """Request votes from other agents"""
         self.state = AgentState.CANDIDATE
         self.current_term += 1
         self.voted_for = self.agent_id
-        
+
         # Get all agents in cluster
         agents = self.get_cluster_agents()
         votes = 1  # Vote for self
-        
+
         for agent in agents:
             if agent['agentId'] != self.agent_id:
                 if self.send_vote_request(agent['agentId']):
                     votes += 1
-        
+
         # Check if won election
         if votes > len(agents) / 2:
             self.become_leader()
             return True
-        
+
         return False
-    
+
     def become_leader(self):
         """Become the cluster leader"""
         self.state = AgentState.LEADER
         self.leader_id = self.agent_id
-        
+
         # Update DynamoDB
         self.table.update_item(
             Key={'agentId': self.agent_id},
@@ -2339,14 +2377,14 @@ class RaftCoordinator:
                 ':now': int(time.time())
             }
         )
-        
+
         # Start sending heartbeats
         self.send_heartbeats()
-    
+
     def send_heartbeats(self):
         """Send periodic heartbeats to maintain leadership"""
         agents = self.get_cluster_agents()
-        
+
         for agent in agents:
             if agent['agentId'] != self.agent_id:
                 # Send heartbeat via EventBridge
@@ -2364,7 +2402,7 @@ class RaftCoordinator:
                         }
                     ]
                 )
-    
+
     def get_cluster_agents(self):
         """Get all agents in the cluster"""
         response = self.table.scan(
@@ -2379,13 +2417,14 @@ class RaftCoordinator:
 **Use Case:** Consensus despite malicious or faulty agents
 
 **Implementation:**
+
 ```python
 class ByzantineCoordinator:
     def __init__(self, agent_id, total_agents):
         self.agent_id = agent_id
         self.total_agents = total_agents
         self.max_faulty = (total_agents - 1) // 3
-    
+
     def reach_consensus(self, proposed_value):
         """
         Reach consensus using Byzantine agreement
@@ -2393,23 +2432,23 @@ class ByzantineCoordinator:
         """
         # Phase 1: Propose
         proposals = self.collect_proposals(proposed_value)
-        
+
         # Phase 2: Vote
         votes = self.collect_votes(proposals)
-        
+
         # Phase 3: Decide
         decision = self.decide(votes)
-        
+
         return decision
-    
+
     def collect_proposals(self, value):
         """Collect proposals from all agents"""
         proposals = {self.agent_id: value}
-        
+
         # Invoke other agents to get their proposals
         bedrock = boto3.client('bedrock-agent-runtime')
         agents = self.get_active_agents()
-        
+
         for agent in agents:
             if agent['agentId'] != self.agent_id:
                 response = bedrock.invoke_agent(
@@ -2418,27 +2457,27 @@ class ByzantineCoordinator:
                     sessionId=f"consensus-{int(time.time())}",
                     inputText="What is your proposed value for consensus?"
                 )
-                
+
                 # Extract proposal from response
                 proposal = self.parse_agent_response(response)
                 proposals[agent['agentId']] = proposal
-        
+
         return proposals
-    
+
     def collect_votes(self, proposals):
         """Collect votes for each proposal"""
         votes = {}
-        
+
         for agent_id, proposal in proposals.items():
             votes[proposal] = votes.get(proposal, 0) + 1
-        
+
         return votes
-    
+
     def decide(self, votes):
         """Make decision based on votes"""
         # Need 2f + 1 votes for consensus
         required_votes = 2 * self.max_faulty + 1
-        
+
         for value, count in votes.items():
             if count >= required_votes:
                 return {
@@ -2446,7 +2485,7 @@ class ByzantineCoordinator:
                     'value': value,
                     'votes': count
                 }
-        
+
         return {
             'consensus': False,
             'reason': 'Insufficient agreement'
@@ -2458,6 +2497,7 @@ class ByzantineCoordinator:
 **Use Case:** Distributed state propagation among agents
 
 **Implementation:**
+
 ```python
 import random
 import json
@@ -2467,7 +2507,7 @@ class GossipCoordinator:
         self.agent_id = agent_id
         self.state = {}
         self.version_vector = {}
-    
+
     def gossip(self, state_update):
         """
         Propagate state update to random subset of agents
@@ -2475,15 +2515,15 @@ class GossipCoordinator:
         # Update local state
         self.state.update(state_update)
         self.version_vector[self.agent_id] = self.version_vector.get(self.agent_id, 0) + 1
-        
+
         # Select random agents to gossip to (typically log(n) agents)
         agents = self.get_active_agents()
         num_targets = min(3, len(agents))  # Gossip to 3 random agents
         targets = random.sample(agents, num_targets)
-        
+
         # Send gossip messages
         eventbridge = boto3.client('events')
-        
+
         for target in targets:
             if target['agentId'] != self.agent_id:
                 eventbridge.put_events(
@@ -2500,17 +2540,17 @@ class GossipCoordinator:
                         }
                     ]
                 )
-    
+
     def receive_gossip(self, gossip_msg):
         """Receive and merge gossip message"""
         remote_state = gossip_msg['state']
         remote_version = gossip_msg['versionVector']
-        
+
         # Merge states using version vectors
         for key, value in remote_state.items():
             remote_ver = remote_version.get(key, 0)
             local_ver = self.version_vector.get(key, 0)
-            
+
             if remote_ver > local_ver:
                 # Remote state is newer
                 self.state[key] = value
@@ -2519,7 +2559,7 @@ class GossipCoordinator:
                 # Local state is newer, propagate back
                 self.gossip({key: self.state[key]})
             # If equal, states are consistent
-    
+
     def get_active_agents(self):
         """Get list of active agents from DynamoDB"""
         table = dynamodb.Table('bedrock-agent-cluster')
@@ -2539,20 +2579,20 @@ class GossipCoordinator:
 def invoke_agent_directly(agent_id, task):
     """Directly invoke another Bedrock agent"""
     bedrock_agent = boto3.client('bedrock-agent-runtime')
-    
+
     response = bedrock_agent.invoke_agent(
         agentId=agent_id,
         agentAliasId='PROD',
         sessionId=f"direct-{generate_id()}",
         inputText=task
     )
-    
+
     # Collect streaming response
     result = ""
     for event in response['completion']:
         if 'chunk' in event:
             result += event['chunk']['bytes'].decode('utf-8')
-    
+
     return result
 ```
 
@@ -2562,7 +2602,7 @@ def invoke_agent_directly(agent_id, task):
 def publish_agent_event(event_type, data):
     """Publish event for other agents to consume"""
     eventbridge = boto3.client('events')
-    
+
     eventbridge.put_events(
         Entries=[
             {
@@ -2581,7 +2621,7 @@ def publish_agent_event(event_type, data):
 def communicate_via_memory(channel, message):
     """Use DynamoDB as shared memory for agent communication"""
     table = dynamodb.Table('bedrock-agent-memory')
-    
+
     # Write message to shared memory
     table.put_item(
         Item={
@@ -2592,7 +2632,7 @@ def communicate_via_memory(channel, message):
             'ttl': int(time.time()) + 3600
         }
     )
-    
+
     # Notify subscribers via EventBridge
     publish_agent_event('MemoryUpdate', {
         'channel': channel,
@@ -2603,6 +2643,7 @@ def communicate_via_memory(channel, message):
 ### Conflict Resolution
 
 **Strategy 1: Last-Write-Wins (LWW)**
+
 ```python
 def resolve_conflict_lww(local_value, remote_value, local_ts, remote_ts):
     """Resolve conflict using last-write-wins"""
@@ -2610,39 +2651,41 @@ def resolve_conflict_lww(local_value, remote_value, local_ts, remote_ts):
 ```
 
 **Strategy 2: Agent Voting**
+
 ```python
 def resolve_conflict_voting(conflict_data):
     """Resolve conflict through agent voting"""
     # Invoke multiple reviewer agents
     votes = {}
-    
+
     for reviewer_id in get_reviewer_agents():
         vote = invoke_agent_directly(
             reviewer_id,
             f"Review conflict and vote: {json.dumps(conflict_data)}"
         )
         votes[vote] = votes.get(vote, 0) + 1
-    
+
     # Return majority vote
     return max(votes.items(), key=lambda x: x[1])[0]
 ```
 
 **Strategy 3: Semantic Merge**
+
 ```python
 def resolve_conflict_semantic(local_value, remote_value, context):
     """Use Claude to semantically merge conflicting values"""
     bedrock = boto3.client('bedrock-runtime')
-    
+
     prompt = f"""
     Two agents have conflicting values that need to be merged:
-    
+
     Local value: {local_value}
     Remote value: {remote_value}
     Context: {context}
-    
+
     Provide a semantically merged value that preserves intent from both.
     """
-    
+
     response = bedrock.invoke_model(
         modelId='anthropic.claude-3-5-sonnet-20241022-v2:0',
         body=json.dumps({
@@ -2651,7 +2694,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
             "messages": [{"role": "user", "content": prompt}]
         })
     )
-    
+
     result = json.loads(response['body'].read())
     return result['content'][0]['text']
 ```
@@ -2663,32 +2706,39 @@ def resolve_conflict_semantic(local_value, remote_value, context):
 ### Phase 1: Foundation (Weeks 1-2)
 
 **Objectives:**
+
 - Set up AWS infrastructure
 - Create core Bedrock agents
 - Establish knowledge bases
 
 **Tasks:**
+
 1. **AWS Account Setup**
+
    - Create dedicated AWS account for agent system
    - Set up Organizations and SCPs
    - Configure billing alerts
 
 2. **IAM Configuration**
+
    - Create all IAM roles and policies
    - Set up KMS keys for encryption
    - Configure Secrets Manager for API keys
 
 3. **Network Infrastructure**
+
    - Deploy VPC with private subnets
    - Set up VPC endpoints for Bedrock, S3, DynamoDB
    - Configure security groups
 
 4. **Data Layer**
+
    - Create DynamoDB tables (state, memory, tasks)
    - Set up S3 buckets for documents and artifacts
    - Configure ElastiCache Redis cluster
 
 5. **OpenSearch Serverless**
+
    - Create OpenSearch collections
    - Configure network and data access policies
    - Set up encryption policies
@@ -2699,6 +2749,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
    - Test basic functionality
 
 **Deliverables:**
+
 - ✅ AWS infrastructure deployed
 - ✅ 5 core agents operational
 - ✅ 1 knowledge base with sample data
@@ -2707,24 +2758,29 @@ def resolve_conflict_semantic(local_value, remote_value, context):
 ### Phase 2: Action Groups & Coordination (Weeks 3-4)
 
 **Objectives:**
+
 - Implement action groups with Lambda
 - Build coordination mechanisms
 - Develop agent orchestration
 
 **Tasks:**
+
 1. **Lambda Action Groups**
+
    - Implement code operations Lambda
    - Implement test operations Lambda
    - Implement coordination Lambda
    - Deploy with proper IAM roles
 
 2. **Knowledge Base Population**
+
    - Ingest code patterns and best practices
    - Add project documentation
    - Include security guidelines
    - Set up automated sync from S3
 
 3. **Coordination Mechanisms**
+
    - Implement hierarchical coordinator
    - Implement mesh coordinator
    - Build consensus algorithms (Raft, Byzantine)
@@ -2737,6 +2793,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
    - Set up parallel execution patterns
 
 **Deliverables:**
+
 - ✅ 5 action groups operational
 - ✅ 3 coordination patterns implemented
 - ✅ 4 knowledge bases populated
@@ -2745,18 +2802,22 @@ def resolve_conflict_semantic(local_value, remote_value, context):
 ### Phase 3: Specialized Agents (Weeks 5-6)
 
 **Objectives:**
+
 - Deploy all 54 specialized agents
 - Implement domain-specific capabilities
 - Integrate with external services
 
 **Tasks:**
+
 1. **SPARC Agents**
+
    - Specification analyst
    - Pseudocode designer
    - System architect
    - Refinement engineer
 
 2. **Domain Agents**
+
    - Backend developer
    - Frontend developer
    - Mobile developer
@@ -2765,6 +2826,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
    - Security analyst
 
 3. **Coordination Agents**
+
    - Adaptive coordinator
    - Collective intelligence coordinator
    - Swarm memory manager
@@ -2777,6 +2839,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
    - Configure release automation
 
 **Deliverables:**
+
 - ✅ 54 agents deployed
 - ✅ GitHub integration working
 - ✅ Domain-specific action groups
@@ -2785,22 +2848,27 @@ def resolve_conflict_semantic(local_value, remote_value, context):
 ### Phase 4: Advanced Features (Weeks 7-8)
 
 **Objectives:**
+
 - Implement neural training patterns
 - Build self-healing capabilities
 - Create comprehensive monitoring
 
 **Tasks:**
+
 1. **SageMaker Integration**
+
    - Set up pattern recognition models
    - Implement continuous learning
    - Build recommendation engine
 
 2. **Auto-Scaling**
+
    - Implement dynamic agent spawning
    - Build load balancing
    - Create agent pooling
 
 3. **Monitoring & Observability**
+
    - Set up CloudWatch dashboards
    - Configure X-Ray tracing
    - Implement custom metrics
@@ -2813,6 +2881,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
    - Cost optimization analysis
 
 **Deliverables:**
+
 - ✅ SageMaker integration complete
 - ✅ Auto-scaling operational
 - ✅ Comprehensive monitoring
@@ -2821,24 +2890,29 @@ def resolve_conflict_semantic(local_value, remote_value, context):
 ### Phase 5: Production Hardening (Weeks 9-10)
 
 **Objectives:**
+
 - Production readiness
 - Documentation
 - Training and handoff
 
 **Tasks:**
+
 1. **Security Hardening**
+
    - Penetration testing
    - Secrets rotation setup
    - Audit logging validation
    - Compliance verification
 
 2. **Disaster Recovery**
+
    - Backup procedures
    - Cross-region replication
    - Failover testing
    - Recovery runbooks
 
 3. **Documentation**
+
    - Architecture documentation
    - API documentation
    - Runbooks for operations
@@ -2851,6 +2925,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
    - Cost reduction
 
 **Deliverables:**
+
 - ✅ Production-ready system
 - ✅ Complete documentation
 - ✅ DR plan tested
@@ -2859,6 +2934,7 @@ def resolve_conflict_semantic(local_value, remote_value, context):
 ### Terraform Infrastructure Code
 
 **Directory Structure:**
+
 ```
 terraform/
 ├── modules/
@@ -2876,6 +2952,7 @@ terraform/
 ```
 
 **Example Module: Bedrock Agent**
+
 ```hcl
 # terraform/modules/bedrock-agent/main.tf
 
@@ -2884,11 +2961,11 @@ resource "aws_bedrock_agent" "agent" {
   foundation_model        = var.foundation_model
   instruction             = var.instruction
   agent_resource_role_arn = aws_iam_role.agent_execution_role.arn
-  
+
   idle_session_ttl_in_seconds = var.idle_session_ttl
-  
+
   customer_encryption_key_arn = var.kms_key_arn
-  
+
   dynamic "action_group" {
     for_each = var.action_groups
     content {
@@ -2904,7 +2981,7 @@ resource "aws_bedrock_agent" "agent" {
       }
     }
   }
-  
+
   dynamic "knowledge_base" {
     for_each = var.knowledge_bases
     content {
@@ -2913,20 +2990,20 @@ resource "aws_bedrock_agent" "agent" {
       knowledge_base_state = "ENABLED"
     }
   }
-  
+
   tags = var.tags
 }
 
 resource "aws_bedrock_agent_alias" "prod" {
   agent_id   = aws_bedrock_agent.agent.id
   alias_name = "prod"
-  
+
   tags = var.tags
 }
 
 resource "aws_iam_role" "agent_execution_role" {
   name = "${var.agent_name}-execution-role"
-  
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -2949,7 +3026,7 @@ resource "aws_iam_role" "agent_execution_role" {
 resource "aws_iam_role_policy" "agent_permissions" {
   name = "${var.agent_name}-permissions"
   role = aws_iam_role.agent_execution_role.id
-  
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -2970,7 +3047,7 @@ resource "aws_iam_role_policy" "agent_permissions" {
           "bedrock:RetrieveAndGenerate"
         ]
         Resource = [
-          for kb in var.knowledge_bases : 
+          for kb in var.knowledge_bases :
           "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:knowledge-base/${kb.id}"
         ]
       },
@@ -2998,10 +3075,12 @@ data "aws_region" "current" {}
 #### Bedrock Costs
 
 **Foundation Models:**
+
 - Claude 3.5 Sonnet v2: $3.00 / MTok input, $15.00 / MTok output
 - Claude 3.5 Haiku: $0.80 / MTok input, $4.00 / MTok output
 
 **Estimated Usage (100K agent invocations/month):**
+
 ```
 Sonnet Usage:
 - 60K invocations × 2K tokens avg = 120M tokens input
@@ -3017,6 +3096,7 @@ Total Bedrock Model Cost: $1,372/month
 ```
 
 **Knowledge Bases:**
+
 - Titan Embeddings V2: $0.00002 per 1K tokens
 - 1M documents × 500 tokens = 500M tokens
 - Cost: 500 × $0.02 = $10/month (one-time ingestion)
@@ -3027,10 +3107,12 @@ Total Bedrock Model Cost: $1,372/month
 #### OpenSearch Serverless
 
 **Configuration:**
+
 - 4 OCUs (OpenSearch Compute Units) for search
 - 2 OCUs for indexing
 
 **Cost:**
+
 - Search OCUs: 4 × $0.24/hour × 730 hours = $700/month
 - Indexing OCUs: 2 × $0.24/hour × 730 hours = $350/month
 
@@ -3039,11 +3121,13 @@ Total Bedrock Model Cost: $1,372/month
 #### Lambda Functions
 
 **Invocations:**
+
 - 100K agent invocations
 - Average 5 Lambda calls per invocation = 500K invocations
 - Average 3GB memory, 5-second duration
 
 **Cost:**
+
 - Compute: 500K × 5 sec × (3GB/1024) × $0.0000166667 = $122
 - Requests: 500K × $0.20/1M = $0.10
 
@@ -3052,11 +3136,13 @@ Total Bedrock Model Cost: $1,372/month
 #### DynamoDB
 
 **Tables:**
+
 - Agent State: 10GB storage, 1M read/write per month
 - Agent Memory: 5GB storage, 500K read/write per month
 - Tasks: 2GB storage, 200K read/write per month
 
 **Cost (On-Demand):**
+
 - Storage: 17GB × $0.25 = $4.25
 - Writes: 1.7M × $1.25/1M = $2.13
 - Reads: 1.7M × $0.25/1M = $0.43
@@ -3067,10 +3153,12 @@ Total Bedrock Model Cost: $1,372/month
 #### ElastiCache Redis
 
 **Configuration:**
+
 - 3 × cache.r7g.large nodes
 - 13.07 GB memory per node
 
 **Cost:**
+
 - 3 nodes × $0.176/hour × 730 hours = $385/month
 
 **Total ElastiCache: $385/month**
@@ -3078,11 +3166,13 @@ Total Bedrock Model Cost: $1,372/month
 #### S3 Storage
 
 **Buckets:**
+
 - Knowledge Base documents: 500GB
 - Agent artifacts: 100GB
 - Schemas: 1GB
 
 **Cost:**
+
 - Standard storage: 600GB × $0.023 = $13.80
 - Requests: ~$5
 - Data transfer: ~$20
@@ -3092,10 +3182,12 @@ Total Bedrock Model Cost: $1,372/month
 #### Step Functions
 
 **Executions:**
+
 - 10K workflow executions per month
 - Average 50 state transitions per execution
 
 **Cost:**
+
 - State transitions: 500K × $0.025/1K = $12.50
 
 **Total Step Functions: $13/month**
@@ -3103,11 +3195,13 @@ Total Bedrock Model Cost: $1,372/month
 #### CloudWatch & X-Ray
 
 **Metrics & Logs:**
+
 - 100GB logs ingested per month
 - 50 custom metrics
 - 1M traces per month
 
 **Cost:**
+
 - Logs ingestion: 100GB × $0.50 = $50
 - Logs storage: 100GB × $0.03 = $3
 - Metrics: 50 × $0.30 = $15
@@ -3118,9 +3212,11 @@ Total Bedrock Model Cost: $1,372/month
 #### EventBridge
 
 **Events:**
+
 - 500K custom events per month
 
 **Cost:**
+
 - Events: 500K × $1/1M = $0.50
 
 **Total EventBridge: $1/month**
@@ -3128,10 +3224,12 @@ Total Bedrock Model Cost: $1,372/month
 #### CodeCommit
 
 **Repositories:**
+
 - 10 active users
 - 50GB storage
 
 **Cost:**
+
 - Users: 10 × $1 = $10
 - Storage: (50GB - 10GB free) × $0.06 = $2.40
 
@@ -3140,46 +3238,52 @@ Total Bedrock Model Cost: $1,372/month
 #### Data Transfer
 
 **Estimated:**
+
 - 100GB outbound data transfer per month
 
 **Cost:**
+
 - Data transfer: 100GB × $0.09 = $9
 
 **Total Data Transfer: $9/month**
 
 ### Total Monthly Cost Summary
 
-| Service | Monthly Cost |
-|---------|--------------|
-| **Bedrock (Models + KB)** | $1,432 |
-| **OpenSearch Serverless** | $1,050 |
-| **Lambda** | $122 |
-| **DynamoDB** | $9 |
-| **ElastiCache Redis** | $385 |
-| **S3** | $39 |
-| **Step Functions** | $13 |
-| **CloudWatch & X-Ray** | $73 |
-| **EventBridge** | $1 |
-| **CodeCommit** | $12 |
-| **Data Transfer** | $9 |
-| **TOTAL** | **$3,145/month** |
+| Service                   | Monthly Cost     |
+| ------------------------- | ---------------- |
+| **Bedrock (Models + KB)** | $1,432           |
+| **OpenSearch Serverless** | $1,050           |
+| **Lambda**                | $122             |
+| **DynamoDB**              | $9               |
+| **ElastiCache Redis**     | $385             |
+| **S3**                    | $39              |
+| **Step Functions**        | $13              |
+| **CloudWatch & X-Ray**    | $73              |
+| **EventBridge**           | $1               |
+| **CodeCommit**            | $12              |
+| **Data Transfer**         | $9               |
+| **TOTAL**                 | **$3,145/month** |
 
 ### Cost Optimization Strategies
 
 1. **Use Reserved Capacity for ElastiCache**
+
    - 1-year commitment: 30% savings = $115/month saved
    - 3-year commitment: 50% savings = $192/month saved
 
 2. **Optimize OpenSearch OCUs**
+
    - Use auto-scaling to reduce OCUs during low usage
    - Potential savings: 20-30% = $210-315/month
 
 3. **Implement Intelligent Caching**
+
    - Cache frequently accessed knowledge base results
    - Reduce Bedrock API calls by 20-30%
    - Savings: $280-420/month
 
 4. **Use Claude 3.5 Haiku More**
+
    - Switch 30% of Sonnet tasks to Haiku
    - Savings: ~$400/month
 
@@ -3198,6 +3302,7 @@ Total Bedrock Model Cost: $1,372/month
 #### Phase 1: Analysis & Planning
 
 **Step 1: Inventory Current System**
+
 ```bash
 # Document all claude-flow agents
 npx claude-flow sparc modes > agents-inventory.txt
@@ -3210,6 +3315,7 @@ npx claude-flow analytics --export usage-analysis.json
 ```
 
 **Step 2: Map Agents to Bedrock**
+
 ```json
 {
   "agentMapping": {
@@ -3232,6 +3338,7 @@ npx claude-flow analytics --export usage-analysis.json
 #### Phase 2: Parallel Deployment
 
 **Week 1-2: Deploy Core Agents**
+
 ```bash
 # Deploy Bedrock infrastructure
 cd terraform/environments/prod
@@ -3246,6 +3353,7 @@ terraform apply
 ```
 
 **Week 3-4: Gradual Traffic Shift**
+
 ```python
 def route_agent_request(agent_type, task):
     """
@@ -3253,7 +3361,7 @@ def route_agent_request(agent_type, task):
     """
     # Use feature flag to control traffic split
     bedrock_percentage = get_feature_flag('bedrock_traffic_percentage')
-    
+
     if random.random() < bedrock_percentage / 100:
         # Use Bedrock agent
         return invoke_bedrock_agent(agent_type, task)
@@ -3263,6 +3371,7 @@ def route_agent_request(agent_type, task):
 ```
 
 **Traffic Shift Schedule:**
+
 - Week 1: 10% Bedrock, 90% Claude-Flow
 - Week 2: 25% Bedrock, 75% Claude-Flow
 - Week 3: 50% Bedrock, 50% Claude-Flow
@@ -3272,6 +3381,7 @@ def route_agent_request(agent_type, task):
 #### Phase 3: Data Migration
 
 **Step 1: Export Memory and State**
+
 ```bash
 # Export claude-flow memory
 npx claude-flow memory export --output memory-export.json
@@ -3281,6 +3391,7 @@ npx claude-flow session export-all --output sessions/
 ```
 
 **Step 2: Import to Bedrock**
+
 ```python
 import boto3
 import json
@@ -3292,7 +3403,7 @@ def migrate_memory(export_file):
     """Migrate claude-flow memory to DynamoDB"""
     with open(export_file) as f:
         data = json.load(f)
-    
+
     for entry in data['memory']:
         table.put_item(
             Item={
@@ -3310,6 +3421,7 @@ migrate_memory('memory-export.json')
 #### Phase 4: Validation & Cutover
 
 **Validation Checklist:**
+
 - [ ] All agents functional in Bedrock
 - [ ] Knowledge bases populated
 - [ ] Action groups tested
@@ -3320,6 +3432,7 @@ migrate_memory('memory-export.json')
 - [ ] Disaster recovery tested
 
 **Cutover Plan:**
+
 ```
 T-7 days: Final validation
 T-3 days: Freeze claude-flow changes
@@ -3336,18 +3449,21 @@ T+7 days: Delete claude-flow resources
 #### Phase 5: Post-Migration Optimization
 
 **Week 1-2: Performance Tuning**
+
 - Optimize prompt templates
 - Adjust model selection
 - Fine-tune caching strategies
 - Optimize Lambda memory/timeout
 
 **Week 3-4: Cost Optimization**
+
 - Analyze usage patterns
 - Implement reserved capacity where applicable
 - Optimize knowledge base queries
 - Reduce unnecessary agent invocations
 
 **Monitoring & Alerting:**
+
 ```yaml
 # CloudWatch Alarms
 alarms:
@@ -3355,15 +3471,15 @@ alarms:
     metric: EstimatedCharges
     threshold: 5000
     period: 86400
-    
+
   - name: AgentFailureRate
     metric: AgentInvocationErrors
-    threshold: 5  # 5% error rate
+    threshold: 5 # 5% error rate
     period: 300
-    
+
   - name: HighLatency
     metric: AgentLatency
-    threshold: 30000  # 30 seconds
+    threshold: 30000 # 30 seconds
     period: 300
 ```
 
@@ -3371,17 +3487,26 @@ alarms:
 
 ## Conclusion
 
-This architecture provides a comprehensive, production-ready implementation of multi-agent orchestration using Amazon Bedrock. The design replicates all capabilities of the claude-flow system while leveraging AWS-native services for enhanced scalability, security, and operational efficiency.
+This architecture provides a comprehensive, production-ready implementation of
+multi-agent orchestration using Amazon Bedrock. The design replicates all
+capabilities of the claude-flow system while leveraging AWS-native services for
+enhanced scalability, security, and operational efficiency.
 
 ### Key Advantages
 
-1. **Native AWS Integration** - Seamless integration with AWS services eliminates custom infrastructure management
-2. **Scalability** - Auto-scaling agents and serverless components handle variable workloads
-3. **Security** - AWS IAM, KMS encryption, and VPC isolation provide enterprise-grade security
-4. **Cost Efficiency** - Pay-per-use model with optimization strategies reduces operational costs
-5. **Observability** - CloudWatch, X-Ray, and custom metrics provide comprehensive monitoring
+1. **Native AWS Integration** - Seamless integration with AWS services
+   eliminates custom infrastructure management
+2. **Scalability** - Auto-scaling agents and serverless components handle
+   variable workloads
+3. **Security** - AWS IAM, KMS encryption, and VPC isolation provide
+   enterprise-grade security
+4. **Cost Efficiency** - Pay-per-use model with optimization strategies reduces
+   operational costs
+5. **Observability** - CloudWatch, X-Ray, and custom metrics provide
+   comprehensive monitoring
 6. **Flexibility** - Multiple orchestration patterns support diverse use cases
-7. **Maintainability** - Infrastructure as Code with Terraform ensures reproducibility
+7. **Maintainability** - Infrastructure as Code with Terraform ensures
+   reproducibility
 
 ### Next Steps
 
@@ -3396,18 +3521,21 @@ This architecture provides a comprehensive, production-ready implementation of m
 ### Resources
 
 - **AWS Bedrock Documentation**: https://docs.aws.amazon.com/bedrock/
-- **Bedrock Agents Guide**: https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html
-- **OpenSearch Serverless**: https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless.html
-- **Terraform AWS Provider**: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+- **Bedrock Agents Guide**:
+  https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html
+- **OpenSearch Serverless**:
+  https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless.html
+- **Terraform AWS Provider**:
+  https://registry.terraform.io/providers/hashicorp/aws/latest/docs
 
 ---
 
 **Document Revision History:**
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-11-17 | Architecture Team | Initial design document |
+| Version | Date       | Author            | Changes                 |
+| ------- | ---------- | ----------------- | ----------------------- |
+| 1.0     | 2025-11-17 | Architecture Team | Initial design document |
 
 ---
 
-*End of Document*
+_End of Document_

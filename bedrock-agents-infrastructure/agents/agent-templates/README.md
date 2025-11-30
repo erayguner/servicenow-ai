@@ -1,13 +1,17 @@
 # Agent Templates and Instruction Library
 
-This directory contains reusable templates and instruction patterns for creating AWS Bedrock agents.
+This directory contains reusable templates and instruction patterns for creating
+AWS Bedrock agents.
 
 ## Contents
 
 ### 1. `base-agent-template.yaml`
-A complete agent configuration template with placeholders for all required fields. Use this as a starting point when creating new agents.
+
+A complete agent configuration template with placeholders for all required
+fields. Use this as a starting point when creating new agents.
 
 **Usage:**
+
 ```bash
 # Copy the template
 cp base-agent-template.yaml ../custom-agents/my-new-agent.yaml
@@ -20,7 +24,9 @@ cp base-agent-template.yaml ../custom-agents/my-new-agent.yaml
 ```
 
 ### 2. `instruction-templates.md`
+
 A library of reusable instruction templates covering:
+
 - Code Quality Standards
 - Testing Best Practices
 - Security Guidelines
@@ -29,40 +35,46 @@ A library of reusable instruction templates covering:
 - Performance Optimization
 - AWS Best Practices
 
-**Usage:**
-Mix and match instruction templates based on your agent's role. Copy relevant sections into your agent's `instruction` field.
+**Usage:** Mix and match instruction templates based on your agent's role. Copy
+relevant sections into your agent's `instruction` field.
 
 ## Quick Start Guide
 
 ### Creating a New Agent
 
 1. **Start with the base template:**
+
    ```bash
    cp base-agent-template.yaml ../my-category/my-agent.yaml
    ```
 
 2. **Define the agent metadata:**
+
    - Set `agentName`
    - Write a clear `description`
    - Choose the appropriate `foundationModel`
 
 3. **Craft comprehensive instructions:**
+
    - Start with relevant templates from `instruction-templates.md`
    - Add agent-specific guidance
    - Include examples and use cases
    - Define success criteria
 
 4. **Configure action groups:**
+
    - Identify what actions the agent needs to perform
    - Reference Lambda functions that implement those actions
    - Link to API schema definitions
 
 5. **Attach knowledge bases:**
+
    - Identify relevant knowledge domains
    - Reference knowledge base IDs
    - Enable/disable as needed
 
 6. **Set up guardrails:**
+
    - Reference appropriate guardrail configuration
    - Define content filters and topic restrictions
 
@@ -124,7 +136,7 @@ knowledgeBases:
 
 guardrailConfiguration:
   guardrailIdentifier: ${GUARDRAIL_ID}
-  guardrailVersion: "1"
+  guardrailVersion: '1'
 
 tags:
   Environment: ${ENVIRONMENT}
@@ -137,38 +149,51 @@ tags:
 ## Best Practices for Agent Instructions
 
 ### 1. Be Specific and Clear
+
 - Use precise language
 - Avoid ambiguity
 - Provide concrete examples
 - Define success criteria
 
 ### 2. Structure Instructions Logically
+
 ```markdown
 ## Section 1: Overview and Responsibilities
+
 ## Section 2: Core Competencies
+
 ## Section 3: Standards and Best Practices
+
 ## Section 4: Specific Guidelines
+
 ## Section 5: Error Handling
+
 ## Section 6: Output Format
 ```
 
 ### 3. Include Examples
+
 Show, don't just tell. Include code examples, sample outputs, and use cases.
 
 ### 4. Define Quality Criteria
+
 Be explicit about what "good" looks like:
+
 - Code quality standards
 - Test coverage requirements
 - Documentation expectations
 - Performance benchmarks
 
 ### 5. Provide Context
+
 Help the agent understand:
+
 - Why these practices matter
 - When to apply different approaches
 - Trade-offs between options
 
 ### 6. Keep Instructions Updated
+
 - Review and update regularly
 - Incorporate lessons learned
 - Remove outdated guidance
@@ -177,7 +202,9 @@ Help the agent understand:
 ## Instruction Template Categories
 
 ### Development Agents
+
 Recommended templates:
+
 - Code Quality
 - Testing
 - Documentation
@@ -185,21 +212,27 @@ Recommended templates:
 - Performance
 
 ### Security Agents
+
 Recommended templates:
+
 - Security
 - Code Quality
 - Documentation
 - AWS Best Practices
 
 ### Architecture/Planning Agents
+
 Recommended templates:
+
 - Code Quality
 - Documentation
 - AWS Best Practices
 - Performance
 
 ### Coordinator Agents
+
 Recommended templates:
+
 - Documentation
 - Error Handling
 - (Custom coordination patterns)
@@ -225,11 +258,13 @@ These will be replaced during Terraform deployment.
 ## Testing Your Agent Configuration
 
 1. **Validate YAML syntax:**
+
    ```bash
    yamllint my-agent.yaml
    ```
 
 2. **Check for required fields:**
+
    - agentName
    - agentResourceRoleArn
    - description
@@ -237,6 +272,7 @@ These will be replaced during Terraform deployment.
    - instruction
 
 3. **Review instructions:**
+
    - Clear and comprehensive?
    - Includes examples?
    - Defines success criteria?
@@ -287,4 +323,5 @@ When adding new templates or examples:
 
 ## License
 
-These templates are part of the ServiceNow AI project and follow the same license terms.
+These templates are part of the ServiceNow AI project and follow the same
+license terms.

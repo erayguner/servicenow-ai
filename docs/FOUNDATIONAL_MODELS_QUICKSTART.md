@@ -2,7 +2,8 @@
 
 ## 🎯 Recommended: Hybrid Routing (Best of Both Worlds!)
 
-**Automatically routes between self-hosted (fast/cheap) and cloud (long-context/complex)**
+**Automatically routes between self-hosted (fast/cheap) and cloud
+(long-context/complex)**
 
 ### Deploy Hybrid Router (2 commands)
 
@@ -28,9 +29,11 @@ kubectl apply -f k8s/llm-serving/foundational-models.yaml
 ## 2️⃣ Configure Credentials
 
 ### Google Vertex AI (No keys needed!)
+
 ✅ Already configured via Workload Identity
 
 ### OpenAI
+
 ```bash
 kubectl create secret generic openai-api-key \
   --from-literal=api-key=sk-YOUR_KEY \
@@ -38,6 +41,7 @@ kubectl create secret generic openai-api-key \
 ```
 
 ### Anthropic
+
 ```bash
 kubectl create secret generic anthropic-api-key \
   --from-literal=api-key=sk-ant-YOUR_KEY \
@@ -98,6 +102,7 @@ response = requests.post(url, json={
 ```
 
 ### cURL Example
+
 ```bash
 # Auto routing
 curl -X POST http://hybrid-llm-router.production/v1/chat/completions \
@@ -119,32 +124,33 @@ curl -X POST http://hybrid-llm-router.production/v1/chat/completions \
 
 ## 📊 Routing Strategies (Hybrid)
 
-| Strategy | Best For | Primary Models | Fallback |
-|----------|----------|----------------|----------|
-| `auto` ⭐ | **Intelligent routing** | Self-hosted → Cloud (automatic) | All available |
-| `fast` | Quick responses (<500ms) | Self-hosted Mistral (disaggregated) | Cloud fast |
-| `quality` | Complex tasks | Claude Opus, GPT-4, Gemini Pro | Cloud quality |
-| `cost` | Budget-conscious | Self-hosted Mistral ($0.01/1M) | Gemini Flash |
-| `long_context` | Large documents (>100K) | Gemini Pro (1M), Claude (200K) | Cloud long |
-| `balanced` | General purpose | Mix of self-hosted + cloud | Balanced |
+| Strategy       | Best For                 | Primary Models                      | Fallback      |
+| -------------- | ------------------------ | ----------------------------------- | ------------- |
+| `auto` ⭐      | **Intelligent routing**  | Self-hosted → Cloud (automatic)     | All available |
+| `fast`         | Quick responses (<500ms) | Self-hosted Mistral (disaggregated) | Cloud fast    |
+| `quality`      | Complex tasks            | Claude Opus, GPT-4, Gemini Pro      | Cloud quality |
+| `cost`         | Budget-conscious         | Self-hosted Mistral ($0.01/1M)      | Gemini Flash  |
+| `long_context` | Large documents (>100K)  | Gemini Pro (1M), Claude (200K)      | Cloud long    |
+| `balanced`     | General purpose          | Mix of self-hosted + cloud          | Balanced      |
 
-**Cost Savings with Hybrid**: ~70% vs cloud-only
-**Speed Improvement**: ~50% faster for simple queries
+**Cost Savings with Hybrid**: ~70% vs cloud-only **Speed Improvement**: ~50%
+faster for simple queries
 
 ## 💰 Pricing (per 1M tokens)
 
-| Provider | Model | Input | Output | Context |
-|----------|-------|-------|--------|---------|
-| **Self-Hosted** | Mistral 7B | **$0.01** | **$0.02** | 32K |
-| **Self-Hosted** | CodeLlama 13B | **$0.015** | **$0.03** | 100K |
-| Vertex AI | Gemini Flash | $0.10 | $0.30 | 1M |
-| Vertex AI | Gemini Pro | $3.50 | $10.50 | 1M |
-| OpenAI | GPT-3.5 | $0.50 | $1.50 | 16K |
-| OpenAI | GPT-4 | $10.00 | $30.00 | 128K |
-| Anthropic | Claude Haiku | $0.25 | $1.25 | 200K |
-| Anthropic | Claude Opus | $15.00 | $75.00 | 200K |
+| Provider        | Model         | Input      | Output    | Context |
+| --------------- | ------------- | ---------- | --------- | ------- |
+| **Self-Hosted** | Mistral 7B    | **$0.01**  | **$0.02** | 32K     |
+| **Self-Hosted** | CodeLlama 13B | **$0.015** | **$0.03** | 100K    |
+| Vertex AI       | Gemini Flash  | $0.10      | $0.30     | 1M      |
+| Vertex AI       | Gemini Pro    | $3.50      | $10.50    | 1M      |
+| OpenAI          | GPT-3.5       | $0.50      | $1.50     | 16K     |
+| OpenAI          | GPT-4         | $10.00     | $30.00    | 128K    |
+| Anthropic       | Claude Haiku  | $0.25      | $1.25     | 200K    |
+| Anthropic       | Claude Opus   | $15.00     | $75.00    | 200K    |
 
 **Hybrid Routing Tip**: Use `model='auto'` for automatic cost optimization!
+
 - Simple queries → Self-hosted ($0.01/1M) = **97% cheaper than cloud**
 - Long context → Gemini Pro (1M tokens)
 - Complex reasoning → Premium cloud models
@@ -152,6 +158,7 @@ curl -X POST http://hybrid-llm-router.production/v1/chat/completions \
 ## 🎯 Common Use Cases
 
 ### ServiceNow Ticket Summarization
+
 ```python
 response = requests.post(url, json={
     'routing_strategy': 'fast',
@@ -161,6 +168,7 @@ response = requests.post(url, json={
 ```
 
 ### Knowledge Base Search (Long Context)
+
 ```python
 response = requests.post(url, json={
     'routing_strategy': 'long_context',
@@ -169,6 +177,7 @@ response = requests.post(url, json={
 ```
 
 ### Code Generation
+
 ```python
 response = requests.post(url, json={
     'routing_strategy': 'code',
@@ -198,5 +207,4 @@ kubectl port-forward -n production svc/llm-router 9090:9090
 
 ---
 
-**Status**: ✅ Production Ready
-**Support**: ai-infrastructure@company.com
+**Status**: ✅ Production Ready **Support**: ai-infrastructure@company.com

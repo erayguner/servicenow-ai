@@ -1,134 +1,134 @@
 {
-  "dashboards": {
-    "bedrock-agents-overview": {
-      "name": "Bedrock Agents Overview",
-      "description": "High-level dashboard for agent invocation metrics, success rates, token usage, and knowledge base performance",
-      "enabled": true,
-      "refreshInterval": 60,
-      "period": 300,
-      "timezone": "UTC",
-      "tags": {
-        "Environment": "Production",
-        "Service": "BedrockAgents",
-        "Type": "Overview"
-      }
-    },
-    "bedrock-security-dashboard": {
-      "name": "Bedrock Security Dashboard",
-      "description": "Security metrics including GuardDuty findings, authentication failures, IAM policy changes, and WAF metrics",
-      "enabled": true,
-      "refreshInterval": 30,
-      "period": 300,
-      "timezone": "UTC",
-      "tags": {
-        "Environment": "Production",
-        "Service": "Security",
-        "Type": "Security"
-      },
-      "notificationChannels": [
-        "arn:aws:sns:us-east-1:123456789012:security-alerts"
-      ]
-    },
-    "bedrock-performance-dashboard": {
-      "name": "Bedrock Performance Dashboard",
-      "description": "Performance metrics including Lambda execution times, Step Functions duration, API latency, and DynamoDB throttles",
-      "enabled": true,
-      "refreshInterval": 60,
-      "period": 60,
-      "timezone": "UTC",
-      "tags": {
-        "Environment": "Production",
-        "Service": "Performance",
-        "Type": "Performance"
-      }
-    },
-    "bedrock-cost-dashboard": {
-      "name": "Bedrock Cost Dashboard",
-      "description": "Cost tracking by service, agent type, and projected monthly spending",
-      "enabled": true,
-      "refreshInterval": 3600,
-      "period": 86400,
-      "timezone": "UTC",
-      "tags": {
-        "Environment": "Production",
-        "Service": "FinanceOps",
-        "Type": "Cost"
-      },
-      "notificationChannels": [
-        "arn:aws:sns:us-east-1:123456789012:cost-alerts"
-      ]
-    },
-    "bedrock-compliance-dashboard": {
-      "name": "Bedrock Compliance Dashboard",
-      "description": "Compliance metrics including Config rule compliance, encryption coverage, backup compliance, and patch status",
-      "enabled": true,
-      "refreshInterval": 300,
-      "period": 300,
-      "timezone": "UTC",
-      "tags": {
-        "Environment": "Production",
-        "Service": "Compliance",
-        "Type": "Compliance"
-      },
-      "notificationChannels": [
-        "arn:aws:sns:us-east-1:123456789012:compliance-alerts"
-      ]
-    }
-  },
   "alarmConfiguration": {
+    "enableActionsOnInsightAlarms": true,
     "enabled": true,
+    "evaluationPeriods": 1,
     "snsTopics": {
       "bedrock-alerts": {
         "arn": "arn:aws:sns:us-east-1:123456789012:bedrock-alerts",
         "description": "General Bedrock agent alerts"
       },
-      "security-alerts": {
-        "arn": "arn:aws:sns:us-east-1:123456789012:security-alerts",
-        "description": "Security and compliance alerts"
+      "compliance-alerts": {
+        "arn": "arn:aws:sns:us-east-1:123456789012:compliance-alerts",
+        "description": "Compliance violation alerts"
       },
       "cost-alerts": {
         "arn": "arn:aws:sns:us-east-1:123456789012:cost-alerts",
         "description": "Cost anomaly alerts"
       },
-      "compliance-alerts": {
-        "arn": "arn:aws:sns:us-east-1:123456789012:compliance-alerts",
-        "description": "Compliance violation alerts"
+      "security-alerts": {
+        "arn": "arn:aws:sns:us-east-1:123456789012:security-alerts",
+        "description": "Security and compliance alerts"
       }
     },
-    "treatMissingData": "notBreaching",
-    "evaluationPeriods": 1,
-    "enableActionsOnInsightAlarms": true
+    "treatMissingData": "notBreaching"
   },
-  "metricFilters": {
-    "enabled": true,
-    "logGroups": {
-      "/aws/lambda/bedrock-agent-orchestrator": {
-        "retentionInDays": 30,
-        "description": "Bedrock Agent Orchestrator Lambda logs"
+  "dashboards": {
+    "bedrock-agents-overview": {
+      "description": "High-level dashboard for agent invocation metrics, success rates, token usage, and knowledge base performance",
+      "enabled": true,
+      "name": "Bedrock Agents Overview",
+      "period": 300,
+      "refreshInterval": 60,
+      "tags": {
+        "Environment": "Production",
+        "Service": "BedrockAgents",
+        "Type": "Overview"
       },
-      "/aws/apigateway/bedrock-agent-api": {
-        "retentionInDays": 7,
-        "description": "API Gateway access logs"
+      "timezone": "UTC"
+    },
+    "bedrock-compliance-dashboard": {
+      "description": "Compliance metrics including Config rule compliance, encryption coverage, backup compliance, and patch status",
+      "enabled": true,
+      "name": "Bedrock Compliance Dashboard",
+      "notificationChannels": [
+        "arn:aws:sns:us-east-1:123456789012:compliance-alerts"
+      ],
+      "period": 300,
+      "refreshInterval": 300,
+      "tags": {
+        "Environment": "Production",
+        "Service": "Compliance",
+        "Type": "Compliance"
       },
-      "/aws/stepfunctions/bedrock-workflows": {
-        "retentionInDays": 30,
-        "description": "Step Functions execution logs"
-      }
+      "timezone": "UTC"
+    },
+    "bedrock-cost-dashboard": {
+      "description": "Cost tracking by service, agent type, and projected monthly spending",
+      "enabled": true,
+      "name": "Bedrock Cost Dashboard",
+      "notificationChannels": [
+        "arn:aws:sns:us-east-1:123456789012:cost-alerts"
+      ],
+      "period": 86400,
+      "refreshInterval": 3600,
+      "tags": {
+        "Environment": "Production",
+        "Service": "FinanceOps",
+        "Type": "Cost"
+      },
+      "timezone": "UTC"
+    },
+    "bedrock-performance-dashboard": {
+      "description": "Performance metrics including Lambda execution times, Step Functions duration, API latency, and DynamoDB throttles",
+      "enabled": true,
+      "name": "Bedrock Performance Dashboard",
+      "period": 60,
+      "refreshInterval": 60,
+      "tags": {
+        "Environment": "Production",
+        "Service": "Performance",
+        "Type": "Performance"
+      },
+      "timezone": "UTC"
+    },
+    "bedrock-security-dashboard": {
+      "description": "Security metrics including GuardDuty findings, authentication failures, IAM policy changes, and WAF metrics",
+      "enabled": true,
+      "name": "Bedrock Security Dashboard",
+      "notificationChannels": [
+        "arn:aws:sns:us-east-1:123456789012:security-alerts"
+      ],
+      "period": 300,
+      "refreshInterval": 30,
+      "tags": {
+        "Environment": "Production",
+        "Service": "Security",
+        "Type": "Security"
+      },
+      "timezone": "UTC"
     }
   },
+  "dataRetention": {
+    "detailedMetrics": 14,
+    "logs": 30,
+    "metrics": 63
+  },
   "insightsQueries": {
-    "enabled": true,
     "defaultTimeRange": 3600,
+    "enabled": true,
     "maxResults": 1000,
     "tags": {
       "Environment": "Production",
       "Service": "BedrockAgents"
     }
   },
-  "dataRetention": {
-    "metrics": 63,
-    "logs": 30,
-    "detailedMetrics": 14
+  "metricFilters": {
+    "enabled": true,
+    "logGroups": {
+      "/aws/apigateway/bedrock-agent-api": {
+        "description": "API Gateway access logs",
+        "retentionInDays": 7
+      },
+      "/aws/lambda/bedrock-agent-orchestrator": {
+        "description": "Bedrock Agent Orchestrator Lambda logs",
+        "retentionInDays": 30
+      },
+      "/aws/stepfunctions/bedrock-workflows": {
+        "description": "Step Functions execution logs",
+        "retentionInDays": 30
+      }
+    }
   },
   "regions": [
     "us-east-1",

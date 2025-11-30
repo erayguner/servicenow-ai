@@ -1,6 +1,7 @@
 # Bedrock Agents Infrastructure - API Reference
 
-Complete API reference for Bedrock Agents, Lambda Action Groups, and orchestration endpoints.
+Complete API reference for Bedrock Agents, Lambda Action Groups, and
+orchestration endpoints.
 
 ## Bedrock Agents API
 
@@ -51,15 +52,15 @@ print(response['output'])
 
 **Error Codes**
 
-| Code | Description |
-|------|-------------|
+| Code  | Description                        |
+| ----- | ---------------------------------- |
 | `400` | Invalid input or malformed request |
-| `401` | Authentication failed |
-| `403` | Insufficient permissions |
-| `404` | Agent not found |
-| `429` | Rate limit exceeded |
-| `500` | Internal server error |
-| `503` | Service unavailable |
+| `401` | Authentication failed              |
+| `403` | Insufficient permissions           |
+| `404` | Agent not found                    |
+| `429` | Rate limit exceeded                |
+| `500` | Internal server error              |
+| `503` | Service unavailable                |
 
 ### Retrieve from Knowledge Base
 
@@ -559,5 +560,4 @@ print("Results:", results)
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-17
+**Version**: 1.0.0 **Last Updated**: 2025-01-17

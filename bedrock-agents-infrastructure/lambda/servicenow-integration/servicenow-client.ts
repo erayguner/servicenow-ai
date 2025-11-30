@@ -97,11 +97,7 @@ export class ServiceNowClient {
       return response.data;
     };
 
-    return withRetry(
-      requestFn,
-      this.config.maxRetries || 3,
-      this.config.retryDelay || 1000
-    );
+    return withRetry(requestFn, this.config.maxRetries || 3, this.config.retryDelay || 1000);
   }
 
   // ===========================
@@ -357,16 +353,15 @@ export class ServiceNowClient {
   }
 
   async linkIncidentsToProblem(problem_sys_id: string, incident_ids: string[]): Promise<void> {
-    logOperation('link-incidents-to-problem', { problem_sys_id, incident_count: incident_ids.length });
+    logOperation('link-incidents-to-problem', {
+      problem_sys_id,
+      incident_count: incident_ids.length,
+    });
 
     for (const incident_id of incident_ids) {
-      await this.request(
-        'PATCH',
-        `/api/now/table/incident/${incident_id}`,
-        {
-          problem_id: problem_sys_id,
-        }
-      );
+      await this.request('PATCH', `/api/now/table/incident/${incident_id}`, {
+        problem_id: problem_sys_id,
+      });
     }
   }
 
@@ -382,11 +377,7 @@ export class ServiceNowClient {
     return response.result;
   }
 
-  async resolveProblem(
-    sys_id: string,
-    root_cause: string,
-    workaround?: string
-  ): Promise<Problem> {
+  async resolveProblem(sys_id: string, root_cause: string, workaround?: string): Promise<Problem> {
     logOperation('resolve-problem', { sys_id });
 
     const response = await this.request<ServiceNowSingleResponse<Problem>>(
@@ -438,7 +429,10 @@ export class ServiceNowClient {
     return response.result;
   }
 
-  async updateKBArticle(sys_id: string, data: Partial<KnowledgeArticle>): Promise<KnowledgeArticle> {
+  async updateKBArticle(
+    sys_id: string,
+    data: Partial<KnowledgeArticle>
+  ): Promise<KnowledgeArticle> {
     logOperation('update-kb-article', { sys_id });
 
     const response = await this.request<ServiceNowSingleResponse<KnowledgeArticle>>(
@@ -483,7 +477,11 @@ export class ServiceNowClient {
 
   async getUserInfo(user_id?: string, user_name?: string): Promise<User> {
     if (!user_id && !user_name) {
-      throw new ServiceNowError('Either user_id or user_name is required', 400, 'MISSING_PARAMETER');
+      throw new ServiceNowError(
+        'Either user_id or user_name is required',
+        400,
+        'MISSING_PARAMETER'
+      );
     }
 
     logOperation('get-user-info', { user_id, user_name });
@@ -510,7 +508,11 @@ export class ServiceNowClient {
 
   async getGroupInfo(group_id?: string, group_name?: string): Promise<Group> {
     if (!group_id && !group_name) {
-      throw new ServiceNowError('Either group_id or group_name is required', 400, 'MISSING_PARAMETER');
+      throw new ServiceNowError(
+        'Either group_id or group_name is required',
+        400,
+        'MISSING_PARAMETER'
+      );
     }
 
     logOperation('get-group-info', { group_id, group_name });
@@ -535,16 +537,16 @@ export class ServiceNowClient {
     }
   }
 
-  async assignToGroup(task_sys_id: string, group_id: string, table: string = 'incident'): Promise<void> {
+  async assignToGroup(
+    task_sys_id: string,
+    group_id: string,
+    table: string = 'incident'
+  ): Promise<void> {
     logOperation('assign-to-group', { task_sys_id, group_id, table });
 
-    await this.request(
-      'PATCH',
-      `/api/now/table/${table}/${task_sys_id}`,
-      {
-        assignment_group: group_id,
-      }
-    );
+    await this.request('PATCH', `/api/now/table/${table}/${task_sys_id}`, {
+      assignment_group: group_id,
+    });
   }
 
   // ===========================

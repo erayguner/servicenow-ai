@@ -2,9 +2,11 @@
 
 ## ⚠️ Important: IAP OAuth Admin API Deprecation
 
-The `google_iap_brand` and `google_iap_client` Terraform resources are **deprecated** and will stop functioning after **March 19, 2026**.
+The `google_iap_brand` and `google_iap_client` Terraform resources are
+**deprecated** and will stop functioning after **March 19, 2026**.
 
 ### Timeline
+
 - **January 22, 2025**: Resources officially deprecated
 - **January 19, 2026**: New projects cannot use these APIs
 - **March 19, 2026**: APIs permanently shut down
@@ -97,16 +99,19 @@ module "iap" {
 ## Module Variables
 
 ### Required for Manual Approach
+
 - `oauth_client_id` - OAuth 2.0 Client ID (from GCP Console)
 - `oauth_client_secret` - OAuth 2.0 Client Secret (from GCP Console)
 
 ### Deprecated (Avoid Setting to `true`)
+
 - `create_brand` - Default: `false` (leave as false)
 - `create_oauth_client` - Default: `false` (leave as false)
 
 ## Alternative: Use Data Source (Future Enhancement)
 
-After migrating to manual creation, you can optionally use Terraform data sources to reference existing OAuth credentials:
+After migrating to manual creation, you can optionally use Terraform data
+sources to reference existing OAuth credentials:
 
 ```hcl
 # Note: This is a conceptual example - actual implementation may vary
@@ -143,6 +148,7 @@ module "iap" {
 ## Support
 
 For issues related to IAP configuration, consult:
+
 1. GCP IAP documentation
 2. Your organization's security team
 3. This repository's issue tracker

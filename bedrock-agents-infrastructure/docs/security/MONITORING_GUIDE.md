@@ -17,7 +17,8 @@
 
 ### Overview
 
-The monitoring architecture provides comprehensive visibility into Bedrock Agents Infrastructure across application, infrastructure, and security domains.
+The monitoring architecture provides comprehensive visibility into Bedrock
+Agents Infrastructure across application, infrastructure, and security domains.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -92,36 +93,42 @@ The monitoring architecture provides comprehensive visibility into Bedrock Agent
 ### Key Components
 
 #### CloudWatch Logs
+
 - Centralized log aggregation
 - Log groups for each service
 - Metric filters for extraction
 - Long-term retention in S3
 
 #### CloudWatch Metrics
+
 - AWS service metrics (Lambda, RDS, DynamoDB)
 - Custom application metrics
 - Business metrics (agent performance)
 - Infrastructure metrics (CPU, memory)
 
 #### CloudWatch Dashboards
+
 - Real-time visualization
 - Multi-service views
 - Operational status
 - Performance trends
 
 #### CloudWatch Alarms
+
 - Automated alerting on thresholds
 - Multi-metric conditions
 - Action triggers (SNS, Lambda)
 - Composite alarms
 
 #### GuardDuty
+
 - Threat detection analysis
 - Anomalous behavior detection
 - Machine learning-based findings
 - Integration with Security Hub
 
 #### Security Hub
+
 - Compliance standard aggregation
 - Automated remediation
 - Finding prioritization
@@ -158,6 +165,7 @@ Organizational Structure:
 ### Log Group Configuration
 
 #### Retention Policies
+
 ```
 Policy Schedule:
 - CloudTrail logs: 7 years (compliance requirement)
@@ -168,6 +176,7 @@ Policy Schedule:
 ```
 
 #### Retention Implementation
+
 ```bash
 # CloudTrail log group - 7 years retention
 aws logs put-retention-policy \
@@ -188,6 +197,7 @@ aws logs put-retention-policy \
 ### Log Filtering and Parsing
 
 #### Metric Filters
+
 Create filters to extract key metrics from logs:
 
 ```
@@ -217,6 +227,7 @@ Filter Pattern Examples:
 **Purpose**: High-level operational status for stakeholders
 
 **Metrics**:
+
 - System availability (%)
 - Error rate (%)
 - Average response time (ms)
@@ -231,6 +242,7 @@ Filter Pattern Examples:
 **Purpose**: Real-time operational monitoring for engineers
 
 **Metrics**:
+
 - Lambda invocations and duration
 - Error rates by service
 - Database connections and queries
@@ -246,6 +258,7 @@ Filter Pattern Examples:
 **Purpose**: Security posture and threat monitoring
 
 **Metrics**:
+
 - Failed authentication attempts
 - Unauthorized API calls
 - Security Hub findings by severity
@@ -261,6 +274,7 @@ Filter Pattern Examples:
 **Purpose**: Application and infrastructure performance
 
 **Metrics**:
+
 - Agent execution time (p50, p95, p99)
 - Model inference latency
 - Database query performance
@@ -276,6 +290,7 @@ Filter Pattern Examples:
 **Purpose**: Cost monitoring and optimization
 
 **Metrics**:
+
 - Daily spending by service
 - Cost per agent execution
 - Cost trends (daily, weekly, monthly)
@@ -325,6 +340,7 @@ Severity Levels:
 ### Core Alarms
 
 #### Lambda Alarms
+
 ```
 Alarm: High Error Rate
 - Metric: LambdaErrors / LambdaInvocations
@@ -346,6 +362,7 @@ Alarm: Function Throttling
 ```
 
 #### RDS Alarms
+
 ```
 Alarm: High CPU Utilization
 - Metric: CPUUtilization
@@ -373,6 +390,7 @@ Alarm: Storage Space Low
 ```
 
 #### API Alarms
+
 ```
 Alarm: High API Error Rate
 - Metric: 4XX + 5XX / Total requests
@@ -394,6 +412,7 @@ Alarm: API Rate Limited
 ```
 
 #### Security Alarms
+
 ```
 Alarm: Failed Authentication Spike
 - Metric: Authentication failures
@@ -419,6 +438,7 @@ Alarm: Security Group Change
 ```
 
 #### Cost Alarms
+
 ```
 Alarm: Daily Spending Spike
 - Metric: EstimatedCharges
@@ -438,6 +458,7 @@ Alarm: Monthly Forecast Exceeded
 ### Query Examples
 
 #### Application Logs
+
 ```sql
 -- High error rate analysis
 fields @timestamp, @message, error_code, request_id
@@ -464,6 +485,7 @@ fields @timestamp, agent_id, status, duration_ms
 ```
 
 #### Security Logs
+
 ```sql
 -- Failed authentication attempts
 fields @timestamp, user, status, source_ip
@@ -484,6 +506,7 @@ fields @timestamp, event_name, principal_id, change_details
 ```
 
 #### Infrastructure Logs
+
 ```sql
 -- Database connection issues
 fields @timestamp, connection_status, error_message
@@ -507,12 +530,14 @@ fields @timestamp, service_from, service_to, timeout_duration
 ### Lambda Performance
 
 #### Cold Start Optimization
+
 - Use provisioned concurrency for critical functions
 - Minimize deployment package size
 - Use Lambda Layers for shared libraries
 - Consider ARM-based Graviton processors
 
 #### Memory and CPU Tuning
+
 ```
 Memory vs Performance Tradeoff:
 - 128 MB: Minimal workloads (1 vCPU)
@@ -528,6 +553,7 @@ Recommendation: Choose based on:
 ```
 
 #### Timeout Configuration
+
 ```
 Timeout Guidelines:
 - API endpoints: 30 seconds
@@ -544,6 +570,7 @@ Configuration:
 ### Database Performance
 
 #### Connection Pooling
+
 ```
 Configuration:
 - RDS Proxy for connection pooling
@@ -553,6 +580,7 @@ Configuration:
 ```
 
 #### Query Optimization
+
 ```
 Best Practices:
 1. Use indexes on frequently filtered columns
@@ -564,6 +592,7 @@ Best Practices:
 ```
 
 #### Read Replicas
+
 ```
 Strategy:
 - Use read replicas for reporting
@@ -575,6 +604,7 @@ Strategy:
 ### API Gateway Performance
 
 #### Request/Response Optimization
+
 ```
 Techniques:
 1. Enable gzip compression
@@ -585,6 +615,7 @@ Techniques:
 ```
 
 #### Caching Strategy
+
 ```
 Cache Levels:
 1. CloudFront (edge locations) - 24 hour TTL
@@ -598,6 +629,7 @@ Cache Levels:
 ### High Error Rates
 
 #### Investigation Steps
+
 ```
 1. Check CloudWatch dashboards for affected service
 2. Query logs for error patterns:
@@ -609,6 +641,7 @@ Cache Levels:
 ```
 
 #### Common Causes and Fixes
+
 ```
 Cause: Lambda timeout
 Fix: Increase timeout or optimize code
@@ -629,6 +662,7 @@ Fix: Check quotas, request limit increase
 ### High Latency
 
 #### Diagnosis
+
 ```
 1. Identify slowest service using dashboards
 2. Check if issue is consistent or intermittent
@@ -640,6 +674,7 @@ Fix: Check quotas, request limit increase
 ```
 
 #### Optimization Steps
+
 ```
 1. For Lambda: Increase memory (more CPU)
 2. For Database: Check slow query log
@@ -651,6 +686,7 @@ Fix: Check quotas, request limit increase
 ### Memory Issues
 
 #### Investigation
+
 ```
 1. Check Lambda memory CloudWatch metric
 2. Review heap size allocation
@@ -659,6 +695,7 @@ Fix: Check quotas, request limit increase
 ```
 
 #### Resolution
+
 ```
 1. Increase Lambda memory allocation
 2. Optimize code to reduce memory usage
@@ -670,6 +707,7 @@ Fix: Check quotas, request limit increase
 ### Database Issues
 
 #### Connection Problems
+
 ```
 Diagnosis:
 - Check RDS Proxy metrics for connection pool status
@@ -684,6 +722,7 @@ Resolution:
 ```
 
 #### Performance Degradation
+
 ```
 Diagnosis:
 - Check CPU and memory utilization
@@ -701,39 +740,43 @@ Resolution:
 ## Metrics Reference
 
 ### Application Metrics
-| Metric | Unit | Good Range | Action Threshold |
-|--------|------|-----------|-----------------|
-| Error Rate | % | < 1% | > 5% |
-| P50 Latency | ms | < 200 | > 500 |
-| P95 Latency | ms | < 500 | > 2000 |
-| P99 Latency | ms | < 1000 | > 5000 |
-| Throughput | req/s | Baseline | -20% decline |
-| Cache Hit Rate | % | > 80% | < 50% |
+
+| Metric         | Unit  | Good Range | Action Threshold |
+| -------------- | ----- | ---------- | ---------------- |
+| Error Rate     | %     | < 1%       | > 5%             |
+| P50 Latency    | ms    | < 200      | > 500            |
+| P95 Latency    | ms    | < 500      | > 2000           |
+| P99 Latency    | ms    | < 1000     | > 5000           |
+| Throughput     | req/s | Baseline   | -20% decline     |
+| Cache Hit Rate | %     | > 80%      | < 50%            |
 
 ### Infrastructure Metrics
-| Metric | Unit | Good Range | Action Threshold |
-|--------|------|-----------|-----------------|
-| CPU Utilization | % | 30-70% | > 80% |
-| Memory Utilization | % | 50-80% | > 90% |
-| Disk Utilization | % | < 70% | > 80% |
-| Network In | Mbps | Baseline | 2x baseline |
-| Network Out | Mbps | Baseline | 2x baseline |
-| Connections | count | < 80% max | > 90% max |
+
+| Metric             | Unit  | Good Range | Action Threshold |
+| ------------------ | ----- | ---------- | ---------------- |
+| CPU Utilization    | %     | 30-70%     | > 80%            |
+| Memory Utilization | %     | 50-80%     | > 90%            |
+| Disk Utilization   | %     | < 70%      | > 80%            |
+| Network In         | Mbps  | Baseline   | 2x baseline      |
+| Network Out        | Mbps  | Baseline   | 2x baseline      |
+| Connections        | count | < 80% max  | > 90% max        |
 
 ### Security Metrics
-| Metric | Unit | Target | Alert Threshold |
-|--------|------|--------|-----------------|
-| Auth Failures | count/min | < 2 | > 10 |
-| Unauthorized Calls | count/min | 0 | > 5 |
-| Policy Changes | count/day | Approved only | Any unapproved |
-| Security Findings | count | 0 Critical/High | > 0 Critical |
-| Access Anomalies | count/day | Baseline | > 2x baseline |
+
+| Metric             | Unit      | Target          | Alert Threshold |
+| ------------------ | --------- | --------------- | --------------- |
+| Auth Failures      | count/min | < 2             | > 10            |
+| Unauthorized Calls | count/min | 0               | > 5             |
+| Policy Changes     | count/day | Approved only   | Any unapproved  |
+| Security Findings  | count     | 0 Critical/High | > 0 Critical    |
+| Access Anomalies   | count/day | Baseline        | > 2x baseline   |
 
 ## Alert Response Procedures
 
 ### Incident Triage
 
 When an alert fires:
+
 ```
 1. Immediate Assessment (within 5 min)
    - Is service down? (Severity 1)
@@ -757,6 +800,7 @@ When an alert fires:
 ### Response Workflows
 
 #### High Error Rate Alert
+
 ```
 1. Check affected service status
 2. Review error logs for error type
@@ -769,6 +813,7 @@ When an alert fires:
 ```
 
 #### Database Alert
+
 ```
 1. Check RDS metrics (CPU, connections, IOPS)
 2. Review slow query log
@@ -780,6 +825,7 @@ When an alert fires:
 ```
 
 #### Security Alert
+
 ```
 1. Review alert details in GuardDuty/Security Hub
 2. Investigate related CloudTrail events
@@ -824,6 +870,7 @@ Retention Policy by Log Type:
 ### Archival Process
 
 #### Automated Archival
+
 ```
 Daily Process:
 1. Logs > 90 days old → S3 Standard-IA
@@ -833,6 +880,7 @@ Daily Process:
 ```
 
 #### S3 Lifecycle Policies
+
 ```json
 {
   "Rules": [
@@ -859,6 +907,5 @@ Daily Process:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Next Review**: May 2025
+**Document Version**: 1.0 **Last Updated**: November 2024 **Next Review**: May
+2025

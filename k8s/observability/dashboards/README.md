@@ -1,47 +1,54 @@
 # Grafana Dashboards
 
-This directory contains Grafana dashboard definitions for monitoring the AI platform.
+This directory contains Grafana dashboard definitions for monitoring the AI
+platform.
 
 ## Available Dashboards
 
 ### AI/LLM Monitoring Dashboard
 
-**File:** `ai-llm-monitoring.yaml`
-**UID:** `ai-llm-monitoring`
+**File:** `ai-llm-monitoring.yaml` **UID:** `ai-llm-monitoring`
 
 Comprehensive dashboard for AI/LLM operations monitoring and cost tracking.
 
 #### Panels:
 
 1. **LLM Cost Rate (USD/5min)**
+
    - Real-time cost tracking by model
    - Shows spending velocity
    - Alerts on high cost rates
 
 2. **Total Cost (Last Hour)**
+
    - Gauge showing hourly spend
    - Thresholds: Yellow at $100, Red at $500
 
 3. **Total Cost (Last 24h)**
+
    - Daily spending tracker
    - Thresholds: Yellow at $1000, Red at $5000
 
 4. **Token Consumption Rate (tokens/5min)**
+
    - Stacked area chart by model
    - Split by input/output tokens
    - Helps identify usage patterns
 
 5. **LLM Latency (P50/P95/P99)**
+
    - Percentile latency tracking
    - Per-model breakdown
    - SLO monitoring
 
 6. **Request Rate (req/s)**
+
    - Success vs error rates
    - Per-model breakdown
    - Stacked bar chart
 
 7. **Security Events**
+
    - Prompt injection attempts by severity
    - PII detections
    - Real-time security monitoring
@@ -55,7 +62,8 @@ Comprehensive dashboard for AI/LLM operations monitoring and cost tracking.
 
 ### Automatic Deployment
 
-Dashboards are automatically loaded by Grafana when deployed as ConfigMaps with the label `grafana_dashboard: '1'`.
+Dashboards are automatically loaded by Grafana when deployed as ConfigMaps with
+the label `grafana_dashboard: '1'`.
 
 ```bash
 kubectl apply -f k8s/observability/dashboards/
@@ -64,6 +72,7 @@ kubectl apply -f k8s/observability/dashboards/
 ### Manual Import
 
 1. Access Grafana:
+
    ```bash
    kubectl port-forward -n observability svc/grafana 3000:3000
    ```
@@ -109,8 +118,10 @@ All metrics are exported by the OpenTelemetry instrumentation in the backend.
 - `llm_cost_usd_total{model, operation}` - Total cost in USD
 - `llm_requests_total{model, operation, status}` - Total requests
 - `llm_errors_total{model, operation, error}` - Total errors
-- `llm_security_prompt_injection_total{user_id, session_id, severity}` - Prompt injection attempts
-- `llm_security_pii_detected_total{user_id, session_id, pii_types}` - PII detections
+- `llm_security_prompt_injection_total{user_id, session_id, severity}` - Prompt
+  injection attempts
+- `llm_security_pii_detected_total{user_id, session_id, pii_types}` - PII
+  detections
 
 ### Histogram Metrics
 
@@ -175,6 +186,7 @@ rate(llm_security_pii_detected_total[5m])
 1. Create Slack webhook in Slack settings
 
 2. Add to Grafana notification channels:
+
    ```yaml
    apiVersion: v1
    kind: Secret
@@ -216,12 +228,13 @@ Based on dashboard data:
 ### Backup
 
 Export dashboard JSON via Grafana UI:
+
 - Settings → JSON Model → Copy
 
 ### Versioning
 
-Dashboard definitions are version-controlled in this repository.
-Always commit changes to Git before applying to production.
+Dashboard definitions are version-controlled in this repository. Always commit
+changes to Git before applying to production.
 
 ## Troubleshooting
 
@@ -241,16 +254,19 @@ kubectl get cm -n observability -l grafana_dashboard=1
 ### Missing Metrics
 
 1. Check OpenTelemetry Collector is running:
+
    ```bash
    kubectl get pods -n observability -l app=opentelemetry-collector
    ```
 
 2. Verify backend is exporting metrics:
+
    ```bash
    kubectl logs -n production deployment/ai-backend | grep -i otel
    ```
 
 3. Check Prometheus is scraping:
+
    ```bash
    # Port-forward Prometheus
    kubectl port-forward -n observability svc/prometheus 9090:9090
@@ -267,6 +283,7 @@ kubectl get cm -n observability -l grafana_dashboard=1
 ## References
 
 - Grafana Documentation: https://grafana.com/docs/
-- Prometheus Queries: https://prometheus.io/docs/prometheus/latest/querying/basics/
+- Prometheus Queries:
+  https://prometheus.io/docs/prometheus/latest/querying/basics/
 - OpenTelemetry Metrics: https://opentelemetry.io/docs/specs/otel/metrics/
 - Backend Instrumentation: `backend/src/observability/README.md`

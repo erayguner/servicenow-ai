@@ -9,7 +9,7 @@ import {
   TestResults,
   CoverageReportOptions,
   CoverageReport,
-  TestFailure
+  TestFailure,
 } from './types';
 
 /**
@@ -31,12 +31,7 @@ export async function generateTests(
   const analysis = analyzeSourceCode(sourceContent, sourceFile);
 
   // Generate test content based on framework and type
-  const testContent = generateTestContent(
-    analysis,
-    testFramework,
-    testType,
-    coverage
-  );
+  const testContent = generateTestContent(analysis, testFramework, testType, coverage);
 
   // Determine test file path
   const testFile = getTestFilePath(sourceFile, testFramework);
@@ -51,7 +46,7 @@ export async function generateTests(
     estimatedCoverage: testContent.estimatedCoverage,
     framework: testFramework,
     imports: testContent.imports,
-    testSuites: testContent.testSuites
+    testSuites: testContent.testSuites,
   };
 }
 
@@ -76,7 +71,7 @@ export async function runTests(
     testPath,
     environment,
     parallel,
-    timeout
+    timeout,
   });
 
   const duration = Date.now() - startTime;
@@ -92,7 +87,7 @@ export async function runTests(
     duration,
     coverage: results.coverage,
     failures: results.failures,
-    warnings: results.warnings
+    warnings: results.warnings,
   };
 
   // Store results in DynamoDB
@@ -127,7 +122,7 @@ export async function generateCoverageReport(
     lines: { total: 0, covered: 0, percentage: 0 },
     statements: { total: 0, covered: 0, percentage: 0 },
     functions: { total: 0, covered: 0, percentage: 0 },
-    branches: { total: 0, covered: 0, percentage: 0 }
+    branches: { total: 0, covered: 0, percentage: 0 },
   };
 
   const overall = {
@@ -135,12 +130,12 @@ export async function generateCoverageReport(
     statements: coverage.statements.percentage,
     functions: coverage.functions.percentage,
     branches: coverage.branches.percentage,
-    total: (
-      coverage.lines.percentage +
-      coverage.statements.percentage +
-      coverage.functions.percentage +
-      coverage.branches.percentage
-    ) / 4
+    total:
+      (coverage.lines.percentage +
+        coverage.statements.percentage +
+        coverage.functions.percentage +
+        coverage.branches.percentage) /
+      4,
   };
 
   // Generate report based on format
@@ -158,12 +153,12 @@ export async function generateCoverageReport(
     coverageByType: {
       unit: overall.total,
       integration: overall.total * 0.8,
-      e2e: overall.total * 0.6
+      e2e: overall.total * 0.6,
     },
     filesAnalyzed: 0,
     uncoveredLines: [],
     reportUrl: `s3://${process.env.CODE_BUCKET}/${reportPath}`,
-    recommendations: generateRecommendations(overall, threshold)
+    recommendations: generateRecommendations(overall, threshold),
   };
 
   return report;
@@ -184,13 +179,12 @@ export async function analyzeTestResults(
     averageTestDuration: results.duration / results.totalTests,
     failureRate: (results.failed / results.totalTests) * 100,
     coverageScore: results.coverage
-      ? (
-          results.coverage.lines.percentage +
+      ? (results.coverage.lines.percentage +
           results.coverage.statements.percentage +
           results.coverage.functions.percentage +
-          results.coverage.branches.percentage
-        ) / 4
-      : 0
+          results.coverage.branches.percentage) /
+        4
+      : 0,
   };
 
   // Store metrics
@@ -199,11 +193,7 @@ export async function analyzeTestResults(
 
 // Helper functions
 
-async function readFileFromS3(
-  s3Client: S3Client,
-  bucket: string,
-  key: string
-): Promise<string> {
+async function readFileFromS3(s3Client: S3Client, bucket: string, key: string): Promise<string> {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
   const response = await s3Client.send(command);
   const stream = response.Body as Readable;
@@ -226,7 +216,7 @@ async function writeFileToS3(
     Bucket: bucket,
     Key: key,
     Body: Buffer.from(content, 'utf-8'),
-    ContentType: 'text/plain'
+    ContentType: 'text/plain',
   });
 
   await s3Client.send(command);
@@ -245,7 +235,7 @@ function analyzeSourceCode(content: string, filePath: string): any {
     functions: functions.length,
     classes: classes.length,
     exports: exports.length,
-    language: getLanguageFromPath(filePath)
+    language: getLanguageFromPath(filePath),
   };
 }
 
@@ -255,7 +245,8 @@ function generateTestContent(
   testType: string,
   coverage: string
 ): any {
-  const testCount = Math.max(analysis.functions, analysis.classes, 1) *
+  const testCount =
+    Math.max(analysis.functions, analysis.classes, 1) *
     (coverage === 'comprehensive' ? 3 : coverage === 'exhaustive' ? 5 : 1);
 
   let content = '';
@@ -279,7 +270,7 @@ function generateTestContent(
     testCount,
     estimatedCoverage: Math.min(testCount * 10, 95),
     imports: extractImports(content),
-    testSuites: parseTestSuites(content)
+    testSuites: parseTestSuites(content),
   };
 }
 
@@ -351,12 +342,12 @@ function getTestFilePath(sourceFile: string, framework: string): string {
 function getLanguageFromPath(filePath: string): string {
   const ext = filePath.split('.').pop();
   const languageMap: Record<string, string> = {
-    'ts': 'typescript',
-    'tsx': 'typescript',
-    'js': 'javascript',
-    'jsx': 'javascript',
-    'py': 'python',
-    'java': 'java'
+    ts: 'typescript',
+    tsx: 'typescript',
+    js: 'javascript',
+    jsx: 'javascript',
+    py: 'python',
+    java: 'java',
   };
   return languageMap[ext || ''] || 'unknown';
 }
@@ -378,8 +369,8 @@ async function executeTests(_framework: string, _options: any): Promise<any> {
       lines: { total: 1000, covered: 850, percentage: 85 },
       statements: { total: 500, covered: 425, percentage: 85 },
       functions: { total: 100, covered: 90, percentage: 90 },
-      branches: { total: 200, covered: 160, percentage: 80 }
-    }
+      branches: { total: 200, covered: 160, percentage: 80 },
+    },
   };
 }
 
@@ -389,19 +380,16 @@ function generateMockFailures(count: number): TestFailure[] {
     testFile: 'test/example.test.ts',
     error: 'Expected value to be truthy',
     stack: 'at Object.<anonymous> (test/example.test.ts:10:5)',
-    duration: Math.random() * 1000
+    duration: Math.random() * 1000,
   }));
 }
 
-async function storeTestResults(
-  dynamoClient: DynamoDBClient,
-  results: TestResults
-): Promise<void> {
+async function storeTestResults(dynamoClient: DynamoDBClient, results: TestResults): Promise<void> {
   const command = new PutItemCommand({
     TableName: process.env.TEST_RESULTS_TABLE || 'test-results',
     Item: marshall({
-      ...results
-    })
+      ...results,
+    }),
   });
 
   await dynamoClient.send(command);
@@ -414,16 +402,14 @@ async function getTestResults(
   const command = new QueryCommand({
     TableName: process.env.TEST_RESULTS_TABLE || 'test-results',
     KeyConditionExpression: 'testRunId = :id',
-    ExpressionAttributeValues: marshall({ ':id': testRunId })
+    ExpressionAttributeValues: marshall({ ':id': testRunId }),
   });
 
   const response = await dynamoClient.send(command);
-  return response.Items?.[0] ? unmarshall(response.Items[0]) as TestResults : null;
+  return response.Items?.[0] ? (unmarshall(response.Items[0]) as TestResults) : null;
 }
 
-async function getLatestTestResults(
-  _dynamoClient: DynamoDBClient,
-): Promise<TestResults | null> {
+async function getLatestTestResults(_dynamoClient: DynamoDBClient): Promise<TestResults | null> {
   // Mock implementation - return latest test run
   return null;
 }
@@ -444,7 +430,9 @@ function generateRecommendations(overall: any, threshold: number): string[] {
     recommendations.push(`Line coverage (${overall.lines}%) is below threshold (${threshold}%)`);
   }
   if (overall.branches < threshold) {
-    recommendations.push(`Branch coverage (${overall.branches}%) is below threshold (${threshold}%)`);
+    recommendations.push(
+      `Branch coverage (${overall.branches}%) is below threshold (${threshold}%)`
+    );
   }
   if (overall.functions < 90) {
     recommendations.push('Consider adding tests for uncovered functions');
@@ -463,8 +451,8 @@ async function storeTestMetrics(
     Item: marshall({
       testRunId,
       timestamp: new Date().toISOString(),
-      ...metrics
-    })
+      ...metrics,
+    }),
   });
 
   await dynamoClient.send(command);
@@ -491,14 +479,18 @@ function extractImports(content: string): string[] {
 
 function parseTestSuites(_content: string): any[] {
   // Simple parsing - in production, use proper AST parsing
-  return [{
-    name: 'Main test suite',
-    description: 'Generated tests',
-    tests: [{
-      name: 'Test 1',
-      description: 'Basic test',
-      type: 'positive' as const,
-      assertions: 1
-    }]
-  }];
+  return [
+    {
+      name: 'Main test suite',
+      description: 'Generated tests',
+      tests: [
+        {
+          name: 'Test 1',
+          description: 'Basic test',
+          type: 'positive' as const,
+          assertions: 1,
+        },
+      ],
+    },
+  ];
 }

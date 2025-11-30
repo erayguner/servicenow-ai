@@ -4,8 +4,10 @@ This module provides OpenTelemetry instrumentation for the AI backend service.
 
 ## Features
 
-- **Auto-instrumentation**: Automatic tracing for Express.js, HTTP, PostgreSQL, and other libraries
-- **Custom LLM Telemetry**: Track tokens, costs, latency, and errors for AI operations
+- **Auto-instrumentation**: Automatic tracing for Express.js, HTTP, PostgreSQL,
+  and other libraries
+- **Custom LLM Telemetry**: Track tokens, costs, latency, and errors for AI
+  operations
 - **Distributed Tracing**: W3C Trace Context propagation across services
 - **Metrics**: Counters, histograms for key performance indicators
 - **Security Events**: Track prompt injection attempts and PII detection
@@ -14,9 +16,11 @@ This module provides OpenTelemetry instrumentation for the AI backend service.
 
 ### Basic Auto-Instrumentation
 
-Auto-instrumentation is automatically enabled when you import `./instrumentation` at the top of `index.ts`.
+Auto-instrumentation is automatically enabled when you import
+`./instrumentation` at the top of `index.ts`.
 
-All HTTP requests, database queries, and external API calls are automatically traced.
+All HTTP requests, database queries, and external API calls are automatically
+traced.
 
 ### Custom LLM Tracing
 
@@ -49,7 +53,8 @@ async function generateCompletion(prompt: string, userId: string) {
         metrics: {
           inputTokens: response.usage.input_tokens,
           outputTokens: response.usage.output_tokens,
-          totalTokens: response.usage.input_tokens + response.usage.output_tokens,
+          totalTokens:
+            response.usage.input_tokens + response.usage.output_tokens,
           latencyMs: Date.now() - startTime,
           success: true,
         },
@@ -145,6 +150,7 @@ NODE_ENV=production
 ### Local Development
 
 1. Start the observability stack:
+
    ```bash
    kubectl port-forward -n observability svc/grafana 3000:3000
    ```
@@ -156,6 +162,7 @@ NODE_ENV=production
 ### Production
 
 Traces and metrics are exported to:
+
 - **Google Cloud Trace**: Distributed tracing
 - **Google Cloud Monitoring**: Metrics and dashboards
 - **Prometheus**: Time-series metrics
@@ -165,11 +172,11 @@ Traces and metrics are exported to:
 
 Token pricing is defined in `llm-telemetry.ts`:
 
-| Model | Input (per 1M tokens) | Output (per 1M tokens) |
-|-------|----------------------|------------------------|
-| Claude 3.5 Sonnet | $3.00 | $15.00 |
-| Claude 3.5 Haiku | $0.80 | $4.00 |
-| Claude 3 Opus | $15.00 | $75.00 |
+| Model             | Input (per 1M tokens) | Output (per 1M tokens) |
+| ----------------- | --------------------- | ---------------------- |
+| Claude 3.5 Sonnet | $3.00                 | $15.00                 |
+| Claude 3.5 Haiku  | $0.80                 | $4.00                  |
+| Claude 3 Opus     | $15.00                | $75.00                 |
 
 Update these values when Anthropic changes pricing.
 
@@ -187,7 +194,8 @@ Update these values when Anthropic changes pricing.
 
 1. Check OTEL_COLLECTOR_URL is correct
 2. Verify OTel Collector is running: `kubectl get pods -n observability`
-3. Check logs: `kubectl logs -n observability deployment/opentelemetry-collector`
+3. Check logs:
+   `kubectl logs -n observability deployment/opentelemetry-collector`
 
 ### High latency
 

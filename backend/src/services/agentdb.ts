@@ -73,7 +73,7 @@ export class AgentDB {
       .limit(limit)
       .get();
 
-    return snapshot.docs.map(doc => doc.data() as Conversation);
+    return snapshot.docs.map((doc) => doc.data() as Conversation);
   }
 
   async updateConversation(conversationId: string, updates: Partial<Conversation>): Promise<void> {
@@ -98,7 +98,10 @@ export class AgentDB {
     // Update conversation timestamp
     await this.updateConversation(message.conversationId, {});
 
-    logger.info({ messageId: newMessage.id, conversationId: message.conversationId }, 'Message added');
+    logger.info(
+      { messageId: newMessage.id, conversationId: message.conversationId },
+      'Message added'
+    );
 
     return newMessage;
   }
@@ -110,7 +113,7 @@ export class AgentDB {
       .limit(limit)
       .get();
 
-    return snapshot.docs.map(doc => doc.data() as Message);
+    return snapshot.docs.map((doc) => doc.data() as Message);
   }
 
   async getRecentMessages(conversationId: string, count: number): Promise<Message[]> {
@@ -120,7 +123,7 @@ export class AgentDB {
       .limit(count)
       .get();
 
-    return snapshot.docs.map(doc => doc.data() as Message).reverse();
+    return snapshot.docs.map((doc) => doc.data() as Message).reverse();
   }
 
   // Document operations (for RAG)
@@ -145,7 +148,7 @@ export class AgentDB {
       .limit(limit)
       .get();
 
-    return snapshot.docs.map(doc => doc.data() as Document);
+    return snapshot.docs.map((doc) => doc.data() as Document);
   }
 
   async getDocumentById(documentId: string): Promise<Document | null> {

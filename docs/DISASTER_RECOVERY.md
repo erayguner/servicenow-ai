@@ -2,25 +2,29 @@
 
 ## Overview
 
-Comprehensive disaster recovery (DR) and business continuity plan for the ServiceNow AI infrastructure on GCP.
+Comprehensive disaster recovery (DR) and business continuity plan for the
+ServiceNow AI infrastructure on GCP.
 
-**Last Updated**: 2025-11-03
-**Version**: 1.0.0
-**Owner**: Platform Engineering Team
+**Last Updated**: 2025-11-03 **Version**: 1.0.0 **Owner**: Platform Engineering
+Team
 
 ---
 
 ## Recovery Objectives
 
 ### RPO (Recovery Point Objective)
+
 Maximum acceptable data loss:
+
 - **Production Database**: 5 minutes (PITR enabled)
 - **Cloud Storage**: 1 hour (versioned, replicated)
 - **Firestore**: Real-time replication (0 RPO)
 - **Configuration**: 0 RPO (Infrastructure as Code)
 
 ### RTO (Recovery Time Objective)
+
 Maximum acceptable downtime:
+
 - **Critical Services**: 15 minutes (conversation-manager, llm-gateway)
 - **High Priority**: 30 minutes (knowledge-base, api-gateway)
 - **Standard**: 1 hour (analytics, document-ingestion)
@@ -33,16 +37,20 @@ Maximum acceptable downtime:
 ### Multi-Zone Redundancy ✅
 
 **GKE Cluster**:
-- Regional cluster (3 zones): `europe-west2-a`, `europe-west2-b`, `europe-west2-c`
+
+- Regional cluster (3 zones): `europe-west2-a`, `europe-west2-b`,
+  `europe-west2-c`
 - Node pools distributed across zones
 - Automatic zone failover
 
 **Cloud SQL**:
+
 - Regional instance with HA configuration
 - Automatic failover to standby replica
 - Failover time: < 60 seconds
 
 **Storage**:
+
 - Multi-regional Cloud Storage buckets
 - Cross-zone replication
 - Versioning enabled
@@ -50,12 +58,14 @@ Maximum acceptable downtime:
 ### Single Points of Failure
 
 **Eliminated**:
+
 - ✅ Single-zone node failures (multi-zone cluster)
 - ✅ Database master failures (HA replica)
 - ✅ Load balancer failures (GCP-managed, multi-zone)
 - ✅ Network failures (VPC auto-mode, redundant paths)
 
 **Remaining** (acceptable risk):
+
 - Regional GCP outage (requires multi-region DR)
 - DNS provider outage (Cloud DNS is highly available)
 - External API dependencies (OpenAI, ServiceNow)
@@ -67,6 +77,7 @@ Maximum acceptable downtime:
 ### Automated Backups
 
 #### Cloud SQL
+
 ```hcl
 # terraform/modules/cloudsql/main.tf
 backup_configuration {
@@ -79,11 +90,11 @@ backup_configuration {
 }
 ```
 
-**Backup Schedule**: Daily at 05:00 UTC
-**Retention**: 7 days
-**PITR Window**: 7 days (5-minute granularity)
+**Backup Schedule**: Daily at 05:00 UTC **Retention**: 7 days **PITR Window**: 7
+days (5-minute granularity)
 
 #### Cloud Storage
+
 ```bash
 # Versioning enabled on all buckets
 gsutil versioning set on gs://knowledge-documents-prod
@@ -92,10 +103,12 @@ gsutil versioning set on gs://backup-prod
 ```
 
 **Lifecycle Policy**:
+
 - Deleted objects retained for 30 days
 - Old versions automatically cleaned after 90 days
 
 #### Firestore
+
 - Automatic multi-region replication
 - Point-in-time restore available (managed by GCP)
 - Export to Cloud Storage daily
@@ -107,6 +120,7 @@ gcloud firestore export gs://backup-prod/firestore/$(date +%Y-%m-%d) \
 ```
 
 #### Infrastructure as Code
+
 ```bash
 # Git repository serves as source of truth
 git push origin main  # Automatic backup to GitHub
@@ -124,13 +138,13 @@ gsutil versioning set on gs://terraform-state-prod
 **Detection**: Pod health check failure, monitoring alert
 
 **Automatic Recovery**:
+
 1. Kubernetes detects unhealthy pod
 2. Pod restart attempted (livenessProbe)
 3. If restart fails, pod terminated and recreated
 4. Traffic routed to healthy pods (Service)
 
-**RTO**: < 1 minute
-**Manual Intervention**: None required
+**RTO**: < 1 minute **Manual Intervention**: None required
 
 ---
 
@@ -139,13 +153,13 @@ gsutil versioning set on gs://terraform-state-prod
 **Detection**: Node unreachable, pods evicted
 
 **Automatic Recovery**:
+
 1. GKE detects node failure
 2. Pods rescheduled to healthy nodes
 3. New node provisioned if cluster scaled down
 4. Workloads restored
 
-**RTO**: 2-5 minutes
-**Manual Intervention**: None required
+**RTO**: 2-5 minutes **Manual Intervention**: None required
 
 ---
 
@@ -154,15 +168,16 @@ gsutil versioning set on gs://terraform-state-prod
 **Detection**: All nodes in zone unreachable
 
 **Automatic Recovery**:
+
 1. GKE redistributes workloads to remaining zones
 2. New nodes provisioned in healthy zones
 3. Pod anti-affinity ensures distribution
 4. Services remain available (multi-zone LB)
 
-**RTO**: 5-10 minutes
-**Manual Intervention**: Monitor recovery, verify services
+**RTO**: 5-10 minutes **Manual Intervention**: Monitor recovery, verify services
 
 **Manual Steps**:
+
 ```bash
 # Verify cluster health
 kubectl get nodes -o wide
@@ -182,15 +197,17 @@ kubectl scale deployment/conversation-manager --replicas=6 -n production
 **Detection**: Database connection errors, monitoring alert
 
 **Automatic Recovery (if HA replica healthy)**:
+
 1. Cloud SQL detects master failure
 2. Automatic failover to HA replica
 3. New replica promoted to master
 4. Applications reconnect automatically
 
-**RTO**: < 60 seconds
-**Manual Intervention**: None required (automatic failover)
+**RTO**: < 60 seconds **Manual Intervention**: None required (automatic
+failover)
 
 **Manual Recovery (if HA replica also failed)**:
+
 ```bash
 # 1. Check Cloud SQL status
 gcloud sql instances describe prod-postgres \
@@ -229,6 +246,7 @@ kubectl run -it --rm db-test \
 **Manual Recovery Required**:
 
 **Prerequisites**:
+
 - Multi-region DR environment pre-configured
 - DNS failover mechanism
 - Cross-region database replication
@@ -236,6 +254,7 @@ kubectl run -it --rm db-test \
 **Recovery Steps**:
 
 **1. Activate DR Region**:
+
 ```bash
 # Switch to DR region (us-central1)
 export DR_REGION=us-central1
@@ -256,6 +275,7 @@ kubectl apply -f ../../k8s/deployments/
 ```
 
 **2. Restore Data**:
+
 ```bash
 # Restore Cloud SQL from latest backup
 gcloud sql backups restore ${LATEST_BACKUP_ID} \
@@ -272,6 +292,7 @@ gcloud firestore import gs://backup-prod/firestore/latest \
 ```
 
 **3. Update DNS**:
+
 ```bash
 # Update Cloud DNS to point to DR region
 gcloud dns record-sets transaction start \
@@ -288,6 +309,7 @@ gcloud dns record-sets transaction execute \
 ```
 
 **4. Verify Services**:
+
 ```bash
 # Health check
 curl https://api.servicenow-ai.com/healthz
@@ -299,8 +321,8 @@ curl https://api.servicenow-ai.com/healthz
 kubectl logs -n production -l app=conversation-manager --tail=100
 ```
 
-**RTO**: 2-4 hours (full regional failover)
-**RPO**: 1 hour (last cross-region backup)
+**RTO**: 2-4 hours (full regional failover) **RPO**: 1 hour (last cross-region
+backup)
 
 ---
 
@@ -309,6 +331,7 @@ kubectl logs -n production -l app=conversation-manager --tail=100
 ### Monthly DR Tests
 
 **Pod Failure Test**:
+
 ```bash
 # Kill random pod
 POD=$(kubectl get pods -n production -l app=conversation-manager -o name | shuf -n 1)
@@ -319,6 +342,7 @@ kubectl get pods -n production -w
 ```
 
 **Node Drain Test**:
+
 ```bash
 # Simulate node failure
 NODE=$(kubectl get nodes -o name | shuf -n 1)
@@ -332,6 +356,7 @@ kubectl uncordon ${NODE}
 ```
 
 **Database Failover Test**:
+
 ```bash
 # Trigger manual failover (non-destructive)
 gcloud sql instances failover prod-postgres \
@@ -344,6 +369,7 @@ kubectl logs -n production -l app=conversation-manager --tail=50 -f
 ### Quarterly DR Tests
 
 **Backup Restore Test** (in staging):
+
 ```bash
 # 1. Export prod database
 gcloud sql export sql prod-postgres gs://backup-staging/test-restore.sql \
@@ -358,6 +384,7 @@ gcloud sql import sql staging-postgres gs://backup-staging/test-restore.sql \
 ```
 
 **Full DR Failover Test** (annual):
+
 - Deploy full infrastructure in DR region
 - Restore all data from backups
 - Failover DNS to DR region
@@ -371,16 +398,19 @@ gcloud sql import sql staging-postgres gs://backup-staging/test-restore.sql \
 ### Severity Levels
 
 **SEV-1 (Critical)**: Complete service outage
+
 - **Response Time**: 5 minutes
 - **Notification**: Page on-call engineer, notify leadership
 - **Actions**: Immediate triage, activate DR if needed
 
 **SEV-2 (High)**: Partial service degradation
+
 - **Response Time**: 15 minutes
 - **Notification**: Alert on-call engineer
 - **Actions**: Investigate and resolve, consider scaling resources
 
 **SEV-3 (Medium)**: Non-critical issues
+
 - **Response Time**: 1 hour
 - **Notification**: Create ticket
 - **Actions**: Schedule fix in next deployment
@@ -388,11 +418,13 @@ gcloud sql import sql staging-postgres gs://backup-staging/test-restore.sql \
 ### Communication Plan
 
 **Internal**:
+
 - Slack: `#prod-incidents` (real-time updates)
 - Email: eng-all@company.com (incident reports)
 - Status page: Internal dashboard
 
 **External**:
+
 - Status page: https://status.servicenow-ai.com
 - Email: support@company.com (affected customers)
 - Social media: @ServiceNowAI (major outages)
@@ -403,19 +435,20 @@ gcloud sql import sql staging-postgres gs://backup-staging/test-restore.sql \
 
 ### Backup Retention
 
-| Data Type | Retention Period | Storage Location |
-|-----------|------------------|------------------|
-| Database Backups | 7 days | Cloud SQL managed |
-| Database PITR Logs | 7 days | Cloud SQL managed |
-| Cloud Storage Versions | 90 days | GCS versioning |
-| Firestore Exports | 30 days | Cloud Storage |
-| Application Logs | 30 days | Cloud Logging |
-| Audit Logs | 365 days | Cloud Storage |
-| Terraform State | Forever | GCS versioned |
+| Data Type              | Retention Period | Storage Location  |
+| ---------------------- | ---------------- | ----------------- |
+| Database Backups       | 7 days           | Cloud SQL managed |
+| Database PITR Logs     | 7 days           | Cloud SQL managed |
+| Cloud Storage Versions | 90 days          | GCS versioning    |
+| Firestore Exports      | 30 days          | Cloud Storage     |
+| Application Logs       | 30 days          | Cloud Logging     |
+| Audit Logs             | 365 days         | Cloud Storage     |
+| Terraform State        | Forever          | GCS versioned     |
 
 ### Data Destruction
 
 **Decommissioning Process**:
+
 ```bash
 # 1. Export data for archival
 ./scripts/export-all-data.sh
@@ -445,19 +478,19 @@ gcloud container clusters list --filter="prod-*"
 - alert: BackupTooOld
   expr: (time() - cloudsql_backup_timestamp) > 86400
   annotations:
-    summary: "Cloud SQL backup older than 24 hours"
+    summary: 'Cloud SQL backup older than 24 hours'
 
 # Backup failures
 - alert: BackupFailed
   expr: cloudsql_backup_status == "FAILED"
   annotations:
-    summary: "Cloud SQL backup failed"
+    summary: 'Cloud SQL backup failed'
 
 # Cross-region replication lag
 - alert: ReplicationLag
   expr: cloudsql_replication_lag_seconds > 300
   annotations:
-    summary: "Database replication lag > 5 minutes"
+    summary: 'Database replication lag > 5 minutes'
 ```
 
 ---
@@ -467,12 +500,14 @@ gcloud container clusters list --filter="prod-*"
 ### Backup Storage Costs
 
 **Current Monthly Costs** (estimated):
+
 - Cloud SQL Backups: $50/month (7 days @ 200GB)
 - Cloud Storage Versions: $100/month (90 days @ 500GB)
 - Firestore Exports: $30/month
 - **Total**: ~$180/month
 
 **Cost Reduction Strategies**:
+
 - Reduce backup retention to 3 days (save 50%)
 - Use Nearline storage for old versions (save 30%)
 - Compress Firestore exports (save 40%)
@@ -484,6 +519,7 @@ gcloud container clusters list --filter="prod-*"
 ### Runbooks
 
 Located in `docs/runbooks/`:
+
 - `pod-failure.md` - Pod recovery procedures
 - `node-failure.md` - Node replacement steps
 - `database-failover.md` - Database recovery
@@ -491,18 +527,17 @@ Located in `docs/runbooks/`:
 
 ### Training Schedule
 
-**Monthly**: DR drill for on-call engineers
-**Quarterly**: Backup restore test
+**Monthly**: DR drill for on-call engineers **Quarterly**: Backup restore test
 **Annual**: Full DR failover test
 
 ### Team Responsibilities
 
-| Role | Responsibility |
-|------|----------------|
-| On-Call Engineer | First responder, execute runbooks |
-| Platform Lead | DR strategy, coordinate major incidents |
-| Database Admin | Database recovery, backup verification |
-| Security Team | Audit DR procedures, compliance review |
+| Role             | Responsibility                          |
+| ---------------- | --------------------------------------- |
+| On-Call Engineer | First responder, execute runbooks       |
+| Platform Lead    | DR strategy, coordinate major incidents |
+| Database Admin   | Database recovery, backup verification  |
+| Security Team    | Audit DR procedures, compliance review  |
 
 ---
 
@@ -511,6 +546,7 @@ Located in `docs/runbooks/`:
 ### Post-Incident Review
 
 After each DR event:
+
 1. Document timeline of events
 2. Identify root cause
 3. Update runbooks based on learnings
@@ -520,6 +556,7 @@ After each DR event:
 ### Metrics Tracking
 
 **Key Metrics**:
+
 - Actual RTO vs. target RTO
 - Actual RPO vs. target RPO
 - DR drill success rate
@@ -527,6 +564,7 @@ After each DR event:
 - Time to detect incidents
 
 **Quarterly Review**:
+
 - Analyze DR metrics
 - Update recovery procedures
 - Test new failure scenarios
@@ -538,17 +576,16 @@ After each DR event:
 
 ### On-Call Rotation
 
-**Primary**: [PagerDuty schedule]
-**Secondary**: [Backup on-call]
+**Primary**: [PagerDuty schedule] **Secondary**: [Backup on-call]
 **Escalation**: Platform Lead → VP Engineering → CTO
 
 ### External Vendors
 
-| Vendor | Contact | SLA |
-|--------|---------|-----|
-| Google Cloud Support | [Portal] | 1-hour response (P1) |
-| DNS Provider | support@dns.com | 24/7 support |
-| ServiceNow | partner-support@servicenow.com | 2-hour response |
+| Vendor               | Contact                        | SLA                  |
+| -------------------- | ------------------------------ | -------------------- |
+| Google Cloud Support | [Portal]                       | 1-hour response (P1) |
+| DNS Provider         | support@dns.com                | 24/7 support         |
+| ServiceNow           | partner-support@servicenow.com | 2-hour response      |
 
 ---
 
@@ -557,6 +594,7 @@ After each DR event:
 ### Scripts
 
 **Backup Verification**:
+
 ```bash
 #!/bin/bash
 # scripts/verify-backups.sh
@@ -582,6 +620,7 @@ echo "✅ All backups verified"
 ```
 
 **Smoke Tests**:
+
 ```bash
 #!/bin/bash
 # scripts/smoke-tests.sh
@@ -599,6 +638,5 @@ echo "✅ All smoke tests passed"
 
 ---
 
-**Last Reviewed**: 2025-11-03
-**Next Review**: 2025-12-03
-**Document Owner**: Platform Engineering Team
+**Last Reviewed**: 2025-11-03 **Next Review**: 2025-12-03 **Document Owner**:
+Platform Engineering Team

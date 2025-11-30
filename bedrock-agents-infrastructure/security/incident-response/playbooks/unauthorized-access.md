@@ -1,9 +1,11 @@
 # Unauthorized Access Response Playbook
 
 ## Overview
+
 Response procedures for unauthorized access to Bedrock agents infrastructure.
 
 ## Detection Criteria
+
 - Unexpected console/SSH access attempts
 - Access from unknown IP addresses
 - Failed authentication attempts followed by success
@@ -19,6 +21,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Severity Classification
 
 ### Critical (P1)
+
 - Administrative/root access gained
 - Production systems accessed
 - Data exfiltration in progress
@@ -27,6 +30,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Privilege escalation to admin
 
 ### High (P2)
+
 - User-level access to sensitive systems
 - Attempted admin access
 - Access to development/staging
@@ -34,6 +38,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Account takeover attempt
 
 ### Medium (P3)
+
 - Access to non-sensitive resources
 - Failed access attempts only
 - Isolated incident
@@ -41,6 +46,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - No data access
 
 ### Low (P4)
+
 - Repeated failed attempts (no success)
 - System scanning only
 - No active access
@@ -52,6 +58,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ### Phase 1: Immediate Response (0-30 minutes)
 
 1. **Verify Unauthorized Access**
+
    - Confirm access occurred
    - Identify affected account/resource
    - Determine access method
@@ -59,6 +66,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
    - Review authentication logs
 
 2. **Initial Containment**
+
    - Revoke session immediately
    - Reset user password
    - Execute `isolate-compromised-agent.json` if needed
@@ -66,6 +74,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
    - Block suspicious IP address
 
 3. **Evidence Preservation**
+
    - Execute `capture-logs.py` immediately
    - Capture CloudTrail logs for account
    - Preserve access logs
@@ -82,6 +91,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ### Phase 2: Investigation (30 min - 4 hours)
 
 1. **Unauthorized Access Analysis**
+
    - Query CloudTrail for all access by source
    - Review VPC Flow Logs
    - Analyze CloudWatch logs
@@ -89,6 +99,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
    - Review session logs
 
 2. **Scope Determination**
+
    - What resources were accessed?
    - What data was viewed/modified?
    - Which systems were affected?
@@ -96,6 +107,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
    - Persistence established?
 
 3. **Timeline Construction**
+
    - Run `timeline-builder.py` for detailed timeline
    - When did access start?
    - What actions were performed?
@@ -112,6 +124,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ### Phase 3: Containment (30 min - 24 hours)
 
 1. **Access Revocation**
+
    - Reset password
    - Force re-authentication
    - Revoke API keys
@@ -120,6 +133,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
    - Force MFA re-enrollment
 
 2. **Credential Management**
+
    - Execute `rotate-all-credentials.json` runbook
    - Change password immediately
    - Reset MFA tokens
@@ -127,6 +141,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
    - Update service account passwords
 
 3. **System Hardening**
+
    - Review IAM policies
    - Enforce MFA requirement
    - Implement IP whitelisting
@@ -143,6 +158,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Containment Procedures
 
 ### Account Lockdown
+
 ```bash
 # 1. Immediate Actions
 - Disable account (if compromised)
@@ -167,6 +183,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ```
 
 ### Session Management
+
 ```bash
 # 1. Session Termination
 - Kill all active sessions
@@ -184,6 +201,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ```
 
 ### Access Monitoring
+
 ```bash
 # 1. Enhanced Monitoring
 - Enable account audit logging
@@ -203,6 +221,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Eradication Steps
 
 ### Threat Removal
+
 - [ ] Remove unauthorized accounts
 - [ ] Delete malware/backdoors
 - [ ] Remove persistence mechanisms
@@ -210,6 +229,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - [ ] Rebuild if compromised
 
 ### Access Control Review
+
 - [ ] Audit all IAM policies
 - [ ] Review service accounts
 - [ ] Remove unnecessary permissions
@@ -217,6 +237,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - [ ] Enforce IP restrictions
 
 ### System Hardening
+
 - [ ] Patch vulnerabilities
 - [ ] Update security groups
 - [ ] Review VPC configuration
@@ -224,6 +245,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - [ ] Enable detective controls
 
 ### Validation
+
 - [ ] Confirm account locked down
 - [ ] Verify monitoring active
 - [ ] Test response procedures
@@ -233,6 +255,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Recovery Procedures
 
 ### User Communication
+
 1. Notify user of incident
 2. Explain what happened
 3. Provide new credentials
@@ -240,6 +263,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 5. Recommend actions (password change, etc.)
 
 ### System Validation
+
 1. Confirm access revoked
 2. Verify no persistence
 3. Validate monitoring active
@@ -247,6 +271,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 5. Confirm security controls
 
 ### Access Restoration
+
 1. Review user permissions
 2. Gradually restore access
 3. Monitor for anomalies
@@ -256,6 +281,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Post-Incident Review
 
 ### Investigation Findings
+
 - Attack vector used
 - Duration of unauthorized access
 - Systems/data accessed
@@ -263,6 +289,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Damage assessment
 
 ### Control Gaps
+
 - Missing access controls
 - Inadequate monitoring
 - Weak authentication
@@ -270,6 +297,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Detection delays
 
 ### Improvement Actions
+
 - MFA enforcement
 - Access restriction policies
 - Enhanced monitoring
@@ -279,6 +307,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Prevention Measures
 
 ### Authentication
+
 - Enforce MFA on all accounts
 - Implement passwordless auth
 - Use hardware security keys
@@ -286,6 +315,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Regular password rotation
 
 ### Access Controls
+
 - Enforce least privilege
 - Regular access reviews
 - IP whitelisting
@@ -293,6 +323,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Time-based access
 
 ### Monitoring
+
 - Comprehensive audit logging
 - Real-time alerting
 - Behavioral analysis
@@ -300,6 +331,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Unusual pattern detection
 
 ### User Training
+
 - Phishing awareness
 - Credential security
 - MFA usage
@@ -309,6 +341,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Tools & Resources
 
 ### Access Control
+
 - IAM Access Analyzer
 - AWS IAM policies
 - MFA enforcement tools
@@ -316,6 +349,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Network ACLs
 
 ### Detection & Monitoring
+
 - CloudTrail
 - CloudWatch Logs
 - VPC Flow Logs
@@ -323,6 +357,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - Security Hub
 
 ### Response Runbooks
+
 - isolate-compromised-agent.json
 - rotate-all-credentials.json
 - enable-forensics-mode.json
@@ -330,6 +365,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 - notify-stakeholders.json
 
 ### Forensics Tools
+
 - capture-logs.py
 - timeline-builder.py
 - snapshot-resources.py
@@ -338,6 +374,7 @@ Response procedures for unauthorized access to Bedrock agents infrastructure.
 ## Metrics & KPIs
 
 Track during incident:
+
 - **Detection to Confirmation**: < 15 minutes
 - **Confirmation to Containment**: < 30 minutes
 - **Containment to Remediation**: < 4 hours
@@ -366,6 +403,7 @@ Unauthorized Access Detected?
 ```
 
 ## Related Playbooks
+
 - [Compromised Credentials Response](./compromised-credentials.md)
 - [Data Breach Response](./data-breach-response.md)
 - [Malware Detection Response](./malware-detection.md)
@@ -373,12 +411,14 @@ Unauthorized Access Detected?
 ## Contacts & Escalation
 
 ### Response Team
+
 - **Security Lead**: [On-call rotation]
 - **System Administrator**: [On-call rotation]
 - **Network Engineer**: [On-call rotation]
 - **CISO**: [For major incidents]
 
 ### Escalation Path
+
 ```
 1. Security Alert (automated)
 2. On-call Security Engineer
@@ -388,4 +428,5 @@ Unauthorized Access Detected?
 ```
 
 ## Revision History
+
 - v1.0 - Initial creation (2024-11-17)

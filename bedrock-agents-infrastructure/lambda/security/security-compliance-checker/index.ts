@@ -4,19 +4,11 @@ import {
   ListAgentsCommand,
 } from '@aws-sdk/client-bedrock-agent';
 import { IAMClient, GetRoleCommand } from '@aws-sdk/client-iam';
-import {
-  SecurityHubClient,
-  BatchImportFindingsCommand,
-} from '@aws-sdk/client-securityhub';
+import { SecurityHubClient, BatchImportFindingsCommand } from '@aws-sdk/client-securityhub';
 import { SecretsManagerClient, ListSecretsCommand } from '@aws-sdk/client-secrets-manager';
 import { Handler } from 'aws-lambda';
 import { ComplianceCheckEvent, ComplianceCheckResult, ComplianceFinding } from './types';
-import {
-  checkEncryption,
-  checkIAMPolicy,
-  createSecurityHubFinding,
-  logger,
-} from './utils';
+import { checkEncryption, checkIAMPolicy, createSecurityHubFinding, logger } from './utils';
 
 const bedrockClient = new BedrockAgentClient({});
 const iamClient = new IAMClient({});
@@ -74,7 +66,7 @@ export const handler: Handler<ComplianceCheckEvent, ComplianceCheckResult> = asy
 
 async function checkBedrockAgents(
   _accountId: string,
-  _region: string,
+  _region: string
 ): Promise<ComplianceFinding[]> {
   const findings: ComplianceFinding[] = [];
 
@@ -175,7 +167,7 @@ async function checkIAMPolicies(targetRoles: string[]): Promise<ComplianceFindin
 
 async function checkSecretsExposure(
   _accountId: string,
-  _region: string,
+  _region: string
 ): Promise<ComplianceFinding[]> {
   const findings: ComplianceFinding[] = [];
 

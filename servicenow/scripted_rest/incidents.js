@@ -9,8 +9,11 @@
  */
 
 (function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
-  var method = (request && request.method) ? request.method.toUpperCase() : 'GET';
-  var payload = (request && request.body && typeof request.body.data === 'string') ? JSON.parse(request.body.data) : {};
+  var method = request && request.method ? request.method.toUpperCase() : 'GET';
+  var payload =
+    request && request.body && typeof request.body.data === 'string'
+      ? JSON.parse(request.body.data)
+      : {};
   var sysId = request && request.pathParams && request.pathParams.sys_id;
 
   switch (method) {

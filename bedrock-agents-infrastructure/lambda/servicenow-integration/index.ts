@@ -32,19 +32,16 @@ let serviceNowClient: ServiceNowClient | null = null;
  */
 async function getServiceNowClient(): Promise<ServiceNowClient> {
   if (!serviceNowClient) {
-    serviceNowClient = await ServiceNowClient.fromSecretsManager(
-      SECRETS_MANAGER_SECRET_NAME,
-      {
-        rateLimitConfig: {
-          maxRequests: MAX_REQUESTS,
-          windowMs: WINDOW_MS,
-          enabled: RATE_LIMIT_ENABLED,
-        },
-        timeout: 30000,
-        maxRetries: 3,
-        retryDelay: 1000,
-      }
-    );
+    serviceNowClient = await ServiceNowClient.fromSecretsManager(SECRETS_MANAGER_SECRET_NAME, {
+      rateLimitConfig: {
+        maxRequests: MAX_REQUESTS,
+        windowMs: WINDOW_MS,
+        enabled: RATE_LIMIT_ENABLED,
+      },
+      timeout: 30000,
+      maxRetries: 3,
+      retryDelay: 1000,
+    });
   }
   return serviceNowClient;
 }
@@ -86,14 +83,18 @@ export async function handler(
     const duration = Date.now() - startTime;
 
     if (error instanceof ServiceNowError) {
-      logOperation('lambda-error', {
-        action: event.action,
-        error: error.message,
-        errorCode: error.errorCode,
-        statusCode: error.statusCode,
-        duration,
-        requestId: context.awsRequestId,
-      }, 'error');
+      logOperation(
+        'lambda-error',
+        {
+          action: event.action,
+          error: error.message,
+          errorCode: error.errorCode,
+          statusCode: error.statusCode,
+          duration,
+          requestId: context.awsRequestId,
+        },
+        'error'
+      );
 
       return {
         success: false,
@@ -104,12 +105,16 @@ export async function handler(
 
     // Unknown error
     console.error('Unexpected error:', error);
-    logOperation('lambda-error', {
-      action: event.action,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      duration,
-      requestId: context.awsRequestId,
-    }, 'error');
+    logOperation(
+      'lambda-error',
+      {
+        action: event.action,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        duration,
+        requestId: context.awsRequestId,
+      },
+      'error'
+    );
 
     return {
       success: false,
@@ -207,11 +212,7 @@ async function handleIncidentAction(
       if (!params.sys_id) {
         throw new ServiceNowError('sys_id is required', 400, 'MISSING_PARAMETER');
       }
-      return client.assignIncident(
-        params.sys_id,
-        params.assigned_to,
-        params.assignment_group
-      );
+      return client.assignIncident(params.sys_id, params.assigned_to, params.assignment_group);
 
     case 'add-comment':
       if (!params.sys_id || !params.comment) {
@@ -418,7 +419,11 @@ async function handleUserGroupAction(
 
     case 'assign-to-group':
       if (!params.task_sys_id || !params.group_id) {
-        throw new ServiceNowError('task_sys_id and group_id are required', 400, 'MISSING_PARAMETER');
+        throw new ServiceNowError(
+          'task_sys_id and group_id are required',
+          400,
+          'MISSING_PARAMETER'
+        );
       }
       await client.assignToGroup(params.task_sys_id, params.group_id);
       return { message: 'Assigned to group successfully' };

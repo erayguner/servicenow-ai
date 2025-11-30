@@ -119,7 +119,7 @@ metadata:
   namespace: production
 spec:
   hard:
-    requests.nvidia.com/gpu: '20'  # Max 20 GPUs in production namespace
+    requests.nvidia.com/gpu: '20' # Max 20 GPUs in production namespace
     limits.nvidia.com/gpu: '20'
 ---
 # LimitRange for GPU pods (ensure reasonable resource requests)
@@ -132,7 +132,7 @@ spec:
   limits:
     - type: Container
       max:
-        nvidia.com/gpu: '4'  # Max 4 GPUs per container
+        nvidia.com/gpu: '4' # Max 4 GPUs per container
       min:
         nvidia.com/gpu: '0'
       default:
@@ -157,7 +157,7 @@ spec:
       interval: 15s
       path: /metrics
 ---
-...
+
 ---
 # Example pod using GPU with time-slicing
 apiVersion: v1
@@ -172,7 +172,7 @@ spec:
   containers:
     - name: cuda-test
       image: nvidia/cuda:12.1.0-base-ubuntu22.04
-      command: [ nvidia-smi ]
+      command: [nvidia-smi]
       resources:
         requests:
           nvidia.com/gpu: 1
@@ -207,11 +207,11 @@ spec:
           operator: Exists
           effect: NoSchedule
       nodeSelector:
-        cloud.google.com/gke-accelerator-count: '1'  # Only on GPU nodes
+        cloud.google.com/gke-accelerator-count: '1' # Only on GPU nodes
       containers:
         - name: health-check
           image: nvidia/cuda:12.1.0-base-ubuntu22.04
-          command: [ /bin/bash, -c ]
+          command: [/bin/bash, -c]
           args:
             - |
               while true; do

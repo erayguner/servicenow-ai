@@ -49,7 +49,7 @@ spec:
                   matchExpressions:
                     - key: app
                       operator: In
-                      values: [ conversation-manager ]
+                      values: [conversation-manager]
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: conversation-manager
@@ -142,7 +142,7 @@ spec:
       # Volumes
       volumes:
         - name: tmp
-          emptyDir: { }
+          emptyDir: {}
         - name: cache
           emptyDir:
             sizeLimit: 1Gi

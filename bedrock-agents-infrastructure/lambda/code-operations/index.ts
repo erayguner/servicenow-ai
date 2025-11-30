@@ -72,13 +72,12 @@ export const handler: Handler = async (event: any): Promise<CodeOperationRespons
               success: true,
               action,
               result,
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
-
   } catch (error) {
     console.error('Error in code operations:', error);
 
@@ -94,11 +93,11 @@ export const handler: Handler = async (event: any): Promise<CodeOperationRespons
             body: JSON.stringify({
               success: false,
               error: error instanceof Error ? error.message : 'Unknown error',
-              timestamp: new Date().toISOString()
-            })
-          }
-        }
-      }
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        },
+      },
     };
   }
 };
@@ -123,7 +122,7 @@ async function handleReadFile(params: Record<string, string>, body: any): Promis
     filePath,
     content,
     size: content.length,
-    encoding
+    encoding,
   };
 }
 
@@ -148,7 +147,7 @@ async function handleWriteFile(params: Record<string, string>, body: any): Promi
     filePath,
     size: content.length,
     success: true,
-    bucket
+    bucket,
   };
 }
 
@@ -171,14 +170,14 @@ async function handleSearchCode(params: Record<string, string>, body: any): Prom
   const results = await searchInCode(s3Client, bucket!, query, {
     pattern,
     fileTypes: Array.isArray(fileTypes) ? fileTypes : fileTypes.split(','),
-    maxResults
+    maxResults,
   });
 
   return {
     query,
     resultsCount: results.length,
     results: results.slice(0, maxResults),
-    bucket
+    bucket,
   };
 }
 
@@ -202,7 +201,7 @@ async function handleGitOperations(params: Record<string, string>, body: any): P
     repository,
     branch,
     message,
-    ...data
+    ...data,
   });
 
   return {
@@ -210,6 +209,6 @@ async function handleGitOperations(params: Record<string, string>, body: any): P
     repository,
     branch,
     result,
-    success: true
+    success: true,
   };
 }

@@ -8,6 +8,7 @@ Complete step-by-step guide for deploying Bedrock Agents infrastructure on AWS.
 
 1. **Create AWS Account** (if not existing)
 2. **Configure IAM User** with programmatic access:
+
    - AmazonBedrockFullAccess
    - AmazonEC2FullAccess
    - AWSLambdaFullAccess
@@ -503,9 +504,9 @@ For issues:
 1. Check AWS CloudWatch Logs: `aws logs tail /aws/bedrock/agents/dev --follow`
 2. Review Terraform state: `terraform show`
 3. Verify IAM permissions: `aws iam simulate-principal-policy`
-4. Check CloudTrail: `aws cloudtrail lookup-events --lookup-attributes AttributeKey=ResourceType,AttributeValue=Agent`
+4. Check CloudTrail:
+   `aws cloudtrail lookup-events --lookup-attributes AttributeKey=ResourceType,AttributeValue=Agent`
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-17
+**Version**: 1.0.0 **Last Updated**: 2025-01-17

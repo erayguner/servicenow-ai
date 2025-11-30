@@ -4,27 +4,30 @@ Automated security compliance checker for Amazon Bedrock agents infrastructure.
 
 ## Features
 
-- **Bedrock Agent Configuration Checks**: Validates agent configurations, encryption settings, and IAM roles
-- **IAM Policy Validation**: Detects overly permissive policies and wildcard permissions
-- **Secret Scanning**: Identifies exposed secrets and credentials in code and configurations
-- **Encryption Validation**: Ensures proper encryption with customer-managed KMS keys
-- **Security Hub Integration**: Reports compliance violations to AWS Security Hub
+- **Bedrock Agent Configuration Checks**: Validates agent configurations,
+  encryption settings, and IAM roles
+- **IAM Policy Validation**: Detects overly permissive policies and wildcard
+  permissions
+- **Secret Scanning**: Identifies exposed secrets and credentials in code and
+  configurations
+- **Encryption Validation**: Ensures proper encryption with customer-managed KMS
+  keys
+- **Security Hub Integration**: Reports compliance violations to AWS Security
+  Hub
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `AWS_ACCOUNT_ID` | AWS Account ID | Yes |
-| `AWS_REGION` | AWS Region | Yes |
-| `LOG_LEVEL` | Logging level (INFO, WARN, ERROR) | No |
+| Variable         | Description                       | Required |
+| ---------------- | --------------------------------- | -------- |
+| `AWS_ACCOUNT_ID` | AWS Account ID                    | Yes      |
+| `AWS_REGION`     | AWS Region                        | Yes      |
+| `LOG_LEVEL`      | Logging level (INFO, WARN, ERROR) | No       |
 
 ## Event Structure
 
 ```json
 {
-  "targetRoles": [
-    "arn:aws:iam::123456789012:role/BedrockAgentRole"
-  ],
+  "targetRoles": ["arn:aws:iam::123456789012:role/BedrockAgentRole"],
   "resourceArns": [
     "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
   ],
@@ -67,18 +70,21 @@ Automated security compliance checker for Amazon Bedrock agents infrastructure.
 ## Compliance Checks
 
 ### 1. Bedrock Agent Checks
+
 - Customer-managed encryption key usage
 - IAM role permissions
 - Agent configuration validation
 - Resource tagging
 
 ### 2. IAM Policy Checks
+
 - Wildcard principal detection
 - Overly permissive actions
 - Unused permissions
 - Trust policy validation
 
 ### 3. Secret Exposure Checks
+
 - Hardcoded credentials
 - API keys in code
 - AWS access keys
@@ -86,6 +92,7 @@ Automated security compliance checker for Amazon Bedrock agents infrastructure.
 - JWT tokens
 
 ### 4. Encryption Checks
+
 - KMS key usage
 - Key rotation status
 - Key state validation
@@ -94,6 +101,7 @@ Automated security compliance checker for Amazon Bedrock agents infrastructure.
 ## Security Hub Integration
 
 Findings are automatically reported to AWS Security Hub with:
+
 - Normalized severity scores
 - Resource metadata
 - Compliance status

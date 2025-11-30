@@ -81,7 +81,7 @@ spec:
       # Sidecar container holding the model in OCI image
       - name: model-sidecar
         image: europe-west2-docker.pkg.dev/PROJECT_ID/llm-models/mistral-7b:v1
-        command: [ sleep, infinity ]
+        command: [sleep, infinity]
         volumeMounts:
           - name: model-storage
             mountPath: /models
@@ -90,7 +90,7 @@ spec:
       # Main serving container
       - name: kserve-container
         image: vllm/vllm-openai:latest
-        command: [ /bin/bash, -c ]
+        command: [/bin/bash, -c]
         args:
           - |
             # Create symbolic link to sidecar's filesystem
@@ -108,9 +108,9 @@ spec:
             nvidia.com/gpu: '1'
     volumes:
       - name: model-storage
-        emptyDir: { }
+        emptyDir: {}
 ---
-...
+
 ---
 # Job to build and push model OCI images
 apiVersion: batch/v1
@@ -119,7 +119,7 @@ metadata:
   name: build-model-oci-image
   namespace: production
 spec:
-  ttlSecondsAfterFinished: 86400  # Clean up after 24 hours
+  ttlSecondsAfterFinished: 86400 # Clean up after 24 hours
   template:
     spec:
       serviceAccountName: llm-gateway-sa
@@ -128,7 +128,7 @@ spec:
         # Download model from Hugging Face
         - name: download-model
           image: huggingface/transformers-pytorch-gpu:latest
-          command: [ /bin/bash, -c ]
+          command: [/bin/bash, -c]
           args:
             - |
               set -e
@@ -182,7 +182,7 @@ spec:
       volumes:
         - name: workspace
           emptyDir:
-            sizeLimit: 50Gi  # Large enough for model files
+            sizeLimit: 50Gi # Large enough for model files
         - name: dockerfile
           configMap:
             name: model-dockerfile
@@ -216,7 +216,7 @@ metadata:
   name: update-model-images
   namespace: production
 spec:
-  schedule: 0 2 * * 0  # Weekly on Sunday at 2 AM
+  schedule: 0 2 * * 0 # Weekly on Sunday at 2 AM
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
@@ -228,7 +228,7 @@ spec:
           containers:
             - name: update
               image: google/cloud-sdk:alpine
-              command: [ /bin/bash, -c ]
+              command: [/bin/bash, -c]
               args:
                 - |
                   set -e

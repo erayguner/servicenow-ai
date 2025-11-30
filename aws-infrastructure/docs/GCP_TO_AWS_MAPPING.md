@@ -1,34 +1,37 @@
 # GCP to AWS Service Mapping (2025)
 
-This document provides a comprehensive mapping of Google Cloud Platform (GCP) services to their AWS equivalents for the ServiceNow AI Research Assistant project.
+This document provides a comprehensive mapping of Google Cloud Platform (GCP)
+services to their AWS equivalents for the ServiceNow AI Research Assistant
+project.
 
 ## Service Mapping Overview
 
-| GCP Service | AWS Equivalent | Notes |
-|------------|----------------|-------|
-| **Google Kubernetes Engine (GKE)** | **Amazon EKS** | Managed Kubernetes service |
-| **Cloud Storage** | **Amazon S3** | Object storage with lifecycle policies |
-| **Cloud SQL (PostgreSQL)** | **Amazon RDS PostgreSQL** | Managed relational database |
-| **Firestore** | **Amazon DynamoDB** | NoSQL document database |
-| **Cloud Pub/Sub** | **Amazon SNS + SQS** or **EventBridge** | Message queue and pub/sub |
-| **Memorystore for Redis** | **Amazon ElastiCache Redis** | In-memory cache |
-| **Cloud KMS** | **AWS KMS** | Key management service |
-| **VPC** | **Amazon VPC** | Virtual private cloud |
-| **Cloud Armor** | **AWS WAF** | Web application firewall |
-| **Secret Manager** | **AWS Secrets Manager** | Secret management |
-| **Vertex AI** | **Amazon Bedrock** | AI/ML platform |
-| **Cloud Run** | **AWS App Runner** or **ECS Fargate** | Serverless containers |
-| **Workload Identity** | **IAM Roles for Service Accounts (IRSA)** | Pod-level IAM roles |
-| **Identity-Aware Proxy (IAP)** | **AWS Verified Access** or **ALB + Cognito** | Identity-aware access |
-| **Cloud Logging** | **Amazon CloudWatch Logs** | Centralized logging |
-| **Cloud Monitoring** | **Amazon CloudWatch** | Monitoring and metrics |
-| **Cloud Billing** | **AWS Cost Explorer** + **Budgets** | Cost management |
+| GCP Service                        | AWS Equivalent                               | Notes                                  |
+| ---------------------------------- | -------------------------------------------- | -------------------------------------- |
+| **Google Kubernetes Engine (GKE)** | **Amazon EKS**                               | Managed Kubernetes service             |
+| **Cloud Storage**                  | **Amazon S3**                                | Object storage with lifecycle policies |
+| **Cloud SQL (PostgreSQL)**         | **Amazon RDS PostgreSQL**                    | Managed relational database            |
+| **Firestore**                      | **Amazon DynamoDB**                          | NoSQL document database                |
+| **Cloud Pub/Sub**                  | **Amazon SNS + SQS** or **EventBridge**      | Message queue and pub/sub              |
+| **Memorystore for Redis**          | **Amazon ElastiCache Redis**                 | In-memory cache                        |
+| **Cloud KMS**                      | **AWS KMS**                                  | Key management service                 |
+| **VPC**                            | **Amazon VPC**                               | Virtual private cloud                  |
+| **Cloud Armor**                    | **AWS WAF**                                  | Web application firewall               |
+| **Secret Manager**                 | **AWS Secrets Manager**                      | Secret management                      |
+| **Vertex AI**                      | **Amazon Bedrock**                           | AI/ML platform                         |
+| **Cloud Run**                      | **AWS App Runner** or **ECS Fargate**        | Serverless containers                  |
+| **Workload Identity**              | **IAM Roles for Service Accounts (IRSA)**    | Pod-level IAM roles                    |
+| **Identity-Aware Proxy (IAP)**     | **AWS Verified Access** or **ALB + Cognito** | Identity-aware access                  |
+| **Cloud Logging**                  | **Amazon CloudWatch Logs**                   | Centralized logging                    |
+| **Cloud Monitoring**               | **Amazon CloudWatch**                        | Monitoring and metrics                 |
+| **Cloud Billing**                  | **AWS Cost Explorer** + **Budgets**          | Cost management                        |
 
 ## Detailed Service Comparisons
 
 ### 1. Container Orchestration
 
 #### GKE → Amazon EKS
+
 - **GCP**: Google Kubernetes Engine with managed control plane
 - **AWS**: Amazon Elastic Kubernetes Service with managed control plane
 - **Key Differences**:
@@ -44,6 +47,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 2. Object Storage
 
 #### Cloud Storage → Amazon S3
+
 - **GCP**: Cloud Storage with buckets and lifecycle management
 - **AWS**: Amazon S3 with buckets and lifecycle policies
 - **Key Features**:
@@ -60,6 +64,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 3. Relational Database
 
 #### Cloud SQL → Amazon RDS PostgreSQL
+
 - **GCP**: Cloud SQL with automated backups and read replicas
 - **AWS**: Amazon RDS with Multi-AZ and read replicas
 - **Key Features**:
@@ -77,6 +82,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 4. NoSQL Database
 
 #### Firestore → Amazon DynamoDB
+
 - **GCP**: Firestore with document-based data model
 - **AWS**: DynamoDB with key-value and document store
 - **Key Differences**:
@@ -93,6 +99,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 5. Messaging & Event Streaming
 
 #### Cloud Pub/Sub → Amazon SNS + SQS / EventBridge
+
 - **GCP**: Cloud Pub/Sub for pub/sub messaging
 - **AWS**: SNS for pub/sub + SQS for queuing, or EventBridge for event routing
 - **Mapping**:
@@ -109,6 +116,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 6. In-Memory Cache
 
 #### Memorystore for Redis → Amazon ElastiCache Redis
+
 - **GCP**: Memorystore for Redis with managed scaling
 - **AWS**: ElastiCache for Redis with cluster mode
 - **Key Features**:
@@ -125,6 +133,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 7. Key Management
 
 #### Cloud KMS → AWS KMS
+
 - **GCP**: Cloud KMS with regional keyrings
 - **AWS**: AWS KMS with multi-region keys
 - **Key Features**:
@@ -142,6 +151,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 8. Networking
 
 #### VPC → Amazon VPC
+
 - **GCP**: VPC with subnets and Cloud NAT
 - **AWS**: Amazon VPC with subnets and NAT Gateway
 - **Key Features**:
@@ -159,6 +169,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 9. Web Application Firewall
 
 #### Cloud Armor → AWS WAF
+
 - **GCP**: Cloud Armor with preconfigured rules
 - **AWS**: AWS WAF with managed rule groups
 - **Key Features**:
@@ -176,6 +187,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 10. Secret Management
 
 #### Secret Manager → AWS Secrets Manager
+
 - **GCP**: Secret Manager with versioning
 - **AWS**: AWS Secrets Manager with automatic rotation
 - **Key Features**:
@@ -193,6 +205,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 11. AI/ML Platform
 
 #### Vertex AI → Amazon Bedrock
+
 - **GCP**: Vertex AI with Matching Engine for vector search
 - **AWS**: Amazon Bedrock for foundation models + OpenSearch for vector search
 - **Mapping**:
@@ -209,6 +222,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 12. Serverless Containers
 
 #### Cloud Run → AWS App Runner / ECS Fargate
+
 - **GCP**: Cloud Run for serverless containers
 - **AWS**: AWS App Runner (simpler) or ECS Fargate (more control)
 - **Mapping**:
@@ -224,6 +238,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 13. Workload Identity
 
 #### Workload Identity → IAM Roles for Service Accounts (IRSA)
+
 - **GCP**: Workload Identity binds K8s SA to GCP SA
 - **AWS**: IRSA binds K8s SA to IAM Role
 - **2025 Best Practices**:
@@ -235,6 +250,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ### 14. Identity-Aware Proxy
 
 #### IAP → AWS Verified Access / ALB + Cognito
+
 - **GCP**: Identity-Aware Proxy for BeyondCorp
 - **AWS**: AWS Verified Access (2024+) or ALB with Cognito
 - **Mapping**:
@@ -249,27 +265,33 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ## Infrastructure as Code
 
 ### Terraform Providers
+
 - **GCP**: `google` and `google-beta` providers
 - **AWS**: `aws` provider (v5.x recommended)
 
 ### State Management
+
 - **GCP**: Terraform state in Cloud Storage
 - **AWS**: Terraform state in S3 with DynamoDB for locking
 
 ## Cost Optimization
 
 ### 2025 Best Practices
+
 1. **Compute**:
+
    - Use EKS with Karpenter for efficient autoscaling
    - Use Spot Instances for non-critical workloads (70-90% savings)
    - Use Graviton3 instances (ARM) for 40% better price/performance
 
 2. **Storage**:
+
    - Use S3 Intelligent-Tiering for automatic cost optimization
    - Enable S3 Storage Lens for usage analytics
    - Use EBS gp3 volumes (20% cheaper than gp2)
 
 3. **Networking**:
+
    - Use VPC Endpoints to avoid NAT Gateway costs
    - Use CloudFront for edge caching (reduce origin traffic)
 
@@ -281,12 +303,14 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ## Migration Strategy
 
 ### Phase 1: Planning (Week 1-2)
+
 1. Review GCP resource inventory
 2. Map all services to AWS equivalents
 3. Create AWS accounts and organization structure
 4. Set up Terraform state backend (S3 + DynamoDB)
 
 ### Phase 2: Infrastructure (Week 3-4)
+
 1. Deploy VPC and networking
 2. Deploy EKS cluster with node groups
 3. Deploy RDS PostgreSQL (Multi-AZ)
@@ -295,6 +319,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 6. Deploy S3 buckets with lifecycle policies
 
 ### Phase 3: Application (Week 5-6)
+
 1. Update application configuration for AWS SDKs
 2. Deploy Kubernetes workloads to EKS
 3. Configure SNS/SQS for messaging
@@ -302,6 +327,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 5. Configure AWS WAF rules
 
 ### Phase 4: Testing & Cutover (Week 7-8)
+
 1. Run integration tests on AWS
 2. Perform load testing
 3. Set up monitoring and alerting
@@ -311,19 +337,23 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ## Security Considerations
 
 ### 2025 Security Best Practices
+
 1. **Identity & Access**:
+
    - Enable AWS IAM Identity Center for workforce access
    - Use IAM roles everywhere (no long-term credentials)
    - Enable MFA for privileged accounts
    - Use AWS CloudTrail for audit logging
 
 2. **Network Security**:
+
    - Use Security Groups and NACLs for defense in depth
    - Enable VPC Flow Logs
    - Use AWS Network Firewall for advanced filtering
    - Implement zero-trust with AWS Verified Access
 
 3. **Data Protection**:
+
    - Enable encryption at rest for all services (KMS)
    - Enable encryption in transit (TLS 1.3)
    - Use S3 Block Public Access
@@ -338,6 +368,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 ## Monitoring & Observability
 
 ### AWS Observability Stack
+
 1. **Metrics**: Amazon CloudWatch Metrics
 2. **Logs**: Amazon CloudWatch Logs with Logs Insights
 3. **Traces**: AWS X-Ray for distributed tracing
@@ -345,6 +376,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 5. **Alerts**: CloudWatch Alarms → SNS → Lambda/Email
 
 ### OpenTelemetry Integration
+
 - Use AWS Distro for OpenTelemetry (ADOT)
 - Export to CloudWatch, X-Ray, or third-party (Prometheus, Grafana)
 
@@ -357,4 +389,7 @@ This document provides a comprehensive mapping of Google Cloud Platform (GCP) se
 
 ## Conclusion
 
-This mapping provides a comprehensive guide for migrating from GCP to AWS using 2025 best practices. The AWS implementation maintains feature parity while leveraging AWS-native services for optimal performance, security, and cost efficiency.
+This mapping provides a comprehensive guide for migrating from GCP to AWS using
+2025 best practices. The AWS implementation maintains feature parity while
+leveraging AWS-native services for optimal performance, security, and cost
+efficiency.

@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Status**: ✅ **ZERO SERVICE ACCOUNT KEYS** - Fully compliant with Workload Identity best practices
+**Status**: ✅ **ZERO SERVICE ACCOUNT KEYS** - Fully compliant with Workload
+Identity best practices
 
-**Audit Date**: 2025-11-03
-**Auditor**: Platform Security Team
-**Scope**: All authentication mechanisms across the infrastructure
+**Audit Date**: 2025-11-03 **Auditor**: Platform Security Team **Scope**: All
+authentication mechanisms across the infrastructure
 
 ---
 
@@ -14,9 +14,12 @@
 
 ### ✅ COMPLIANT: Zero Service Account Keys
 
-**Finding**: The infrastructure uses **only Workload Identity and Workload Identity Federation** for all authentication. No service account keys are generated, stored, or used anywhere.
+**Finding**: The infrastructure uses **only Workload Identity and Workload
+Identity Federation** for all authentication. No service account keys are
+generated, stored, or used anywhere.
 
 **Evidence**:
+
 1. ✅ GitHub Actions uses Workload Identity Federation
 2. ✅ GKE pods use Workload Identity
 3. ✅ No `google_service_account_key` resources in Terraform
@@ -45,6 +48,7 @@ permissions:
 ```
 
 **Authentication Flow**:
+
 ```
 ┌─────────────────┐
 │ GitHub Actions  │
@@ -75,6 +79,7 @@ permissions:
 **Configuration**: `terraform/modules/workload_identity_federation/main.tf`
 
 **Security Controls**:
+
 - ✅ OIDC-based authentication (no secrets)
 - ✅ Repository restriction: `assertion.repository_owner == 'YOUR_ORG'`
 - ✅ Attribute mapping for audit trails
@@ -82,6 +87,7 @@ permissions:
 - ✅ No long-lived credentials
 
 **Terraform Configuration**:
+
 ```hcl
 resource "google_iam_workload_identity_pool_provider" "github_provider" {
   attribute_condition = "assertion.repository_owner == '${var.github_org}'"
@@ -124,6 +130,7 @@ resource "google_service_account_iam_binding" "workload_identity_binding" {
 ```
 
 **Authentication Flow**:
+
 ```
 ┌─────────────────────────────────────┐
 │ Pod: conversation-manager           │
@@ -176,10 +183,11 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: conversation-manager-sa  # Links to GCP SA
+      serviceAccountName: conversation-manager-sa # Links to GCP SA
 ```
 
 **Security Controls**:
+
 - ✅ Pod-level service account isolation
 - ✅ Namespace-scoped binding
 - ✅ Automatic token rotation (hourly)
@@ -188,6 +196,7 @@ spec:
 - ✅ Metadata server provides tokens dynamically
 
 **Configured Services** (10 microservices):
+
 1. conversation-manager
 2. llm-gateway
 3. knowledge-base
@@ -206,6 +215,7 @@ spec:
 ### Service Account Keys (NOT USED)
 
 **❌ What we DON'T do**:
+
 ```hcl
 # BAD: Creating service account keys (NEVER DO THIS)
 resource "google_service_account_key" "bad_practice" {
@@ -224,6 +234,7 @@ env:
 ```
 
 **Why service account keys are dangerous**:
+
 - ❌ Long-lived credentials (don't expire)
 - ❌ Can be stolen and used anywhere
 - ❌ Require manual rotation
@@ -233,6 +244,7 @@ env:
 - ❌ Fail compliance requirements (SOC 2, PCI-DSS)
 
 **✅ What we DO instead**:
+
 ```hcl
 # GOOD: Workload Identity Federation (GitHub Actions)
 resource "google_iam_workload_identity_pool_provider" "github" {
@@ -257,6 +269,7 @@ resource "google_service_account_iam_binding" "workload_identity" {
 ### Automated Checks
 
 **1. Terraform Validation**:
+
 ```bash
 # Scan for service account key resources
 grep -r "google_service_account_key" terraform/
@@ -272,6 +285,7 @@ terraform plan | grep "workload_identity"
 ```
 
 **2. Runtime Verification**:
+
 ```bash
 # Verify GKE Workload Identity
 kubectl run -it --rm test-wi \
@@ -287,6 +301,7 @@ kubectl run -it --rm test-wi \
 ```
 
 **3. GitHub Actions Verification**:
+
 ```bash
 # Check GitHub Actions logs
 # Look for: "Workload Identity Federation authentication successful"
@@ -311,32 +326,32 @@ kubectl run -it --rm test-wi \
 
 ### Authentication Coverage
 
-| Component | Authentication Method | Key-Based? | Compliant |
-|-----------|----------------------|------------|-----------|
-| GitHub Actions → GCP | Workload Identity Federation | ❌ No | ✅ Yes |
-| GKE Pods → GCP | Workload Identity | ❌ No | ✅ Yes |
-| conversation-manager | Workload Identity | ❌ No | ✅ Yes |
-| llm-gateway | Workload Identity | ❌ No | ✅ Yes |
-| knowledge-base | Workload Identity | ❌ No | ✅ Yes |
-| ticket-monitor | Workload Identity | ❌ No | ✅ Yes |
-| action-executor | Workload Identity | ❌ No | ✅ Yes |
-| notification-service | Workload Identity | ❌ No | ✅ Yes |
-| internal-web-ui | Workload Identity | ❌ No | ✅ Yes |
-| api-gateway | Workload Identity | ❌ No | ✅ Yes |
-| analytics-service | Workload Identity | ❌ No | ✅ Yes |
-| document-ingestion | Workload Identity | ❌ No | ✅ Yes |
-| **Total** | **12/12** | **0/12** | **100%** |
+| Component            | Authentication Method        | Key-Based? | Compliant |
+| -------------------- | ---------------------------- | ---------- | --------- |
+| GitHub Actions → GCP | Workload Identity Federation | ❌ No      | ✅ Yes    |
+| GKE Pods → GCP       | Workload Identity            | ❌ No      | ✅ Yes    |
+| conversation-manager | Workload Identity            | ❌ No      | ✅ Yes    |
+| llm-gateway          | Workload Identity            | ❌ No      | ✅ Yes    |
+| knowledge-base       | Workload Identity            | ❌ No      | ✅ Yes    |
+| ticket-monitor       | Workload Identity            | ❌ No      | ✅ Yes    |
+| action-executor      | Workload Identity            | ❌ No      | ✅ Yes    |
+| notification-service | Workload Identity            | ❌ No      | ✅ Yes    |
+| internal-web-ui      | Workload Identity            | ❌ No      | ✅ Yes    |
+| api-gateway          | Workload Identity            | ❌ No      | ✅ Yes    |
+| analytics-service    | Workload Identity            | ❌ No      | ✅ Yes    |
+| document-ingestion   | Workload Identity            | ❌ No      | ✅ Yes    |
+| **Total**            | **12/12**                    | **0/12**   | **100%**  |
 
 ### Compliance Status
 
-| Standard | Requirement | Status |
-|----------|-------------|--------|
-| SOC 2 Type II | No long-lived credentials | ✅ Pass |
-| PCI-DSS 3.2.1 | No shared secrets | ✅ Pass |
-| HIPAA | Automatic credential rotation | ✅ Pass |
-| ISO 27001 | Least-privilege access | ✅ Pass |
-| CIS GCP Benchmark | No service account keys | ✅ Pass |
-| NIST 800-53 | Short-lived credentials | ✅ Pass |
+| Standard          | Requirement                   | Status  |
+| ----------------- | ----------------------------- | ------- |
+| SOC 2 Type II     | No long-lived credentials     | ✅ Pass |
+| PCI-DSS 3.2.1     | No shared secrets             | ✅ Pass |
+| HIPAA             | Automatic credential rotation | ✅ Pass |
+| ISO 27001         | Least-privilege access        | ✅ Pass |
+| CIS GCP Benchmark | No service account keys       | ✅ Pass |
+| NIST 800-53       | Short-lived credentials       | ✅ Pass |
 
 ---
 
@@ -346,9 +361,11 @@ kubectl run -it --rm test-wi \
 
 **Organization Policy** (Optional - Requires org-level permissions):
 
-**Note**: Organization-level policies require organization administrator permissions and are managed separately outside this project scope.
+**Note**: Organization-level policies require organization administrator
+permissions and are managed separately outside this project scope.
 
 **Recommended Policy** (to be implemented at organization level):
+
 ```hcl
 # Contact your GCP organization administrator to implement:
 resource "google_organization_policy" "disable_sa_key_creation" {
@@ -362,6 +379,7 @@ resource "google_organization_policy" "disable_sa_key_creation" {
 ```
 
 **Sentinel Policy** (Terraform Cloud/Enterprise):
+
 ```hcl
 # sentinel/no-service-account-keys.sentinel
 import "tfplan/v2" as tfplan
@@ -380,6 +398,7 @@ main = rule {
 ### 2. CI/CD Prevention
 
 **Pre-commit Hook**:
+
 ```bash
 #!/bin/bash
 # .git/hooks/pre-commit
@@ -399,6 +418,7 @@ fi
 ```
 
 **GitHub Actions Check**:
+
 ```yaml
 # .github/workflows/security-check.yml
 name: Security Check
@@ -429,6 +449,7 @@ jobs:
 ### 3. Runtime Prevention
 
 **GKE Admission Controller**:
+
 ```yaml
 # k8s/admission-policies/deny-sa-key-secrets.yaml
 apiVersion: v1
@@ -438,15 +459,15 @@ metadata:
 webhooks:
   - name: validate.secrets
     rules:
-      - operations: ["CREATE", "UPDATE"]
-        apiGroups: [""]
-        apiVersions: ["v1"]
-        resources: ["secrets"]
+      - operations: ['CREATE', 'UPDATE']
+        apiGroups: ['']
+        apiVersions: ['v1']
+        resources: ['secrets']
     clientConfig:
       service:
         name: admission-webhook
         namespace: kube-system
-    admissionReviewVersions: ["v1"]
+    admissionReviewVersions: ['v1']
     sideEffects: None
     # Webhook checks for base64-encoded service account keys
     # Rejects secrets containing "private_key", "client_email"
@@ -461,6 +482,7 @@ webhooks:
 **CRITICAL: Immediate Actions**
 
 1. **Revoke Key Immediately**:
+
    ```bash
    # Get key ID
    gcloud iam service-accounts keys list \
@@ -472,11 +494,13 @@ webhooks:
    ```
 
 2. **Disable Service Account**:
+
    ```bash
    gcloud iam service-accounts disable SA_EMAIL
    ```
 
 3. **Audit Usage**:
+
    ```bash
    # Check audit logs for key usage
    gcloud logging read \
@@ -486,6 +510,7 @@ webhooks:
    ```
 
 4. **Rotate to Workload Identity**:
+
    ```bash
    # Configure Workload Identity
    kubectl annotate serviceaccount SA_NAME \
@@ -499,6 +524,7 @@ webhooks:
    ```
 
 5. **Security Review**:
+
    - How was the key created?
    - Who created it?
    - Where was it used?
@@ -518,6 +544,7 @@ webhooks:
 ### ✅ DO: Use Workload Identity
 
 **For GKE Applications**:
+
 ```yaml
 # 1. Create Kubernetes ServiceAccount
 apiVersion: v1
@@ -536,10 +563,11 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: my-app-sa  # That's it!
+      serviceAccountName: my-app-sa # That's it!
 ```
 
 **For GitHub Actions**:
+
 ```yaml
 - name: Authenticate to GCP
   uses: google-github-actions/auth@v1
@@ -551,6 +579,7 @@ spec:
 ### ❌ DON'T: Create Service Account Keys
 
 **Never do this**:
+
 ```bash
 # ❌ BAD: Creating a key
 gcloud iam service-accounts keys create key.json \
@@ -569,6 +598,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
 ### Daily Automated Checks
 
 **Cron Job**: Runs daily at 02:00 UTC
+
 ```bash
 #!/bin/bash
 # scripts/audit-workload-identity.sh
@@ -594,6 +624,7 @@ echo "✅ No service account keys found"
 ### Cloud Monitoring Alert
 
 **Alert Policy**: Detect service account key creation
+
 ```hcl
 resource "google_monitoring_alert_policy" "sa_key_created" {
   display_name = "🚨 Service Account Key Created"
@@ -647,11 +678,13 @@ resource "google_monitoring_alert_policy" "sa_key_created" {
 ## 📚 References
 
 ### Internal Documentation
+
 - [Workload Identity Implementation Guide](WORKLOAD_IDENTITY_IMPLEMENTATION.md)
 - [Security Implementation Summary](../SECURITY_IMPLEMENTATION_SUMMARY.md)
 - [Disaster Recovery Plan](DISASTER_RECOVERY.md)
 
 ### External Resources
+
 - [GCP Workload Identity Best Practices](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
 - [GitHub Actions OIDC](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
 - [CIS GCP Benchmark - IAM](https://www.cisecurity.org/benchmark/google_cloud_computing_platform)
@@ -663,7 +696,8 @@ resource "google_monitoring_alert_policy" "sa_key_created" {
 
 **Status**: ✅ **FULLY COMPLIANT**
 
-The ServiceNow AI infrastructure demonstrates **best-in-class authentication security** with:
+The ServiceNow AI infrastructure demonstrates **best-in-class authentication
+security** with:
 
 1. ✅ Zero service account keys across entire infrastructure
 2. ✅ Workload Identity for all GKE pods (10/10 microservices)
@@ -679,7 +713,5 @@ The ServiceNow AI infrastructure demonstrates **best-in-class authentication sec
 
 ---
 
-**Document Version**: 1.0.0
-**Last Updated**: 2025-11-03
-**Auditor**: Platform Security Team
-**Status**: ✅ Approved
+**Document Version**: 1.0.0 **Last Updated**: 2025-11-03 **Auditor**: Platform
+Security Team **Status**: ✅ Approved

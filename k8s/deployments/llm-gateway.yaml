@@ -44,7 +44,7 @@ spec:
                   matchExpressions:
                     - key: app
                       operator: In
-                      values: [ llm-gateway ]
+                      values: [llm-gateway]
                 topologyKey: kubernetes.io/hostname
 
       # Node Affinity for AI workload nodes
@@ -70,7 +70,7 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
             capabilities:
-              drop: [ ALL ]
+              drop: [ALL]
           resources:
             requests:
               memory: 1Gi
@@ -116,7 +116,7 @@ spec:
             failureThreshold: 3
       volumes:
         - name: tmp
-          emptyDir: { }
+          emptyDir: {}
         - name: model-cache
           emptyDir:
             sizeLimit: 5Gi

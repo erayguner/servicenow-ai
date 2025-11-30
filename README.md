@@ -10,22 +10,28 @@
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33+-326CE5?logo=kubernetes&logoColor=white)
 ![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)
 
-Production-ready Google Cloud Platform infrastructure for a ServiceNow AI Agent system using Terraform and Kubernetes.
+Production-ready Google Cloud Platform infrastructure for a ServiceNow AI Agent
+system using Terraform and Kubernetes.
 
 ---
 
 ## Overview
 
-This repository contains the complete infrastructure-as-code setup for deploying a secure, scalable AI agent system on GCP. The infrastructure is designed with zero-trust security, automated releases, and comprehensive CI/CD pipelines.
+This repository contains the complete infrastructure-as-code setup for deploying
+a secure, scalable AI agent system on GCP. The infrastructure is designed with
+zero-trust security, automated releases, and comprehensive CI/CD pipelines.
 
 ### Key Features
 
 - **Multi-environment setup** - Dev, Staging, and Production configurations
-- **Zero-trust security** - Default-deny firewall rules and NetworkPolicy enforcement
+- **Zero-trust security** - Default-deny firewall rules and NetworkPolicy
+  enforcement
 - **Workload Identity** - Keyless authentication for pods and CI/CD
-- **Pre-commit hooks** - Automated validation with Terraform, Python, Kubernetes, and security checks
+- **Pre-commit hooks** - Automated validation with Terraform, Python,
+  Kubernetes, and security checks
 - **Hybrid CI/CD** - Optimized workflow with 60% cost reduction
-- **Comprehensive testing** - Terraform tests for all modules with parallel execution
+- **Comprehensive testing** - Terraform tests for all modules with parallel
+  execution
 - **Production-ready** - Security hardening and compliance built-in
 
 ---
@@ -35,25 +41,30 @@ This repository contains the complete infrastructure-as-code setup for deploying
 ### Infrastructure Components
 
 **Compute & Orchestration**
+
 - GKE (Google Kubernetes Engine) - Private cluster with Workload Identity
 - 3 specialized node pools (general, AI workloads, vector search)
 - Zonal cluster for dev (cost-optimized), Regional for staging/prod (HA)
 - Autoscaling enabled on all pools
 
 **Networking**
+
 - VPC with private subnets and Cloud NAT
 - Zero-trust firewall rules (default-deny with explicit allows)
 - Kubernetes NetworkPolicy for pod-to-pod isolation
 - Cloud Armor for DDoS protection and WAF
 
 **Data Storage**
+
 - Cloud SQL (PostgreSQL 14) - Private network with CMEK encryption
 - Firestore - Native mode for document storage
 - Cloud Storage - Encrypted buckets with lifecycle policies
 - Redis - In-memory caching and session management
 
 **AI & ML**
-- **Hybrid LLM Routing** ⭐ - Intelligent routing between self-hosted and cloud models
+
+- **Hybrid LLM Routing** ⭐ - Intelligent routing between self-hosted and cloud
+  models
   - Self-hosted: vLLM on Kubernetes (Mistral, CodeLlama) - Fast & cheap
   - Cloud: Vertex AI Gemini (1M context), OpenAI GPT-4, Anthropic Claude
   - 70% cost reduction, 50% faster for simple queries
@@ -65,6 +76,7 @@ This repository contains the complete infrastructure-as-code setup for deploying
 - Custom embeddings pipeline
 
 **Security & Identity**
+
 - KMS - Customer-managed encryption keys with 90-day rotation
 - Secret Manager - Centralized secrets storage
 - Workload Identity - Pod-to-GCP authentication without keys
@@ -72,6 +84,7 @@ This repository contains the complete infrastructure-as-code setup for deploying
 - Binary Authorization - Container image verification
 
 **Messaging & Events**
+
 - Pub/Sub - Asynchronous message queue
 - Topic-based event routing
 - Dead letter queues
@@ -88,7 +101,8 @@ This repository contains the complete infrastructure-as-code setup for deploying
 8. **api-gateway** - External API endpoint
 9. **analytics-service** - Usage analytics and reporting
 10. **document-ingestion** - Document processing pipeline
-11. **ai-research-assistant** - AI research assistant with conversational UI and Cloud Run backend
+11. **ai-research-assistant** - AI research assistant with conversational UI and
+    Cloud Run backend
 
 ---
 
@@ -135,7 +149,8 @@ This repository contains the complete infrastructure-as-code setup for deploying
 - **Google Cloud SDK** (gcloud)
 - **kubectl** - Kubernetes CLI
 - **pre-commit** - Git hooks framework
-- **kube-linter** - Kubernetes manifest linter (optional, installed by pre-commit)
+- **kube-linter** - Kubernetes manifest linter (optional, installed by
+  pre-commit)
 - **Docker** - Container runtime (optional)
 - **GitHub CLI** (gh) - Optional but recommended
 
@@ -165,7 +180,8 @@ This repository contains the complete infrastructure-as-code setup for deploying
 
 ## Quick Start
 
-> **📖 For complete end-to-end deployment, see [DEPLOYMENT_RUNBOOK.md](terraform/environments/dev/DEPLOYMENT_RUNBOOK.md)**
+> **📖 For complete end-to-end deployment, see
+> [DEPLOYMENT_RUNBOOK.md](terraform/environments/dev/DEPLOYMENT_RUNBOOK.md)**
 
 ### 1. Clone Repository
 
@@ -234,10 +250,13 @@ terraform apply
 ```
 
 **Important Notes:**
-- **Dev environment uses ZONAL cluster** (europe-west2-a) to stay within SSD quota limits
+
+- **Dev environment uses ZONAL cluster** (europe-west2-a) to stay within SSD
+  quota limits
 - **Staging/Prod use REGIONAL clusters** (europe-west2) for high availability
 - Initial deployment takes ~15-20 minutes
-- See [DEPLOYMENT_SUMMARY.md](terraform/environments/dev/DEPLOYMENT_SUMMARY.md) for detailed resource list
+- See [DEPLOYMENT_SUMMARY.md](terraform/environments/dev/DEPLOYMENT_SUMMARY.md)
+  for detailed resource list
 
 ### 5. Configure Kubernetes
 
@@ -342,6 +361,7 @@ module "gke" {
 ### Zero-Trust Architecture
 
 **Network Security**
+
 - Default-deny firewall rules on all VPCs
 - Explicit allow rules for required traffic
 - Private GKE cluster (no public endpoint)
@@ -349,6 +369,7 @@ module "gke" {
 - Cloud Armor WAF with rate limiting
 
 **Pod Security**
+
 - Pod Security Standards (restricted profile)
 - NetworkPolicy enforcement (default-deny)
 - Non-root containers required
@@ -357,6 +378,7 @@ module "gke" {
 - Capabilities dropped
 
 **Data Encryption**
+
 - Customer-managed encryption keys (CMEK)
 - KMS keys with 90-day rotation
 - Encryption at rest for all data stores
@@ -364,6 +386,7 @@ module "gke" {
 - mTLS via Istio service mesh
 
 **Identity & Access**
+
 - Workload Identity for pod authentication
 - No service account keys
 - Least-privilege IAM roles per service
@@ -437,6 +460,7 @@ make ci
 Comprehensive automated testing with GitHub Actions:
 
 **Workflow Features:**
+
 - ✅ **Parallel execution** - Multiple test types run concurrently
 - ✅ **Conditional testing** - Skips gracefully when tests not implemented
 - ✅ **Smart caching** - npm and Terraform plugins cached
@@ -445,6 +469,7 @@ Comprehensive automated testing with GitHub Actions:
 - ✅ **Fast feedback** - 15-second local pre-commit checks
 
 **Test Types:**
+
 - **Terraform**: 12 modules validated and tested in parallel ✅
 - **Frontend Unit**: Jest tests with 4-way sharding (when implemented)
 - **Integration**: 8 services with PostgreSQL/Redis (when implemented)
@@ -452,11 +477,13 @@ Comprehensive automated testing with GitHub Actions:
 - **Security**: 5 categories in parallel (when implemented)
 - **Performance**: k6 load tests for 4 endpoints (when implemented)
 
-**📚 See [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md) for details**
+**📚 See [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md) for
+details**
 
 ### Test Results
 
 All tests passing (12/12 modules):
+
 - ✅ GKE Module
 - ✅ VPC Module
 - ✅ CloudSQL Module
@@ -470,7 +497,8 @@ All tests passing (12/12 modules):
 - ✅ Workload Identity Module
 - ✅ Addons Module
 
-See [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md) for details.
+See [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md) for
+details.
 
 ---
 
@@ -493,12 +521,14 @@ GitHub Actions workflow for automated deployments:
 ### Deployment Checklist
 
 **Pre-deployment**
+
 - [ ] Terraform plan reviewed and approved
 - [ ] Tests passing in CI/CD
 - [ ] Security scan completed
 - [ ] Change request approved
 
 **Deployment**
+
 - [ ] Deploy to dev environment
 - [ ] Run integration tests
 - [ ] Deploy to staging
@@ -507,6 +537,7 @@ GitHub Actions workflow for automated deployments:
 - [ ] Monitor for 24 hours
 
 **Post-deployment**
+
 - [ ] Verify all services healthy
 - [ ] Check monitoring dashboards
 - [ ] Review audit logs
@@ -551,6 +582,7 @@ protoPayload.status.code=7
 ### Metrics
 
 Key metrics tracked:
+
 - Pod CPU/Memory utilization
 - Request latency (p50, p95, p99)
 - Error rates by service
@@ -560,6 +592,7 @@ Key metrics tracked:
 ### Alerts
 
 Configured alerts:
+
 - Pod crashes or restarts
 - High error rates
 - Resource exhaustion
@@ -577,16 +610,19 @@ Configured alerts:
 
 ## Release Management
 
-This project uses [Release Please](https://github.com/googleapis/release-please) for automated releases.
+This project uses [Release Please](https://github.com/googleapis/release-please)
+for automated releases.
 
 ### Creating a Release
 
 1. **Make changes with conventional commits**:
+
    ```bash
    git commit -m "feat(gke): add autopilot support"
    ```
 
 2. **Push to main**:
+
    ```bash
    git push origin main
    ```
@@ -609,6 +645,7 @@ This project uses [Release Please](https://github.com/googleapis/release-please)
 ```
 
 **Types**:
+
 - `feat:` - New feature (minor version bump)
 - `fix:` - Bug fix (patch version bump)
 - `feat!:` - Breaking change (major version bump)
@@ -619,6 +656,7 @@ This project uses [Release Please](https://github.com/googleapis/release-please)
 ### Version Management
 
 Packages are versioned independently:
+
 - Infrastructure: v0.1.0
 - GKE Module: v1.0.0
 - VPC Module: v1.0.0
@@ -632,7 +670,8 @@ See [RELEASE_MANAGEMENT.md](RELEASE_MANAGEMENT.md) for details.
 
 ## Contributing
 
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) for details on:
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md)
+for details on:
 
 - Conventional commit format
 - Development workflow
@@ -671,12 +710,14 @@ terraform validate
 ### Common Issues
 
 **Terraform State Lock**
+
 ```bash
 # Force unlock (use with caution)
 terraform force-unlock LOCK_ID
 ```
 
 **GKE Access Issues**
+
 ```bash
 # Refresh credentials
 gcloud container clusters get-credentials CLUSTER_NAME \
@@ -684,6 +725,7 @@ gcloud container clusters get-credentials CLUSTER_NAME \
 ```
 
 **Workload Identity Not Working**
+
 ```bash
 # Verify annotation
 kubectl get sa SERVICE_ACCOUNT -n NAMESPACE -o yaml
@@ -694,6 +736,7 @@ gcloud iam service-accounts get-iam-policy \
 ```
 
 **Pod Security Violations**
+
 ```bash
 # Check pod events
 kubectl describe pod POD_NAME -n NAMESPACE
@@ -736,31 +779,45 @@ kubectl port-forward POD_NAME LOCAL_PORT:POD_PORT -n NAMESPACE
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 - [SECURITY.md](SECURITY.md) - Security policy and reporting
-- [PRE_COMMIT_QUICKSTART.md](PRE_COMMIT_QUICKSTART.md) - Quick pre-commit reference
+- [PRE_COMMIT_QUICKSTART.md](PRE_COMMIT_QUICKSTART.md) - Quick pre-commit
+  reference
 
 ### Infrastructure Guides
 
-- [docs/AI_RESEARCH_ASSISTANT.md](docs/AI_RESEARCH_ASSISTANT.md) - AI Research Assistant deployment
-- [docs/LLM_DEPLOYMENT_GUIDE.md](docs/LLM_DEPLOYMENT_GUIDE.md) - Complete LLM infrastructure
-- [docs/FOUNDATIONAL_MODELS_GUIDE.md](docs/FOUNDATIONAL_MODELS_GUIDE.md) - Cloud models integration
-- [docs/FOUNDATIONAL_MODELS_QUICKSTART.md](docs/FOUNDATIONAL_MODELS_QUICKSTART.md) - 3-step LLM quick start
-- [docs/HYBRID_ROUTING_GUIDE.md](docs/HYBRID_ROUTING_GUIDE.md) - Hybrid routing deployment
-- [docs/ZERO_SERVICE_ACCOUNT_KEYS.md](docs/ZERO_SERVICE_ACCOUNT_KEYS.md) - Keyless security guide
-- [docs/SERVICENOW_INTEGRATION.md](docs/SERVICENOW_INTEGRATION.md) - ServiceNow integration
+- [docs/AI_RESEARCH_ASSISTANT.md](docs/AI_RESEARCH_ASSISTANT.md) - AI Research
+  Assistant deployment
+- [docs/LLM_DEPLOYMENT_GUIDE.md](docs/LLM_DEPLOYMENT_GUIDE.md) - Complete LLM
+  infrastructure
+- [docs/FOUNDATIONAL_MODELS_GUIDE.md](docs/FOUNDATIONAL_MODELS_GUIDE.md) - Cloud
+  models integration
+- [docs/FOUNDATIONAL_MODELS_QUICKSTART.md](docs/FOUNDATIONAL_MODELS_QUICKSTART.md) -
+  3-step LLM quick start
+- [docs/HYBRID_ROUTING_GUIDE.md](docs/HYBRID_ROUTING_GUIDE.md) - Hybrid routing
+  deployment
+- [docs/ZERO_SERVICE_ACCOUNT_KEYS.md](docs/ZERO_SERVICE_ACCOUNT_KEYS.md) -
+  Keyless security guide
+- [docs/SERVICENOW_INTEGRATION.md](docs/SERVICENOW_INTEGRATION.md) - ServiceNow
+  integration
 - [docs/DISASTER_RECOVERY.md](docs/DISASTER_RECOVERY.md) - DR procedures
 
 ### Testing & CI/CD
 
-- [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md) - Parallel testing and CI/CD
-- [.github/PRE_COMMIT_SETUP.md](.github/PRE_COMMIT_SETUP.md) - Complete pre-commit guide
-- [.github/KUBELINTER_SETUP.md](.github/KUBELINTER_SETUP.md) - KubeLinter integration
+- [docs/PARALLEL_TESTING_GUIDE.md](docs/PARALLEL_TESTING_GUIDE.md) - Parallel
+  testing and CI/CD
+- [.github/PRE_COMMIT_SETUP.md](.github/PRE_COMMIT_SETUP.md) - Complete
+  pre-commit guide
+- [.github/KUBELINTER_SETUP.md](.github/KUBELINTER_SETUP.md) - KubeLinter
+  integration
 
 ### Operations
 
 - [terraform/ops.md](terraform/ops.md) - Operational procedures
-- [terraform/docs/SECURITY_CONFIGURATION.md](terraform/docs/SECURITY_CONFIGURATION.md) - Security config
-- [terraform/docs/TROUBLESHOOTING.md](terraform/docs/TROUBLESHOOTING.md) - Troubleshooting guide
-- [docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md](docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md) - Security audit
+- [terraform/docs/SECURITY_CONFIGURATION.md](terraform/docs/SECURITY_CONFIGURATION.md) -
+  Security config
+- [terraform/docs/TROUBLESHOOTING.md](terraform/docs/TROUBLESHOOTING.md) -
+  Troubleshooting guide
+- [docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md](docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md) -
+  Security audit
 
 ---
 
@@ -769,24 +826,28 @@ kubectl port-forward POD_NAME LOCAL_PORT:POD_PORT -n NAMESPACE
 ### Planned Features
 
 **Infrastructure**
+
 - [ ] Multi-region deployment
 - [ ] Disaster recovery automation
 - [ ] Advanced auto-scaling
 - [ ] Cost optimization policies
 
 **Security**
+
 - [ ] Binary Authorization enforcement
 - [ ] Secrets rotation automation
 - [ ] VPC Flow Logs analysis
 - [ ] Private Service Connect
 
 **Observability**
+
 - [ ] Distributed tracing
 - [ ] Custom dashboards
 - [ ] SLO/SLI tracking
 - [ ] Automated incident response
 
 **AI/ML**
+
 - [ ] Model versioning
 - [ ] A/B testing framework
 - [ ] Feature store
@@ -812,7 +873,8 @@ This project is proprietary and confidential.
 ## Contact
 
 - Project Lead: [@erayguner](https://github.com/erayguner)
-- Repository: [github.com/erayguner/servicenow-ai](https://github.com/erayguner/servicenow-ai)
+- Repository:
+  [github.com/erayguner/servicenow-ai](https://github.com/erayguner/servicenow-ai)
 - Issues: [GitHub Issues](https://github.com/erayguner/servicenow-ai/issues)
 
 ---
@@ -821,12 +883,12 @@ This project is proprietary and confidential.
 
 ### LLM Serving Documentation
 
-| Document | Description | Use Case |
-|----------|-------------|----------|
-| [**docs/HYBRID_ROUTING_GUIDE.md**](docs/HYBRID_ROUTING_GUIDE.md) | Complete hybrid routing guide | Main deployment (recommended) |
-| [**docs/FOUNDATIONAL_MODELS_QUICKSTART.md**](docs/FOUNDATIONAL_MODELS_QUICKSTART.md) | 3-step quick start | Fast setup |
-| [**docs/LLM_DEPLOYMENT_GUIDE.md**](docs/LLM_DEPLOYMENT_GUIDE.md) | Complete LLM infrastructure | Deep dive |
-| [**docs/FOUNDATIONAL_MODELS_GUIDE.md**](docs/FOUNDATIONAL_MODELS_GUIDE.md) | Cloud models integration | Cloud-only setup |
+| Document                                                                             | Description                   | Use Case                      |
+| ------------------------------------------------------------------------------------ | ----------------------------- | ----------------------------- |
+| [**docs/HYBRID_ROUTING_GUIDE.md**](docs/HYBRID_ROUTING_GUIDE.md)                     | Complete hybrid routing guide | Main deployment (recommended) |
+| [**docs/FOUNDATIONAL_MODELS_QUICKSTART.md**](docs/FOUNDATIONAL_MODELS_QUICKSTART.md) | 3-step quick start            | Fast setup                    |
+| [**docs/LLM_DEPLOYMENT_GUIDE.md**](docs/LLM_DEPLOYMENT_GUIDE.md)                     | Complete LLM infrastructure   | Deep dive                     |
+| [**docs/FOUNDATIONAL_MODELS_GUIDE.md**](docs/FOUNDATIONAL_MODELS_GUIDE.md)           | Cloud models integration      | Cloud-only setup              |
 
 ### Key Commands
 
@@ -862,6 +924,7 @@ print(response.json()['choices'][0]['message']['content'])
 ```
 
 **Routing logic**:
+
 - Simple queries (<50K tokens) → Self-hosted Mistral ($0.01/1M)
 - Long context (>100K tokens) → Gemini Pro (1M context)
 - Complex reasoning → Claude Opus / GPT-4
@@ -870,17 +933,17 @@ print(response.json()['choices'][0]['message']['content'])
 
 ## Status
 
-| Component | Status | Details |
-|-----------|--------|---------|
-| **Infrastructure** | ✅ Production Ready | 12/12 modules passing tests |
-| **Security** | ✅ Hardened | Zero-trust, Workload Identity, CMEK |
-| **CI/CD** | ✅ Optimized | Hybrid workflow, 60% cost reduction |
-| **Pre-commit** | ✅ Enabled | Terraform, Python, K8s, Secrets |
-| **LLM Serving** | ✅ Production Ready | Hybrid routing (self-hosted + cloud) |
-| **Documentation** | ✅ Complete | 20+ comprehensive guides |
-| **Testing** | ✅ Passing | 100% module coverage |
-| **YAML Linting** | ✅ All Valid | 13 files + 6 workflows + 3 markdown blocks |
-| **UK AI Playbook** | ✅ 95% Compliant | Target: 100% by Q4 2025 |
+| Component          | Status              | Details                                    |
+| ------------------ | ------------------- | ------------------------------------------ |
+| **Infrastructure** | ✅ Production Ready | 12/12 modules passing tests                |
+| **Security**       | ✅ Hardened         | Zero-trust, Workload Identity, CMEK        |
+| **CI/CD**          | ✅ Optimized        | Hybrid workflow, 60% cost reduction        |
+| **Pre-commit**     | ✅ Enabled          | Terraform, Python, K8s, Secrets            |
+| **LLM Serving**    | ✅ Production Ready | Hybrid routing (self-hosted + cloud)       |
+| **Documentation**  | ✅ Complete         | 20+ comprehensive guides                   |
+| **Testing**        | ✅ Passing          | 100% module coverage                       |
+| **YAML Linting**   | ✅ All Valid        | 13 files + 6 workflows + 3 markdown blocks |
+| **UK AI Playbook** | ✅ 95% Compliant    | Target: 100% by Q4 2025                    |
 
 ### Technology Stack
 

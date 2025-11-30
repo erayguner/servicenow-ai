@@ -20,17 +20,17 @@ data:
   kubeflow-mlmd-url: http://metadata-service.kubeflow.svc.cluster.local:8080
 
   # Model format preferences
-  preferred-format: safetensors  # safetensors, gguf, pytorch
+  preferred-format: safetensors # safetensors, gguf, pytorch
   fallback-format: pytorch
 
   # Quantization settings
   quantization-enabled: 'true'
-  quantization-bits: '4'  # 4-bit, 8-bit quantization for smaller memory footprint
+  quantization-bits: '4' # 4-bit, 8-bit quantization for smaller memory footprint
 
   # Model loading optimization
-  use-model-streaming: 'true'  # Use tensorizer or model streamer for faster GPU loading
+  use-model-streaming: 'true' # Use tensorizer or model streamer for faster GPU loading
   parallel-loading: 'true'
-  preload-layers: '4'  # Number of layers to preload
+  preload-layers: '4' # Number of layers to preload
 ---
 # Secret for Model Registry Credentials
 apiVersion: v1
@@ -72,11 +72,11 @@ metadata:
   labels:
     app: llm-serving
 spec:
-  accessModes: [ ReadWriteMany ]
+  accessModes: [ReadWriteMany]
   storageClassName: fast-model-storage
   resources:
     requests:
-      storage: 500Gi  # Large enough for multiple models
+      storage: 500Gi # Large enough for multiple models
 ---
 # InferenceService with Hugging Face model
 apiVersion: serving.kserve.io/v1beta1
@@ -206,7 +206,7 @@ metadata:
     serving.kserve.io/model-source: gcs
 spec:
   predictor:
-    serviceAccountName: llm-gateway-sa  # Uses Workload Identity
+    serviceAccountName: llm-gateway-sa # Uses Workload Identity
     minReplicas: 1
     maxReplicas: 3
     model:
@@ -233,7 +233,7 @@ metadata:
   name: model-cache-preload
   namespace: production
 spec:
-  ttlSecondsAfterFinished: 3600  # Clean up after 1 hour
+  ttlSecondsAfterFinished: 3600 # Clean up after 1 hour
   template:
     spec:
       serviceAccountName: llm-gateway-sa
@@ -242,7 +242,7 @@ spec:
         # Download models from Hugging Face
         - name: download-mistral-7b
           image: huggingface/transformers-pytorch-gpu:latest
-          command: [ /bin/bash, -c ]
+          command: [/bin/bash, -c]
           args:
             - |
               set -e
@@ -274,7 +274,7 @@ spec:
       containers:
         - name: verify
           image: busybox:latest
-          command: [ sh, -c ]
+          command: [sh, -c]
           args:
             - |
               echo "Verifying model cache..."

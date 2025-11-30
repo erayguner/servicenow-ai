@@ -133,10 +133,7 @@ export async function detectPrivilegeEscalation(
     }
 
     // Check for privilege escalation patterns
-    if (
-      event.eventName === 'AttachUserPolicy' ||
-      event.eventName === 'AttachRolePolicy'
-    ) {
+    if (event.eventName === 'AttachUserPolicy' || event.eventName === 'AttachRolePolicy') {
       indicators.push('IAM policy attachment');
       evidence.push({
         type: 'IAM_CHANGE',
@@ -323,9 +320,7 @@ function determineSeverity(
   return 'LOW';
 }
 
-function calculateEscalationSeverity(
-  indicators: string[]
-): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
+function calculateEscalationSeverity(indicators: string[]): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
   const adminIndicators = indicators.filter((i) => i.includes('administrator'));
 
   if (adminIndicators.length > 0) {

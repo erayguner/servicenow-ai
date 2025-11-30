@@ -1,243 +1,243 @@
 {
   "alarms": [
     {
-      "AlarmName": "BedrockAgentHighErrorRate",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
       "AlarmDescription": "Alert when agent error rate exceeds 5% over 5 minutes",
+      "AlarmName": "BedrockAgentHighErrorRate",
+      "ComparisonOperator": "GreaterThanThreshold",
+      "EvaluationPeriods": 1,
       "MetricName": "InvocationError",
       "Namespace": "AWS/Bedrock",
-      "Statistic": "Sum",
       "Period": 300,
-      "EvaluationPeriods": 1,
+      "Statistic": "Sum",
       "Threshold": 50,
-      "ComparisonOperator": "GreaterThanThreshold",
-      "TreatMissingData": "notBreaching",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
+      "TreatMissingData": "notBreaching"
     },
     {
-      "AlarmName": "BedrockAgentHighLatency",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
       "AlarmDescription": "Alert when average agent latency exceeds 2000ms",
+      "AlarmName": "BedrockAgentHighLatency",
+      "ComparisonOperator": "GreaterThanThreshold",
+      "EvaluationPeriods": 2,
       "MetricName": "InvocationLatency",
       "Namespace": "AWS/Bedrock",
-      "Statistic": "Average",
       "Period": 300,
-      "EvaluationPeriods": 2,
+      "Statistic": "Average",
       "Threshold": 2000,
-      "ComparisonOperator": "GreaterThanThreshold",
-      "Unit": "Milliseconds",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
+      "Unit": "Milliseconds"
     },
     {
-      "AlarmName": "LambdaHighErrorRate",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
       "AlarmDescription": "Alert when Lambda error rate exceeds 1%",
+      "AlarmName": "LambdaHighErrorRate",
+      "ComparisonOperator": "GreaterThanThreshold",
+      "Dimensions": [
+        {
+          "Name": "FunctionName",
+          "Value": "BedrockAgentOrchestrator"
+        }
+      ],
+      "EvaluationPeriods": 1,
       "MetricName": "Errors",
       "Namespace": "AWS/Lambda",
+      "Period": 300,
+      "Statistic": "Sum",
+      "Threshold": 10
+    },
+    {
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
+      "AlarmDescription": "Alert when Lambda execution duration exceeds 5 seconds on average",
+      "AlarmName": "LambdaHighDuration",
+      "ComparisonOperator": "GreaterThanThreshold",
       "Dimensions": [
         {
           "Name": "FunctionName",
           "Value": "BedrockAgentOrchestrator"
         }
       ],
-      "Statistic": "Sum",
-      "Period": 300,
-      "EvaluationPeriods": 1,
-      "Threshold": 10,
-      "ComparisonOperator": "GreaterThanThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
-    },
-    {
-      "AlarmName": "LambdaHighDuration",
-      "AlarmDescription": "Alert when Lambda execution duration exceeds 5 seconds on average",
+      "EvaluationPeriods": 2,
       "MetricName": "Duration",
       "Namespace": "AWS/Lambda",
+      "Period": 300,
+      "Statistic": "Average",
+      "Threshold": 5000,
+      "Unit": "Milliseconds"
+    },
+    {
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
+      "AlarmDescription": "Alert when Lambda invocations are throttled",
+      "AlarmName": "LambdaThrottling",
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
       "Dimensions": [
         {
           "Name": "FunctionName",
           "Value": "BedrockAgentOrchestrator"
         }
       ],
-      "Statistic": "Average",
-      "Period": 300,
-      "EvaluationPeriods": 2,
-      "Threshold": 5000,
-      "ComparisonOperator": "GreaterThanThreshold",
-      "Unit": "Milliseconds",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
-    },
-    {
-      "AlarmName": "LambdaThrottling",
-      "AlarmDescription": "Alert when Lambda invocations are throttled",
+      "EvaluationPeriods": 1,
       "MetricName": "Throttles",
       "Namespace": "AWS/Lambda",
-      "Dimensions": [
-        {
-          "Name": "FunctionName",
-          "Value": "BedrockAgentOrchestrator"
-        }
-      ],
-      "Statistic": "Sum",
       "Period": 300,
-      "EvaluationPeriods": 1,
-      "Threshold": 1,
-      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
+      "Statistic": "Sum",
+      "Threshold": 1
     },
     {
-      "AlarmName": "StepFunctionsExecutionFailure",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
       "AlarmDescription": "Alert when Step Functions execution fails",
+      "AlarmName": "StepFunctionsExecutionFailure",
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "EvaluationPeriods": 1,
       "MetricName": "ExecutionsFailed",
       "Namespace": "AWS/States",
-      "Statistic": "Sum",
       "Period": 300,
-      "EvaluationPeriods": 1,
-      "Threshold": 5,
-      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
+      "Statistic": "Sum",
+      "Threshold": 5
     },
     {
-      "AlarmName": "APIGatewayHighError",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
       "AlarmDescription": "Alert when API Gateway 5XX error rate exceeds 1%",
-      "MetricName": "5XXError",
-      "Namespace": "AWS/APIGateway",
+      "AlarmName": "APIGatewayHighError",
+      "ComparisonOperator": "GreaterThanThreshold",
       "Dimensions": [
         {
           "Name": "ApiName",
           "Value": "BedrockAgentAPI"
         }
       ],
-      "Statistic": "Sum",
-      "Period": 300,
       "EvaluationPeriods": 1,
-      "Threshold": 10,
-      "ComparisonOperator": "GreaterThanThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
+      "MetricName": "5XXError",
+      "Namespace": "AWS/APIGateway",
+      "Period": 300,
+      "Statistic": "Sum",
+      "Threshold": 10
     },
     {
-      "AlarmName": "DynamoDBReadThrottling",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
       "AlarmDescription": "Alert when DynamoDB read throttling events occur",
+      "AlarmName": "DynamoDBReadThrottling",
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "Dimensions": [
+        {
+          "Name": "TableName",
+          "Value": "BedrockAgentState"
+        }
+      ],
+      "EvaluationPeriods": 1,
       "MetricName": "ReadThrottleEvents",
       "Namespace": "AWS/DynamoDB",
+      "Period": 60,
+      "Statistic": "Sum",
+      "Threshold": 1
+    },
+    {
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
+      ],
+      "AlarmDescription": "Alert when DynamoDB write throttling events occur",
+      "AlarmName": "DynamoDBWriteThrottling",
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
       "Dimensions": [
         {
           "Name": "TableName",
           "Value": "BedrockAgentState"
         }
       ],
-      "Statistic": "Sum",
-      "Period": 60,
       "EvaluationPeriods": 1,
-      "Threshold": 1,
-      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
-    },
-    {
-      "AlarmName": "DynamoDBWriteThrottling",
-      "AlarmDescription": "Alert when DynamoDB write throttling events occur",
       "MetricName": "WriteThrottleEvents",
       "Namespace": "AWS/DynamoDB",
-      "Dimensions": [
-        {
-          "Name": "TableName",
-          "Value": "BedrockAgentState"
-        }
-      ],
-      "Statistic": "Sum",
       "Period": 60,
-      "EvaluationPeriods": 1,
-      "Threshold": 1,
-      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:bedrock-alerts"
-      ]
+      "Statistic": "Sum",
+      "Threshold": 1
     },
     {
-      "AlarmName": "GuardDutyHighSeverityFindings",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:security-alerts"
+      ],
       "AlarmDescription": "Alert when GuardDuty detects HIGH severity findings",
-      "MetricName": "FindingsCount",
-      "Namespace": "AWS/GuardDuty",
+      "AlarmName": "GuardDutyHighSeverityFindings",
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
       "Dimensions": [
         {
           "Name": "Severity",
           "Value": "HIGH"
         }
       ],
-      "Statistic": "Sum",
-      "Period": 300,
       "EvaluationPeriods": 1,
-      "Threshold": 1,
-      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:security-alerts"
-      ]
+      "MetricName": "FindingsCount",
+      "Namespace": "AWS/GuardDuty",
+      "Period": 300,
+      "Statistic": "Sum",
+      "Threshold": 1
     },
     {
-      "AlarmName": "WAFBlockedRequests",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:security-alerts"
+      ],
       "AlarmDescription": "Alert when WAF blocks significant number of requests",
-      "MetricName": "BlockedRequests",
-      "Namespace": "AWS/WAF",
+      "AlarmName": "WAFBlockedRequests",
+      "ComparisonOperator": "GreaterThanThreshold",
       "Dimensions": [
         {
           "Name": "WebACL",
           "Value": "BedrockAgentWAF"
         }
       ],
-      "Statistic": "Sum",
-      "Period": 300,
       "EvaluationPeriods": 1,
-      "Threshold": 100,
-      "ComparisonOperator": "GreaterThanThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:security-alerts"
-      ]
+      "MetricName": "BlockedRequests",
+      "Namespace": "AWS/WAF",
+      "Period": 300,
+      "Statistic": "Sum",
+      "Threshold": 100
     },
     {
-      "AlarmName": "ConfigComplianceFailure",
+      "AlarmActions": [
+        "arn:aws:sns:us-east-1:123456789012:compliance-alerts"
+      ],
       "AlarmDescription": "Alert when AWS Config detects non-compliance",
-      "MetricName": "ComplianceByConfigRule",
-      "Namespace": "AWS/Config",
+      "AlarmName": "ConfigComplianceFailure",
+      "ComparisonOperator": "GreaterThanThreshold",
       "Dimensions": [
         {
           "Name": "ComplianceType",
           "Value": "NON_COMPLIANT"
         }
       ],
-      "Statistic": "Sum",
-      "Period": 300,
       "EvaluationPeriods": 1,
-      "Threshold": 5,
-      "ComparisonOperator": "GreaterThanThreshold",
-      "AlarmActions": [
-        "arn:aws:sns:us-east-1:123456789012:compliance-alerts"
-      ]
+      "MetricName": "ComplianceByConfigRule",
+      "Namespace": "AWS/Config",
+      "Period": 300,
+      "Statistic": "Sum",
+      "Threshold": 5
     },
     {
-      "AlarmName": "HighCostAnomaly",
-      "AlarmDescription": "Alert when daily costs exceed baseline by 30%",
-      "MetricName": "EstimatedCharges",
-      "Namespace": "AWS/Billing",
-      "Statistic": "Maximum",
-      "Period": 86400,
-      "EvaluationPeriods": 1,
-      "Threshold": 150,
-      "ComparisonOperator": "GreaterThanThreshold",
       "AlarmActions": [
         "arn:aws:sns:us-east-1:123456789012:cost-alerts"
-      ]
+      ],
+      "AlarmDescription": "Alert when daily costs exceed baseline by 30%",
+      "AlarmName": "HighCostAnomaly",
+      "ComparisonOperator": "GreaterThanThreshold",
+      "EvaluationPeriods": 1,
+      "MetricName": "EstimatedCharges",
+      "Namespace": "AWS/Billing",
+      "Period": 86400,
+      "Statistic": "Maximum",
+      "Threshold": 150
     }
   ]
 }

@@ -12,7 +12,7 @@ metadata:
   namespace: production
 data:
   project-id: PROJECT_ID
-  location: europe-west4    # or "us-central1"
+  location: europe-west4 # or "us-central1"
 
   # Available Gemini models
   gemini-pro: gemini-1.5-pro-001
@@ -44,11 +44,11 @@ spec:
         app: vertex-ai-gateway
         tier: foundational-models
     spec:
-      serviceAccountName: llm-gateway-sa  # Uses Workload Identity
+      serviceAccountName: llm-gateway-sa # Uses Workload Identity
       containers:
         - name: gateway
           image: google/cloud-sdk:alpine
-          command: [ /bin/sh, -c ]
+          command: [/bin/sh, -c]
           args:
             - |
               # Install Python and required packages
@@ -492,7 +492,7 @@ spec:
       containers:
         - name: router
           image: python:3.11-slim
-          command: [ /bin/bash, -c ]
+          command: [/bin/bash, -c]
           args:
             - |
               pip install --no-cache-dir \

@@ -336,7 +336,7 @@ async function rotateLambdaEnvironmentVars(
 
   // Rotate each environment variable
   for (const [key, value] of Object.entries(currentEnvVars)) {
-    if (typeof value === 'string' && key.includes('KEY') || key.includes('SECRET')) {
+    if ((typeof value === 'string' && key.includes('KEY')) || key.includes('SECRET')) {
       newEnvVars[key] = generateNewSecret('api_key');
     } else {
       newEnvVars[key] = value as string;

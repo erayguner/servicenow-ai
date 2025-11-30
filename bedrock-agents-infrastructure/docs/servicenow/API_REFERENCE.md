@@ -673,8 +673,12 @@ RateLimit-Reset: 1637081400
 ```json
 {
   "result": [
-    { /* record 1 */ },
-    { /* record 2 */ }
+    {
+      /* record 1 */
+    },
+    {
+      /* record 2 */
+    }
   ],
   "meta": {
     "total_count": 1245,
@@ -994,4 +998,6 @@ SERVICE_UNAVAILABLE
 }
 ```
 
-For more information, refer to the [ServiceNow REST API Documentation](https://docs.servicenow.com/bundle/vancouver-api-reference/page/integrate/inbound-rest/concept/c_TableAPI.html) and the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide.
+For more information, refer to the
+[ServiceNow REST API Documentation](https://docs.servicenow.com/bundle/vancouver-api-reference/page/integrate/inbound-rest/concept/c_TableAPI.html)
+and the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide.

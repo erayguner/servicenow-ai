@@ -1,42 +1,42 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import ChatInterface from '@/components/ChatInterface'
-import Sidebar from '@/components/Sidebar'
-import { fetchConversations, Conversation } from '@/lib/api'
+import { useState, useEffect } from 'react';
+import ChatInterface from '@/components/ChatInterface';
+import Sidebar from '@/components/Sidebar';
+import { fetchConversations, Conversation } from '@/lib/api';
 
 export default function Home() {
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadConversations()
-  }, [])
+    loadConversations();
+  }, []);
 
   const loadConversations = async () => {
     try {
-      const data = await fetchConversations()
-      setConversations(data)
+      const data = await fetchConversations();
+      setConversations(data);
     } catch (error) {
-      console.error('Failed to load conversations:', error)
+      console.error('Failed to load conversations:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleNewConversation = () => {
-    setCurrentConversationId(null)
-  }
+    setCurrentConversationId(null);
+  };
 
   const handleSelectConversation = (conversationId: string) => {
-    setCurrentConversationId(conversationId)
-  }
+    setCurrentConversationId(conversationId);
+  };
 
   const handleConversationCreated = (conversationId: string) => {
-    setCurrentConversationId(conversationId)
-    loadConversations()
-  }
+    setCurrentConversationId(conversationId);
+    loadConversations();
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -52,5 +52,5 @@ export default function Home() {
         onConversationCreated={handleConversationCreated}
       />
     </div>
-  )
+  );
 }

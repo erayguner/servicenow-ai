@@ -76,6 +76,7 @@ git --version   # v2.30 or higher
 1. **Log in to ServiceNow** as administrator
 2. **Navigate**: System Security > Users and Groups > Users
 3. **Create New User**:
+
    ```
    Field              Value
    -------------------
@@ -89,6 +90,7 @@ git --version   # v2.30 or higher
    ```
 
 4. **Assign Roles**:
+
    - `incident_manager` (for incident operations)
    - `change_manager` (for change request operations)
    - `knowledge_manager` (for KB operations)
@@ -103,6 +105,7 @@ git --version   # v2.30 or higher
 
 1. **Navigate**: System Web Services > REST APIs
 2. **Verify REST API is enabled**:
+
    ```
    System > System Settings > REST API enabled checkbox should be checked
    ```
@@ -115,12 +118,14 @@ git --version   # v2.30 or higher
 
 ### Step 3: Create Business Rules for Triggers
 
-Create business rules to trigger Lambda functions when incidents/changes are created or updated.
+Create business rules to trigger Lambda functions when incidents/changes are
+created or updated.
 
 #### Incident Creation Trigger
 
 1. **Navigate**: Incident > Incident [List] > Administration > Business Rules
 2. **New Business Rule**:
+
    ```
    Name: Incident Created - Notify Bedrock Agent
    Table: Incident
@@ -154,8 +159,10 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
 
 #### Change Request Trigger
 
-1. **Navigate**: Change > Change Request [List] > Administration > Business Rules
+1. **Navigate**: Change > Change Request [List] > Administration > Business
+   Rules
 2. **New Business Rule**:
+
    ```
    Name: Change Request - Notify Bedrock Agent
    Table: Change Request
@@ -173,17 +180,18 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
 
 1. **Navigate**: System Definition > Script Includes
 2. **New Script Include**:
+
    ```javascript
-   Name: BedrockIntegrationUtil
+   Name: BedrockIntegrationUtil;
 
    var BedrockIntegrationUtil = Class.create();
    BedrockIntegrationUtil.prototype = {
-     initialize: function() {
+     initialize: function () {
        this.apiEndpoint = gs.getProperty('servicenow.bedrock.api_endpoint', '');
        this.apiKey = gs.getProperty('servicenow.bedrock.api_key', '');
      },
 
-     triggerIncidentAgent: function(payload) {
+     triggerIncidentAgent: function (payload) {
        try {
          var request = new GlideHTTPRequest();
          request.setEndpoint(this.apiEndpoint + '/incident');
@@ -195,7 +203,7 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
        }
      },
 
-     triggerChangeAgent: function(payload) {
+     triggerChangeAgent: function (payload) {
        try {
          var request = new GlideHTTPRequest();
          request.setEndpoint(this.apiEndpoint + '/change');
@@ -207,7 +215,7 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
        }
      },
 
-     type: 'BedrockIntegrationUtil'
+     type: 'BedrockIntegrationUtil',
    };
    ```
 
@@ -215,6 +223,7 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
 
 1. **Navigate**: System Properties > System Property
 2. **Create New Properties**:
+
    ```
    Property Name: servicenow.bedrock.api_endpoint
    Value: https://your-lambda-api-gateway-url.execute-api.region.amazonaws.com/prod
@@ -235,6 +244,7 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
 
 1. **Navigate**: System Definition > Tables
 2. **New Table**:
+
    ```
    Table Name: Bedrock Agent Execution
    Label: Bedrock Agent Execution
@@ -256,16 +266,14 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
 1. **AWS Console**: IAM > Roles > Create Role
 2. **Service**: Lambda
 3. **Permissions Policies**: Attach the following policies:
+
    ```json
    {
      "Version": "2012-10-17",
      "Statement": [
        {
          "Effect": "Allow",
-         "Action": [
-           "bedrock:InvokeAgent",
-           "bedrock:InvokeModel"
-         ],
+         "Action": ["bedrock:InvokeAgent", "bedrock:InvokeModel"],
          "Resource": "*"
        },
        {
@@ -298,16 +306,12 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
        },
        {
          "Effect": "Allow",
-         "Action": [
-           "cloudwatch:PutMetricData"
-         ],
+         "Action": ["cloudwatch:PutMetricData"],
          "Resource": "*"
        },
        {
          "Effect": "Allow",
-         "Action": [
-           "sns:Publish"
-         ],
+         "Action": ["sns:Publish"],
          "Resource": "arn:aws:sns:*:*:servicenow-*"
        }
      ]
@@ -320,6 +324,7 @@ Create business rules to trigger Lambda functions when incidents/changes are cre
 
 1. **AWS Console**: Bedrock > Agents > Create Agent
 2. **Configure Agent**:
+
    ```
    Agent Name: ServiceNow Incident Agent
    Agent Description: AI agent for incident resolution
@@ -944,7 +949,8 @@ After deployment, verify:
 
 ## Support and Troubleshooting
 
-For common issues and troubleshooting steps, refer to the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide.
+For common issues and troubleshooting steps, refer to the
+[TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide.
 
 For detailed API information, see [API_REFERENCE.md](API_REFERENCE.md).
 

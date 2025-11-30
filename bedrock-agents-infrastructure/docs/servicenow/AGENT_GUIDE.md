@@ -13,26 +13,31 @@
 
 ### Overview
 
-The Incident Resolution Agent autonomously analyzes IT incidents, determines root causes, recommends solutions, and manages incident lifecycle in ServiceNow.
+The Incident Resolution Agent autonomously analyzes IT incidents, determines
+root causes, recommends solutions, and manages incident lifecycle in ServiceNow.
 
 ### Use Cases
 
 1. **Automated Incident Triage**
+
    - New incidents automatically categorized and severity assessed
    - Appropriate resolver group assigned
    - Priority determined based on impact and urgency
 
 2. **Knowledge Base Lookup**
+
    - Search KB articles matching incident symptoms
    - Provide solutions from known issues
    - Link incident to relevant documentation
 
 3. **Root Cause Analysis**
+
    - Analyze incident description and error messages
    - Review historical incidents with similar patterns
    - Determine probable causes with confidence scores
 
 4. **Resolution Automation**
+
    - Implement automated fixes when possible
    - Provide step-by-step troubleshooting procedures
    - Recommend escalation when needed
@@ -222,27 +227,33 @@ Next: Assigning incident and notifying team...
 
 ### Overview
 
-The Change Coordination Agent manages the complete change request lifecycle, from submission through implementation, including risk assessment, CAB coordination, and rollback management.
+The Change Coordination Agent manages the complete change request lifecycle,
+from submission through implementation, including risk assessment, CAB
+coordination, and rollback management.
 
 ### Use Cases
 
 1. **Change Request Analysis**
+
    - Validate change request completeness
    - Extract key information (scope, impact, timeline)
    - Identify affected systems and configurations
 
 2. **Risk Assessment**
+
    - Calculate risk score based on change type and scope
    - Identify potential impacts on services and users
    - Determine testing and CAB requirements
 
 3. **CAB Coordination**
+
    - Automatically determine if CAB approval is required
    - Schedule CAB meetings and notifications
    - Summarize change for CAB review
    - Process CAB decisions
 
 4. **Conflict Detection**
+
    - Check for conflicting changes in same time window
    - Identify resource conflicts
    - Recommend optimal scheduling
@@ -455,28 +466,34 @@ NEXT STEPS:
 
 ### Overview
 
-The Knowledge Synchronizer Agent maintains the ServiceNow Knowledge Base by creating articles from incident resolutions, consolidating duplicates, optimizing content, and ensuring information currency.
+The Knowledge Synchronizer Agent maintains the ServiceNow Knowledge Base by
+creating articles from incident resolutions, consolidating duplicates,
+optimizing content, and ensuring information currency.
 
 ### Use Cases
 
 1. **Automatic KB Article Generation**
+
    - Create KB articles from closed incident resolutions
    - Include root cause, solution steps, and prevention
    - Apply appropriate metadata and categorization
 
 2. **Content Quality Management**
+
    - Identify duplicate or outdated articles
    - Consolidate related content
    - Improve article structure and readability
    - Update stale articles with new information
 
 3. **Intelligent Search Enhancement**
+
    - Improve article discoverability
    - Add keyword tags and synonyms
    - Implement multi-language support
    - Generate article summaries
 
 4. **Knowledge Gap Identification**
+
    - Analyze search queries without results
    - Identify frequently searched topics not in KB
    - Recommend new article creation
@@ -721,18 +738,21 @@ IMPACT ESTIMATE:
 ### Best Practices
 
 1. **Be Specific**
+
    ```
    ✓ Good: "Search for incidents in the last 7 days with status 'Open' or 'In Progress' and priority 1 or 2"
    ✗ Bad: "Find recent incidents"
    ```
 
 2. **Provide Context**
+
    ```
    ✓ Good: "This is for a financial services company, so include compliance considerations"
    ✗ Bad: "Analyze the problem"
    ```
 
 3. **Use Clear Structure**
+
    ```
    ✓ Good:
      Task: [Clear objective]
@@ -752,12 +772,14 @@ IMPACT ESTIMATE:
 ### Advanced Techniques
 
 1. **Chain-of-Thought Prompting**
+
    ```
    "Think step-by-step through this problem. First identify the symptoms, then consider
    root causes, then propose solutions, and finally recommend prevention measures."
    ```
 
 2. **Role-Based Prompting**
+
    ```
    "You are a senior incident manager with 10 years of IT experience. Analyze this
    incident and provide your professional assessment."
@@ -802,18 +824,21 @@ IMPACT ESTIMATE:
 ### Optimization Strategies
 
 1. **Caching**
+
    - Cache incident category rules (1-hour TTL)
    - Cache user/group information (24-hour TTL)
    - Cache KB search results (1-hour TTL)
    - Result: 40-60% API call reduction
 
 2. **Batch Processing**
+
    - Group similar incidents for analysis
    - Process changes in daily batches
    - Generate KB articles in weekly batches
    - Result: 30% improved throughput
 
 3. **Parallel Execution**
+
    - Run KB search while categorizing incident
    - Analyze multiple aspects simultaneously
    - Execute independent tasks in parallel
@@ -875,6 +900,6 @@ Handoff Process:
 4. Agent monitors resolution and learns for future
 ```
 
-For more details on workflows, see [WORKFLOWS.md](WORKFLOWS.md).
-For API details, see [API_REFERENCE.md](API_REFERENCE.md).
-For troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+For more details on workflows, see [WORKFLOWS.md](WORKFLOWS.md). For API
+details, see [API_REFERENCE.md](API_REFERENCE.md). For troubleshooting, see
+[TROUBLESHOOTING.md](TROUBLESHOOTING.md).

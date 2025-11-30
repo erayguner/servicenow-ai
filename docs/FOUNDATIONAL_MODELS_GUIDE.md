@@ -1,8 +1,7 @@
 # 🤖 Using Foundational Models with Kubernetes LLM Infrastructure
 
-**Status**: ✅ Production-Ready
-**Last Updated**: 2025-11-04
-**Integration**: Google Vertex AI, AWS Bedrock, OpenAI, Anthropic
+**Status**: ✅ Production-Ready **Last Updated**: 2025-11-04 **Integration**:
+Google Vertex AI, AWS Bedrock, OpenAI, Anthropic
 
 ---
 
@@ -21,14 +20,15 @@
 
 ## Overview
 
-This guide shows you how to integrate **foundational models** from major AI providers with your Kubernetes LLM infrastructure. The implementation provides:
+This guide shows you how to integrate **foundational models** from major AI
+providers with your Kubernetes LLM infrastructure. The implementation provides:
 
 ✅ **Multi-Provider Support**: Google, AWS, OpenAI, Anthropic, Cohere, Mistral
-✅ **Unified API**: OpenAI-compatible endpoints for all providers
-✅ **Intelligent Routing**: Automatic model selection based on requirements
-✅ **Fallback Chains**: Automatic failover if primary provider fails
-✅ **Cost Optimization**: Route to cheapest model that meets requirements
-✅ **Zero Service Account Keys**: Uses Workload Identity for GCP
+✅ **Unified API**: OpenAI-compatible endpoints for all providers ✅
+**Intelligent Routing**: Automatic model selection based on requirements ✅
+**Fallback Chains**: Automatic failover if primary provider fails ✅ **Cost
+Optimization**: Route to cheapest model that meets requirements ✅ **Zero
+Service Account Keys**: Uses Workload Identity for GCP
 
 ---
 
@@ -37,23 +37,27 @@ This guide shows you how to integrate **foundational models** from major AI prov
 ### 1️⃣ Google Vertex AI (Recommended for GCP) ⭐
 
 **Models**:
+
 - **Gemini 1.5 Pro** - 1M token context, best quality
 - **Gemini 1.5 Flash** - Fast, cost-effective
 - **PaLM 2** - Text, chat, code generation
 
 **Benefits**:
+
 - ✅ No API keys needed (Workload Identity)
 - ✅ Lowest latency (same region)
 - ✅ 1M token context window (Gemini)
 - ✅ Enterprise support
 
 **Pricing** (per 1M tokens):
+
 - Gemini Flash: $0.10 input / $0.30 output
 - Gemini Pro: $3.50 input / $10.50 output
 
 ### 2️⃣ AWS Bedrock
 
 **Models**:
+
 - **Claude 3 Opus** - Highest intelligence
 - **Claude 3 Sonnet** - Balanced performance/cost
 - **Claude 3 Haiku** - Fastest, cheapest
@@ -61,6 +65,7 @@ This guide shows you how to integrate **foundational models** from major AI prov
 - **Amazon Titan** - AWS native
 
 **Benefits**:
+
 - ✅ Multiple model providers
 - ✅ Enterprise contracts
 - ✅ Regional availability
@@ -68,11 +73,13 @@ This guide shows you how to integrate **foundational models** from major AI prov
 ### 3️⃣ OpenAI API
 
 **Models**:
+
 - **GPT-4 Turbo** - 128K context
 - **GPT-4** - Most capable
 - **GPT-3.5 Turbo** - Fast, cost-effective
 
 **Benefits**:
+
 - ✅ Industry standard
 - ✅ Best function calling
 - ✅ JSON mode
@@ -80,11 +87,13 @@ This guide shows you how to integrate **foundational models** from major AI prov
 ### 4️⃣ Anthropic API
 
 **Models**:
+
 - **Claude 3 Opus** - 200K context
 - **Claude 3 Sonnet** - Balanced
 - **Claude 3 Haiku** - Fast
 
 **Benefits**:
+
 - ✅ Long context (200K)
 - ✅ Strong reasoning
 - ✅ Ethical AI focus
@@ -112,6 +121,7 @@ kubectl get pods -n production | grep -E "(vertex-ai|llm-router)"
 ### 2. Configure Credentials
 
 #### Google Vertex AI (No keys needed!)
+
 ```bash
 # Already configured via Workload Identity
 kubectl get serviceaccount llm-gateway-sa -n production \
@@ -119,6 +129,7 @@ kubectl get serviceaccount llm-gateway-sa -n production \
 ```
 
 #### OpenAI API
+
 ```bash
 kubectl create secret generic openai-api-key \
   --from-literal=api-key=sk-YOUR_OPENAI_API_KEY \
@@ -126,6 +137,7 @@ kubectl create secret generic openai-api-key \
 ```
 
 #### Anthropic API
+
 ```bash
 kubectl create secret generic anthropic-api-key \
   --from-literal=api-key=sk-ant-YOUR_ANTHROPIC_API_KEY \
@@ -133,6 +145,7 @@ kubectl create secret generic anthropic-api-key \
 ```
 
 #### AWS Bedrock (Use IRSA in production)
+
 ```bash
 kubectl create secret generic aws-credentials \
   --from-literal=aws-access-key-id=YOUR_KEY \
@@ -168,19 +181,21 @@ curl -X POST http://${ROUTER_URL}/v1/chat/completions \
 **Deployment**: `vertex-ai-gateway`
 
 **Available Models**:
+
 ```yaml
 Gemini Models:
-  - gemini-1.5-pro-001     # 1M context, best quality
-  - gemini-1.5-flash-001   # Fast, cost-effective
-  - gemini-ultra           # Coming soon
+  - gemini-1.5-pro-001 # 1M context, best quality
+  - gemini-1.5-flash-001 # Fast, cost-effective
+  - gemini-ultra # Coming soon
 
 PaLM Models:
-  - text-bison@002         # Text generation
-  - chat-bison@002         # Chat
-  - code-bison@002         # Code generation
+  - text-bison@002 # Text generation
+  - chat-bison@002 # Chat
+  - code-bison@002 # Code generation
 ```
 
 **Example Usage**:
+
 ```bash
 # Using Gemini Pro
 curl -X POST http://vertex-ai-gateway/v1/completions \
@@ -194,12 +209,14 @@ curl -X POST http://vertex-ai-gateway/v1/completions \
 ```
 
 **Benefits**:
+
 - ✅ **Zero API keys**: Uses Workload Identity
 - ✅ **1M token context**: Perfect for long documents
 - ✅ **Low latency**: Same region as your infrastructure
 - ✅ **Cost-effective**: Gemini Flash is very cheap
 
 **Configuration**:
+
 ```yaml
 env:
   - name: PROJECT_ID
@@ -208,12 +225,13 @@ env:
         name: vertex-ai-config
         key: project-id
   - name: LOCATION
-    value: "europe-west4"
+    value: 'europe-west4'
 ```
 
 ### AWS Bedrock Integration
 
 **Models Available**:
+
 ```yaml
 Anthropic Claude:
   - anthropic.claude-3-opus-20240229-v1:0
@@ -232,6 +250,7 @@ AI21 Jurassic:
 ```
 
 **Setup with IRSA (Recommended)**:
+
 ```yaml
 # Create IAM role with Bedrock permissions
 # Annotate service account with IAM role
@@ -246,11 +265,13 @@ metadata:
 ### OpenAI Integration
 
 **Models**:
+
 - GPT-4 Turbo: `gpt-4-turbo-preview`
 - GPT-4: `gpt-4`
 - GPT-3.5 Turbo: `gpt-3.5-turbo`
 
 **Usage**:
+
 ```python
 import requests
 
@@ -278,7 +299,9 @@ The router automatically selects the best model based on your requirements.
 ### Routing Strategies
 
 #### 1. **Quality** (Default)
+
 Uses highest-quality models:
+
 - Gemini 1.5 Pro (1M context)
 - Claude 3 Opus (200K context)
 - GPT-4 Turbo (128K context)
@@ -286,12 +309,14 @@ Uses highest-quality models:
 ```json
 {
   "routing_strategy": "quality",
-  "messages": [{"role": "user", "content": "Complex reasoning task"}]
+  "messages": [{ "role": "user", "content": "Complex reasoning task" }]
 }
 ```
 
 #### 2. **Fast**
+
 Uses fastest models (<1s latency):
+
 - Gemini Flash
 - Claude 3 Haiku
 - GPT-3.5 Turbo
@@ -299,24 +324,28 @@ Uses fastest models (<1s latency):
 ```json
 {
   "routing_strategy": "fast",
-  "messages": [{"role": "user", "content": "Quick question"}]
+  "messages": [{ "role": "user", "content": "Quick question" }]
 }
 ```
 
 #### 3. **Cost**
+
 Uses cheapest models:
+
 - Gemini Flash ($0.10/1M tokens)
 - GPT-3.5 Turbo ($0.50/1M tokens)
 
 ```json
 {
   "routing_strategy": "cost",
-  "messages": [{"role": "user", "content": "Simple task"}]
+  "messages": [{ "role": "user", "content": "Simple task" }]
 }
 ```
 
 #### 4. **Long Context**
+
 For documents >100K tokens:
+
 - Gemini 1.5 Pro (1M context)
 - Claude 3 Opus (200K context)
 
@@ -326,30 +355,36 @@ For documents >100K tokens:
   "requirements": {
     "min_context_window": 200000
   },
-  "messages": [{"role": "user", "content": "Analyze this 500-page document..."}]
+  "messages": [
+    { "role": "user", "content": "Analyze this 500-page document..." }
+  ]
 }
 ```
 
 #### 5. **Code**
+
 Optimized for code generation:
+
 - Code Bison (Vertex AI)
 - GPT-4 Turbo
 
 ```json
 {
   "routing_strategy": "code",
-  "messages": [{"role": "user", "content": "Write a REST API in Python"}]
+  "messages": [{ "role": "user", "content": "Write a REST API in Python" }]
 }
 ```
 
 ### Automatic Fallback
 
 If primary provider fails, router automatically tries fallback chain:
+
 ```
 Vertex AI → OpenAI → Anthropic → Error
 ```
 
 **Example**:
+
 ```python
 # Router will automatically fallback if Vertex AI fails
 response = requests.post(
@@ -504,18 +539,19 @@ response2 = conversation.send_message("How do I deploy an app?")
 
 ### Model Pricing Comparison (per 1M tokens)
 
-| Provider | Model | Input | Output | Context | Use Case |
-|----------|-------|-------|--------|---------|----------|
-| **Vertex AI** | Gemini Flash | $0.10 | $0.30 | 1M | ⚡ Fast, cheap |
-| **Vertex AI** | Gemini Pro | $3.50 | $10.50 | 1M | 🎯 Quality |
-| **OpenAI** | GPT-3.5 | $0.50 | $1.50 | 16K | ⚡ Fast |
-| **OpenAI** | GPT-4 Turbo | $10.00 | $30.00 | 128K | 🎯 Quality |
-| **Anthropic** | Claude 3 Haiku | $0.25 | $1.25 | 200K | ⚡ Fast |
-| **Anthropic** | Claude 3 Opus | $15.00 | $75.00 | 200K | 🎯🎯 Best |
+| Provider      | Model          | Input  | Output | Context | Use Case       |
+| ------------- | -------------- | ------ | ------ | ------- | -------------- |
+| **Vertex AI** | Gemini Flash   | $0.10  | $0.30  | 1M      | ⚡ Fast, cheap |
+| **Vertex AI** | Gemini Pro     | $3.50  | $10.50 | 1M      | 🎯 Quality     |
+| **OpenAI**    | GPT-3.5        | $0.50  | $1.50  | 16K     | ⚡ Fast        |
+| **OpenAI**    | GPT-4 Turbo    | $10.00 | $30.00 | 128K    | 🎯 Quality     |
+| **Anthropic** | Claude 3 Haiku | $0.25  | $1.25  | 200K    | ⚡ Fast        |
+| **Anthropic** | Claude 3 Opus  | $15.00 | $75.00 | 200K    | 🎯🎯 Best      |
 
 ### Cost Optimization Strategies
 
 #### 1. Use Routing Strategies
+
 ```python
 # Cheap for simple tasks
 response = call_llm(routing_strategy='cost', ...)
@@ -525,6 +561,7 @@ response = call_llm(routing_strategy='quality', ...)
 ```
 
 #### 2. Token Limits
+
 ```python
 # Set max_tokens based on use case
 response = call_llm(
@@ -534,6 +571,7 @@ response = call_llm(
 ```
 
 #### 3. Batch Requests
+
 ```python
 # Process multiple items in one call
 prompts = [f"Summarize: {text}" for text in texts]
@@ -546,6 +584,7 @@ response = call_llm(messages=[{
 ```
 
 #### 4. Cache Common Prompts
+
 ```python
 # Use Vertex AI prefix caching (automatic)
 # Repeated system prompts are cached
@@ -575,23 +614,27 @@ sum(rate(vertex_tokens_total[1h])) by (model, type)
 ### 1. Choose the Right Model
 
 **Use Gemini Flash** when:
+
 - ✅ Response time is critical (<500ms)
 - ✅ Task is straightforward
 - ✅ Cost is primary concern
 - ✅ Context <1M tokens
 
 **Use Gemini Pro** when:
+
 - ✅ Quality is critical
 - ✅ Complex reasoning needed
 - ✅ Long context (>100K tokens)
 - ✅ Multi-modal (text + images)
 
 **Use GPT-4** when:
+
 - ✅ Function calling needed
 - ✅ JSON mode required
 - ✅ Industry standard compatibility
 
 **Use Claude 3 Opus** when:
+
 - ✅ Absolute best quality
 - ✅ Ethical considerations important
 - ✅ Strong reasoning required
@@ -667,12 +710,14 @@ prompt = "Summarize:"  # Good
 ## Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] Workload Identity configured (GCP)
 - [ ] API credentials stored in secrets
 - [ ] Cost alerts configured
 - [ ] Rate limits set
 
 ### Deployment
+
 - [ ] `kubectl apply -f k8s/llm-serving/foundational-models.yaml`
 - [ ] Verify pods running
 - [ ] Test each provider separately
@@ -680,6 +725,7 @@ prompt = "Summarize:"  # Good
 - [ ] Test fallback chain
 
 ### Post-Deployment
+
 - [ ] Monitor latency metrics
 - [ ] Monitor cost metrics
 - [ ] Set up alerts
@@ -695,6 +741,7 @@ prompt = "Summarize:"  # Good
 **Cause**: Workload Identity not configured
 
 **Fix**:
+
 ```bash
 # Verify service account annotation
 kubectl get sa llm-gateway-sa -n production \
@@ -713,6 +760,7 @@ gcloud projects add-iam-policy-binding PROJECT_ID \
 **Cause**: Incorrect or expired API key
 
 **Fix**:
+
 ```bash
 # Update secret
 kubectl create secret generic openai-api-key \
@@ -729,6 +777,7 @@ kubectl rollout restart deployment/llm-router -n production
 **Cause**: Too many requests
 
 **Fix**:
+
 ```python
 # Implement client-side rate limiting
 from ratelimit import limits
@@ -746,13 +795,13 @@ def call_llm(messages):
 
 You now have a complete foundational models integration with:
 
-✅ **Multi-Provider Support**: Google, AWS, OpenAI, Anthropic
-✅ **Intelligent Routing**: Automatic model selection
-✅ **Cost Optimization**: Route to cheapest suitable model
-✅ **High Availability**: Automatic fallback chains
-✅ **Production Ready**: Monitoring, metrics, error handling
+✅ **Multi-Provider Support**: Google, AWS, OpenAI, Anthropic ✅ **Intelligent
+Routing**: Automatic model selection ✅ **Cost Optimization**: Route to cheapest
+suitable model ✅ **High Availability**: Automatic fallback chains ✅
+**Production Ready**: Monitoring, metrics, error handling
 
 **Quick Links**:
+
 - Configuration: `k8s/llm-serving/foundational-models.yaml`
 - Test Script: `scripts/test-llm-deployment.sh`
 - Router Endpoint: `http://llm-router.production/v1/chat/completions`
@@ -761,5 +810,4 @@ You now have a complete foundational models integration with:
 
 ---
 
-**Last Updated**: 2025-11-04
-**Version**: 1.0.0
+**Last Updated**: 2025-11-04 **Version**: 1.0.0

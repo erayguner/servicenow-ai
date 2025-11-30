@@ -2,7 +2,8 @@
 
 ## Overview
 
-This repository uses [pre-commit](https://pre-commit.com/) to automatically check and fix common issues before commits.
+This repository uses [pre-commit](https://pre-commit.com/) to automatically
+check and fix common issues before commits.
 
 ---
 
@@ -11,6 +12,7 @@ This repository uses [pre-commit](https://pre-commit.com/) to automatically chec
 Pre-commit runs the following checks automatically:
 
 ### 1. **Basic File Checks**
+
 - ✅ Removes trailing whitespace
 - ✅ Ensures files end with newline
 - ✅ Validates YAML syntax (including Kubernetes multi-document files)
@@ -18,18 +20,22 @@ Pre-commit runs the following checks automatically:
 - ✅ Formats JSON files consistently
 
 ### 2. **Python Linting** (if Python files exist)
+
 - ✅ Runs `ruff` for linting with auto-fix
 - ✅ Runs `ruff-format` for code formatting
 
 ### 3. **Security**
+
 - ✅ Scans for secrets (API keys, tokens, passwords)
 - ✅ Uses baseline to avoid false positives
 
 ### 4. **Terraform**
+
 - ✅ Formats Terraform files (`terraform fmt`)
 - ✅ Validates Terraform syntax (`terraform validate`)
 
 ### 5. **Kubernetes** ☸️ (~2-3s)
+
 - ✅ Validates Kubernetes manifests
 - ✅ Checks for security issues
 - ✅ Enforces best practices
@@ -142,6 +148,7 @@ git commit -m "your message"
 ### CI/CD Integration
 
 Pre-commit also runs in GitHub Actions (`.github/workflows/lint.yml`):
+
 - Runs on every PR and push to main/develop
 - Same checks as local pre-commit
 - Ensures consistency across team
@@ -156,26 +163,26 @@ The configuration is in `.pre-commit-config.yaml`:
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     hooks:
-      - trailing-whitespace  # Removes trailing spaces
-      - end-of-file-fixer   # Ensures final newline
-      - check-yaml          # Validates YAML
-      - check-json          # Validates JSON
-      - pretty-format-json  # Formats JSON
+      - trailing-whitespace # Removes trailing spaces
+      - end-of-file-fixer # Ensures final newline
+      - check-yaml # Validates YAML
+      - check-json # Validates JSON
+      - pretty-format-json # Formats JSON
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.3
     hooks:
-      - ruff-check     # Python linting (with --fix)
-      - ruff-format    # Python formatting
+      - ruff-check # Python linting (with --fix)
+      - ruff-format # Python formatting
 
   - repo: https://github.com/Yelp/detect-secrets
     hooks:
-      - detect-secrets  # Finds secrets/credentials
+      - detect-secrets # Finds secrets/credentials
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     hooks:
-      - terraform_fmt       # Formats Terraform
-      - terraform_validate  # Validates Terraform
+      - terraform_fmt # Formats Terraform
+      - terraform_validate # Validates Terraform
 ```
 
 ---
@@ -185,6 +192,7 @@ repos:
 ### How It Works
 
 The `detect-secrets` hook scans for:
+
 - API keys (AWS, GCP, GitHub, etc.)
 - Private keys and certificates
 - Passwords and tokens
@@ -193,6 +201,7 @@ The `detect-secrets` hook scans for:
 ### Baseline File
 
 The `.secrets.baseline` file stores known "secrets" that are actually safe:
+
 - Example values in documentation
 - Test fixtures
 - Public keys
@@ -202,11 +211,13 @@ The `.secrets.baseline` file stores known "secrets" that are actually safe:
 1. **Review the detected secret** - Is it actually sensitive?
 
 2. **If it's safe**, update the baseline:
+
    ```bash
    detect-secrets scan --update .secrets.baseline
    ```
 
-3. **If it's real**, remove it and use environment variables or secret management
+3. **If it's real**, remove it and use environment variables or secret
+   management
 
 ### Adding Real Secrets
 
@@ -230,6 +241,7 @@ echo "API_KEY=your-key" > .env
 ### What It Checks
 
 The `terraform_validate` hook:
+
 - Runs `terraform init` (in backend-less mode)
 - Runs `terraform validate`
 - Checks syntax and configuration
@@ -237,6 +249,7 @@ The `terraform_validate` hook:
 ### Module-Level Validation
 
 Validation runs on each module independently:
+
 - `terraform/modules/vpc/`
 - `terraform/modules/gke/`
 - `terraform/environments/dev/`
@@ -247,6 +260,7 @@ Validation runs on each module independently:
 1. **Check the error message** - Usually syntax or missing variables
 
 2. **Test manually**:
+
    ```bash
    cd terraform/modules/vpc
    terraform init
@@ -305,6 +319,7 @@ terraform fmt -check -recursive
 ### Issue: "pre-commit: command not found"
 
 **Solution:**
+
 ```bash
 brew install pre-commit
 # or
@@ -314,6 +329,7 @@ pip install pre-commit
 ### Issue: "detect-secrets: command not found"
 
 **Solution:** Pre-commit will install it automatically on first run:
+
 ```bash
 pre-commit run detect-secrets --all-files
 ```
@@ -321,6 +337,7 @@ pre-commit run detect-secrets --all-files
 ### Issue: "terraform: command not found"
 
 **Solution:**
+
 ```bash
 brew install terraform
 # or follow: https://developer.hashicorp.com/terraform/downloads
@@ -329,6 +346,7 @@ brew install terraform
 ### Issue: "Hook failed, but files were modified"
 
 **Solution:** This is normal! Stage and commit the auto-fixed files:
+
 ```bash
 git add -u
 git commit -m "your message"
@@ -337,6 +355,7 @@ git commit -m "your message"
 ### Issue: "Validation failed: Invalid baseline"
 
 **Solution:** Regenerate the secrets baseline:
+
 ```bash
 python3 -c "import json; print(json.dumps({'version': '1.5.0', 'plugins_used': [], 'results': {}}, indent=2))" > .secrets.baseline
 ```
@@ -344,11 +363,13 @@ python3 -c "import json; print(json.dumps({'version': '1.5.0', 'plugins_used': [
 ### Issue: "terraform init failed in pre-commit"
 
 **Solution:** This can happen if:
+
 - Module dependencies changed
 - Provider versions conflict
 - Network issues
 
 Fix:
+
 ```bash
 # Clean Terraform cache
 rm -rf terraform/modules/*/.terraform
@@ -387,11 +408,13 @@ Pre-commit runs in GitHub Actions:
 **File:** `.github/workflows/lint.yml`
 
 **Runs:**
+
 - On every PR
 - On push to main/develop
 - Same hooks as local pre-commit
 
 **Benefits:**
+
 - Enforces standards across team
 - Catches issues before merge
 - No "works on my machine" problems
@@ -423,21 +446,23 @@ Pre-commit runs in GitHub Actions:
 
 Typical run times on this project:
 
-| Hook | Time | Why |
-|------|------|-----|
-| trailing-whitespace | ~0.5s | Fast (regex) |
-| terraform_fmt | ~1s | Fast (local) |
-| detect-secrets | ~2s | Medium (file scanning) |
-| terraform_validate | ~10s | Slow (init + validate) |
+| Hook                | Time  | Why                    |
+| ------------------- | ----- | ---------------------- |
+| trailing-whitespace | ~0.5s | Fast (regex)           |
+| terraform_fmt       | ~1s   | Fast (local)           |
+| detect-secrets      | ~2s   | Medium (file scanning) |
+| terraform_validate  | ~10s  | Slow (init + validate) |
 
 ### Optimization Tips
 
 1. **Only commit relevant files**
+
    ```bash
    git add terraform/modules/vpc/  # Not the entire repo
    ```
 
 2. **Use `--files` for testing**
+
    ```bash
    pre-commit run --files terraform/modules/vpc/*.tf
    ```
@@ -537,12 +562,14 @@ pre-commit uninstall
 ✅ **Pre-commit is installed and configured!**
 
 **What happens now:**
+
 1. You make changes and commit
 2. Pre-commit runs automatically
 3. Files are checked and auto-fixed
 4. You review and commit again if needed
 
 **Benefits:**
+
 - ✅ Consistent code formatting
 - ✅ Catches errors before CI
 - ✅ Prevents secret leaks
@@ -550,6 +577,7 @@ pre-commit uninstall
 - ✅ Saves review time
 
 **Next steps:**
+
 - Test it: `make pre-commit`
 - Make a commit and see it work!
 - Enjoy cleaner commits! 🚀

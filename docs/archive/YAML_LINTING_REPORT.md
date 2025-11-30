@@ -1,16 +1,17 @@
 # YAML Linting Report
 
-**Date:** 2025-11-13
-**Status:** ✅ ALL PASSING
-**Total Files Validated:** 19 YAML files + 3 markdown files with YAML blocks
+**Date:** 2025-11-13 **Status:** ✅ ALL PASSING **Total Files Validated:** 19
+YAML files + 3 markdown files with YAML blocks
 
 ---
 
 ## Executive Summary
 
-All YAML files and YAML code blocks in markdown documents have been validated and pass syntax checks.
+All YAML files and YAML code blocks in markdown documents have been validated
+and pass syntax checks.
 
 **Validation Results:**
+
 - ✅ **13/13** standalone YAML files valid
 - ✅ **6/6** GitHub Actions workflows valid
 - ✅ **3/3** markdown files with YAML blocks valid
@@ -22,12 +23,15 @@ All YAML files and YAML code blocks in markdown documents have been validated an
 ## Validation Methodology
 
 ### Tools Used
+
 1. **Python yaml module** (PyYAML) - Syntax validation
 2. **Custom validation script** - Extract and validate YAML from markdown
 3. **GitHub Actions workflow validation** - Verify required fields
 
 ### Validation Rules
+
 Per `.yamllint.yaml` configuration:
+
 - Line length: max 160 characters (warning)
 - Indentation: 2 spaces, consistent sequence indentation
 - No trailing spaces (error)
@@ -41,6 +45,7 @@ Per `.yamllint.yaml` configuration:
 ### 1. Standalone YAML Files (13 files) ✅
 
 **Configuration Files:**
+
 ```
 ✅ .kube-linter.yaml          - KubeLinter configuration
 ✅ .mega-linter.yml           - MegaLinter configuration
@@ -49,6 +54,7 @@ Per `.yamllint.yaml` configuration:
 ```
 
 **Kubernetes Manifests:**
+
 ```
 ✅ k8s/network-policies/conversation-manager-policy.yaml
 ✅ k8s/network-policies/default-deny-all.yaml
@@ -77,6 +83,7 @@ Per `.yamllint.yaml` configuration:
 ```
 
 **Validation Checks:**
+
 - ✅ Valid YAML syntax
 - ✅ Contains required 'on' or 'true' field (workflow triggers)
 - ✅ Contains 'jobs' field
@@ -89,6 +96,7 @@ Per `.yamllint.yaml` configuration:
 ### 3. YAML Blocks in Markdown Files (3 files, 3 blocks) ✅
 
 **Files with YAML code blocks:**
+
 ```
 ✅ README.md (1 YAML block)
    - Deployment example configuration
@@ -127,6 +135,7 @@ rules:
 ```
 
 **Key Rules:**
+
 - **Line length:** 160 characters max (warning level for flexibility)
 - **Indentation:** 2 spaces (standard for YAML/K8s)
 - **Trailing spaces:** Error (must be fixed)
@@ -140,6 +149,7 @@ rules:
 ### Manual Validation
 
 **Using Python (no dependencies required):**
+
 ```bash
 python3 << 'PYEOF'
 import yaml
@@ -153,11 +163,13 @@ PYEOF
 ```
 
 **Using yamllint (if installed):**
+
 ```bash
 yamllint -c .yamllint.yaml .
 ```
 
 **Using pre-commit:**
+
 ```bash
 pre-commit run check-yaml --all-files
 ```
@@ -165,6 +177,7 @@ pre-commit run check-yaml --all-files
 ### Automated Validation (CI/CD)
 
 **GitHub Actions:**
+
 - Runs automatically on every push/PR
 - Uses `check-yaml` pre-commit hook
 - Validates all .yaml, .yml files
@@ -175,8 +188,8 @@ pre-commit run check-yaml --all-files
 ## Best Practices for YAML in This Project
 
 ### 1. Indentation
-✅ **DO:** Use 2 spaces for indentation
-❌ **DON'T:** Use tabs or 4 spaces
+
+✅ **DO:** Use 2 spaces for indentation ❌ **DON'T:** Use tabs or 4 spaces
 
 ```yaml
 # Good
@@ -191,8 +204,9 @@ metadata:
 ```
 
 ### 2. Line Length
-✅ **DO:** Keep lines under 160 characters
-❌ **DON'T:** Create excessively long lines
+
+✅ **DO:** Keep lines under 160 characters ❌ **DON'T:** Create excessively long
+lines
 
 ```yaml
 # Good
@@ -208,8 +222,9 @@ description: "This is an extremely long description that goes on and on and on a
 ```
 
 ### 3. Truthy Values
-✅ **DO:** Be consistent with boolean values
-❌ **DON'T:** Mix different truthy styles
+
+✅ **DO:** Be consistent with boolean values ❌ **DON'T:** Mix different truthy
+styles
 
 ```yaml
 # Good (consistent)
@@ -227,16 +242,18 @@ disabled: no  # Inconsistent
 ```
 
 ### 4. Comments
+
 ✅ **DO:** Use comments for complex configurations
 
 ```yaml
 # This configures the autoscaling behavior
 autoscaling:
-  min_node_count: 1  # Minimum nodes during low traffic
+  min_node_count: 1 # Minimum nodes during low traffic
   max_node_count: 10 # Maximum nodes during peak traffic
 ```
 
 ### 5. Multi-line Strings
+
 ✅ **DO:** Use `|` for literal style or `>` for folded style
 
 ```yaml
@@ -248,9 +265,7 @@ script: |
 
 # Folded style (single line)
 description: >
-  This is a long description
-  that will be folded into
-  a single line.
+  This is a long description that will be folded into a single line.
 ```
 
 ---
@@ -258,6 +273,7 @@ description: >
 ## Kubernetes-Specific YAML Guidelines
 
 ### Manifest Structure
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -268,7 +284,7 @@ metadata:
     app: my-app
     version: v1.0.0
   annotations:
-    prometheus.io/scrape: "true"
+    prometheus.io/scrape: 'true'
 spec:
   selector:
     app: my-app
@@ -279,6 +295,7 @@ spec:
 ```
 
 ### Best Practices
+
 1. **Always specify namespace** in metadata (except for cluster-wide resources)
 2. **Use labels consistently** for resource organization
 3. **Include resource limits** in pod specifications
@@ -290,15 +307,16 @@ spec:
 ## GitHub Actions Workflow Guidelines
 
 ### Required Fields
-```yaml
-name: My Workflow  # Optional but recommended
 
-on:  # Required: workflow triggers
+```yaml
+name: My Workflow # Optional but recommended
+
+on: # Required: workflow triggers
   push:
     branches: [main]
   pull_request:
 
-jobs:  # Required: at least one job
+jobs: # Required: at least one job
   build:
     runs-on: ubuntu-latest
     steps:
@@ -308,6 +326,7 @@ jobs:  # Required: at least one job
 ```
 
 ### Best Practices
+
 1. **Name your workflows** for easy identification
 2. **Use specific action versions** (e.g., @v4, not @main)
 3. **Add permissions** block for security
@@ -319,6 +338,7 @@ jobs:  # Required: at least one job
 ## Common YAML Mistakes to Avoid
 
 ### 1. Incorrect Indentation
+
 ```yaml
 # ❌ Wrong (3 spaces)
 metadata:
@@ -330,6 +350,7 @@ metadata:
 ```
 
 ### 2. Missing Quotes for Special Characters
+
 ```yaml
 # ❌ Wrong (@ needs quotes in YAML)
 email: user@example.com
@@ -339,6 +360,7 @@ email: "user@example.com"
 ```
 
 ### 3. Trailing Whitespace
+
 ```yaml
 # ❌ Wrong (has trailing space after value)
 name: my-service
@@ -348,6 +370,7 @@ name: my-service
 ```
 
 ### 4. Inconsistent Boolean Values
+
 ```yaml
 # ❌ Inconsistent
 enabled: yes
@@ -363,6 +386,7 @@ disabled: false
 ## Validation in CI/CD
 
 ### Pre-commit Hooks
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
@@ -374,6 +398,7 @@ repos:
 ```
 
 ### GitHub Actions (Lint Workflow)
+
 ```yaml
 - name: YAML Lint
   run: |
@@ -390,6 +415,7 @@ repos:
 **Cause:** Unquoted special characters or improper indentation
 
 **Solution:**
+
 ```yaml
 # ❌ Wrong
 description: This has a colon: in it
@@ -409,6 +435,7 @@ description: "This has a colon: in it"
 **Cause:** Missing colon after key or improper indentation
 
 **Solution:**
+
 ```yaml
 # ❌ Wrong
 metadata
@@ -424,16 +451,19 @@ metadata:
 ## Continuous Validation Strategy
 
 ### Local Development
+
 1. **Pre-commit hooks** - Validate before every commit
 2. **IDE plugins** - YAML linting in VSCode, IntelliJ
 3. **Manual checks** - Run `yamllint` before pushing
 
 ### CI/CD Pipeline
+
 1. **Lint workflow** - Runs on every push
 2. **Pre-merge checks** - Required for PR approval
 3. **Scheduled scans** - Weekly validation of all files
 
 ### Monitoring
+
 1. **GitHub Actions** - Workflow status badges
 2. **Pre-commit dashboard** - Hook execution tracking
 3. **Regular audits** - Monthly YAML review
@@ -442,14 +472,14 @@ metadata:
 
 ## Summary Statistics
 
-| Metric | Count | Status |
-|--------|-------|--------|
-| **Total YAML files** | 13 | ✅ All valid |
-| **GitHub workflows** | 6 | ✅ All valid |
-| **Markdown files with YAML** | 3 | ✅ All valid |
-| **Total YAML blocks** | 3 | ✅ All valid |
-| **Syntax errors** | 0 | ✅ None found |
-| **Formatting issues** | 0 | ✅ None found |
+| Metric                       | Count | Status        |
+| ---------------------------- | ----- | ------------- |
+| **Total YAML files**         | 13    | ✅ All valid  |
+| **GitHub workflows**         | 6     | ✅ All valid  |
+| **Markdown files with YAML** | 3     | ✅ All valid  |
+| **Total YAML blocks**        | 3     | ✅ All valid  |
+| **Syntax errors**            | 0     | ✅ None found |
+| **Formatting issues**        | 0     | ✅ None found |
 
 ---
 
@@ -465,20 +495,21 @@ metadata:
 
 ## Next Review
 
-**Date:** 2025-02-13 (Quarterly)
-**Owner:** Cloud Infrastructure Team
-**Scope:** Re-validate all YAML files, update linting rules if needed
+**Date:** 2025-02-13 (Quarterly) **Owner:** Cloud Infrastructure Team **Scope:**
+Re-validate all YAML files, update linting rules if needed
 
 ---
 
 ## References
 
 ### Internal
+
 - [.yamllint.yaml](../.yamllint.yaml) - YAML linting configuration
 - [.pre-commit-config.yaml](../.pre-commit-config.yaml) - Pre-commit hooks
 - [Terraform Validation Guide](TERRAFORM_VALIDATION_GUIDE.md)
 
 ### External
+
 - [YAML Specification](https://yaml.org/spec/)
 - [yamllint Documentation](https://yamllint.readthedocs.io/)
 - [GitHub Actions Syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
@@ -486,9 +517,8 @@ metadata:
 
 ---
 
-**Validation Status:** ✅ **ALL PASSING**
-**Last Validated:** 2025-11-13
-**Next Validation:** Automated (every commit via CI/CD)
+**Validation Status:** ✅ **ALL PASSING** **Last Validated:** 2025-11-13 **Next
+Validation:** Automated (every commit via CI/CD)
 
 ---
 

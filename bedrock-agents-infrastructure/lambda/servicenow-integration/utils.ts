@@ -116,12 +116,7 @@ export class OAuthTokenManager {
       console.log('OAuth authentication successful');
     } catch (error) {
       console.error('OAuth authentication failed:', error);
-      throw new ServiceNowError(
-        'OAuth authentication failed',
-        401,
-        'AUTH_ERROR',
-        error
-      );
+      throw new ServiceNowError('OAuth authentication failed', 401, 'AUTH_ERROR', error);
     }
   }
 
@@ -295,12 +290,7 @@ export function createHttpClient(
         );
       }
 
-      throw new ServiceNowError(
-        error.message,
-        500,
-        'NETWORK_ERROR',
-        error
-      );
+      throw new ServiceNowError(error.message, 500, 'NETWORK_ERROR', error);
     }
   );
 
@@ -337,7 +327,10 @@ export function parseServiceNowDate(dateString: string): Date {
  * Format date for ServiceNow API
  */
 export function formatServiceNowDate(date: Date): string {
-  return date.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '');
+  return date
+    .toISOString()
+    .replace('T', ' ')
+    .replace(/\.\d{3}Z$/, '');
 }
 
 /**

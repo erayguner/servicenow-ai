@@ -22,14 +22,14 @@ git commit -m "your message"
 
 ### Common Commands
 
-| Command | What It Does | Speed |
-|---------|-------------|-------|
-| `make pre-commit` | Run all checks | ~15s |
-| `make quick-check` | Fast checks only | ~3s |
-| `make pre-commit-terraform` | Terraform only | ~12s |
-| `make pre-commit-secrets` | Scan for secrets | ~2s |
-| `make terraform-test` | Run all tests | ~30s |
-| `make ci` | Full CI simulation | ~45s |
+| Command                     | What It Does       | Speed |
+| --------------------------- | ------------------ | ----- |
+| `make pre-commit`           | Run all checks     | ~15s  |
+| `make quick-check`          | Fast checks only   | ~3s   |
+| `make pre-commit-terraform` | Terraform only     | ~12s  |
+| `make pre-commit-secrets`   | Scan for secrets   | ~2s   |
+| `make terraform-test`       | Run all tests      | ~30s  |
+| `make ci`                   | Full CI simulation | ~45s  |
 
 ### First-Time Setup
 
@@ -274,13 +274,13 @@ git commit -m "chore: update pre-commit hooks"
 
 On this project:
 
-| Check | Time | Can Skip? |
-|-------|------|-----------|
-| Whitespace | 0.5s | ❌ Never |
-| YAML/JSON | 0.5s | ❌ Never |
-| Terraform fmt | 1s | ❌ Never |
-| Secrets scan | 2s | ⚠️ Rarely |
-| Terraform validate | 10s | ✅ For WIP |
+| Check              | Time | Can Skip?  |
+| ------------------ | ---- | ---------- |
+| Whitespace         | 0.5s | ❌ Never   |
+| YAML/JSON          | 0.5s | ❌ Never   |
+| Terraform fmt      | 1s   | ❌ Never   |
+| Secrets scan       | 2s   | ⚠️ Rarely  |
+| Terraform validate | 10s  | ✅ For WIP |
 
 **Total:** ~15s for full check, ~3s for quick check
 

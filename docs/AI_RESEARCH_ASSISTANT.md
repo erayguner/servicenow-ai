@@ -2,20 +2,27 @@
 
 ## Overview
 
-The AI Research Assistant is an internal-only conversational AI system built on Google Cloud Platform. It provides a Perplexity-like chat interface with source-oriented answers, accessible only to internal users through Identity-Aware Proxy (IAP).
+The AI Research Assistant is an internal-only conversational AI system built on
+Google Cloud Platform. It provides a Perplexity-like chat interface with
+source-oriented answers, accessible only to internal users through
+Identity-Aware Proxy (IAP).
 
 ## Security & Compliance Status
 
-🔒 **Security**: ✅ **EXCELLENT** - 312/312 Checkov checks passed, 0 failures
-🔮 **Future-Proof**: ✅ **YES** - IAP deprecation addressed with migration guide
-📋 **Compliance**: ✅ CIS GCP Benchmark, SOC 2 ready, GDPR compliant
+🔒 **Security**: ✅ **EXCELLENT** - 312/312 Checkov checks passed, 0 failures 🔮
+**Future-Proof**: ✅ **YES** - IAP deprecation addressed with migration guide 📋
+**Compliance**: ✅ CIS GCP Benchmark, SOC 2 ready, GDPR compliant
 
-> **See**: [Security & Checkov Report](SECURITY_CHECKOV_REPORT.md) for detailed analysis
+> **See**: [Security & Checkov Report](SECURITY_CHECKOV_REPORT.md) for detailed
+> analysis
 
 ### ⚠️ Important: IAP OAuth API Deprecation
 
-The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026). This project is future-proof:
-- Migration guide provided: [`terraform/modules/iap/README.md`](../terraform/modules/iap/README.md)
+The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026).
+This project is future-proof:
+
+- Migration guide provided:
+  [`terraform/modules/iap/README.md`](../terraform/modules/iap/README.md)
 - Manual OAuth setup documented
 - Terraform configured to use manual credentials (recommended)
 
@@ -53,6 +60,7 @@ The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026).
 ### Components
 
 #### 1. **Frontend** (Next.js/React)
+
 - **Location**: `/frontend`
 - **Deployment**: Cloud Run (internal ingress only)
 - **Features**:
@@ -63,6 +71,7 @@ The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026).
   - Research mode for deep analysis
 
 #### 2. **Backend API** (Node/TypeScript)
+
 - **Location**: `/backend`
 - **Deployment**: Cloud Run (VPC-connected, no public IP)
 - **Endpoints**:
@@ -81,6 +90,7 @@ The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026).
   - IAP authentication
 
 #### 3. **Infrastructure** (Terraform)
+
 - **Location**: `/terraform/modules/cloud_run`, `/terraform/modules/iap`
 - **Resources**:
   - Cloud Run services (backend & frontend)
@@ -93,12 +103,14 @@ The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026).
 ## Zero-Trust Security Model
 
 ### Network Security
+
 - ✅ No public endpoints - all services behind Internal Load Balancer
 - ✅ VPC-connected Cloud Run with Serverless VPC Access
 - ✅ Cloud NAT for controlled egress (only to model APIs)
 - ✅ Default-deny firewall rules
 
 ### Identity & Access
+
 - ✅ IAP authentication (Cloud Identity/Google Workspace)
 - ✅ Group-based access control:
   - `ai-assist-users@org` - Standard users
@@ -107,12 +119,14 @@ The Google IAP OAuth Admin APIs are being deprecated (shutdown: March 19, 2026).
 - ✅ No service account keys (Workload Identity)
 
 ### Data Protection
+
 - ✅ All secrets in Secret Manager
 - ✅ Customer-managed encryption keys (CMEK) via KMS
 - ✅ Private Cloud SQL/Firestore (no public IP)
 - ✅ Audit logging enabled
 
 ### Observability
+
 - ✅ Cloud Logging for all services
 - ✅ Cloud Monitoring dashboards
 - ✅ Error Reporting integration
@@ -175,6 +189,7 @@ terraform apply
 ```
 
 This creates:
+
 - VPC with Serverless VPC Access Connector
 - Cloud NAT for egress
 - Cloud Run services (backend & frontend)
@@ -233,6 +248,7 @@ gcloud iap web add-iam-policy-binding \
 ### Step 5: Access the Application
 
 1. Get the Load Balancer IP:
+
    ```bash
    terraform output load_balancer_ip
    ```
@@ -278,31 +294,33 @@ curl -X POST https://YOUR_LOAD_BALANCER_IP/api/chat/research \
 ### AgentDB
 
 The system uses Firestore as the backend for AgentDB, providing:
+
 - Conversation history storage
 - Message persistence
 - Document storage for RAG
 - Vector search capabilities (via Firestore indexes)
 
 **Usage in code**:
+
 ```typescript
-import { agentdb } from '@/services/agentdb'
+import { agentdb } from '@/services/agentdb';
 
 // Create conversation
-const conversation = await agentdb.createConversation(userId, title)
+const conversation = await agentdb.createConversation(userId, title);
 
 // Add message
 await agentdb.addMessage({
   conversationId,
   role: 'user',
   content: message,
-})
+});
 
 // Store document for RAG
 await agentdb.storeDocument({
   title: 'Document Title',
   content: 'Document content...',
   embedding: vectorEmbedding,
-})
+});
 ```
 
 ### Research-Swarm Integration
@@ -310,28 +328,30 @@ await agentdb.storeDocument({
 To integrate research-swarm for multi-agent research flows:
 
 1. **Install research-swarm**:
+
    ```bash
    cd backend
    npm install research-swarm
    ```
 
 2. **Update chat service** (`backend/src/services/claude.ts`):
+
    ```typescript
-   import { ResearchSwarm } from 'research-swarm'
+   import { ResearchSwarm } from 'research-swarm';
 
    export async function conductResearch(query: string, depth: string) {
      const swarm = new ResearchSwarm({
        apiKey: await getAnthropicApiKey(),
        model: 'claude-3-5-sonnet-20241022',
-     })
+     });
 
      const result = await swarm.research(query, {
        depth,
        maxAgents: 5,
        citeSources: true,
-     })
+     });
 
-     return result
+     return result;
    }
    ```
 
@@ -340,6 +360,7 @@ To integrate research-swarm for multi-agent research flows:
 To integrate claude-flow for complex orchestration:
 
 1. **Install claude-flow**:
+
    ```bash
    cd backend
    npx claude-flow@alpha init
@@ -355,7 +376,7 @@ To integrate claude-flow for complex orchestration:
        { name: 'analyze', agent: 'analyst' },
        { name: 'synthesize', agent: 'writer' },
      ],
-   }
+   };
    ```
 
 ## Monitoring & Operations
@@ -440,12 +461,14 @@ gcloud projects get-iam-policy YOUR_PROJECT_ID \
 ## Cost Optimization
 
 ### Development
+
 - Cloud Run: Pay-per-use (scale to zero)
 - Firestore: Free tier covers development usage
 - VPC Connector: $0.12/hour (~$87/month)
 - Cloud NAT: ~$45/month
 
 ### Production
+
 - Enable Cloud Run minimum instances for better latency
 - Use Cloud CDN for frontend static assets
 - Implement request caching
@@ -454,6 +477,7 @@ gcloud projects get-iam-policy YOUR_PROJECT_ID \
 ## Security Best Practices
 
 1. **Regular Security Audits**
+
    ```bash
    # Run Checkov on Terraform
    checkov -d terraform/
@@ -463,6 +487,7 @@ gcloud projects get-iam-policy YOUR_PROJECT_ID \
    ```
 
 2. **Rotate Secrets Regularly**
+
    ```bash
    # Add new secret version
    echo -n "new-api-key" | \
@@ -470,6 +495,7 @@ gcloud projects get-iam-policy YOUR_PROJECT_ID \
    ```
 
 3. **Monitor Audit Logs**
+
    ```bash
    gcloud logging read "protoPayload.serviceName=iap.googleapis.com" \
      --limit=100 --format=json
@@ -497,6 +523,7 @@ gcloud projects get-iam-policy YOUR_PROJECT_ID \
 ## Support
 
 For issues or questions:
+
 1. Check [troubleshooting](#troubleshooting) section
 2. Review Cloud Logging for errors
 3. Contact platform team

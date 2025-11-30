@@ -45,7 +45,7 @@ module.exports = {
 
     // Code quality
     'max-lines': ['warn', { max: 500, skipBlankLines: true, skipComments: true }],
-    'complexity': ['warn', 15],
+    complexity: ['warn', 15],
     'max-depth': ['warn', 4],
   },
   ignorePatterns: [

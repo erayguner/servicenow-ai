@@ -1,561 +1,28 @@
 {
-  "reportMetadata": {
-    "reportName": "Access Review Report - Amazon Bedrock Agents Infrastructure",
-    "reportType": "Periodic Access Review",
-    "reviewPeriod": {
-      "startDate": "YYYY-MM-01",
-      "endDate": "YYYY-MM-30"
-    },
-    "generatedDate": "YYYY-MM-DD",
-    "reviewFrequency": "Monthly (RESTRICTED data) | Quarterly (CONFIDENTIAL data)",
-    "reviewer": "Security Team Lead",
-    "approver": "CISO / Data Owner",
-    "version": "1.0",
-    "classification": "CONFIDENTIAL",
-    "distribution": [
-      "CISO",
-      "Data Owners",
-      "Security Team",
-      "Compliance Team",
-      "HR (for terminations)"
-    ]
-  },
-  "executiveSummary": {
-    "overallStatus": "Compliant|Non-Compliant|Partially Compliant",
-    "totalUsersReviewed": 0,
-    "accessChanges": {
-      "accessGranted": 0,
-      "accessRevoked": 0,
-      "accessModified": 0,
-      "noChangeRequired": 0
-    },
-    "unusedAccess": {
-      "usersWithUnusedAccess": 0,
-      "unusedPermissions": 0,
-      "unusedAccessRemoved": 0
-    },
-    "policyViolations": {
-      "mfaNotEnabled": 0,
-      "overlyPermissiveRoles": 0,
-      "inactiveUsers": 0,
-      "terminatedUsersWithActiveAccess": 0
-    },
-    "complianceStatus": {
-      "restrictedDataReviewCompleted": false,
-      "confidentialDataReviewCompleted": false,
-      "reviewCompletedOnTime": false,
-      "allExceptionsDocumented": true
-    }
-  },
-  "reviewScope": {
-    "dataClassifications": [
-      {
-        "classification": "RESTRICTED",
-        "reviewFrequency": "Monthly",
-        "lastReviewDate": "YYYY-MM-DD",
-        "nextReviewDueDate": "YYYY-MM-DD",
-        "usersWithAccess": 0,
-        "status": "Completed|Overdue|In Progress"
-      },
-      {
-        "classification": "CONFIDENTIAL",
-        "reviewFrequency": "Quarterly",
-        "lastReviewDate": "YYYY-MM-DD",
-        "nextReviewDueDate": "YYYY-MM-DD",
-        "usersWithAccess": 0,
-        "status": "Completed|Overdue|In Progress"
-      }
-    ],
-    "systemsReviewed": [
-      {
-        "system": "Amazon Bedrock Agents",
-        "totalUsers": 0,
-        "privilegedUsers": 0,
-        "reviewCompleted": true
-      },
-      {
-        "system": "AWS IAM",
-        "totalUsers": 0,
-        "privilegedUsers": 0,
-        "reviewCompleted": true
-      },
-      {
-        "system": "AWS Lambda (Bedrock Actions)",
-        "totalServiceRoles": 0,
-        "reviewCompleted": true
-      }
-    ]
-  },
-  "userAccessReview": {
-    "iamUsers": {
-      "totalUsers": 0,
-      "activeUsers": 0,
-      "inactiveUsers": 0,
-      "users": [
-        {
-          "userId": "user-12345",
-          "userName": "john.doe@company.com",
-          "userType": "Human|ServiceAccount",
-          "department": "Engineering|Security|Finance|etc.",
-          "manager": "jane.smith@company.com",
-          "employmentStatus": "Active|Terminated|On Leave",
-          "lastLoginDate": "YYYY-MM-DD HH:MM:SS",
-          "daysSinceLastLogin": 0,
-          "mfaEnabled": true,
-          "accessLevel": "Administrator|PowerUser|ReadOnly",
-          "accessToRestrictedData": true,
-          "accessToConfidentialData": true,
-          "iamGroups": [
-            "BedrockAdministrators",
-            "ReadOnlyAccess"
-          ],
-          "attachedPolicies": [
-            {
-              "policyName": "BedrockFullAccess",
-              "policyArn": "arn:aws:iam::123456789012:policy/BedrockFullAccess",
-              "policyType": "Managed|Inline",
-              "attachmentDate": "YYYY-MM-DD"
-            }
-          ],
-          "unusedPermissions": [
-            {
-              "service": "S3",
-              "action": "s3:DeleteBucket",
-              "lastUsed": "Never",
-              "recommendation": "Remove"
-            }
-          ],
-          "accessKeys": [
-            {
-              "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
-              "status": "Active|Inactive",
-              "createdDate": "YYYY-MM-DD",
-              "lastUsedDate": "YYYY-MM-DD",
-              "lastUsedService": "bedrock-agent",
-              "ageInDays": 0,
-              "rotationRequired": false
-            }
-          ],
-          "reviewResult": {
-            "decision": "Approved|Revoke|Modify",
-            "justification": "User requires Bedrock access for AI agent development",
-            "approvedBy": "Data Owner Name",
-            "approvalDate": "YYYY-MM-DD",
-            "changes": [
-              "Remove S3 DeleteBucket permission (unused)"
-            ],
-            "exceptions": []
-          }
-        }
-      ]
-    },
-    "iamRoles": {
-      "totalRoles": 0,
-      "bedrockAgentRoles": 0,
-      "lambdaExecutionRoles": 0,
-      "roles": [
-        {
-          "roleId": "role-12345",
-          "roleName": "BedrockAgentRole",
-          "roleType": "Service|User|Federated",
-          "description": "IAM role for Bedrock agent execution",
-          "trustPolicy": {
-            "trustedPrincipals": [
-              "bedrock.amazonaws.com"
-            ],
-            "externalId": "optional-external-id",
-            "conditions": []
-          },
-          "attachedPolicies": [
-            {
-              "policyName": "BedrockAgentPolicy",
-              "policyArn": "arn:aws:iam::123456789012:policy/BedrockAgentPolicy",
-              "policyType": "Customer Managed",
-              "permissions": {
-                "totalStatements": 5,
-                "wildcardActions": 0,
-                "wildcardResources": 0,
-                "leastPrivilegeCompliant": true
-              }
-            }
-          ],
-          "assumedBy": [
-            {
-              "principal": "arn:aws:bedrock:us-east-1:123456789012:agent/AGENTID",
-              "lastAssumed": "YYYY-MM-DD HH:MM:SS",
-              "assumptionCount": 1234
-            }
-          ],
-          "unusedPermissions": [],
-          "lastUsedDate": "YYYY-MM-DD",
-          "daysSinceLastUsed": 0,
-          "reviewResult": {
-            "decision": "Approved|Revoke|Modify",
-            "justification": "Role follows least privilege and is actively used by Bedrock agent",
-            "approvedBy": "Security Team Lead",
-            "approvalDate": "YYYY-MM-DD",
-            "changes": [],
-            "exceptions": []
-          }
-        }
-      ]
-    },
-    "federatedUsers": {
-      "totalFederatedUsers": 0,
-      "ssoUsers": 0,
-      "samlUsers": 0,
-      "users": [
-        {
-          "userId": "federated-user-12345",
-          "userName": "alice.johnson@company.com",
-          "identityProvider": "Okta|Azure AD|Google Workspace",
-          "permissionSet": "BedrockDeveloper",
-          "awsAccounts": [
-            {
-              "accountId": "123456789012",
-              "accountName": "bedrock-production",
-              "role": "BedrockDeveloper"
-            }
-          ],
-          "lastLoginDate": "YYYY-MM-DD HH:MM:SS",
-          "daysSinceLastLogin": 0,
-          "reviewResult": {
-            "decision": "Approved",
-            "justification": "Active Bedrock developer",
-            "approvedBy": "Manager Name",
-            "approvalDate": "YYYY-MM-DD"
-          }
-        }
-      ]
-    }
-  },
-  "privilegedAccessReview": {
-    "summary": {
-      "totalPrivilegedUsers": 0,
-      "administratorAccess": 0,
-      "powerUserAccess": 0,
-      "bedrockAdministrators": 0
-    },
-    "privilegedUsers": [
-      {
-        "userName": "admin.user@company.com",
-        "accessLevel": "Administrator",
-        "privilegedSince": "YYYY-MM-DD",
-        "justification": "CISO, requires full administrative access",
-        "mfaEnabled": true,
-        "mfaDeviceType": "Hardware Token|Virtual MFA",
-        "lastPrivilegedAction": {
-          "action": "bedrock:DeleteKnowledgeBase",
-          "timestamp": "YYYY-MM-DD HH:MM:SS",
-          "resource": "arn:aws:bedrock:us-east-1:123456789012:knowledge-base/TEST123"
-        },
-        "reviewResult": {
-          "decision": "Approved",
-          "justification": "C-level executive, administrative access required",
-          "approvedBy": "CEO",
-          "approvalDate": "YYYY-MM-DD",
-          "nextReviewDate": "YYYY-MM-DD (monthly for admin access)"
-        }
-      }
-    ],
-    "rootAccountActivity": {
-      "loginCount": 0,
-      "apiCallCount": 0,
-      "lastUsed": "YYYY-MM-DD HH:MM:SS or Never",
-      "complianceStatus": "COMPLIANT (zero usage) | NON_COMPLIANT (usage detected)",
-      "incidents": []
-    },
-    "breakGlassAccounts": {
-      "totalAccounts": 2,
-      "usageCount": 0,
-      "lastUsed": "YYYY-MM-DD HH:MM:SS or Never",
-      "usageIncidents": []
-    }
-  },
-  "bedrockSpecificAccessReview": {
-    "bedrockAgents": {
-      "totalAgents": 0,
-      "agentsAccessingRestrictedData": 0,
-      "agents": [
-        {
-          "agentId": "AGENTID123",
-          "agentName": "customer-support-agent",
-          "dataClassification": "RESTRICTED",
-          "iamRole": "arn:aws:iam::123456789012:role/BedrockAgentRole",
-          "knowledgeBases": [
-            {
-              "knowledgeBaseId": "KB123",
-              "knowledgeBaseName": "customer-data-kb",
-              "dataClassification": "RESTRICTED"
-            }
-          ],
-          "actionGroups": [
-            {
-              "actionGroupName": "payment-processing",
-              "lambdaFunction": "arn:aws:lambda:us-east-1:123456789012:function:bedrock-payment-action"
-            }
-          ],
-          "lastInvocation": "YYYY-MM-DD HH:MM:SS",
-          "invocationCount": 1234,
-          "reviewResult": {
-            "decision": "Approved",
-            "justification": "Production agent for customer support, requires RESTRICTED data access",
-            "approvedBy": "Data Owner - Customer Support",
-            "approvalDate": "YYYY-MM-DD",
-            "securityControls": [
-              "Guardrails configured for PII detection",
-              "Input/output filtering enabled",
-              "Invocation logging enabled",
-              "VPC endpoint access only"
-            ]
-          }
-        }
-      ]
-    },
-    "knowledgeBases": {
-      "totalKnowledgeBases": 0,
-      "knowledgeBasesWithRestrictedData": 0,
-      "knowledgeBases": [
-        {
-          "knowledgeBaseId": "KB123",
-          "knowledgeBaseName": "customer-data-kb",
-          "dataClassification": "RESTRICTED",
-          "dataSources": [
-            {
-              "dataSourceId": "DS123",
-              "dataSourceName": "customer-documents",
-              "s3Bucket": "arn:aws:s3:::bedrock-restricted-data",
-              "dataType": "PII, PHI"
-            }
-          ],
-          "usedByAgents": [
-            "AGENTID123"
-          ],
-          "accessControl": {
-            "encryption": "CMK",
-            "kmsKeyId": "arn:aws:kms:us-east-1:123456789012:key/key-id",
-            "vpcEndpoint": true,
-            "publicAccessible": false
-          },
-          "reviewResult": {
-            "decision": "Approved",
-            "justification": "Contains customer PII required for support operations",
-            "approvedBy": "Data Owner - Customer Data",
-            "approvalDate": "YYYY-MM-DD",
-            "accessRestrictions": [
-              "VPC endpoint access only",
-              "Encrypted with CMK",
-              "Access logged and monitored"
-            ]
-          }
-        }
-      ]
-    }
-  },
-  "inactiveAccessReview": {
-    "inactivityThreshold": "90 days",
-    "inactiveUsers": [
-      {
-        "userName": "inactive.user@company.com",
-        "lastLoginDate": "YYYY-MM-DD",
-        "daysSinceLastLogin": 120,
-        "accessLevel": "ReadOnly",
-        "recommendation": "Disable account",
-        "actionTaken": "Account disabled on YYYY-MM-DD",
-        "approvedBy": "Manager Name"
-      }
-    ],
-    "unusedCredentials": [
-      {
-        "userName": "user.name@company.com",
-        "credentialType": "Access Key",
-        "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
-        "createdDate": "YYYY-MM-DD",
-        "lastUsedDate": "YYYY-MM-DD",
-        "daysSinceLastUsed": 95,
-        "recommendation": "Rotate or delete",
-        "actionTaken": "Access key deleted on YYYY-MM-DD",
-        "approvedBy": "Security Team"
-      }
-    ],
-    "unusedRoles": [
-      {
-        "roleName": "LegacyBedrockRole",
-        "createdDate": "YYYY-MM-DD",
-        "lastUsedDate": "YYYY-MM-DD",
-        "daysSinceLastUsed": 180,
-        "recommendation": "Delete role",
-        "actionTaken": "Role deleted on YYYY-MM-DD",
-        "approvedBy": "DevOps Team Lead"
-      }
-    ]
-  },
-  "terminatedEmployeeAccessReview": {
-    "reviewPeriod": "Past 30 days",
-    "terminatedEmployees": [
-      {
-        "employeeId": "EMP12345",
-        "employeeName": "Former Employee",
-        "terminationDate": "YYYY-MM-DD",
-        "awsAccess": {
-          "hadAccess": true,
-          "accessRevokedDate": "YYYY-MM-DD",
-          "hoursUntilRevocation": 2,
-          "slaCompliance": "Within 1 hour SLA: Compliant|Non-Compliant"
-        },
-        "accessAtTermination": [
-          {
-            "accessType": "IAM User",
-            "userName": "former.employee@company.com",
-            "status": "Deleted on YYYY-MM-DD"
-          },
-          {
-            "accessType": "SSO Access",
-            "permissionSet": "BedrockDeveloper",
-            "status": "Revoked on YYYY-MM-DD"
-          }
-        ],
-        "postTerminationActivity": {
-          "apiCallsAfterTermination": 0,
-          "suspiciousActivity": false,
-          "investigation": "None required"
-        }
-      }
-    ]
-  },
-  "exceptionsAndRisks": {
-    "exceptions": [
-      {
-        "exceptionId": "EXC-001",
-        "userName": "contractor.user@company.com",
-        "exceptionType": "No MFA (technical limitation)",
-        "justification": "Third-party contractor, external authentication system does not support MFA",
-        "compensatingControls": [
-          "IP restriction to contractor office",
-          "Read-only access only",
-          "Enhanced monitoring and logging"
-        ],
-        "approvedBy": "CISO",
-        "approvalDate": "YYYY-MM-DD",
-        "expirationDate": "YYYY-MM-DD (6 months)",
-        "reviewFrequency": "Monthly",
-        "nextReviewDate": "YYYY-MM-DD"
-      }
-    ],
-    "identifiedRisks": [
-      {
-        "riskId": "RISK-001",
-        "riskDescription": "5 users have access to RESTRICTED data without recent training completion",
-        "impact": "Potential data mishandling or compliance violation",
-        "likelihood": "Medium",
-        "riskLevel": "Medium",
-        "mitigationPlan": "Mandatory training completion within 7 days, access suspended until completed",
-        "owner": "Security Team",
-        "targetResolutionDate": "YYYY-MM-DD"
-      }
-    ]
-  },
-  "complianceFindings": {
-    "soc2": {
-      "control": "CC6.2 - Prior to issuing system credentials and granting system access",
-      "compliant": true,
-      "findings": "All access requests properly approved by managers and data owners"
-    },
-    "hipaa": {
-      "control": "164.308(a)(4)(ii)(C) - Access Removal",
-      "compliant": true,
-      "findings": "Terminated employee access revoked within SLA"
-    },
-    "pciDss": {
-      "requirement": "Requirement 7 - Restrict access to cardholder data",
-      "compliant": true,
-      "findings": "Least privilege verified, quarterly access review completed"
-    },
-    "gdpr": {
-      "article": "Article 32 - Security of Processing",
-      "compliant": true,
-      "findings": "Access to personal data appropriately controlled and monitored"
-    },
-    "iso27001": {
-      "control": "A.9.2.1 - User registration and de-registration",
-      "compliant": true,
-      "findings": "User lifecycle management procedures followed"
-    }
-  },
-  "recommendations": [
-    {
-      "priority": "High",
-      "recommendation": "Implement automated access review workflow",
-      "rationale": "Reduce manual effort and improve timeliness of reviews",
-      "estimatedEffort": "2 weeks",
-      "estimatedCost": "$10,000 (tooling + implementation)",
-      "expectedBenefit": "80% reduction in review time, 100% SLA compliance"
-    },
-    {
-      "priority": "Medium",
-      "recommendation": "Enable IAM Access Analyzer for all accounts",
-      "rationale": "Continuously identify unused permissions",
-      "estimatedEffort": "1 day",
-      "estimatedCost": "$0 (AWS service, no additional cost)",
-      "expectedBenefit": "Proactive identification of unused permissions"
-    },
-    {
-      "priority": "Medium",
-      "recommendation": "Implement JIT (Just-In-Time) access for privileged operations",
-      "rationale": "Reduce standing privileged access, improve security posture",
-      "estimatedEffort": "3 weeks",
-      "estimatedCost": "$20,000 (tooling + implementation)",
-      "expectedBenefit": "Eliminate 80% of standing privileged access"
-    }
-  ],
   "actionItems": [
     {
-      "actionId": "ACTION-001",
       "action": "Disable 3 inactive user accounts",
+      "actionId": "ACTION-001",
       "assignedTo": "Security Operations",
       "dueDate": "YYYY-MM-DD (3 days)",
       "priority": "High",
       "status": "Open|In Progress|Completed"
     },
     {
-      "actionId": "ACTION-002",
       "action": "Remove unused S3 permissions from 5 Bedrock agent roles",
+      "actionId": "ACTION-002",
       "assignedTo": "DevOps Team",
       "dueDate": "YYYY-MM-DD (7 days)",
       "priority": "Medium",
       "status": "Open"
     },
     {
-      "actionId": "ACTION-003",
       "action": "Rotate access keys older than 90 days for 2 users",
+      "actionId": "ACTION-003",
       "assignedTo": "Users (automated notification sent)",
       "dueDate": "YYYY-MM-DD (7 days)",
       "priority": "Medium",
       "status": "In Progress"
-    }
-  ],
-  "certificationStatement": {
-    "reviewer": "Security Team Lead Name",
-    "reviewerTitle": "Security Team Lead",
-    "reviewCompletedDate": "YYYY-MM-DD",
-    "statement": "I certify that the access review has been completed in accordance with company policy and compliance requirements. All access decisions have been documented and approved by appropriate data owners.",
-    "signature": "[Electronic Signature]",
-    "signatureDate": "YYYY-MM-DD"
-  },
-  "approvals": [
-    {
-      "approverName": "Data Owner Name",
-      "approverTitle": "VP of Engineering",
-      "approvalScope": "CONFIDENTIAL data access",
-      "approvalDate": "YYYY-MM-DD",
-      "signature": "[Electronic Signature]"
-    },
-    {
-      "approverName": "CISO Name",
-      "approverTitle": "Chief Information Security Officer",
-      "approvalScope": "RESTRICTED data access",
-      "approvalDate": "YYYY-MM-DD",
-      "signature": "[Electronic Signature]"
     }
   ],
   "appendices": {
@@ -564,5 +31,538 @@
     "c_cloudtrail_analysis": "Link to CloudTrail activity analysis",
     "d_access_analyzer_findings": "Link to IAM Access Analyzer export",
     "e_evidence_repository": "s3://compliance-evidence/access-reviews/YYYY-MM/"
+  },
+  "approvals": [
+    {
+      "approvalDate": "YYYY-MM-DD",
+      "approvalScope": "CONFIDENTIAL data access",
+      "approverName": "Data Owner Name",
+      "approverTitle": "VP of Engineering",
+      "signature": "[Electronic Signature]"
+    },
+    {
+      "approvalDate": "YYYY-MM-DD",
+      "approvalScope": "RESTRICTED data access",
+      "approverName": "CISO Name",
+      "approverTitle": "Chief Information Security Officer",
+      "signature": "[Electronic Signature]"
+    }
+  ],
+  "bedrockSpecificAccessReview": {
+    "bedrockAgents": {
+      "agents": [
+        {
+          "actionGroups": [
+            {
+              "actionGroupName": "payment-processing",
+              "lambdaFunction": "arn:aws:lambda:us-east-1:123456789012:function:bedrock-payment-action"
+            }
+          ],
+          "agentId": "AGENTID123",
+          "agentName": "customer-support-agent",
+          "dataClassification": "RESTRICTED",
+          "iamRole": "arn:aws:iam::123456789012:role/BedrockAgentRole",
+          "invocationCount": 1234,
+          "knowledgeBases": [
+            {
+              "dataClassification": "RESTRICTED",
+              "knowledgeBaseId": "KB123",
+              "knowledgeBaseName": "customer-data-kb"
+            }
+          ],
+          "lastInvocation": "YYYY-MM-DD HH:MM:SS",
+          "reviewResult": {
+            "approvalDate": "YYYY-MM-DD",
+            "approvedBy": "Data Owner - Customer Support",
+            "decision": "Approved",
+            "justification": "Production agent for customer support, requires RESTRICTED data access",
+            "securityControls": [
+              "Guardrails configured for PII detection",
+              "Input/output filtering enabled",
+              "Invocation logging enabled",
+              "VPC endpoint access only"
+            ]
+          }
+        }
+      ],
+      "agentsAccessingRestrictedData": 0,
+      "totalAgents": 0
+    },
+    "knowledgeBases": {
+      "knowledgeBases": [
+        {
+          "accessControl": {
+            "encryption": "CMK",
+            "kmsKeyId": "arn:aws:kms:us-east-1:123456789012:key/key-id",
+            "publicAccessible": false,
+            "vpcEndpoint": true
+          },
+          "dataClassification": "RESTRICTED",
+          "dataSources": [
+            {
+              "dataSourceId": "DS123",
+              "dataSourceName": "customer-documents",
+              "dataType": "PII, PHI",
+              "s3Bucket": "arn:aws:s3:::bedrock-restricted-data"
+            }
+          ],
+          "knowledgeBaseId": "KB123",
+          "knowledgeBaseName": "customer-data-kb",
+          "reviewResult": {
+            "accessRestrictions": [
+              "VPC endpoint access only",
+              "Encrypted with CMK",
+              "Access logged and monitored"
+            ],
+            "approvalDate": "YYYY-MM-DD",
+            "approvedBy": "Data Owner - Customer Data",
+            "decision": "Approved",
+            "justification": "Contains customer PII required for support operations"
+          },
+          "usedByAgents": [
+            "AGENTID123"
+          ]
+        }
+      ],
+      "knowledgeBasesWithRestrictedData": 0,
+      "totalKnowledgeBases": 0
+    }
+  },
+  "certificationStatement": {
+    "reviewCompletedDate": "YYYY-MM-DD",
+    "reviewer": "Security Team Lead Name",
+    "reviewerTitle": "Security Team Lead",
+    "signature": "[Electronic Signature]",
+    "signatureDate": "YYYY-MM-DD",
+    "statement": "I certify that the access review has been completed in accordance with company policy and compliance requirements. All access decisions have been documented and approved by appropriate data owners."
+  },
+  "complianceFindings": {
+    "gdpr": {
+      "article": "Article 32 - Security of Processing",
+      "compliant": true,
+      "findings": "Access to personal data appropriately controlled and monitored"
+    },
+    "hipaa": {
+      "compliant": true,
+      "control": "164.308(a)(4)(ii)(C) - Access Removal",
+      "findings": "Terminated employee access revoked within SLA"
+    },
+    "iso27001": {
+      "compliant": true,
+      "control": "A.9.2.1 - User registration and de-registration",
+      "findings": "User lifecycle management procedures followed"
+    },
+    "pciDss": {
+      "compliant": true,
+      "findings": "Least privilege verified, quarterly access review completed",
+      "requirement": "Requirement 7 - Restrict access to cardholder data"
+    },
+    "soc2": {
+      "compliant": true,
+      "control": "CC6.2 - Prior to issuing system credentials and granting system access",
+      "findings": "All access requests properly approved by managers and data owners"
+    }
+  },
+  "exceptionsAndRisks": {
+    "exceptions": [
+      {
+        "approvalDate": "YYYY-MM-DD",
+        "approvedBy": "CISO",
+        "compensatingControls": [
+          "IP restriction to contractor office",
+          "Read-only access only",
+          "Enhanced monitoring and logging"
+        ],
+        "exceptionId": "EXC-001",
+        "exceptionType": "No MFA (technical limitation)",
+        "expirationDate": "YYYY-MM-DD (6 months)",
+        "justification": "Third-party contractor, external authentication system does not support MFA",
+        "nextReviewDate": "YYYY-MM-DD",
+        "reviewFrequency": "Monthly",
+        "userName": "contractor.user@company.com"
+      }
+    ],
+    "identifiedRisks": [
+      {
+        "impact": "Potential data mishandling or compliance violation",
+        "likelihood": "Medium",
+        "mitigationPlan": "Mandatory training completion within 7 days, access suspended until completed",
+        "owner": "Security Team",
+        "riskDescription": "5 users have access to RESTRICTED data without recent training completion",
+        "riskId": "RISK-001",
+        "riskLevel": "Medium",
+        "targetResolutionDate": "YYYY-MM-DD"
+      }
+    ]
+  },
+  "executiveSummary": {
+    "accessChanges": {
+      "accessGranted": 0,
+      "accessModified": 0,
+      "accessRevoked": 0,
+      "noChangeRequired": 0
+    },
+    "complianceStatus": {
+      "allExceptionsDocumented": true,
+      "confidentialDataReviewCompleted": false,
+      "restrictedDataReviewCompleted": false,
+      "reviewCompletedOnTime": false
+    },
+    "overallStatus": "Compliant|Non-Compliant|Partially Compliant",
+    "policyViolations": {
+      "inactiveUsers": 0,
+      "mfaNotEnabled": 0,
+      "overlyPermissiveRoles": 0,
+      "terminatedUsersWithActiveAccess": 0
+    },
+    "totalUsersReviewed": 0,
+    "unusedAccess": {
+      "unusedAccessRemoved": 0,
+      "unusedPermissions": 0,
+      "usersWithUnusedAccess": 0
+    }
+  },
+  "inactiveAccessReview": {
+    "inactiveUsers": [
+      {
+        "accessLevel": "ReadOnly",
+        "actionTaken": "Account disabled on YYYY-MM-DD",
+        "approvedBy": "Manager Name",
+        "daysSinceLastLogin": 120,
+        "lastLoginDate": "YYYY-MM-DD",
+        "recommendation": "Disable account",
+        "userName": "inactive.user@company.com"
+      }
+    ],
+    "inactivityThreshold": "90 days",
+    "unusedCredentials": [
+      {
+        "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
+        "actionTaken": "Access key deleted on YYYY-MM-DD",
+        "approvedBy": "Security Team",
+        "createdDate": "YYYY-MM-DD",
+        "credentialType": "Access Key",
+        "daysSinceLastUsed": 95,
+        "lastUsedDate": "YYYY-MM-DD",
+        "recommendation": "Rotate or delete",
+        "userName": "user.name@company.com"
+      }
+    ],
+    "unusedRoles": [
+      {
+        "actionTaken": "Role deleted on YYYY-MM-DD",
+        "approvedBy": "DevOps Team Lead",
+        "createdDate": "YYYY-MM-DD",
+        "daysSinceLastUsed": 180,
+        "lastUsedDate": "YYYY-MM-DD",
+        "recommendation": "Delete role",
+        "roleName": "LegacyBedrockRole"
+      }
+    ]
+  },
+  "privilegedAccessReview": {
+    "breakGlassAccounts": {
+      "lastUsed": "YYYY-MM-DD HH:MM:SS or Never",
+      "totalAccounts": 2,
+      "usageCount": 0,
+      "usageIncidents": []
+    },
+    "privilegedUsers": [
+      {
+        "accessLevel": "Administrator",
+        "justification": "CISO, requires full administrative access",
+        "lastPrivilegedAction": {
+          "action": "bedrock:DeleteKnowledgeBase",
+          "resource": "arn:aws:bedrock:us-east-1:123456789012:knowledge-base/TEST123",
+          "timestamp": "YYYY-MM-DD HH:MM:SS"
+        },
+        "mfaDeviceType": "Hardware Token|Virtual MFA",
+        "mfaEnabled": true,
+        "privilegedSince": "YYYY-MM-DD",
+        "reviewResult": {
+          "approvalDate": "YYYY-MM-DD",
+          "approvedBy": "CEO",
+          "decision": "Approved",
+          "justification": "C-level executive, administrative access required",
+          "nextReviewDate": "YYYY-MM-DD (monthly for admin access)"
+        },
+        "userName": "admin.user@company.com"
+      }
+    ],
+    "rootAccountActivity": {
+      "apiCallCount": 0,
+      "complianceStatus": "COMPLIANT (zero usage) | NON_COMPLIANT (usage detected)",
+      "incidents": [],
+      "lastUsed": "YYYY-MM-DD HH:MM:SS or Never",
+      "loginCount": 0
+    },
+    "summary": {
+      "administratorAccess": 0,
+      "bedrockAdministrators": 0,
+      "powerUserAccess": 0,
+      "totalPrivilegedUsers": 0
+    }
+  },
+  "recommendations": [
+    {
+      "estimatedCost": "$10,000 (tooling + implementation)",
+      "estimatedEffort": "2 weeks",
+      "expectedBenefit": "80% reduction in review time, 100% SLA compliance",
+      "priority": "High",
+      "rationale": "Reduce manual effort and improve timeliness of reviews",
+      "recommendation": "Implement automated access review workflow"
+    },
+    {
+      "estimatedCost": "$0 (AWS service, no additional cost)",
+      "estimatedEffort": "1 day",
+      "expectedBenefit": "Proactive identification of unused permissions",
+      "priority": "Medium",
+      "rationale": "Continuously identify unused permissions",
+      "recommendation": "Enable IAM Access Analyzer for all accounts"
+    },
+    {
+      "estimatedCost": "$20,000 (tooling + implementation)",
+      "estimatedEffort": "3 weeks",
+      "expectedBenefit": "Eliminate 80% of standing privileged access",
+      "priority": "Medium",
+      "rationale": "Reduce standing privileged access, improve security posture",
+      "recommendation": "Implement JIT (Just-In-Time) access for privileged operations"
+    }
+  ],
+  "reportMetadata": {
+    "approver": "CISO / Data Owner",
+    "classification": "CONFIDENTIAL",
+    "distribution": [
+      "CISO",
+      "Data Owners",
+      "Security Team",
+      "Compliance Team",
+      "HR (for terminations)"
+    ],
+    "generatedDate": "YYYY-MM-DD",
+    "reportName": "Access Review Report - Amazon Bedrock Agents Infrastructure",
+    "reportType": "Periodic Access Review",
+    "reviewFrequency": "Monthly (RESTRICTED data) | Quarterly (CONFIDENTIAL data)",
+    "reviewPeriod": {
+      "endDate": "YYYY-MM-30",
+      "startDate": "YYYY-MM-01"
+    },
+    "reviewer": "Security Team Lead",
+    "version": "1.0"
+  },
+  "reviewScope": {
+    "dataClassifications": [
+      {
+        "classification": "RESTRICTED",
+        "lastReviewDate": "YYYY-MM-DD",
+        "nextReviewDueDate": "YYYY-MM-DD",
+        "reviewFrequency": "Monthly",
+        "status": "Completed|Overdue|In Progress",
+        "usersWithAccess": 0
+      },
+      {
+        "classification": "CONFIDENTIAL",
+        "lastReviewDate": "YYYY-MM-DD",
+        "nextReviewDueDate": "YYYY-MM-DD",
+        "reviewFrequency": "Quarterly",
+        "status": "Completed|Overdue|In Progress",
+        "usersWithAccess": 0
+      }
+    ],
+    "systemsReviewed": [
+      {
+        "privilegedUsers": 0,
+        "reviewCompleted": true,
+        "system": "Amazon Bedrock Agents",
+        "totalUsers": 0
+      },
+      {
+        "privilegedUsers": 0,
+        "reviewCompleted": true,
+        "system": "AWS IAM",
+        "totalUsers": 0
+      },
+      {
+        "reviewCompleted": true,
+        "system": "AWS Lambda (Bedrock Actions)",
+        "totalServiceRoles": 0
+      }
+    ]
+  },
+  "terminatedEmployeeAccessReview": {
+    "reviewPeriod": "Past 30 days",
+    "terminatedEmployees": [
+      {
+        "accessAtTermination": [
+          {
+            "accessType": "IAM User",
+            "status": "Deleted on YYYY-MM-DD",
+            "userName": "former.employee@company.com"
+          },
+          {
+            "accessType": "SSO Access",
+            "permissionSet": "BedrockDeveloper",
+            "status": "Revoked on YYYY-MM-DD"
+          }
+        ],
+        "awsAccess": {
+          "accessRevokedDate": "YYYY-MM-DD",
+          "hadAccess": true,
+          "hoursUntilRevocation": 2,
+          "slaCompliance": "Within 1 hour SLA: Compliant|Non-Compliant"
+        },
+        "employeeId": "EMP12345",
+        "employeeName": "Former Employee",
+        "postTerminationActivity": {
+          "apiCallsAfterTermination": 0,
+          "investigation": "None required",
+          "suspiciousActivity": false
+        },
+        "terminationDate": "YYYY-MM-DD"
+      }
+    ]
+  },
+  "userAccessReview": {
+    "federatedUsers": {
+      "samlUsers": 0,
+      "ssoUsers": 0,
+      "totalFederatedUsers": 0,
+      "users": [
+        {
+          "awsAccounts": [
+            {
+              "accountId": "123456789012",
+              "accountName": "bedrock-production",
+              "role": "BedrockDeveloper"
+            }
+          ],
+          "daysSinceLastLogin": 0,
+          "identityProvider": "Okta|Azure AD|Google Workspace",
+          "lastLoginDate": "YYYY-MM-DD HH:MM:SS",
+          "permissionSet": "BedrockDeveloper",
+          "reviewResult": {
+            "approvalDate": "YYYY-MM-DD",
+            "approvedBy": "Manager Name",
+            "decision": "Approved",
+            "justification": "Active Bedrock developer"
+          },
+          "userId": "federated-user-12345",
+          "userName": "alice.johnson@company.com"
+        }
+      ]
+    },
+    "iamRoles": {
+      "bedrockAgentRoles": 0,
+      "lambdaExecutionRoles": 0,
+      "roles": [
+        {
+          "assumedBy": [
+            {
+              "assumptionCount": 1234,
+              "lastAssumed": "YYYY-MM-DD HH:MM:SS",
+              "principal": "arn:aws:bedrock:us-east-1:123456789012:agent/AGENTID"
+            }
+          ],
+          "attachedPolicies": [
+            {
+              "permissions": {
+                "leastPrivilegeCompliant": true,
+                "totalStatements": 5,
+                "wildcardActions": 0,
+                "wildcardResources": 0
+              },
+              "policyArn": "arn:aws:iam::123456789012:policy/BedrockAgentPolicy",
+              "policyName": "BedrockAgentPolicy",
+              "policyType": "Customer Managed"
+            }
+          ],
+          "daysSinceLastUsed": 0,
+          "description": "IAM role for Bedrock agent execution",
+          "lastUsedDate": "YYYY-MM-DD",
+          "reviewResult": {
+            "approvalDate": "YYYY-MM-DD",
+            "approvedBy": "Security Team Lead",
+            "changes": [],
+            "decision": "Approved|Revoke|Modify",
+            "exceptions": [],
+            "justification": "Role follows least privilege and is actively used by Bedrock agent"
+          },
+          "roleId": "role-12345",
+          "roleName": "BedrockAgentRole",
+          "roleType": "Service|User|Federated",
+          "trustPolicy": {
+            "conditions": [],
+            "externalId": "optional-external-id",
+            "trustedPrincipals": [
+              "bedrock.amazonaws.com"
+            ]
+          },
+          "unusedPermissions": []
+        }
+      ],
+      "totalRoles": 0
+    },
+    "iamUsers": {
+      "activeUsers": 0,
+      "inactiveUsers": 0,
+      "totalUsers": 0,
+      "users": [
+        {
+          "accessKeys": [
+            {
+              "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
+              "ageInDays": 0,
+              "createdDate": "YYYY-MM-DD",
+              "lastUsedDate": "YYYY-MM-DD",
+              "lastUsedService": "bedrock-agent",
+              "rotationRequired": false,
+              "status": "Active|Inactive"
+            }
+          ],
+          "accessLevel": "Administrator|PowerUser|ReadOnly",
+          "accessToConfidentialData": true,
+          "accessToRestrictedData": true,
+          "attachedPolicies": [
+            {
+              "attachmentDate": "YYYY-MM-DD",
+              "policyArn": "arn:aws:iam::123456789012:policy/BedrockFullAccess",
+              "policyName": "BedrockFullAccess",
+              "policyType": "Managed|Inline"
+            }
+          ],
+          "daysSinceLastLogin": 0,
+          "department": "Engineering|Security|Finance|etc.",
+          "employmentStatus": "Active|Terminated|On Leave",
+          "iamGroups": [
+            "BedrockAdministrators",
+            "ReadOnlyAccess"
+          ],
+          "lastLoginDate": "YYYY-MM-DD HH:MM:SS",
+          "manager": "jane.smith@company.com",
+          "mfaEnabled": true,
+          "reviewResult": {
+            "approvalDate": "YYYY-MM-DD",
+            "approvedBy": "Data Owner Name",
+            "changes": [
+              "Remove S3 DeleteBucket permission (unused)"
+            ],
+            "decision": "Approved|Revoke|Modify",
+            "exceptions": [],
+            "justification": "User requires Bedrock access for AI agent development"
+          },
+          "unusedPermissions": [
+            {
+              "action": "s3:DeleteBucket",
+              "lastUsed": "Never",
+              "recommendation": "Remove",
+              "service": "S3"
+            }
+          ],
+          "userId": "user-12345",
+          "userName": "john.doe@company.com",
+          "userType": "Human|ServiceAccount"
+        }
+      ]
+    }
   }
 }

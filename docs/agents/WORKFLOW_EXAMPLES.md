@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document provides real-world workflow examples using the deployed agents for the ServiceNow AI infrastructure project.
+This document provides real-world workflow examples using the deployed agents
+for the ServiceNow AI infrastructure project.
 
 ## Table of Contents
 
@@ -20,11 +21,14 @@ This document provides real-world workflow examples using the deployed agents fo
 ## Pre-Deployment Validation
 
 ### Scenario
-You're about to deploy infrastructure changes to the staging environment and need comprehensive validation.
+
+You're about to deploy infrastructure changes to the staging environment and
+need comprehensive validation.
 
 ### Workflow
 
 **Step 1: Run Security Scan**
+
 ```bash
 # Execute security audit agent
 ./scripts/agents/run-security-scan.sh /home/user/servicenow-ai/terraform/environments/staging
@@ -34,6 +38,7 @@ cat /home/user/servicenow-ai/coordination/sessions/results_json.json
 ```
 
 **Step 2: Execute All Module Tests**
+
 ```bash
 # Run comprehensive test suite
 ./scripts/agents/run-terraform-tests.sh all
@@ -43,6 +48,7 @@ npx claude-flow@alpha memory retrieve "swarm/tester/results"
 ```
 
 **Step 3: Code Quality Review**
+
 ```bash
 # Run code quality checks
 ./scripts/agents/run-code-review.sh /home/user/servicenow-ai/terraform/environments/staging
@@ -53,6 +59,7 @@ prettier --write "**/*.{json,md}"
 ```
 
 **Step 4: Architecture Review**
+
 ```bash
 # Get architecture feedback
 npx claude-flow@alpha agent execute terraform-architect-001 \
@@ -60,6 +67,7 @@ npx claude-flow@alpha agent execute terraform-architect-001 \
 ```
 
 **Step 5: Performance Analysis**
+
 ```bash
 # Check resource sizing
 npx claude-flow@alpha agent execute performance-monitor-001 \
@@ -67,6 +75,7 @@ npx claude-flow@alpha agent execute performance-monitor-001 \
 ```
 
 **Step 6: Plan Validation**
+
 ```bash
 cd /home/user/servicenow-ai/terraform/environments/staging
 terraform init
@@ -77,6 +86,7 @@ terraform show staging.tfplan
 ```
 
 ### Success Criteria
+
 - ✅ Zero critical security findings
 - ✅ All tests passing
 - ✅ No code quality issues
@@ -88,7 +98,9 @@ terraform show staging.tfplan
 ## New Feature Development
 
 ### Scenario
-You need to add a new Terraform module for AWS Lambda functions with Bedrock integration.
+
+You need to add a new Terraform module for AWS Lambda functions with Bedrock
+integration.
 
 ### Workflow
 
@@ -195,6 +207,7 @@ terraform plan
 ```
 
 ### Success Criteria
+
 - ✅ Architecture design approved
 - ✅ Code quality score > 90%
 - ✅ Zero critical security issues
@@ -207,7 +220,9 @@ terraform plan
 ## Security Audit
 
 ### Scenario
-Quarterly security audit is due. Need comprehensive security assessment of entire infrastructure.
+
+Quarterly security audit is due. Need comprehensive security assessment of
+entire infrastructure.
 
 ### Workflow
 
@@ -300,6 +315,7 @@ npx claude-flow@alpha memory store "swarm/security/quarterly-audit" \
 ```
 
 ### Success Criteria
+
 - ✅ All environments scanned
 - ✅ Compliance validated (SOC2, GDPR, HIPAA)
 - ✅ Findings prioritized and categorized
@@ -312,7 +328,9 @@ npx claude-flow@alpha memory store "swarm/security/quarterly-audit" \
 ## Cost Optimization
 
 ### Scenario
-Monthly cloud costs are trending upward. Need to identify and implement cost optimizations.
+
+Monthly cloud costs are trending upward. Need to identify and implement cost
+optimizations.
 
 ### Workflow
 
@@ -393,6 +411,7 @@ npx claude-flow@alpha agent execute performance-monitor-001 \
 ```
 
 ### Success Criteria
+
 - ✅ Cost analysis completed
 - ✅ Optimization opportunities identified
 - ✅ Changes implemented and tested
@@ -404,6 +423,7 @@ npx claude-flow@alpha agent execute performance-monitor-001 \
 ## CI/CD Pipeline Optimization
 
 ### Scenario
+
 GitHub Actions workflows are slow and consuming excessive runner minutes.
 
 ### Workflow
@@ -468,6 +488,7 @@ npx claude-flow@alpha memory store "swarm/cicd/optimizations" \
 ```
 
 ### Success Criteria
+
 - ✅ Workflow analysis completed
 - ✅ Bottlenecks identified
 - ✅ Optimizations implemented
@@ -479,7 +500,9 @@ npx claude-flow@alpha memory store "swarm/cicd/optimizations" \
 ## Module Refactoring
 
 ### Scenario
-The VPC module has grown to 800 lines and needs refactoring for better maintainability.
+
+The VPC module has grown to 800 lines and needs refactoring for better
+maintainability.
 
 ### Workflow
 
@@ -549,6 +572,7 @@ npx claude-flow@alpha agent execute code-reviewer-001 \
 ```
 
 ### Success Criteria
+
 - ✅ Module split into logical sub-modules
 - ✅ Each sub-module < 500 lines
 - ✅ Backward compatibility maintained
@@ -561,6 +585,7 @@ npx claude-flow@alpha agent execute code-reviewer-001 \
 ## Compliance Validation
 
 ### Scenario
+
 Need to validate infrastructure compliance with UK AI Playbook requirements.
 
 ### Workflow
@@ -614,6 +639,7 @@ npx claude-flow@alpha memory store "swarm/security/compliance" \
 ```
 
 ### Success Criteria
+
 - ✅ All compliance frameworks validated
 - ✅ Gaps identified and documented
 - ✅ Remediation plan created
@@ -625,7 +651,9 @@ npx claude-flow@alpha memory store "swarm/security/compliance" \
 ## Performance Tuning
 
 ### Scenario
-Application response times are increasing. Need to optimize infrastructure performance.
+
+Application response times are increasing. Need to optimize infrastructure
+performance.
 
 ### Workflow
 
@@ -704,6 +732,7 @@ npx claude-flow@alpha memory store "swarm/perf/tuning" \
 ```
 
 ### Success Criteria
+
 - ✅ Performance baseline established
 - ✅ Bottlenecks identified
 - ✅ Optimizations implemented
@@ -727,21 +756,25 @@ npx claude-flow@alpha memory store "swarm/perf/tuning" \
 ### Agent Collaboration Patterns
 
 **Architecture + Analysis**:
+
 - Architect designs solution
 - Analyzer validates code quality
 - Best for: New features, major refactoring
 
 **Security + Review**:
+
 - Security auditor scans for vulnerabilities
 - Reviewer checks code standards
 - Best for: Pre-deployment, compliance audits
 
 **Performance + Testing**:
+
 - Performance monitor identifies bottlenecks
 - Tester validates improvements
 - Best for: Optimization initiatives
 
 **CI/CD + All Others**:
+
 - CI/CD engineer orchestrates workflows
 - Other agents execute validation steps
 - Best for: Pipeline automation

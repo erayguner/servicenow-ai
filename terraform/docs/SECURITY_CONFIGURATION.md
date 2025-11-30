@@ -1,8 +1,7 @@
 # ServiceNow AI Infrastructure - Security Configuration
 
-**Version:** 1.0
-**Last Updated:** 2025-11-04
-**Security Level:** Zero-Trust Architecture
+**Version:** 1.0 **Last Updated:** 2025-11-04 **Security Level:** Zero-Trust
+Architecture
 
 ---
 
@@ -21,7 +20,8 @@
 
 ## Overview
 
-This infrastructure implements a **zero-trust security model** with defense-in-depth principles:
+This infrastructure implements a **zero-trust security model** with
+defense-in-depth principles:
 
 - ✅ **No Service Account Keys** - Workload Identity Federation
 - ✅ **Customer-Managed Encryption** - All data encrypted with KMS
@@ -37,13 +37,15 @@ This infrastructure implements a **zero-trust security model** with defense-in-d
 
 ### Principle: No Service Account Keys Ever Created
 
-Traditional GCP authentication uses downloaded JSON key files. We **completely eliminate** this attack vector.
+Traditional GCP authentication uses downloaded JSON key files. We **completely
+eliminate** this attack vector.
 
 ### Implementation Layers
 
 #### 1. Workload Identity for GKE Pods
 
 **How It Works:**
+
 1. Kubernetes ServiceAccount annotated with GCP Service Account
 2. GKE metadata server provides temporary credentials
 3. No keys stored in pods, secrets, or repositories
@@ -70,6 +72,7 @@ gcloud iam service-accounts add-iam-policy-binding \
 ```
 
 **Benefits:**
+
 - Credentials rotate automatically every hour
 - No key file to leak or compromise
 - Permissions managed through IAM
@@ -78,6 +81,7 @@ gcloud iam service-accounts add-iam-policy-binding \
 #### 2. Workload Identity Federation for CI/CD
 
 **How It Works:**
+
 1. GitHub Actions authenticates using OIDC tokens
 2. GCP Workload Identity Pool validates token
 3. Temporary credentials issued (1 hour TTL)
@@ -105,7 +109,7 @@ gcloud iam workload-identity-pools providers create-oidc github-provider \
 ```yaml
 # .github/workflows/deploy.yml
 permissions:
-  id-token: write  # Required for OIDC
+  id-token: write # Required for OIDC
   contents: read
 
 jobs:
@@ -124,6 +128,7 @@ jobs:
 #### 3. Application Default Credentials for Local Development
 
 **How It Works:**
+
 1. Developers authenticate with `gcloud auth application-default login`
 2. ADC uses OAuth2 user credentials
 3. Temporary tokens cached locally
@@ -168,12 +173,12 @@ All data encrypted with KMS keys under our control.
 
 **Keys:**
 
-| Key Name | Purpose | Rotation Period | Protected Resources |
-|----------|---------|-----------------|---------------------|
-| `storage` | Cloud Storage | 90 days | 5 buckets |
-| `pubsub` | Pub/Sub topics | 90 days | 5 topics |
-| `cloudsql` | Cloud SQL | 90 days | PostgreSQL instance |
-| `secrets` | Secret Manager | 90 days | 7 secrets |
+| Key Name   | Purpose        | Rotation Period | Protected Resources |
+| ---------- | -------------- | --------------- | ------------------- |
+| `storage`  | Cloud Storage  | 90 days         | 5 buckets           |
+| `pubsub`   | Pub/Sub topics | 90 days         | 5 topics            |
+| `cloudsql` | Cloud SQL      | 90 days         | PostgreSQL instance |
+| `secrets`  | Secret Manager | 90 days         | 7 secrets           |
 
 **Terraform Configuration:**
 
@@ -247,16 +252,19 @@ gcloud sql instances describe dev-postgres --format="value(diskEncryptionConfigu
 ### TLS/SSL Everywhere
 
 **1. External Traffic:**
+
 - Load Balancer with Google-managed SSL certificates
 - TLS 1.3 minimum
 - Strong cipher suites only
 
 **2. Internal Traffic:**
+
 - Service mesh (Istio) with mTLS
 - Automatic certificate rotation
 - Zero-trust pod-to-pod communication
 
 **3. Database Connections:**
+
 - Cloud SQL enforces TLS
 - Private IP only (no public endpoint)
 - Certificate validation required
@@ -272,7 +280,7 @@ metadata:
   namespace: production
 spec:
   mtls:
-    mode: STRICT  # Require mTLS for all traffic
+    mode: STRICT # Require mTLS for all traffic
 ```
 
 ---
@@ -284,11 +292,13 @@ spec:
 #### 1. VPC-Level Security
 
 **Private Subnets:**
+
 - All resources on private IPs (10.70.0.0/20)
 - No direct internet access
 - Cloud NAT for controlled egress
 
 **Cloud NAT:**
+
 ```hcl
 resource "google_compute_router_nat" "nat" {
   name                               = "core-nat"
@@ -300,6 +310,7 @@ resource "google_compute_router_nat" "nat" {
 ```
 
 **Benefits:**
+
 - Predictable outbound IPs
 - No inbound internet access
 - Centralized egress control
@@ -307,6 +318,7 @@ resource "google_compute_router_nat" "nat" {
 #### 2. GKE Security
 
 **Private Cluster:**
+
 ```hcl
 private_cluster_config {
   enable_private_nodes    = true   # Nodes have no public IPs
@@ -316,6 +328,7 @@ private_cluster_config {
 ```
 
 **Master Authorized Networks:**
+
 ```hcl
 master_authorized_networks_config {
   dynamic "cidr_blocks" {
@@ -329,6 +342,7 @@ master_authorized_networks_config {
 ```
 
 **Network Policies:**
+
 ```yaml
 # Default deny all traffic
 apiVersion: networking.k8s.io/v1
@@ -339,11 +353,12 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
 ```
 
 **Shielded Nodes:**
+
 ```hcl
 enable_shielded_nodes = true
 
@@ -356,6 +371,7 @@ enable_shielded_nodes = true
 #### 3. Cloud SQL Security
 
 **Private IP Only:**
+
 ```hcl
 ip_configuration {
   ipv4_enabled    = false  # No public IP
@@ -365,6 +381,7 @@ ip_configuration {
 ```
 
 **Authorized Networks:**
+
 - Only VPC can access
 - No external connections allowed
 
@@ -414,18 +431,18 @@ resource "google_project_iam_member" "llm_gateway_vertex" {
 
 #### 2. Service Account Separation
 
-| Service | Service Account | Permissions |
-|---------|-----------------|-------------|
+| Service              | Service Account              | Permissions        |
+| -------------------- | ---------------------------- | ------------------ |
 | conversation-manager | conversation-manager@PROJECT | Cloud SQL, Secrets |
-| llm-gateway | llm-gateway@PROJECT | Vertex AI, Secrets |
-| knowledge-base | knowledge-base@PROJECT | Storage, Firestore |
-| ticket-monitor | ticket-monitor@PROJECT | Pub/Sub |
-| action-executor | action-executor@PROJECT | Pub/Sub, Secrets |
-| notification-service | notification-service@PROJECT | Pub/Sub |
-| document-ingestion | document-ingestion@PROJECT | Storage, Pub/Sub |
-| analytics-service | analytics-service@PROJECT | BigQuery, Pub/Sub |
-| api-gateway | api-gateway@PROJECT | None (frontend) |
-| internal-web-ui | internal-web-ui@PROJECT | None (frontend) |
+| llm-gateway          | llm-gateway@PROJECT          | Vertex AI, Secrets |
+| knowledge-base       | knowledge-base@PROJECT       | Storage, Firestore |
+| ticket-monitor       | ticket-monitor@PROJECT       | Pub/Sub            |
+| action-executor      | action-executor@PROJECT      | Pub/Sub, Secrets   |
+| notification-service | notification-service@PROJECT | Pub/Sub            |
+| document-ingestion   | document-ingestion@PROJECT   | Storage, Pub/Sub   |
+| analytics-service    | analytics-service@PROJECT    | BigQuery, Pub/Sub  |
+| api-gateway          | api-gateway@PROJECT          | None (frontend)    |
+| internal-web-ui      | internal-web-ui@PROJECT      | None (frontend)    |
 
 #### 3. IAM Conditions (Optional Enhancement)
 
@@ -459,6 +476,7 @@ kubectl label namespace production \
 ```
 
 **Requirements:**
+
 - ❌ No privileged containers
 - ❌ No host namespaces
 - ❌ No host ports
@@ -478,7 +496,7 @@ securityContext:
     type: RuntimeDefault
   capabilities:
     drop:
-    - ALL
+      - ALL
   readOnlyRootFilesystem: true
   allowPrivilegeEscalation: false
 ```
@@ -494,6 +512,7 @@ binary_authorization {
 ```
 
 **Implementation:**
+
 1. Build image
 2. Sign with Attestor
 3. Upload to Artifact Registry
@@ -519,8 +538,8 @@ gcloud logging read 'protoPayload.authenticationInfo.principalEmail=~".*@PROJECT
   --limit=50
 ```
 
-**Retention:** 400 days (Audit logs)
-**Export:** To Cloud Storage bucket (encrypted)
+**Retention:** 400 days (Audit logs) **Export:** To Cloud Storage bucket
+(encrypted)
 
 ---
 
@@ -611,18 +630,21 @@ echo "=== Audit Complete ==="
 ### Detection
 
 **1. Unauthorized Access Attempt:**
+
 ```bash
 # Alert on failed authentication
 gcloud logging read 'protoPayload.status.code=7' --limit=100
 ```
 
 **2. Privilege Escalation:**
+
 ```bash
 # Alert on role binding changes
 gcloud logging read 'protoPayload.methodName:"setIamPolicy"' --limit=100
 ```
 
 **3. Data Exfiltration:**
+
 ```bash
 # Alert on large egress
 # (Configured in Cloud Monitoring)
@@ -631,6 +653,7 @@ gcloud logging read 'protoPayload.methodName:"setIamPolicy"' --limit=100
 ### Response Procedures
 
 **1. Isolate:**
+
 ```bash
 # Revoke compromised service account
 gcloud iam service-accounts disable SA@PROJECT.iam.gserviceaccount.com
@@ -641,6 +664,7 @@ kubectl apply -f network-policy-quarantine.yaml
 ```
 
 **2. Investigate:**
+
 ```bash
 # Collect logs
 kubectl logs POD_NAME -n production > incident-logs.txt
@@ -651,6 +675,7 @@ kubectl get networkpolicies -n production
 ```
 
 **3. Remediate:**
+
 ```bash
 # Rotate all credentials
 gcloud iam service-accounts keys create new-key.json --iam-account=SA@PROJECT.iam.gserviceaccount.com
@@ -663,6 +688,7 @@ kubectl rollout restart deployment/DEPLOYMENT_NAME -n production
 ```
 
 **4. Post-Incident:**
+
 - Document incident
 - Update security policies
 - Improve detection

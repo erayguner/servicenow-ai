@@ -1,10 +1,13 @@
 # Parallel Testing Guide
 
-This document describes the CI/CD testing infrastructure and how to work with the parallel test execution workflow.
+This document describes the CI/CD testing infrastructure and how to work with
+the parallel test execution workflow.
 
 ## Overview
 
-The repository uses a comprehensive GitHub Actions workflow (`parallel-tests.yml`) that executes multiple types of tests in parallel for fast feedback and efficient resource usage.
+The repository uses a comprehensive GitHub Actions workflow
+(`parallel-tests.yml`) that executes multiple types of tests in parallel for
+fast feedback and efficient resource usage.
 
 ## Test Architecture
 
@@ -30,7 +33,8 @@ Setup & Build
 
 ### Conditional Testing
 
-All test jobs use **conditional execution** to skip gracefully when test infrastructure isn't implemented yet:
+All test jobs use **conditional execution** to skip gracefully when test
+infrastructure isn't implemented yet:
 
 - **npm scripts**: Checks if scripts exist in `package.json` before running
 - **Test files**: Checks if test files exist before execution
@@ -47,11 +51,13 @@ This enables **incremental development** without breaking the CI pipeline.
 **Status**: ✅ All 12 modules have tests
 
 **Execution**:
+
 - Auto-discovers modules with test files
 - Runs validation and tests in parallel
 - Each module runs independently
 
 **Local Testing**:
+
 ```bash
 # Run all module tests
 make terraform-test
@@ -73,11 +79,13 @@ make terraform-validate
 **Status**: ⚠️ Not yet implemented (skips gracefully)
 
 **Execution**:
+
 - Sharded across 4 parallel runners
 - Coverage collection per shard
 - Results merged in aggregate job
 
 **Implementation**:
+
 ```json
 {
   "scripts": {
@@ -95,11 +103,13 @@ make terraform-validate
 **Status**: ⚠️ Not yet implemented (skips gracefully)
 
 **Execution**:
+
 - Parallel execution per service (8 services)
 - PostgreSQL and Redis containers provided
 - Independent databases per service
 
 **Implementation**:
+
 ```json
 {
   "scripts": {
@@ -115,6 +125,7 @@ make terraform-validate
 **Expected script**: `test:e2e` in `frontend/package.json`
 
 **Expected manifests**:
+
 - `k8s/test/postgres.yaml`
 - `k8s/test/redis.yaml`
 - `k8s/deployments/*.yaml`
@@ -122,12 +133,14 @@ make terraform-validate
 **Status**: ⚠️ Not yet implemented (skips gracefully)
 
 **Execution**:
+
 - Isolated kind (Kubernetes in Docker) clusters
 - 3 parallel shards with isolated namespaces
 - Infrastructure deployment per shard
 - Pod logs collected on failure
 
 **Implementation**:
+
 ```json
 {
   "scripts": {
@@ -145,10 +158,13 @@ make terraform-validate
 **Status**: ⚠️ Not yet implemented (skips gracefully)
 
 **Execution**:
+
 - Parallel execution by category (5 categories)
-- Tests authentication, authorization, data protection, network security, secrets
+- Tests authentication, authorization, data protection, network security,
+  secrets
 
 **Implementation**:
+
 ```json
 {
   "scripts": {
@@ -162,6 +178,7 @@ make terraform-validate
 **Location**: `tests/performance/` (when implemented)
 
 **Expected files**:
+
 - `tests/performance/api-gateway.k6.js`
 - `tests/performance/llm-gateway.k6.js`
 - `tests/performance/knowledge-base.k6.js`
@@ -170,11 +187,13 @@ make terraform-validate
 **Status**: ⚠️ Not yet implemented (skips gracefully)
 
 **Execution**:
+
 - k6 load testing in parallel (4 endpoints)
 - Results exported to JSON
 - Performance metrics tracked over time
 
 **Implementation**:
+
 ```javascript
 // tests/performance/api-gateway.k6.js
 import http from 'k6/http';
@@ -185,7 +204,7 @@ export const options = {
   duration: '2m',
 };
 
-export default function() {
+export default function () {
   const res = http.get(`${__ENV.TARGET_ENDPOINT}`);
   check(res, { 'status is 200': (r) => r.status === 200 });
 }
@@ -245,6 +264,7 @@ Edit `frontend/package.json`:
 ### Step 2: Create Test Files
 
 The workflow will automatically:
+
 1. Detect the script exists
 2. Run the tests
 3. Collect coverage
@@ -253,6 +273,7 @@ The workflow will automatically:
 ### Step 3: Verify in CI
 
 Push your changes and the workflow will:
+
 - ✅ Run your new tests in parallel
 - ✅ Show test results in PR comments
 - ✅ Fail the build if tests fail
@@ -261,7 +282,8 @@ Push your changes and the workflow will:
 
 ### Caching Strategy
 
-- **Node modules**: Cached using `actions/setup-node@v6` with `cache-dependency-path`
+- **Node modules**: Cached using `actions/setup-node@v6` with
+  `cache-dependency-path`
 - **Terraform plugins**: Cached per lock file hash
 - **npm cache**: Shared across jobs using `actions/cache@v4`
 
@@ -303,14 +325,14 @@ The workflow posts a test summary to PRs:
 
 ## Parallel Execution Statistics
 
-| Test Type | Shards | Status |
-|-----------|--------|--------|
-| Terraform | 12 modules | ✅ success |
-| Unit Tests | 4 shards | ⚠️ skipped |
-| Integration | 8 services | ⚠️ skipped |
-| E2E Tests | 3 shards | ⚠️ skipped |
-| Security | 5 categories | ⚠️ skipped |
-| Performance | 4 endpoints | ⚠️ skipped |
+| Test Type   | Shards       | Status     |
+| ----------- | ------------ | ---------- |
+| Terraform   | 12 modules   | ✅ success |
+| Unit Tests  | 4 shards     | ⚠️ skipped |
+| Integration | 8 services   | ⚠️ skipped |
+| E2E Tests   | 3 shards     | ⚠️ skipped |
+| Security    | 5 categories | ⚠️ skipped |
+| Performance | 4 endpoints  | ⚠️ skipped |
 ```
 
 ## Performance Metrics
@@ -347,13 +369,15 @@ The workflow posts a test summary to PRs:
 
 **Symptom**: Dependencies reinstalled every run
 
-**Solution**: Check `cache-dependency-path` points to `frontend/package-lock.json`
+**Solution**: Check `cache-dependency-path` points to
+`frontend/package-lock.json`
 
 ### E2E Tests Failing
 
 **Symptom**: kubectl errors or pod not ready
 
 **Solution**:
+
 - Ensure k8s manifests exist in `k8s/test/` or `k8s/deployments/`
 - Check pod logs artifact for details
 - Verify kind cluster started successfully
@@ -378,6 +402,7 @@ The workflow posts a test summary to PRs:
 ## Support
 
 For issues with the CI/CD pipeline:
+
 1. Check workflow logs in GitHub Actions
 2. Review this guide for configuration requirements
 3. Create an issue with workflow run link

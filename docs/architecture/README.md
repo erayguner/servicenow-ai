@@ -1,13 +1,17 @@
 # Bedrock Agent Architecture Documentation
 
-This directory contains comprehensive documentation for implementing Amazon Bedrock-based agent architecture equivalent to the claude-flow orchestration system.
+This directory contains comprehensive documentation for implementing Amazon
+Bedrock-based agent architecture equivalent to the claude-flow orchestration
+system.
 
 ## 📚 Documentation Files
 
 ### 1. Main Architecture Document
+
 **File:** `BEDROCK_AGENT_ARCHITECTURE.md` (140+ pages)
 
 **Contents:**
+
 - Complete architectural design
 - Bedrock agent configurations for 54 agent types
 - OpenSearch Serverless knowledge base setup
@@ -21,6 +25,7 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 - Migration strategy from claude-flow
 
 **Quick Links:**
+
 - [Architecture Overview](#architecture-overview)
 - [Agent Configuration](#bedrock-agent-configuration)
 - [Knowledge Bases](#knowledge-bases-with-opensearch-serverless)
@@ -29,9 +34,11 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 - [Cost Analysis](#cost-analysis)
 
 ### 2. Quick Start Guide
+
 **File:** `BEDROCK_QUICK_START.md`
 
 **Contents:**
+
 - 5-minute overview
 - Quick deploy instructions (30 minutes)
 - Minimal working example (50 lines of code)
@@ -42,15 +49,18 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 - AWS CLI quick reference
 
 **Best For:**
+
 - Getting started quickly
 - Testing Bedrock agents
 - Learning by example
 - Rapid prototyping
 
 ### 3. Comparison Guide
+
 **File:** `CLAUDE_FLOW_VS_BEDROCK.md`
 
 **Contents:**
+
 - Side-by-side feature comparison
 - Detailed cost analysis
 - Security and compliance comparison
@@ -60,6 +70,7 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 - Decision matrix
 
 **Best For:**
+
 - Deciding between claude-flow and Bedrock
 - Planning migration
 - Understanding trade-offs
@@ -69,50 +80,50 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 
 ### Choose Your Path
 
-**Path 1: I want to understand the full architecture**
-→ Read `BEDROCK_AGENT_ARCHITECTURE.md`
+**Path 1: I want to understand the full architecture** → Read
+`BEDROCK_AGENT_ARCHITECTURE.md`
 
-**Path 2: I want to deploy quickly and experiment**
-→ Follow `BEDROCK_QUICK_START.md`
+**Path 2: I want to deploy quickly and experiment** → Follow
+`BEDROCK_QUICK_START.md`
 
-**Path 3: I need to decide between claude-flow and Bedrock**
-→ Review `CLAUDE_FLOW_VS_BEDROCK.md`
+**Path 3: I need to decide between claude-flow and Bedrock** → Review
+`CLAUDE_FLOW_VS_BEDROCK.md`
 
-**Path 4: I want to migrate from claude-flow**
-→ Read comparison guide, then architecture document, then follow migration plan
+**Path 4: I want to migrate from claude-flow** → Read comparison guide, then
+architecture document, then follow migration plan
 
 ## 📊 Key Highlights
 
 ### Architecture Capabilities
 
-✅ **54 Specialized Agents** - Developers, testers, reviewers, coordinators, and more
-✅ **3 Coordination Patterns** - Hierarchical, mesh, and adaptive orchestration
-✅ **4 Knowledge Bases** - Code patterns, documentation, security, testing
-✅ **5 Action Groups** - Code ops, testing, coordination, GitHub, infrastructure
-✅ **3 Consensus Mechanisms** - Raft, Byzantine fault tolerance, Gossip protocol
-✅ **SPARC Methodology** - Systematic test-driven development workflow
-✅ **Enterprise Security** - IAM, KMS encryption, VPC isolation, compliance
-✅ **Auto-Scaling** - Serverless, pay-per-use model
+✅ **54 Specialized Agents** - Developers, testers, reviewers, coordinators, and
+more ✅ **3 Coordination Patterns** - Hierarchical, mesh, and adaptive
+orchestration ✅ **4 Knowledge Bases** - Code patterns, documentation, security,
+testing ✅ **5 Action Groups** - Code ops, testing, coordination, GitHub,
+infrastructure ✅ **3 Consensus Mechanisms** - Raft, Byzantine fault tolerance,
+Gossip protocol ✅ **SPARC Methodology** - Systematic test-driven development
+workflow ✅ **Enterprise Security** - IAM, KMS encryption, VPC isolation,
+compliance ✅ **Auto-Scaling** - Serverless, pay-per-use model
 
 ### Cost Overview
 
-| Environment | Monthly Cost | Notes |
-|-------------|--------------|-------|
-| **Development** | ~$500 | Single-AZ, minimal redundancy |
-| **Staging** | ~$1,500 | Multi-AZ, reduced capacity |
-| **Production** | ~$3,145 | Full HA, enterprise features |
-| **Optimized Production** | ~$2,200 | With reserved capacity, caching |
+| Environment              | Monthly Cost | Notes                           |
+| ------------------------ | ------------ | ------------------------------- |
+| **Development**          | ~$500        | Single-AZ, minimal redundancy   |
+| **Staging**              | ~$1,500      | Multi-AZ, reduced capacity      |
+| **Production**           | ~$3,145      | Full HA, enterprise features    |
+| **Optimized Production** | ~$2,200      | With reserved capacity, caching |
 
 ### Implementation Timeline
 
-| Phase | Duration | Deliverables |
-|-------|----------|--------------|
-| **Phase 1: Foundation** | 2 weeks | Core infrastructure, 5 agents |
-| **Phase 2: Action Groups** | 2 weeks | Lambda functions, coordination |
-| **Phase 3: Specialized Agents** | 2 weeks | All 54 agents deployed |
-| **Phase 4: Advanced Features** | 2 weeks | SageMaker, auto-scaling |
-| **Phase 5: Production** | 2 weeks | Hardening, documentation |
-| **Total** | **10 weeks** | **Production-ready system** |
+| Phase                           | Duration     | Deliverables                   |
+| ------------------------------- | ------------ | ------------------------------ |
+| **Phase 1: Foundation**         | 2 weeks      | Core infrastructure, 5 agents  |
+| **Phase 2: Action Groups**      | 2 weeks      | Lambda functions, coordination |
+| **Phase 3: Specialized Agents** | 2 weeks      | All 54 agents deployed         |
+| **Phase 4: Advanced Features**  | 2 weeks      | SageMaker, auto-scaling        |
+| **Phase 5: Production**         | 2 weeks      | Hardening, documentation       |
+| **Total**                       | **10 weeks** | **Production-ready system**    |
 
 ## 🏗️ Architecture Components
 
@@ -144,11 +155,14 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 ### Agent Types by Category
 
 **Development (15 agents):**
+
 - Coder, Senior Developer, Backend Dev, Frontend Dev, Mobile Dev
 - Tester, Test Engineer, Integration Tester, E2E Tester, Performance Tester
-- Reviewer, Code Reviewer, Security Reviewer, Architecture Reviewer, Quality Assurance
+- Reviewer, Code Reviewer, Security Reviewer, Architecture Reviewer, Quality
+  Assurance
 
 **SPARC Methodology (5 agents):**
+
 - Specification Analyst
 - Pseudocode Designer
 - System Architect
@@ -156,21 +170,25 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 - Integration Specialist
 
 **Coordination (12 agents):**
+
 - Hierarchical Coordinator, Mesh Coordinator, Adaptive Coordinator
 - Byzantine Coordinator, Raft Manager, Gossip Coordinator
 - Consensus Builder, CRDT Synchronizer, Quorum Manager
 - Swarm Memory Manager, Task Orchestrator, Smart Agent
 
 **Specialized (12 agents):**
+
 - DevOps Engineer, CI/CD Engineer, Security Analyst, Penetration Tester
 - ML Developer, Data Scientist, Performance Analyzer, Benchmarker
 - API Documentation, Technical Writer, System Architect, Cloud Architect
 
 **GitHub Integration (6 agents):**
+
 - PR Manager, Code Review Swarm, Issue Tracker
 - Release Manager, Workflow Automation, Repository Architect
 
 **Multi-Repo & Project (4 agents):**
+
 - Multi-Repo Swarm, Project Board Sync, Migration Planner, Production Validator
 
 ## 🔐 Security Features
@@ -187,6 +205,7 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 ## 📈 Monitoring & Observability
 
 ### CloudWatch Metrics
+
 - Agent invocation count
 - Token usage (input/output)
 - Error rate and latency
@@ -194,12 +213,14 @@ This directory contains comprehensive documentation for implementing Amazon Bedr
 - Knowledge base query performance
 
 ### X-Ray Tracing
+
 - End-to-end request tracing
 - Performance bottleneck identification
 - Dependency mapping
 - Distributed tracing across agents
 
 ### Custom Dashboards
+
 - Agent performance overview
 - Cost analysis and optimization
 - Error tracking and alerting
@@ -283,16 +304,19 @@ Available in `../../terraform/modules/`:
 ## 📞 Support & Resources
 
 ### Documentation
+
 - [AWS Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
 - [Bedrock Agents Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html)
 - [Claude Model Documentation](https://www.anthropic.com/claude)
 
 ### AWS Resources
+
 - [Bedrock Pricing Calculator](https://aws.amazon.com/bedrock/pricing/)
 - [Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
 - [EKS Best Practices](https://aws.github.io/aws-eks-best-practices/)
 
 ### Internal Resources
+
 - Main Repository: `../../`
 - Terraform Infrastructure: `../../terraform/`
 - AWS Infrastructure: `../../aws-infrastructure/`
@@ -309,9 +333,9 @@ Available in `../../terraform/modules/`:
 
 ## 📝 Document Revision History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2025-11-17 | Initial architecture documentation |
+| Version | Date       | Changes                            |
+| ------- | ---------- | ---------------------------------- |
+| 1.0     | 2025-11-17 | Initial architecture documentation |
 
 ---
 

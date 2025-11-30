@@ -1,12 +1,14 @@
 # ServiceNow API Integration Lambda Function
 
-Comprehensive AWS Lambda function for integrating Amazon Bedrock Agents with ServiceNow ITSM platform via REST API v2.
+Comprehensive AWS Lambda function for integrating Amazon Bedrock Agents with
+ServiceNow ITSM platform via REST API v2.
 
 ## Features
 
 ### Supported Actions
 
 #### Incident Management (7 actions)
+
 - `create-incident` - Create new incident
 - `update-incident` - Update existing incident
 - `resolve-incident` - Resolve incident with notes
@@ -16,6 +18,7 @@ Comprehensive AWS Lambda function for integrating Amazon Bedrock Agents with Ser
 - `add-comment` - Add customer comment
 
 #### Ticket Operations (5 actions)
+
 - `create-ticket` - Create generic ticket
 - `update-ticket` - Update ticket status
 - `close-ticket` - Close ticket with notes
@@ -23,6 +26,7 @@ Comprehensive AWS Lambda function for integrating Amazon Bedrock Agents with Ser
 - `add-work-notes` - Add internal work notes
 
 #### Change Management (5 actions)
+
 - `create-change-request` - Create change request
 - `update-change-request` - Update change details
 - `assess-change-risk` - Perform risk assessment
@@ -30,23 +34,27 @@ Comprehensive AWS Lambda function for integrating Amazon Bedrock Agents with Ser
 - `schedule-change` - Schedule change window
 
 #### Problem Management (4 actions)
+
 - `create-problem` - Create problem record
 - `link-incidents-to-problem` - Link related incidents
 - `update-problem` - Update problem details
 - `resolve-problem` - Resolve with root cause
 
 #### Knowledge Base (4 actions)
+
 - `search-knowledge` - Search KB articles
 - `create-kb-article` - Create new article
 - `update-kb-article` - Update existing article
 - `get-kb-article` - Get article by ID/number
 
 #### User/Group Operations (3 actions)
+
 - `get-user-info` - Retrieve user details
 - `get-group-info` - Retrieve group details
 - `assign-to-group` - Assign task to group
 
 #### Reporting (3 actions)
+
 - `get-incident-metrics` - Get incident statistics
 - `get-sla-status` - Check SLA compliance
 - `generate-report` - Generate custom reports
@@ -91,6 +99,7 @@ npm install
 Create a secret in AWS Secrets Manager with ServiceNow credentials:
 
 **For Basic Authentication:**
+
 ```json
 {
   "instance": "https://your-instance.service-now.com",
@@ -101,6 +110,7 @@ Create a secret in AWS Secrets Manager with ServiceNow credentials:
 ```
 
 **For OAuth Authentication:**
+
 ```json
 {
   "instance": "https://your-instance.service-now.com",
@@ -249,37 +259,42 @@ aws lambda create-function \
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
+| Variable                 | Description                 | Default                  |
+| ------------------------ | --------------------------- | ------------------------ |
 | `SERVICENOW_SECRET_NAME` | Secrets Manager secret name | `servicenow/credentials` |
-| `RATE_LIMIT_ENABLED` | Enable rate limiting | `true` |
-| `MAX_REQUESTS` | Max requests per window | `100` |
-| `WINDOW_MS` | Rate limit window (ms) | `60000` |
+| `RATE_LIMIT_ENABLED`     | Enable rate limiting        | `true`                   |
+| `MAX_REQUESTS`           | Max requests per window     | `100`                    |
+| `WINDOW_MS`              | Rate limit window (ms)      | `60000`                  |
 
 ## Features
 
 ### Authentication
+
 - **Basic Auth**: Username/password authentication
 - **OAuth 2.0**: Client credentials with automatic token refresh
 - Credentials stored securely in AWS Secrets Manager
 
 ### Rate Limiting
+
 - Token bucket algorithm
 - Configurable limits
 - Automatic request throttling
 
 ### Retry Logic
+
 - Exponential backoff
 - Configurable retry attempts
 - Jitter to prevent thundering herd
 
 ### Error Handling
+
 - Comprehensive error types
 - Detailed error messages
 - CloudWatch logging
 - Status code mapping
 
 ### Monitoring
+
 - CloudWatch Logs integration
 - Structured JSON logging
 - Operation tracking
@@ -288,16 +303,20 @@ aws lambda create-function \
 ## API Response Format
 
 **Success Response:**
+
 ```json
 {
   "success": true,
   "statusCode": 200,
   "message": "Operation completed successfully",
-  "data": { /* ServiceNow response data */ }
+  "data": {
+    /* ServiceNow response data */
+  }
 }
 ```
 
 **Error Response:**
+
 ```json
 {
   "success": false,
@@ -314,6 +333,7 @@ This integration uses ServiceNow REST API v2:
 - **Documentation**: https://developer.servicenow.com/dev.do
 
 ### Key Tables
+
 - `incident` - Incident management
 - `change_request` - Change management
 - `problem` - Problem management
@@ -332,9 +352,7 @@ The Lambda execution role needs:
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": "arn:aws:secretsmanager:region:account:secret:servicenow/*"
     },
     {
@@ -394,16 +412,19 @@ npm run lint:fix
 ### Common Issues
 
 1. **Authentication Failed**
+
    - Verify credentials in Secrets Manager
    - Check ServiceNow instance URL
    - Ensure user has required permissions
 
 2. **Rate Limit Exceeded**
+
    - Increase `MAX_REQUESTS` environment variable
    - Extend `WINDOW_MS` time window
    - Implement client-side throttling
 
 3. **Timeout Errors**
+
    - Increase Lambda timeout (default: 60s)
    - Check ServiceNow instance performance
    - Verify network connectivity
@@ -423,6 +444,7 @@ npm run lint:fix
 ## Security Best Practices
 
 ✅ **DO:**
+
 - Store credentials in Secrets Manager
 - Use IAM roles for Lambda execution
 - Enable CloudWatch Logs encryption
@@ -431,6 +453,7 @@ npm run lint:fix
 - Use HTTPS for ServiceNow connections
 
 ❌ **DON'T:**
+
 - Hardcode credentials
 - Expose sensitive data in logs
 - Disable SSL verification
@@ -443,6 +466,7 @@ MIT License - See LICENSE file for details
 ## Support
 
 For issues and questions:
+
 - GitHub Issues: [Your repository]
 - Documentation: [Your docs]
 - Email: [Your email]
@@ -457,6 +481,7 @@ For issues and questions:
 ## Changelog
 
 ### v1.0.0 (2025-01-17)
+
 - Initial release
 - 31 ServiceNow actions
 - OAuth and Basic Auth

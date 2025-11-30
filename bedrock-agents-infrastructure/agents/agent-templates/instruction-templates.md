@@ -1,8 +1,10 @@
 # Reusable Instruction Templates for Bedrock Agents
 
-This document contains reusable instruction templates that can be incorporated into agent configurations.
+This document contains reusable instruction templates that can be incorporated
+into agent configurations.
 
 ## Table of Contents
+
 1. [Code Quality Template](#code-quality-template)
 2. [Testing Template](#testing-template)
 3. [Security Template](#security-template)
@@ -67,41 +69,39 @@ testing_instructions: |
   - Public API surface: 90%+
 
   ### Testing Pyramid
-  ```
-  E2E Tests (10%)
-      ↑
-  Integration Tests (30%)
-      ↑
-  Unit Tests (60%)
-  ```
+```
 
-  ### Unit Testing
-  - Test one thing per test
-  - Follow AAA pattern (Arrange, Act, Assert)
-  - Use descriptive test names: `test_methodName_whenCondition_thenExpectedBehavior`
-  - Mock external dependencies
-  - Test edge cases and error conditions
-  - Keep tests independent and repeatable
+E2E Tests (10%) ↑ Integration Tests (30%) ↑ Unit Tests (60%)
 
-  ### Integration Testing
-  - Test component interactions
-  - Use real dependencies when possible
-  - Test data flow between modules
-  - Validate API contracts
-  - Test database operations
+```
 
-  ### Test Quality
-  - Tests should be fast (< 1s for unit tests)
-  - Tests should be deterministic (no flaky tests)
-  - Tests should be isolated (no shared state)
-  - Tests should be maintainable
-  - Use test factories/fixtures for test data
+### Unit Testing
+- Test one thing per test
+- Follow AAA pattern (Arrange, Act, Assert)
+- Use descriptive test names: `test_methodName_whenCondition_thenExpectedBehavior`
+- Mock external dependencies
+- Test edge cases and error conditions
+- Keep tests independent and repeatable
 
-  ### TDD Process (When Applicable)
-  1. Write failing test (Red)
-  2. Write minimal code to pass (Green)
-  3. Refactor while keeping tests green (Refactor)
-  4. Repeat
+### Integration Testing
+- Test component interactions
+- Use real dependencies when possible
+- Test data flow between modules
+- Validate API contracts
+- Test database operations
+
+### Test Quality
+- Tests should be fast (< 1s for unit tests)
+- Tests should be deterministic (no flaky tests)
+- Tests should be isolated (no shared state)
+- Tests should be maintainable
+- Use test factories/fixtures for test data
+
+### TDD Process (When Applicable)
+1. Write failing test (Red)
+2. Write minimal code to pass (Green)
+3. Refactor while keeping tests green (Refactor)
+4. Repeat
 ```
 
 ---
@@ -150,26 +150,26 @@ security_instructions: |
   - Audit secret access
 
   ### Security Headers
-  ```
-  Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
-  X-XSS-Protection: 1; mode=block
-  ```
+```
 
-  ### Dependency Security
-  - Regularly update dependencies
-  - Scan for known vulnerabilities (npm audit, Snyk)
-  - Use lock files (package-lock.json, Pipfile.lock)
-  - Review dependency licenses
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Content-Security-Policy: default-src 'self' X-Content-Type-Options: nosniff
+X-Frame-Options: DENY X-XSS-Protection: 1; mode=block
+
+```
+
+### Dependency Security
+- Regularly update dependencies
+- Scan for known vulnerabilities (npm audit, Snyk)
+- Use lock files (package-lock.json, Pipfile.lock)
+- Review dependency licenses
 ```
 
 ---
 
 ## Documentation Template
 
-```yaml
+````yaml
 documentation_instructions: |
   ## Documentation Standards
 
@@ -196,86 +196,103 @@ documentation_instructions: |
           >>> function_name("test", 42)
           {'result': 'success'}
       """
-  ```
+````
 
-  #### Class Documentation
-  ```python
-  class ClassName:
-      """
-      Brief description of the class purpose.
+#### Class Documentation
 
-      Attributes:
-          attribute1 (str): Description of attribute1
-          attribute2 (int): Description of attribute2
+```python
+class ClassName:
+    """
+    Brief description of the class purpose.
 
-      Example:
-          >>> obj = ClassName()
-          >>> obj.method()
-      """
-  ```
+    Attributes:
+        attribute1 (str): Description of attribute1
+        attribute2 (int): Description of attribute2
 
-  ### API Documentation
-  - Use OpenAPI/Swagger for REST APIs
-  - Document all endpoints, parameters, responses
-  - Include example requests and responses
-  - Document authentication requirements
-  - Document rate limits and quotas
-  - Provide error code reference
-
-  ### README Documentation
-  ```markdown
-  # Project Name
-
-  ## Overview
-  Brief description of the project
-
-  ## Features
-  - Feature 1
-  - Feature 2
-
-  ## Installation
-  Step-by-step installation instructions
-
-  ## Usage
-  Basic usage examples
-
-  ## API Reference
-  Link to API documentation
-
-  ## Configuration
-  Environment variables and configuration options
-
-  ## Contributing
-  How to contribute to the project
-
-  ## License
-  License information
-  ```
-
-  ### Architecture Decision Records (ADRs)
-  Document important decisions:
-  ```markdown
-  # ADR-001: [Decision Title]
-
-  Date: YYYY-MM-DD
-  Status: [Accepted/Rejected/Superseded]
-
-  ## Context
-  What is the issue we're facing?
-
-  ## Decision
-  What decision did we make?
-
-  ## Consequences
-  - Positive consequences
-  - Negative consequences
-  - Trade-offs
-
-  ## Alternatives Considered
-  - Alternative 1: [Why rejected]
-  - Alternative 2: [Why rejected]
-  ```
+    Example:
+        >>> obj = ClassName()
+        >>> obj.method()
+    """
 ```
+
+### API Documentation
+
+- Use OpenAPI/Swagger for REST APIs
+- Document all endpoints, parameters, responses
+- Include example requests and responses
+- Document authentication requirements
+- Document rate limits and quotas
+- Provide error code reference
+
+### README Documentation
+
+```markdown
+# Project Name
+
+## Overview
+
+Brief description of the project
+
+## Features
+
+- Feature 1
+- Feature 2
+
+## Installation
+
+Step-by-step installation instructions
+
+## Usage
+
+Basic usage examples
+
+## API Reference
+
+Link to API documentation
+
+## Configuration
+
+Environment variables and configuration options
+
+## Contributing
+
+How to contribute to the project
+
+## License
+
+License information
+```
+
+### Architecture Decision Records (ADRs)
+
+Document important decisions:
+
+```markdown
+# ADR-001: [Decision Title]
+
+Date: YYYY-MM-DD Status: [Accepted/Rejected/Superseded]
+
+## Context
+
+What is the issue we're facing?
+
+## Decision
+
+What decision did we make?
+
+## Consequences
+
+- Positive consequences
+- Negative consequences
+- Trade-offs
+
+## Alternatives Considered
+
+- Alternative 1: [Why rejected]
+- Alternative 2: [Why rejected]
+```
+
+````
 
 ---
 
@@ -316,77 +333,83 @@ error_handling_instructions: |
   class UnauthorizedError(ApplicationError):
       """Raised when user is not authorized"""
       pass
-  ```
+````
 
-  ### Error Responses (API)
-  ```json
-  {
-    "error": {
-      "code": "VALIDATION_ERROR",
-      "message": "Invalid input provided",
-      "details": {
-        "field": "email",
-        "reason": "Invalid email format"
-      },
-      "timestamp": "2024-01-01T00:00:00Z",
-      "requestId": "uuid"
-    }
+### Error Responses (API)
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input provided",
+    "details": {
+      "field": "email",
+      "reason": "Invalid email format"
+    },
+    "timestamp": "2024-01-01T00:00:00Z",
+    "requestId": "uuid"
   }
-  ```
-
-  ### Try-Catch Best Practices
-  ```python
-  try:
-      # Attempt operation
-      result = risky_operation()
-  except SpecificError as e:
-      # Handle specific error
-      logger.error(f"Specific error: {e}", exc_info=True)
-      # Take corrective action
-  except Exception as e:
-      # Catch unexpected errors
-      logger.error(f"Unexpected error: {e}", exc_info=True)
-      # Rethrow or handle gracefully
-      raise
-  finally:
-      # Always cleanup resources
-      cleanup_resources()
-  ```
-
-  ### Retry Logic
-  ```python
-  from tenacity import retry, stop_after_attempt, wait_exponential
-
-  @retry(
-      stop=stop_after_attempt(3),
-      wait=wait_exponential(multiplier=1, min=2, max=10)
-  )
-  def operation_with_retry():
-      # Operation that might fail transiently
-      pass
-  ```
-
-  ### Circuit Breaker Pattern
-  - Open circuit after N failures
-  - Half-open state for testing recovery
-  - Close circuit when service recovers
-  - Prevent cascading failures
-
-  ### Logging Best Practices
-  ```python
-  # Log with context
-  logger.error(
-      "Failed to process user request",
-      extra={
-          "user_id": user_id,
-          "operation": "update_profile",
-          "error_code": "DATABASE_ERROR",
-          "request_id": request_id
-      },
-      exc_info=True
-  )
-  ```
+}
 ```
+
+### Try-Catch Best Practices
+
+```python
+try:
+    # Attempt operation
+    result = risky_operation()
+except SpecificError as e:
+    # Handle specific error
+    logger.error(f"Specific error: {e}", exc_info=True)
+    # Take corrective action
+except Exception as e:
+    # Catch unexpected errors
+    logger.error(f"Unexpected error: {e}", exc_info=True)
+    # Rethrow or handle gracefully
+    raise
+finally:
+    # Always cleanup resources
+    cleanup_resources()
+```
+
+### Retry Logic
+
+```python
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10)
+)
+def operation_with_retry():
+    # Operation that might fail transiently
+    pass
+```
+
+### Circuit Breaker Pattern
+
+- Open circuit after N failures
+- Half-open state for testing recovery
+- Close circuit when service recovers
+- Prevent cascading failures
+
+### Logging Best Practices
+
+```python
+# Log with context
+logger.error(
+    "Failed to process user request",
+    extra={
+        "user_id": user_id,
+        "operation": "update_profile",
+        "error_code": "DATABASE_ERROR",
+        "request_id": request_id
+    },
+    exc_info=True
+)
+```
+
+````
 
 ---
 
@@ -423,86 +446,95 @@ performance_instructions: |
 
   -- Partial index for filtered queries
   CREATE INDEX idx_active_users ON users(email) WHERE active = true;
-  ```
+````
 
-  ### Caching Strategy
+### Caching Strategy
 
-  #### Cache Layers
-  ```
-  Client Cache (Browser)
-      ↓
-  CDN Cache
-      ↓
-  Application Cache (Redis)
-      ↓
-  Database Query Cache
-      ↓
-  Database
-  ```
+#### Cache Layers
 
-  #### Cache Patterns
-  - **Cache-Aside**: App checks cache, loads from DB if miss
-  - **Write-Through**: Write to cache and DB simultaneously
-  - **Write-Behind**: Write to cache, async write to DB
-  - **Refresh-Ahead**: Proactively refresh before expiration
-
-  #### TTL Guidelines
-  ```yaml
-  Static Content: 1 year
-  User Session: 1 hour
-  API Responses: 5-15 minutes
-  Database Queries: 1-5 minutes
-  Real-time Data: 10-30 seconds
-  ```
-
-  ### Code-Level Optimization
-
-  #### Algorithm Complexity
-  - Prefer O(1) or O(log n) over O(n) when possible
-  - Avoid O(n²) or higher for large datasets
-  - Use appropriate data structures
-    - Hash maps for O(1) lookup
-    - Binary search trees for sorted data
-    - Heaps for priority queues
-
-  #### Async/Parallel Processing
-  ```python
-  # Use async for I/O-bound operations
-  async def fetch_data():
-      results = await asyncio.gather(
-          fetch_from_api1(),
-          fetch_from_api2(),
-          fetch_from_api3()
-      )
-      return results
-
-  # Use multiprocessing for CPU-bound operations
-  from multiprocessing import Pool
-  with Pool(4) as p:
-      results = p.map(cpu_intensive_function, data)
-  ```
-
-  ### Resource Management
-  - Connection pooling (database, HTTP)
-  - Lazy loading for heavy resources
-  - Proper resource cleanup (close files, connections)
-  - Memory profiling to detect leaks
-  - Limit concurrent operations
-
-  ### API Performance
-  - Implement pagination (limit, offset or cursor-based)
-  - Support field filtering (GraphQL-style)
-  - Compress responses (gzip, brotli)
-  - Use HTTP/2 or HTTP/3
-  - Implement rate limiting
-
-  ### Monitoring & Profiling
-  - Track key metrics (response time, throughput, errors)
-  - Set up alerts for performance degradation
-  - Profile code to find bottlenecks
-  - Use APM tools (DataDog, New Relic)
-  - Implement distributed tracing
 ```
+Client Cache (Browser)
+    ↓
+CDN Cache
+    ↓
+Application Cache (Redis)
+    ↓
+Database Query Cache
+    ↓
+Database
+```
+
+#### Cache Patterns
+
+- **Cache-Aside**: App checks cache, loads from DB if miss
+- **Write-Through**: Write to cache and DB simultaneously
+- **Write-Behind**: Write to cache, async write to DB
+- **Refresh-Ahead**: Proactively refresh before expiration
+
+#### TTL Guidelines
+
+```yaml
+Static Content: 1 year
+User Session: 1 hour
+API Responses: 5-15 minutes
+Database Queries: 1-5 minutes
+Real-time Data: 10-30 seconds
+```
+
+### Code-Level Optimization
+
+#### Algorithm Complexity
+
+- Prefer O(1) or O(log n) over O(n) when possible
+- Avoid O(n²) or higher for large datasets
+- Use appropriate data structures
+  - Hash maps for O(1) lookup
+  - Binary search trees for sorted data
+  - Heaps for priority queues
+
+#### Async/Parallel Processing
+
+```python
+# Use async for I/O-bound operations
+async def fetch_data():
+    results = await asyncio.gather(
+        fetch_from_api1(),
+        fetch_from_api2(),
+        fetch_from_api3()
+    )
+    return results
+
+# Use multiprocessing for CPU-bound operations
+from multiprocessing import Pool
+with Pool(4) as p:
+    results = p.map(cpu_intensive_function, data)
+```
+
+### Resource Management
+
+- Connection pooling (database, HTTP)
+- Lazy loading for heavy resources
+- Proper resource cleanup (close files, connections)
+- Memory profiling to detect leaks
+- Limit concurrent operations
+
+### API Performance
+
+- Implement pagination (limit, offset or cursor-based)
+- Support field filtering (GraphQL-style)
+- Compress responses (gzip, brotli)
+- Use HTTP/2 or HTTP/3
+- Implement rate limiting
+
+### Monitoring & Profiling
+
+- Track key metrics (response time, throughput, errors)
+- Set up alerts for performance degradation
+- Profile code to find bottlenecks
+- Use APM tools (DataDog, New Relic)
+- Implement distributed tracing
+
+````
 
 ---
 
@@ -605,16 +637,18 @@ aws_best_practices_instructions: |
     Application: [app-name]
     Version: [version]
     Backup: [true, false]
-  ```
+````
 
-  ### Security Best Practices
-  - Enable AWS Config for compliance
-  - Use AWS Security Hub
-  - Implement AWS WAF for web applications
-  - Use Secrets Manager for credentials
-  - Enable GuardDuty for threat detection
-  - Regular security audits
-```
+### Security Best Practices
+
+- Enable AWS Config for compliance
+- Use AWS Security Hub
+- Implement AWS WAF for web applications
+- Use Secrets Manager for credentials
+- Enable GuardDuty for threat detection
+- Regular security audits
+
+````
 
 ---
 
@@ -655,9 +689,10 @@ instruction: |
   # Add agent-specific instructions
   ## Backend-Specific Guidelines
   [Your custom content]
-```
+````
 
 This modular approach allows you to:
+
 - Maintain consistency across agents
 - Reuse proven instruction patterns
 - Easily update common guidelines

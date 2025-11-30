@@ -1,13 +1,13 @@
 # KubeLinter Integration
 
-**Date:** 2025-11-05
-**Status:** ✅ Complete
+**Date:** 2025-11-05 **Status:** ✅ Complete
 
 ---
 
 ## Overview
 
-KubeLinter is integrated into pre-commit hooks to validate Kubernetes manifests for security and best practices.
+KubeLinter is integrated into pre-commit hooks to validate Kubernetes manifests
+for security and best practices.
 
 ---
 
@@ -16,6 +16,7 @@ KubeLinter is integrated into pre-commit hooks to validate Kubernetes manifests 
 KubeLinter analyzes Kubernetes YAML files and checks for:
 
 ### Security Issues ⚠️
+
 - Privileged containers
 - Host network/PID/IPC access
 - Unsafe system calls
@@ -23,6 +24,7 @@ KubeLinter analyzes Kubernetes YAML files and checks for:
 - Missing security contexts
 
 ### Best Practices ✅
+
 - Resource limits (CPU/memory)
 - Liveness/readiness probes
 - Read-only root filesystems
@@ -30,6 +32,7 @@ KubeLinter analyzes Kubernetes YAML files and checks for:
 - Anti-affinity rules
 
 ### Configuration Issues 🔧
+
 - Dangling services
 - Deprecated API versions
 - Mismatching selectors
@@ -109,34 +112,36 @@ checks:
 
   # Exclude checks for pre-commit
   exclude:
-    - "non-existent-service-account"  # May not exist yet
-    - "liveness-port"                 # Example files
-    - "readiness-port"                # Example files
-    - "required-annotation-email"     # Optional metadata
-    - "required-label-owner"          # Optional metadata
+    - 'non-existent-service-account' # May not exist yet
+    - 'liveness-port' # Example files
+    - 'readiness-port' # Example files
+    - 'required-annotation-email' # Optional metadata
+    - 'required-label-owner' # Optional metadata
 
   # Keep security checks enabled
   include:
-    - "privileged-container"
-    - "host-network"
-    - "docker-sock"
-    - "sensitive-host-mounts"
+    - 'privileged-container'
+    - 'host-network'
+    - 'docker-sock'
+    - 'sensitive-host-mounts'
     # ... more security checks
 
 # Ignore paths
 ignorePaths:
-  - "k8s/examples/"
-  - "k8s/templates/"
+  - 'k8s/examples/'
+  - 'k8s/templates/'
 ```
 
 ### Why Exclude Some Checks?
 
 **Pre-Commit Philosophy:**
+
 - Catch critical issues (security, syntax)
 - Don't block on optional metadata
 - Allow WIP commits with missing pieces
 
 **CI Pipeline (Full Validation):**
+
 - Runs all checks (no exclusions)
 - Enforces complete configuration
 - Blocks deployment if issues found
@@ -248,6 +253,7 @@ spec:
 ```
 
 **Runs:**
+
 - Automatically on commit
 - Only on changed Kubernetes files
 - Uses lenient config (excludes optional checks)
@@ -264,6 +270,7 @@ spec:
 ```
 
 **Runs:**
+
 - On every PR and push
 - Full validation (all checks)
 - Blocks merge if critical issues found
@@ -307,7 +314,7 @@ Add to `.kube-linter.yaml`:
 ```yaml
 checks:
   exclude:
-    - "check-name-here"
+    - 'check-name-here'
 ```
 
 ### Inline Ignore
@@ -320,7 +327,7 @@ kind: Deployment
 metadata:
   name: my-app
   annotations:
-    ignore-check.kube-linter.io/no-read-only-root-fs: "needs write access"
+    ignore-check.kube-linter.io/no-read-only-root-fs: 'needs write access'
 spec:
   # ...
 ```
@@ -331,12 +338,12 @@ spec:
 
 ### Typical Run Times
 
-| Scope | Files | Time |
-|-------|-------|------|
-| Single file | 1 | <1s |
-| Small project | 5-10 | 1-2s |
-| This project | ~30 | 2-3s |
-| Large project | 100+ | 5-10s |
+| Scope         | Files | Time  |
+| ------------- | ----- | ----- |
+| Single file   | 1     | <1s   |
+| Small project | 5-10  | 1-2s  |
+| This project  | ~30   | 2-3s  |
+| Large project | 100+  | 5-10s |
 
 ### Optimization
 
@@ -377,15 +384,16 @@ make pre-commit-k8s
 
 ## Comparison with Other Tools
 
-| Tool | Speed | Focus | Coverage |
-|------|-------|-------|----------|
-| **KubeLinter** | Fast | Security + Best Practices | Excellent |
-| kubeconform | Faster | Schema validation | Good |
-| kubeval | Fast | Schema validation | Good |
-| Polaris | Slow | Comprehensive audit | Excellent |
-| OPA/Gatekeeper | Medium | Policy enforcement | Flexible |
+| Tool           | Speed  | Focus                     | Coverage  |
+| -------------- | ------ | ------------------------- | --------- |
+| **KubeLinter** | Fast   | Security + Best Practices | Excellent |
+| kubeconform    | Faster | Schema validation         | Good      |
+| kubeval        | Fast   | Schema validation         | Good      |
+| Polaris        | Slow   | Comprehensive audit       | Excellent |
+| OPA/Gatekeeper | Medium | Policy enforcement        | Flexible  |
 
 **Why KubeLinter?**
+
 - Fast enough for pre-commit
 - Good balance of checks
 - Easy to configure
@@ -427,58 +435,58 @@ spec:
       serviceAccountName: api-gateway-sa
 
       containers:
-      - name: api
-        image: api-gateway:v1.0.0
+        - name: api
+          image: api-gateway:v1.0.0
 
-        # Resource limits (required)
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
+          # Resource limits (required)
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '100m'
+            limits:
+              memory: '256Mi'
+              cpu: '200m'
 
-        # Security context for container
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-            - ALL
+          # Security context for container
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
 
-        # Liveness probe (required)
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
+          # Liveness probe (required)
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
 
-        # Readiness probe (required)
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          # Readiness probe (required)
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
 
-        ports:
-        - containerPort: 8080
-          name: http
+          ports:
+            - containerPort: 8080
+              name: http
 
-        # Read-only volumes
-        volumeMounts:
-        - name: tmp
-          mountPath: /tmp
-        - name: cache
-          mountPath: /app/cache
+          # Read-only volumes
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /app/cache
 
       volumes:
-      - name: tmp
-        emptyDir: {}
-      - name: cache
-        emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
 ```
 
 **Passes all checks:** ✅
@@ -492,29 +500,29 @@ kind: Pod
 metadata:
   name: bad-example
 spec:
-  hostNetwork: true          # ❌ host-network
-  hostPID: true              # ❌ host-pid
+  hostNetwork: true # ❌ host-network
+  hostPID: true # ❌ host-pid
 
   containers:
-  - name: app
-    image: app:latest
-    # ❌ Missing: resources
-    # ❌ Missing: security context
-    # ❌ Missing: liveness probe
-    # ❌ Missing: readiness probe
+    - name: app
+      image: app:latest
+      # ❌ Missing: resources
+      # ❌ Missing: security context
+      # ❌ Missing: liveness probe
+      # ❌ Missing: readiness probe
 
-    securityContext:
-      privileged: true       # ❌ privileged-container
-      runAsUser: 0           # ❌ run-as-root
+      securityContext:
+        privileged: true # ❌ privileged-container
+        runAsUser: 0 # ❌ run-as-root
 
-    volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock  # ❌ docker-sock
+      volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock # ❌ docker-sock
 
   volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock
 ```
 
 **Issues found:** 7+ critical errors
@@ -526,6 +534,7 @@ spec:
 ### Issue: "kube-linter: command not found"
 
 **Solution:**
+
 ```bash
 # Install kube-linter
 brew install kube-linter
@@ -539,6 +548,7 @@ curl -LO https://github.com/stackrox/kube-linter/releases/latest/download/kube-l
 **Cause:** YAML file has invalid Kubernetes resources
 
 **Solution:**
+
 ```bash
 # Validate YAML syntax first
 yamllint k8s/
@@ -571,11 +581,13 @@ kube-linter lint k8s/
 ## Resources
 
 ### Documentation
+
 - **KubeLinter:** https://docs.kubelinter.io/
 - **GitHub:** https://github.com/stackrox/kube-linter
 - **Checks Reference:** https://docs.kubelinter.io/#/generated/checks
 
 ### Local Documentation
+
 - **Pre-Commit Setup:** `.github/PRE_COMMIT_SETUP.md`
 - **Quick Start:** `PRE_COMMIT_QUICKSTART.md`
 
@@ -586,12 +598,14 @@ kube-linter lint k8s/
 ✅ **KubeLinter Integrated Successfully**
 
 **What it does:**
+
 - Validates Kubernetes manifests
 - Catches security issues
 - Enforces best practices
 - Runs automatically on commit
 
 **How to use:**
+
 ```bash
 # Automatic (on commit)
 git commit -m "update k8s"
@@ -604,11 +618,13 @@ kube-linter lint k8s/
 ```
 
 **Configuration:**
+
 - Config: `.kube-linter.yaml`
 - Pre-commit: Lenient (catches critical issues)
 - CI: Strict (enforces all best practices)
 
 **Benefits:**
+
 - Catches issues before deployment
 - Improves security posture
 - Enforces consistency
@@ -616,6 +632,5 @@ kube-linter lint k8s/
 
 ---
 
-**Integration Date:** 2025-11-05
-**Status:** ✅ Production-ready
-**Version:** 0.7.6 (via Homebrew)
+**Integration Date:** 2025-11-05 **Status:** ✅ Production-ready **Version:**
+0.7.6 (via Homebrew)

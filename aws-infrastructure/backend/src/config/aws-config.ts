@@ -60,7 +60,7 @@ export const awsConfig = {
 
 // Validate required config
 const requiredEnvVars = ['AWS_REGION', 'AWS_ACCOUNT_ID', 'RDS_HOST', 'REDIS_HOST'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
   throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);

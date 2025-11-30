@@ -17,7 +17,8 @@
 
 ### Overview
 
-The IAM architecture implements zero trust principles with multiple layers of access control:
+The IAM architecture implements zero trust principles with multiple layers of
+access control:
 
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -76,12 +77,15 @@ The IAM architecture implements zero trust principles with multiple layers of ac
 ### Lambda Execution Role
 
 #### Purpose
+
 Lambda functions need permissions to:
+
 - Write logs to CloudWatch
 - Access other AWS services (RDS, DynamoDB, Bedrock, etc.)
 - Assume other roles (if needed)
 
 #### Policy Structure
+
 ```json
 {
   "Version": "2012-10-17",
@@ -109,28 +113,19 @@ Lambda functions need permissions to:
     {
       "Sid": "DatabaseAccess",
       "Effect": "Allow",
-      "Action": [
-        "dynamodb:GetItem",
-        "dynamodb:Query",
-        "dynamodb:BatchGetItem"
-      ],
+      "Action": ["dynamodb:GetItem", "dynamodb:Query", "dynamodb:BatchGetItem"],
       "Resource": "arn:aws:dynamodb:REGION:ACCOUNT:table/agent-*"
     },
     {
       "Sid": "SecretsAccess",
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:bedrock/*"
     },
     {
       "Sid": "KMSDecrypt",
       "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt",
-        "kms:GenerateDataKey"
-      ],
+      "Action": ["kms:Decrypt", "kms:GenerateDataKey"],
       "Resource": "arn:aws:kms:REGION:ACCOUNT:key/*",
       "Condition": {
         "StringEquals": {
@@ -143,6 +138,7 @@ Lambda functions need permissions to:
 ```
 
 #### Trust Relationship
+
 ```json
 {
   "Version": "2012-10-17",
@@ -161,13 +157,16 @@ Lambda functions need permissions to:
 ### ECS Task Execution Role
 
 #### Purpose
+
 ECS container runtime needs permissions to:
+
 - Pull images from ECR
 - Access CloudWatch logs
 - Access Secrets Manager for sensitive data
 - KMS decryption for encrypted data
 
 #### Policy Structure
+
 ```json
 {
   "Version": "2012-10-17",
@@ -185,18 +184,13 @@ ECS container runtime needs permissions to:
     {
       "Sid": "CloudWatchLogs",
       "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
+      "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
       "Resource": "arn:aws:logs:REGION:ACCOUNT:log-group:/ecs/*"
     },
     {
       "Sid": "SecretsAccess",
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:ecs/*"
     }
   ]
@@ -206,13 +200,16 @@ ECS container runtime needs permissions to:
 ### ECS Task Role
 
 #### Purpose
+
 Container application needs permissions to:
+
 - Access Bedrock API
 - Read/write to databases
 - Access object storage
 - Invoke other services
 
 #### Policy Structure
+
 ```json
 {
   "Version": "2012-10-17",
@@ -240,10 +237,7 @@ Container application needs permissions to:
     {
       "Sid": "S3Access",
       "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject"
-      ],
+      "Action": ["s3:GetObject", "s3:PutObject"],
       "Resource": "arn:aws:s3:::bedrock-agents-*/*"
     }
   ]
@@ -253,12 +247,15 @@ Container application needs permissions to:
 ### API Gateway Execution Role
 
 #### Purpose
+
 API Gateway needs permissions to:
+
 - Write logs to CloudWatch
 - Call Lambda functions
 - Access other services
 
 #### Policy Structure
+
 ```json
 {
   "Version": "2012-10-17",
@@ -286,6 +283,7 @@ API Gateway needs permissions to:
 ### Principle Definition
 
 Least privilege means:
+
 - Grant minimum permissions needed to perform job
 - Deny everything not explicitly allowed
 - Use specific resource ARNs, not wildcards
@@ -301,10 +299,7 @@ Least privilege means:
     {
       "Sid": "DescriptiveName",
       "Effect": "Allow",
-      "Action": [
-        "service:Action1",
-        "service:Action2"
-      ],
+      "Action": ["service:Action1", "service:Action2"],
       "Resource": "arn:aws:service:REGION:ACCOUNT:resourcetype/resource-name",
       "Condition": {
         "StringEquals": {
@@ -325,6 +320,7 @@ Least privilege means:
 ### Resource-Level Specificity
 
 #### Bad: Overly Permissive
+
 ```json
 {
   "Effect": "Allow",
@@ -334,13 +330,11 @@ Least privilege means:
 ```
 
 #### Good: Specific Resources
+
 ```json
 {
   "Effect": "Allow",
-  "Action": [
-    "dynamodb:GetItem",
-    "dynamodb:Query"
-  ],
+  "Action": ["dynamodb:GetItem", "dynamodb:Query"],
   "Resource": "arn:aws:dynamodb:us-east-1:123456789:table/agent-state"
 }
 ```
@@ -348,6 +342,7 @@ Least privilege means:
 ### Action-Level Specificity
 
 #### Bad: Broad Actions
+
 ```json
 {
   "Effect": "Allow",
@@ -357,13 +352,11 @@ Least privilege means:
 ```
 
 #### Good: Specific Actions
+
 ```json
 {
   "Effect": "Allow",
-  "Action": [
-    "s3:GetObject",
-    "s3:PutObject"
-  ],
+  "Action": ["s3:GetObject", "s3:PutObject"],
   "Resource": "arn:aws:s3:::bedrock-agents/*/data/*"
 }
 ```
@@ -371,6 +364,7 @@ Least privilege means:
 ### Condition-Based Restrictions
 
 #### IP Restriction
+
 ```json
 {
   "Effect": "Allow",
@@ -385,6 +379,7 @@ Least privilege means:
 ```
 
 #### Time-Based Restriction
+
 ```json
 {
   "Effect": "Allow",
@@ -402,13 +397,11 @@ Least privilege means:
 ```
 
 #### MFA Requirement
+
 ```json
 {
   "Effect": "Allow",
-  "Action": [
-    "iam:DeleteUser",
-    "iam:PutUserPolicy"
-  ],
+  "Action": ["iam:DeleteUser", "iam:PutUserPolicy"],
   "Resource": "arn:aws:iam::ACCOUNT:user/*",
   "Condition": {
     "Bool": {
@@ -447,6 +440,7 @@ Security Admin         Operations Admin    Development Lead  Audit Role
 ### Predefined Role Set
 
 #### 1. Bedrock Agents Coordinator
+
 ```
 Permissions:
 - bedrock:InvokeModel
@@ -463,6 +457,7 @@ Trust: Lambda service
 ```
 
 #### 2. Bedrock Agents Executor
+
 ```
 Permissions:
 - bedrock:InvokeModel
@@ -481,6 +476,7 @@ Trust: Lambda, ECS services
 ```
 
 #### 3. Knowledge Processor
+
 ```
 Permissions:
 - s3:GetObject
@@ -495,6 +491,7 @@ Trust: Lambda service
 ```
 
 #### 4. Development Team
+
 ```
 Permissions:
 - lambda:CreateFunction
@@ -512,6 +509,7 @@ Restrictions:
 ```
 
 #### 5. Operations Team
+
 ```
 Permissions:
 - cloudwatch:*
@@ -529,6 +527,7 @@ Restrictions:
 ```
 
 #### 6. Security Team
+
 ```
 Permissions:
 - iam:*
@@ -574,6 +573,7 @@ Result: LEAST RESTRICTIVE of all policies
 ### Recommended SCPs
 
 #### 1. Prevent Disabling Security Controls
+
 ```json
 {
   "Version": "2012-10-17",
@@ -600,10 +600,7 @@ Result: LEAST RESTRICTIVE of all policies
     {
       "Sid": "PreventModifyingConfigRules",
       "Effect": "Deny",
-      "Action": [
-        "config:DeleteConfigRule",
-        "config:StopConfigurationRecorder"
-      ],
+      "Action": ["config:DeleteConfigRule", "config:StopConfigurationRecorder"],
       "Resource": "*"
     }
   ]
@@ -611,6 +608,7 @@ Result: LEAST RESTRICTIVE of all policies
 ```
 
 #### 2. Restrict Region Usage
+
 ```json
 {
   "Version": "2012-10-17",
@@ -622,11 +620,7 @@ Result: LEAST RESTRICTIVE of all policies
       "Resource": "*",
       "Condition": {
         "StringNotEquals": {
-          "aws:RequestedRegion": [
-            "us-east-1",
-            "us-west-2",
-            "eu-west-1"
-          ]
+          "aws:RequestedRegion": ["us-east-1", "us-west-2", "eu-west-1"]
         }
       }
     }
@@ -635,6 +629,7 @@ Result: LEAST RESTRICTIVE of all policies
 ```
 
 #### 3. Prevent Public Access to Data
+
 ```json
 {
   "Version": "2012-10-17",
@@ -673,6 +668,7 @@ Result: LEAST RESTRICTIVE of all policies
 ### Boundary Purpose
 
 Permission boundaries define maximum permissions a role can have:
+
 - Role's identity-based policy cannot exceed boundary
 - AND logic with role policies
 - Prevents accidental over-permission
@@ -721,6 +717,7 @@ Permission boundaries define maximum permissions a role can have:
 ### Boundary Application
 
 #### For Development Team
+
 ```json
 {
   "Version": "2012-10-17",
@@ -738,13 +735,7 @@ Permission boundaries define maximum permissions a role can have:
     },
     {
       "Effect": "Deny",
-      "Action": [
-        "iam:*",
-        "kms:*",
-        "secretsmanager:*",
-        "ec2:*",
-        "rds:*"
-      ],
+      "Action": ["iam:*", "kms:*", "secretsmanager:*", "ec2:*", "rds:*"],
       "Resource": "*"
     }
   ]
@@ -754,6 +745,7 @@ Permission boundaries define maximum permissions a role can have:
 ## Cross-Account Access
 
 ### Use Cases
+
 - Multi-account organization
 - Customer tenants (if multi-tenant)
 - Disaster recovery failover
@@ -773,6 +765,7 @@ Account A (Production)          Account B (Disaster Recovery)
 ### Trust Relationship for Cross-Account
 
 #### In Account A (Trusted Account)
+
 ```json
 {
   "Version": "2012-10-17",
@@ -794,6 +787,7 @@ Account A (Production)          Account B (Disaster Recovery)
 ```
 
 #### In Account B (Principal Account)
+
 ```json
 {
   "Version": "2012-10-17",
@@ -830,17 +824,21 @@ Step 4: Audit trail shows Account A assumed role and made calls
 ### Human User Credentials
 
 #### Best Practices
+
 1. **No long-lived API keys**
+
    - Use temporary credentials via IAM roles
    - If keys needed, rotate every 90 days
    - Delete old keys immediately
 
 2. **MFA for all users**
+
    - Virtual MFA device (authenticator app)
    - Hardware security key (preferred)
    - U2F USB key (highest security)
 
 3. **SSH Key Management**
+
    - Store in AWS Systems Manager Session Manager
    - Avoid storing locally when possible
    - Use certificate-based SSH (short-lived)
@@ -852,6 +850,7 @@ Step 4: Audit trail shows Account A assumed role and made calls
    - Session timeout (1 hour idle)
 
 #### Implementation
+
 ```
 User Access Flow:
 
@@ -869,12 +868,14 @@ AWS SSO (Okta/AzureAD)
 ### Service Credentials
 
 #### Lambda/ECS Service Credentials
+
 - Use IAM roles (not API keys)
 - No manual credential management
 - Automatic rotation (credentials valid ~15 minutes)
 - CloudTrail logs include role ARN
 
 #### API Keys for External Consumers
+
 ```
 Management Process:
 
@@ -894,6 +895,7 @@ Rotation Process:
 ### Database Credentials
 
 #### Managed by Secrets Manager
+
 ```
 Rotation Procedure:
 
@@ -914,6 +916,7 @@ Rotation Schedule: Every 30 days
 #### Process (1 month duration)
 
 **Week 1-2: Data Collection**
+
 ```
 Gather:
 - All IAM users and roles
@@ -924,6 +927,7 @@ Gather:
 ```
 
 **Week 2-3: Management Review**
+
 ```
 Managers review:
 - Team members' access
@@ -938,6 +942,7 @@ Managers certify:
 ```
 
 **Week 4: Remediation**
+
 ```
 Security team:
 - Revoke unnecessary access
@@ -949,6 +954,7 @@ Security team:
 ### Annual Access Certification
 
 #### Comprehensive Review
+
 ```
 Scope: All IAM users and service roles
 
@@ -969,6 +975,7 @@ Output:
 ### Audit Procedures
 
 #### CloudTrail Analysis
+
 ```
 Reviews:
 - New user/role creation
@@ -979,6 +986,7 @@ Reviews:
 ```
 
 #### Config Rules
+
 ```
 Continuously monitors:
 - iam-user-mfa-enabled
@@ -989,6 +997,7 @@ Continuously monitors:
 ```
 
 #### GuardDuty IAM Findings
+
 ```
 Detects:
 - Unusual assume role activity
@@ -1000,36 +1009,42 @@ Detects:
 ## Best Practices
 
 ### 1. Principal of Least Privilege
+
 - Grant minimum permissions needed
 - Deny everything else by default
 - Use specific resource ARNs
 - Regular audit and cleanup
 
 ### 2. Segregation of Duties
+
 - Different roles for different functions
 - No "super admin" for single person
 - Require multiple approvals for sensitive actions
 - Cross-account separation for environments
 
 ### 3. Regular Access Reviews
+
 - Quarterly reviews mandatory
 - Remove unused roles/policies
 - Update documentation
 - Enforce least privilege
 
 ### 4. Audit and Monitoring
+
 - CloudTrail for all API calls
 - Config Rules for policy compliance
 - GuardDuty for threat detection
 - Regular compliance assessments
 
 ### 5. Credential Rotation
+
 - Service roles: Automatic (AWS managed)
 - Human users: MFA always enabled
 - API keys: Rotate every 90 days
 - Database passwords: Every 30 days
 
 ### 6. Documentation
+
 - Maintain role inventory
 - Document permission justification
 - Audit trail of changes
@@ -1037,6 +1052,5 @@ Detects:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Next Review**: May 2025
+**Document Version**: 1.0 **Last Updated**: November 2024 **Next Review**: May
+2025

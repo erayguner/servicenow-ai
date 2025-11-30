@@ -8,7 +8,7 @@ import {
   MergeStatusOptions,
   MergeStatus,
   UpdatePROptions,
-  GitHubAPIResponse
+  GitHubAPIResponse,
 } from './types';
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -20,7 +20,8 @@ export async function createPullRequest(
   token: string,
   options: CreatePROptions
 ): Promise<PullRequest> {
-  const { owner, repo, title, description, headBranch, baseBranch, draft, labels, reviewers } = options;
+  const { owner, repo, title, description, headBranch, baseBranch, draft, labels, reviewers } =
+    options;
 
   console.log(`Creating PR: ${owner}/${repo} from ${headBranch} to ${baseBranch}`);
 
@@ -30,7 +31,7 @@ export async function createPullRequest(
     body: description,
     head: headBranch,
     base: baseBranch,
-    draft
+    draft,
   });
 
   const prNumber = prResponse.data.number;
@@ -38,7 +39,7 @@ export async function createPullRequest(
   // Add labels if provided
   if (labels && labels.length > 0) {
     await makeGitHubRequest(token, 'POST', `/repos/${owner}/${repo}/issues/${prNumber}/labels`, {
-      labels
+      labels,
     });
   }
 
@@ -49,7 +50,7 @@ export async function createPullRequest(
       'POST',
       `/repos/${owner}/${repo}/pulls/${prNumber}/requested_reviewers`,
       {
-        reviewers
+        reviewers,
       }
     );
   }
@@ -71,20 +72,17 @@ export async function createPullRequest(
       login: prResponse.data.user.login,
       id: prResponse.data.user.id,
       avatarUrl: prResponse.data.user.avatar_url,
-      url: prResponse.data.user.url
+      url: prResponse.data.user.url,
     },
     reviewers: [],
-    labels: []
+    labels: [],
   };
 }
 
 /**
  * Manage issues (create, update, close, comment)
  */
-export async function manageIssue(
-  token: string,
-  options: ManageIssueOptions
-): Promise<Issue> {
+export async function manageIssue(token: string, options: ManageIssueOptions): Promise<Issue> {
   const { owner, repo, operation, issueNumber, title, body, labels, assignees, state } = options;
 
   let response: GitHubAPIResponse<any>;
@@ -95,7 +93,7 @@ export async function manageIssue(
         title,
         body,
         labels,
-        assignees
+        assignees,
       });
       break;
 
@@ -110,7 +108,7 @@ export async function manageIssue(
           body,
           labels,
           assignees,
-          state
+          state,
         }
       );
       break;
@@ -122,7 +120,7 @@ export async function manageIssue(
         'PATCH',
         `/repos/${owner}/${repo}/issues/${issueNumber}`,
         {
-          state: 'closed'
+          state: 'closed',
         }
       );
       break;
@@ -134,7 +132,7 @@ export async function manageIssue(
         'POST',
         `/repos/${owner}/${repo}/issues/${issueNumber}/comments`,
         {
-          body
+          body,
         }
       );
       // Get the updated issue
@@ -152,7 +150,7 @@ export async function manageIssue(
         'POST',
         `/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
         {
-          labels
+          labels,
         }
       );
       response = await makeGitHubRequest(
@@ -182,9 +180,9 @@ export async function manageIssue(
       login: response.data.user.login,
       id: response.data.user.id,
       avatarUrl: response.data.user.avatar_url,
-      url: response.data.user.url
+      url: response.data.user.url,
     },
-    comments: response.data.comments || 0
+    comments: response.data.comments || 0,
   };
 }
 
@@ -201,19 +199,19 @@ export async function performCodeReview(
 
   const reviewData: any = {
     event: reviewType,
-    body
+    body,
   };
 
   // Add inline comments if provided
   if (comments && comments.length > 0) {
-    reviewData.comments = comments.map(comment => ({
+    reviewData.comments = comments.map((comment) => ({
       path: comment.path,
       position: comment.position,
       body: comment.body,
       line: comment.line,
       side: comment.side || 'RIGHT',
       start_line: comment.startLine,
-      start_side: comment.startSide
+      start_side: comment.startSide,
     }));
   }
 
@@ -236,9 +234,9 @@ export async function performCodeReview(
       login: response.data.user.login,
       id: response.data.user.id,
       avatarUrl: response.data.user.avatar_url,
-      url: response.data.user.url
+      url: response.data.user.url,
     },
-    comments: comments || []
+    comments: comments || [],
   };
 }
 
@@ -282,7 +280,7 @@ export async function getMergeStatus(
     passed: checks.filter((c: any) => c.conclusion === 'success').length,
     failed: checks.filter((c: any) => c.conclusion === 'failure').length,
     pending: checks.filter((c: any) => c.status === 'in_progress' || c.status === 'queued').length,
-    conclusion: determineChecksConclusion(checks)
+    conclusion: determineChecksConclusion(checks),
   };
 
   const reviewStatus = {
@@ -291,7 +289,7 @@ export async function getMergeStatus(
     changesRequested: reviews.filter((r: any) => r.state === 'CHANGES_REQUESTED').length,
     commented: reviews.filter((r: any) => r.state === 'COMMENTED').length,
     requiresReview: true,
-    minimumRequired: 1
+    minimumRequired: 1,
   };
 
   return {
@@ -308,8 +306,8 @@ export async function getMergeStatus(
       name: check.name,
       status: check.conclusion || check.status,
       required: true,
-      description: check.output?.summary
-    }))
+      description: check.output?.summary,
+    })),
   };
 }
 
@@ -340,7 +338,7 @@ export async function updatePRStatus(
   // Update labels if provided
   if (labels) {
     await makeGitHubRequest(token, 'PUT', `/repos/${owner}/${repo}/issues/${prNumber}/labels`, {
-      labels
+      labels,
     });
   }
 
@@ -361,10 +359,10 @@ export async function updatePRStatus(
       login: response.data.user.login,
       id: response.data.user.id,
       avatarUrl: response.data.user.avatar_url,
-      url: response.data.user.url
+      url: response.data.user.url,
     },
     reviewers: [],
-    labels: []
+    labels: [],
   };
 }
 
@@ -380,15 +378,15 @@ async function makeGitHubRequest(
   const url = `${GITHUB_API_BASE}${path}`;
 
   const headers: Record<string, string> = {
-    'Authorization': `Bearer ${token}`,
-    'Accept': 'application/vnd.github.v3+json',
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github.v3+json',
     'Content-Type': 'application/json',
-    'User-Agent': 'Bedrock-Agent-GitHub-Integration'
+    'User-Agent': 'Bedrock-Agent-GitHub-Integration',
   };
 
   const options: RequestInit = {
     method,
-    headers
+    headers,
   };
 
   if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
@@ -400,7 +398,7 @@ async function makeGitHubRequest(
   const response = await fetch(url, options);
 
   if (!response.ok) {
-    const error = await response.json() as any;
+    const error = (await response.json()) as any;
     throw new Error(`GitHub API Error: ${error.message || response.statusText}`);
   }
 
@@ -411,7 +409,7 @@ async function makeGitHubRequest(
     limit: parseInt(response.headers.get('X-RateLimit-Limit') || '5000', 10),
     remaining: parseInt(response.headers.get('X-RateLimit-Remaining') || '5000', 10),
     reset: parseInt(response.headers.get('X-RateLimit-Reset') || '0', 10),
-    used: parseInt(response.headers.get('X-RateLimit-Used') || '0', 10)
+    used: parseInt(response.headers.get('X-RateLimit-Used') || '0', 10),
   };
 
   const responseHeaders: Record<string, string> = {};
@@ -423,7 +421,7 @@ async function makeGitHubRequest(
     data,
     status: response.status,
     headers: responseHeaders,
-    rateLimit
+    rateLimit,
   };
 }
 
@@ -433,7 +431,8 @@ async function makeGitHubRequest(
 function determineChecksConclusion(checks: any[]): 'success' | 'failure' | 'neutral' | 'pending' {
   if (checks.length === 0) return 'neutral';
   if (checks.some((c: any) => c.conclusion === 'failure')) return 'failure';
-  if (checks.some((c: any) => c.status === 'in_progress' || c.status === 'queued')) return 'pending';
+  if (checks.some((c: any) => c.status === 'in_progress' || c.status === 'queued'))
+    return 'pending';
   if (checks.every((c: any) => c.conclusion === 'success')) return 'success';
   return 'neutral';
 }
@@ -455,7 +454,7 @@ export function parsePRUrl(url: string): { owner: string; repo: string; prNumber
   return {
     owner: match[1],
     repo: match[2],
-    prNumber: parseInt(match[3], 10)
+    prNumber: parseInt(match[3], 10),
   };
 }
 

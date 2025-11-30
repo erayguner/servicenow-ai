@@ -1,11 +1,13 @@
 # Security Access Analyzer
 
-Automated IAM access analysis for detecting overly permissive policies and generating least-privilege recommendations.
+Automated IAM access analysis for detecting overly permissive policies and
+generating least-privilege recommendations.
 
 ## Features
 
 - **IAM Access Analyzer Integration**: Analyzes external access findings
-- **Overprivileged Policy Detection**: Identifies policies with excessive permissions
+- **Overprivileged Policy Detection**: Identifies policies with excessive
+  permissions
 - **Unused Permission Detection**: Finds permissions never used in 90+ days
 - **Least-Privilege Recommendations**: Generates optimized policy suggestions
 - **Automated Policy Updates**: Queue policy updates (dry-run mode supported)
@@ -13,18 +15,19 @@ Automated IAM access analysis for detecting overly permissive policies and gener
 
 ## Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `ANALYZER_ARN` | IAM Access Analyzer ARN | Yes | - |
-| `NOTIFICATION_TOPIC_ARN` | SNS topic for notifications | Yes | - |
-| `POLICY_QUEUE_URL` | SQS queue for policy updates | No | - |
-| `DRY_RUN` | Test mode without actual changes | No | false |
-| `AUTO_UPDATE_POLICIES` | Auto-queue policy updates | No | false |
-| `AWS_ACCOUNT_ID` | AWS Account ID | Yes | - |
+| Variable                 | Description                      | Required | Default |
+| ------------------------ | -------------------------------- | -------- | ------- |
+| `ANALYZER_ARN`           | IAM Access Analyzer ARN          | Yes      | -       |
+| `NOTIFICATION_TOPIC_ARN` | SNS topic for notifications      | Yes      | -       |
+| `POLICY_QUEUE_URL`       | SQS queue for policy updates     | No       | -       |
+| `DRY_RUN`                | Test mode without actual changes | No       | false   |
+| `AUTO_UPDATE_POLICIES`   | Auto-queue policy updates        | No       | false   |
+| `AWS_ACCOUNT_ID`         | AWS Account ID                   | Yes      | -       |
 
 ## Event Structure
 
 ### Analyze Specific Roles
+
 ```json
 {
   "roleArns": [
@@ -38,6 +41,7 @@ Automated IAM access analysis for detecting overly permissive policies and gener
 ```
 
 ### Analyze All Access Analyzer Findings
+
 ```json
 {
   "analyzeFindings": true
@@ -45,6 +49,7 @@ Automated IAM access analysis for detecting overly permissive policies and gener
 ```
 
 ### Generate Recommendations Only
+
 ```json
 {
   "roleArns": ["arn:aws:iam::123456789012:role/MyRole"],
@@ -134,30 +139,40 @@ Automated IAM access analysis for detecting overly permissive policies and gener
 ## Finding Types
 
 ### 1. ACCESS_ANALYZER
+
 External access detected by IAM Access Analyzer:
+
 - Public S3 buckets
 - Cross-account IAM roles
 - Shared KMS keys
 - Lambda functions with resource policies
 
 ### 2. OVERPRIVILEGED
+
 Policies with excessive permissions:
+
 - Wildcard actions (`*:*`, `s3:*`)
 - Wildcard resources (`*`)
 - Admin-level permissions
 
 ### 3. UNUSED_PERMISSIONS
+
 Permissions not used in 90+ days:
+
 - Based on service last accessed data
 - Requires CloudTrail for accuracy
 
 ### 4. WILDCARD_PRINCIPAL
+
 Trust policies allowing any principal:
+
 - `"Principal": "*"`
 - `"Principal": {"AWS": "*"}`
 
 ### 5. MISSING_EXTERNAL_ID
+
 Cross-account access without ExternalId:
+
 - External account in trust policy
 - Missing ExternalId condition
 - Confused deputy vulnerability
@@ -165,6 +180,7 @@ Cross-account access without ExternalId:
 ## Trust Policy Validation
 
 Checks for:
+
 - **Wildcard Principals**: Trust policies allowing `*`
 - **External Access**: Cross-account access patterns
 - **Missing ExternalId**: Cross-account without ExternalId
@@ -173,6 +189,7 @@ Checks for:
 ## Policy Risk Scoring
 
 Risk score (0-100) based on:
+
 - **Wildcard actions**: +20 per wildcard
 - **Wildcard resources**: +15 per wildcard
 - **Critical findings**: +30 per finding
@@ -182,6 +199,7 @@ Risk score (0-100) based on:
 ## Least-Privilege Recommendations
 
 Generated based on:
+
 - CloudTrail activity (requires 90 days of data)
 - Service last accessed information
 - IAM Access Analyzer policy generation
@@ -190,6 +208,7 @@ Generated based on:
 ### Confidence Score
 
 Recommendations include confidence score (0-100):
+
 - **90-100**: High confidence, extensive usage data
 - **70-89**: Good confidence, sufficient usage data
 - **50-69**: Medium confidence, limited usage data
@@ -198,11 +217,13 @@ Recommendations include confidence score (0-100):
 ## Unused Permission Detection
 
 Identifies permissions:
+
 - Never used
 - Not used in 90+ days
 - Services with zero access
 
 Based on:
+
 - `GetServiceLastAccessedDetails` API
 - CloudTrail logs (if available)
 - Access Advisor data
@@ -239,6 +260,7 @@ Based on:
 ## Automated Policy Updates
 
 When `AUTO_UPDATE_POLICIES=true`:
+
 1. Recommendations are queued in SQS
 2. Separate Lambda processes updates
 3. Dry-run mode tests changes first
@@ -300,21 +322,25 @@ aws events put-targets \
 ## Common Findings
 
 ### Critical
+
 - Wildcard principals in trust policies
 - Public access to sensitive resources
 - Admin permissions without MFA
 
 ### High
+
 - Cross-account access without ExternalId
 - Overly broad resource wildcards
 - Unused admin permissions
 
 ### Medium
+
 - Permissions unused for 90+ days
 - Service-level wildcards
 - Missing resource constraints
 
 ### Low
+
 - Informational findings
 - Optimization opportunities
 - Best practice recommendations

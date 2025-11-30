@@ -2,31 +2,34 @@
 
 ## Executive Summary
 
-This document provides a detailed comparison between the claude-flow orchestration system and Amazon Bedrock Agents architecture to inform migration decisions.
+This document provides a detailed comparison between the claude-flow
+orchestration system and Amazon Bedrock Agents architecture to inform migration
+decisions.
 
 ## Quick Comparison Table
 
-| Feature | Claude-Flow | Bedrock Agents | Winner |
-|---------|-------------|----------------|--------|
-| **Setup Time** | 10-15 minutes | 30-45 minutes | ✅ Claude-Flow |
-| **Cloud Lock-in** | None (portable) | AWS-specific | ✅ Claude-Flow |
-| **Scalability** | Manual scaling | Auto-scaling | ✅ Bedrock |
-| **Cost (100K calls/mo)** | ~$1,200 | ~$3,145 | ✅ Claude-Flow |
-| **Enterprise Security** | DIY | Built-in (IAM, KMS) | ✅ Bedrock |
-| **Monitoring** | Custom | CloudWatch | ✅ Bedrock |
-| **Maintenance** | Low (npm updates) | Medium (AWS updates) | ✅ Claude-Flow |
-| **Multi-Cloud** | Yes | No | ✅ Claude-Flow |
-| **Compliance** | DIY | Built-in (SOC2, HIPAA) | ✅ Bedrock |
-| **Knowledge Bases** | Custom | OpenSearch Serverless | ✅ Bedrock |
-| **Action Groups** | Custom hooks | Lambda integration | ✅ Bedrock |
-| **Learning Curve** | Low | Medium-High | ✅ Claude-Flow |
-| **Production Readiness** | Mature | Mature | 🤝 Tie |
+| Feature                  | Claude-Flow       | Bedrock Agents         | Winner         |
+| ------------------------ | ----------------- | ---------------------- | -------------- |
+| **Setup Time**           | 10-15 minutes     | 30-45 minutes          | ✅ Claude-Flow |
+| **Cloud Lock-in**        | None (portable)   | AWS-specific           | ✅ Claude-Flow |
+| **Scalability**          | Manual scaling    | Auto-scaling           | ✅ Bedrock     |
+| **Cost (100K calls/mo)** | ~$1,200           | ~$3,145                | ✅ Claude-Flow |
+| **Enterprise Security**  | DIY               | Built-in (IAM, KMS)    | ✅ Bedrock     |
+| **Monitoring**           | Custom            | CloudWatch             | ✅ Bedrock     |
+| **Maintenance**          | Low (npm updates) | Medium (AWS updates)   | ✅ Claude-Flow |
+| **Multi-Cloud**          | Yes               | No                     | ✅ Claude-Flow |
+| **Compliance**           | DIY               | Built-in (SOC2, HIPAA) | ✅ Bedrock     |
+| **Knowledge Bases**      | Custom            | OpenSearch Serverless  | ✅ Bedrock     |
+| **Action Groups**        | Custom hooks      | Lambda integration     | ✅ Bedrock     |
+| **Learning Curve**       | Low               | Medium-High            | ✅ Claude-Flow |
+| **Production Readiness** | Mature            | Mature                 | 🤝 Tie         |
 
 ## Detailed Comparison
 
 ### 1. Architecture
 
 **Claude-Flow:**
+
 ```
 CLI/NPM Package
     ↓
@@ -40,6 +43,7 @@ Hooks System
 ```
 
 **Bedrock:**
+
 ```
 AWS Console/API
     ↓
@@ -52,26 +56,28 @@ OpenSearch + DynamoDB
 Lambda Action Groups
 ```
 
-**Verdict:** 
+**Verdict:**
+
 - Claude-Flow: Better for rapid prototyping and cloud-agnostic solutions
 - Bedrock: Better for enterprise AWS environments with compliance requirements
 
 ### 2. Agent Capabilities
 
-| Capability | Claude-Flow | Bedrock | Notes |
-|------------|-------------|---------|-------|
-| **Number of Agent Types** | 54+ | Unlimited | Both support custom agents |
-| **SPARC Methodology** | Native | Custom implementation | Claude-Flow has built-in SPARC |
-| **Coordination Patterns** | 6 built-in | Custom via Step Functions | Claude-Flow more opinionated |
-| **Consensus Mechanisms** | Raft, Byzantine, Gossip | Custom implementation | Claude-Flow has built-in algorithms |
-| **Neural Training** | Built-in | SageMaker integration | Different approaches |
-| **GitHub Integration** | Native | Lambda/API | Both supported |
-| **Memory Management** | File/DB based | DynamoDB + ElastiCache | Bedrock more scalable |
-| **Session Persistence** | JSON export/import | DynamoDB with TTL | Bedrock more robust |
+| Capability                | Claude-Flow             | Bedrock                   | Notes                               |
+| ------------------------- | ----------------------- | ------------------------- | ----------------------------------- |
+| **Number of Agent Types** | 54+                     | Unlimited                 | Both support custom agents          |
+| **SPARC Methodology**     | Native                  | Custom implementation     | Claude-Flow has built-in SPARC      |
+| **Coordination Patterns** | 6 built-in              | Custom via Step Functions | Claude-Flow more opinionated        |
+| **Consensus Mechanisms**  | Raft, Byzantine, Gossip | Custom implementation     | Claude-Flow has built-in algorithms |
+| **Neural Training**       | Built-in                | SageMaker integration     | Different approaches                |
+| **GitHub Integration**    | Native                  | Lambda/API                | Both supported                      |
+| **Memory Management**     | File/DB based           | DynamoDB + ElastiCache    | Bedrock more scalable               |
+| **Session Persistence**   | JSON export/import      | DynamoDB with TTL         | Bedrock more robust                 |
 
 ### 3. Development Experience
 
 **Claude-Flow:**
+
 ```bash
 # Install
 npm install -g claude-flow
@@ -87,6 +93,7 @@ npx claude-flow session-export
 ```
 
 **Bedrock:**
+
 ```python
 # Install SDK
 pip install boto3
@@ -104,6 +111,7 @@ bedrock_runtime.invoke_agent(
 ```
 
 **Developer Experience:**
+
 - **Claude-Flow**: Simpler, CLI-focused, faster iteration
 - **Bedrock**: More configuration, better for teams familiar with AWS
 
@@ -112,6 +120,7 @@ bedrock_runtime.invoke_agent(
 **Scenario: 100,000 agent invocations/month**
 
 **Claude-Flow:**
+
 ```
 Direct Anthropic API:
 - Sonnet: 60K calls × 2K tokens = $360 + $900 = $1,260
@@ -126,6 +135,7 @@ Total: ~$1,452/month
 ```
 
 **Bedrock:**
+
 ```
 Bedrock API:
 - Sonnet: $1,260
@@ -148,6 +158,7 @@ Total: ~$3,145/month
 **Cost Winner: Claude-Flow** (54% cheaper)
 
 **But Consider:**
+
 - Bedrock includes enterprise features (monitoring, security, compliance)
 - Claude-Flow requires more DIY infrastructure for production
 - At scale (1M+ calls), difference narrows due to caching
@@ -155,6 +166,7 @@ Total: ~$3,145/month
 ### 5. Security & Compliance
 
 **Claude-Flow:**
+
 ```
 ✓ API key management (DIY)
 ✓ Encryption (DIY)
@@ -165,6 +177,7 @@ Total: ~$3,145/month
 ```
 
 **Bedrock:**
+
 ```
 ✓ IAM for access control
 ✓ KMS for encryption
@@ -180,6 +193,7 @@ Total: ~$3,145/month
 ### 6. Scalability
 
 **Claude-Flow:**
+
 - Horizontal scaling: Manual (deploy more instances)
 - Load balancing: DIY
 - Rate limiting: Custom implementation
@@ -187,6 +201,7 @@ Total: ~$3,145/month
 - Max throughput: Depends on deployment
 
 **Bedrock:**
+
 - Horizontal scaling: Automatic
 - Load balancing: AWS managed
 - Rate limiting: AWS handles
@@ -198,6 +213,7 @@ Total: ~$3,145/month
 ### 7. Monitoring & Observability
 
 **Claude-Flow:**
+
 ```javascript
 // Custom metrics
 npx claude-flow hooks post-task --metrics true
@@ -210,6 +226,7 @@ npx claude-flow export-metrics
 ```
 
 **Bedrock:**
+
 ```python
 # Built-in CloudWatch metrics
 - Agent invocation count
@@ -234,6 +251,7 @@ npx claude-flow export-metrics
 ### 8. Knowledge Bases / RAG
 
 **Claude-Flow:**
+
 ```
 Custom Implementation:
 - Store documents in S3/file system
@@ -244,6 +262,7 @@ Custom Implementation:
 ```
 
 **Bedrock:**
+
 ```
 Managed Knowledge Bases:
 - S3 integration (automatic sync)
@@ -259,6 +278,7 @@ Managed Knowledge Bases:
 ### 9. Action Groups / Tool Use
 
 **Claude-Flow:**
+
 ```javascript
 // Hooks system
 npx claude-flow hooks register \
@@ -270,21 +290,24 @@ npx claude-flow hooks register \
 ```
 
 **Bedrock:**
+
 ```json
 // Action Groups with OpenAPI schema
 {
-  "actionGroups": [{
-    "actionGroupName": "deployment",
-    "actionGroupExecutor": {
-      "lambda": "arn:aws:lambda:..."
-    },
-    "apiSchema": {
-      "s3": {
-        "s3BucketName": "schemas",
-        "s3ObjectKey": "deploy-schema.json"
+  "actionGroups": [
+    {
+      "actionGroupName": "deployment",
+      "actionGroupExecutor": {
+        "lambda": "arn:aws:lambda:..."
+      },
+      "apiSchema": {
+        "s3": {
+          "s3BucketName": "schemas",
+          "s3ObjectKey": "deploy-schema.json"
+        }
       }
     }
-  }]
+  ]
 }
 ```
 
@@ -293,6 +316,7 @@ npx claude-flow hooks register \
 ### 10. Multi-Agent Coordination
 
 **Claude-Flow:**
+
 ```bash
 # Built-in topologies
 npx claude-flow swarm init --topology hierarchical
@@ -305,6 +329,7 @@ npx claude-flow consensus --algorithm byzantine
 ```
 
 **Bedrock:**
+
 ```python
 # Custom via Step Functions
 # Requires more code but flexible
@@ -323,21 +348,25 @@ state_machine = create_hierarchical_workflow(
 ### Choose Claude-Flow When:
 
 1. **Rapid Prototyping**
+
    - Need to test ideas quickly
    - Iterating on agent designs
    - Proof of concept projects
 
 2. **Cloud-Agnostic**
+
    - Multi-cloud strategy
    - Want to avoid vendor lock-in
    - May migrate between clouds
 
 3. **Budget Constrained**
+
    - Startup or small project
    - Limited monthly spend
    - Cost is primary concern
 
 4. **Simple Deployments**
+
    - Single region
    - Low to medium scale
    - Developer-focused tools
@@ -350,21 +379,25 @@ state_machine = create_hierarchical_workflow(
 ### Choose Bedrock When:
 
 1. **Enterprise AWS Environment**
+
    - Already on AWS
    - AWS expertise in team
    - AWS ecosystem integration
 
 2. **Compliance Requirements**
+
    - HIPAA, SOC2, PCI needed
    - Regulated industry
    - Enterprise security requirements
 
 3. **Large Scale**
+
    - Millions of invocations/month
    - High availability needs
    - Global deployment
 
 4. **Managed Services Preferred**
+
    - Don't want to manage infrastructure
    - Prefer AWS support
    - Focus on application, not operations
@@ -379,6 +412,7 @@ state_machine = create_hierarchical_workflow(
 ### When to Migrate
 
 **Triggers:**
+
 - [ ] Outgrowing claude-flow scalability
 - [ ] Need enterprise compliance (HIPAA, SOC2)
 - [ ] AWS standardization mandate
@@ -388,6 +422,7 @@ state_machine = create_hierarchical_workflow(
 ### Migration Checklist
 
 **Phase 1: Preparation (1-2 weeks)**
+
 - [ ] Audit current claude-flow agents
 - [ ] Map agents to Bedrock equivalents
 - [ ] Export all memory/state
@@ -396,6 +431,7 @@ state_machine = create_hierarchical_workflow(
 - [ ] Set up IAM roles and policies
 
 **Phase 2: Parallel Deployment (2-3 weeks)**
+
 - [ ] Deploy core agents in Bedrock
 - [ ] Implement action groups for custom functions
 - [ ] Migrate knowledge bases
@@ -403,6 +439,7 @@ state_machine = create_hierarchical_workflow(
 - [ ] Implement monitoring
 
 **Phase 3: Traffic Shift (2 weeks)**
+
 - [ ] 10% traffic to Bedrock
 - [ ] Monitor and compare metrics
 - [ ] 50% traffic to Bedrock
@@ -410,6 +447,7 @@ state_machine = create_hierarchical_workflow(
 - [ ] Validate all features
 
 **Phase 4: Decommission (1 week)**
+
 - [ ] Final state export from claude-flow
 - [ ] Keep claude-flow as backup (1 month)
 - [ ] Document lessons learned
@@ -422,25 +460,26 @@ state_machine = create_hierarchical_workflow(
 ```python
 class HybridAgentRouter:
     """Route tasks to claude-flow or Bedrock based on requirements"""
-    
+
     def route_task(self, task):
         # Use claude-flow for rapid iteration
         if task.environment == 'development':
             return self.invoke_claude_flow(task)
-        
+
         # Use Bedrock for production, compliance-sensitive tasks
         if task.requires_compliance or task.environment == 'production':
             return self.invoke_bedrock(task)
-        
+
         # Use claude-flow for cost-sensitive workloads
         if task.budget == 'low':
             return self.invoke_claude_flow(task)
-        
+
         # Default to Bedrock for enterprise features
         return self.invoke_bedrock(task)
 ```
 
 **Benefits:**
+
 - Development speed of claude-flow
 - Production robustness of Bedrock
 - Cost optimization
@@ -448,22 +487,23 @@ class HybridAgentRouter:
 
 ## Final Recommendation Matrix
 
-| Your Situation | Recommendation |
-|----------------|----------------|
-| **Startup, AWS-focused** | Start with Bedrock |
-| **Startup, multi-cloud** | Start with Claude-Flow |
-| **Enterprise on AWS** | Bedrock |
-| **Enterprise multi-cloud** | Claude-Flow with migration plan |
-| **Regulated industry (healthcare, finance)** | Bedrock |
-| **Development/testing** | Claude-Flow |
-| **Production at scale** | Bedrock |
-| **Cost-constrained** | Claude-Flow |
-| **Need 24/7 AWS support** | Bedrock |
-| **Rapid prototyping** | Claude-Flow |
+| Your Situation                               | Recommendation                  |
+| -------------------------------------------- | ------------------------------- |
+| **Startup, AWS-focused**                     | Start with Bedrock              |
+| **Startup, multi-cloud**                     | Start with Claude-Flow          |
+| **Enterprise on AWS**                        | Bedrock                         |
+| **Enterprise multi-cloud**                   | Claude-Flow with migration plan |
+| **Regulated industry (healthcare, finance)** | Bedrock                         |
+| **Development/testing**                      | Claude-Flow                     |
+| **Production at scale**                      | Bedrock                         |
+| **Cost-constrained**                         | Claude-Flow                     |
+| **Need 24/7 AWS support**                    | Bedrock                         |
+| **Rapid prototyping**                        | Claude-Flow                     |
 
 ## Conclusion
 
 **Claude-Flow Strengths:**
+
 - Faster to start
 - More portable
 - Lower cost
@@ -471,17 +511,20 @@ class HybridAgentRouter:
 - Great for development and prototyping
 
 **Bedrock Strengths:**
+
 - Enterprise security and compliance
 - Infinite scalability
 - Managed services (less ops burden)
 - Better monitoring and observability
 - AWS ecosystem integration
 
-**Recommendation:** 
+**Recommendation:**
+
 - Use **Claude-Flow** for development, prototyping, and cost-sensitive workloads
 - Use **Bedrock** for production, enterprise, and compliance-required workloads
 - Consider a **hybrid approach** during transition
 
 ---
 
-**Questions or need help deciding? Review the detailed architecture document for more implementation details.**
+**Questions or need help deciding? Review the detailed architecture document for
+more implementation details.**

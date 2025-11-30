@@ -344,7 +344,7 @@ EKS Pod (Agent)
              ├─ Process message
              ├─ Update database
              └─ Send response
-             
+
          If failed:
          └──→ [Dead Letter Queue] (14 days retention)
              └─ Manual investigation/retry
@@ -442,7 +442,7 @@ TIER 3: Storage Optimization
     ├─ 30-90 days:  STANDARD_IA ($0.0125/GB)
     ├─ 90-180 days: GLACIER_IR ($0.004/GB)
     └─ 180+ days:   DEEP_ARCHIVE ($0.00099/GB)
-  
+
   DynamoDB:
     ├─ PAY_PER_REQUEST: Good for variable workloads
     └─ Avoid provisioned capacity waste
@@ -518,4 +518,3 @@ SNS/SQS Scaling
   ├─ Unlimited message throughput
   └─ 7-day retention (Prod) vs 1-day (Dev)
 ```
-
