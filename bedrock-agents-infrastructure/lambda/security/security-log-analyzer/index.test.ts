@@ -25,7 +25,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.analysisId).toMatch(/^log-analysis-\d+$/);
@@ -39,7 +39,7 @@ describe('Security Log Analyzer', () => {
         lookbackHours: 12,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.timeRange.hours).toBe(12);
     });
@@ -50,7 +50,7 @@ describe('Security Log Analyzer', () => {
         suspiciousActions: ['DeleteTrail', 'StopLogging'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.suspiciousPatterns).toBeDefined();
       expect(Array.isArray(result.suspiciousPatterns)).toBe(true);
@@ -63,7 +63,7 @@ describe('Security Log Analyzer', () => {
         detectUnauthorizedAccess: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.criticalAnomalies).toBeGreaterThanOrEqual(0);
       expect(result.highAnomalies).toBeGreaterThanOrEqual(0);
