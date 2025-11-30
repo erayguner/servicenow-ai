@@ -60,4 +60,4 @@
   } catch (e) {
     gs.error('[AI Bridge] Error publishing comment: ' + e);
   }
-})(current, previous);
+})(current);
