@@ -2,9 +2,7 @@ import { KMSClient, DescribeKeyCommand } from '@aws-sdk/client-kms';
 import { IAMClient, SimulatePrincipalPolicyCommand } from '@aws-sdk/client-iam';
 import {
   ComplianceFinding,
-  EncryptionCheckResult,
   LoggerContext,
-  IAMPolicyCheckResult,
 } from './types';
 
 const kmsClient = new KMSClient({});

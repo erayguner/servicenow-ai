@@ -1,7 +1,7 @@
 import { Handler } from 'aws-lambda';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { GitHubRequest, GitHubResponse, GitHubAction } from './types';
+import { GitHubResponse, GitHubAction } from './types';
 import {
   createPullRequest,
   manageIssue,
@@ -355,7 +355,7 @@ async function handleUpdatePR(
 /**
  * Store PR metadata in DynamoDB
  */
-async function storePRMetadata(dynamoClient: DynamoDBClient, pr: any): Promise<void> {
+async function storePRMetadata(_dynamoClient: DynamoDBClient, pr: any): Promise<void> {
   // Implementation for storing PR metadata
   console.log('Storing PR metadata:', pr.number);
   // This would store PR data in DynamoDB for tracking

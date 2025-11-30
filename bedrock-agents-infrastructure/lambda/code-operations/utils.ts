@@ -9,7 +9,7 @@ export async function readFileContent(
   s3Client: S3Client,
   bucket: string,
   key: string,
-  encoding: string = 'utf-8'
+  encoding: BufferEncoding = 'utf-8',
 ): Promise<string> {
   try {
     const command = new GetObjectCommand({

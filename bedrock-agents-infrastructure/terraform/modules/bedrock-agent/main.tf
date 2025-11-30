@@ -155,7 +155,6 @@ resource "aws_bedrockagent_agent" "this" {
             temperature    = inference_configuration.value.temperature
             top_p          = inference_configuration.value.top_p
             top_k          = inference_configuration.value.top_k
-            maximum_length = inference_configuration.value.maximum_length
             stop_sequences = inference_configuration.value.stop_sequences
           }
         }

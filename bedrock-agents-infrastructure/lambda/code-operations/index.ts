@@ -1,11 +1,9 @@
 import { Handler } from 'aws-lambda';
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { BedrockAgentRuntimeClient, InvokeAgentCommand } from '@aws-sdk/client-bedrock-agent-runtime';
-import { CodeOperationRequest, CodeOperationResponse, ActionType } from './types';
+import { S3Client } from '@aws-sdk/client-s3';
+import { CodeOperationResponse, ActionType } from './types';
 import { readFileContent, writeFileContent, searchInCode, executeGitOperation } from './utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
-const bedrockClient = new BedrockAgentRuntimeClient({ region: process.env.AWS_REGION || 'us-east-1' });
 
 /**
  * Lambda handler for code operations action group

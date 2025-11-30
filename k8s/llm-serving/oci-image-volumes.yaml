@@ -1,0 +1,276 @@
+---
+# OCI Image Volume Mounts for Efficient Model Loading (Kubernetes 1.31+)
+# This feature avoids copying large model files from OCI images to local storage
+
+# ConfigMap for OCI registry configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oci-registry-config
+  namespace: production
+data:
+  # OCI registry endpoints
+  artifact-registry: europe-west2-docker.pkg.dev
+  docker-hub: registry-1.docker.io
+  ghcr: ghcr.io
+
+  # Model image naming convention
+  model-image-prefix: PROJECT_ID/llm-models
+
+  # OCI image pull policy
+  image-pull-policy: IfNotPresent
+---
+# InferenceService using OCI image volume mount (Kubernetes 1.31+)
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-with-oci-volume
+  namespace: production
+  annotations:
+    serving.kserve.io/enable-oci-image-volumes: 'true'
+    serving.kserve.io/model-format: safetensors
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+    minReplicas: 1
+    maxReplicas: 5
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: vllm-runtime
+
+      # Use OCI image as volume source (no copying, direct mount)
+      # This significantly reduces startup time for large models
+      volumes:
+        - name: model-data
+          image: europe-west2-docker.pkg.dev/PROJECT_ID/llm-models/mistral-7b:v1
+          readOnly: true
+          volumeSource:
+            image:
+              pullPolicy: IfNotPresent
+      volumeMounts:
+        - name: model-data
+          mountPath: /mnt/models
+          readOnly: true
+      resources:
+        requests:
+          cpu: '6'
+          memory: 24Gi
+          nvidia.com/gpu: '1'
+        limits:
+          cpu: '12'
+          memory: 48Gi
+          nvidia.com/gpu: '1'
+---
+# Alternative: Using Modelcars pattern (for Kubernetes < 1.31)
+# This uses a sidecar container with shareProcessNamespace
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-with-modelcar
+  namespace: production
+  annotations:
+    serving.kserve.io/enable-modelcar: 'true'
+spec:
+  predictor:
+    serviceAccountName: llm-gateway-sa
+
+    # Enable process namespace sharing for modelcar
+    shareProcessNamespace: true
+    containers:
+      # Sidecar container holding the model in OCI image
+      - name: model-sidecar
+        image: europe-west2-docker.pkg.dev/PROJECT_ID/llm-models/mistral-7b:v1
+        command: [ sleep, infinity ]
+        volumeMounts:
+          - name: model-storage
+            mountPath: /models
+            readOnly: true
+
+      # Main serving container
+      - name: kserve-container
+        image: vllm/vllm-openai:latest
+        command: [ /bin/bash, -c ]
+        args:
+          - |
+            # Create symbolic link to sidecar's filesystem
+            ln -sf /proc/$(pgrep -f "sleep infinity")/root/models /mnt/models
+
+            # Start vLLM with model from linked directory
+            python3 -m vllm.entrypoints.openai.api_server \
+              --model=/mnt/models \
+              --gpu-memory-utilization=0.90 \
+              --tensor-parallel-size=1
+        resources:
+          requests:
+            nvidia.com/gpu: '1'
+          limits:
+            nvidia.com/gpu: '1'
+    volumes:
+      - name: model-storage
+        emptyDir: { }
+---
+...
+---
+# Job to build and push model OCI images
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: build-model-oci-image
+  namespace: production
+spec:
+  ttlSecondsAfterFinished: 86400  # Clean up after 24 hours
+  template:
+    spec:
+      serviceAccountName: llm-gateway-sa
+      restartPolicy: OnFailure
+      initContainers:
+        # Download model from Hugging Face
+        - name: download-model
+          image: huggingface/transformers-pytorch-gpu:latest
+          command: [ /bin/bash, -c ]
+          args:
+            - |
+              set -e
+              MODEL_NAME="mistralai/Mistral-7B-Instruct-v0.2"
+              OUTPUT_DIR="/workspace/model"
+              echo "Downloading $MODEL_NAME..."
+              python3 -c "
+              from transformers import AutoModelForCausalLM, AutoTokenizer
+              model_name = '$MODEL_NAME'
+              output_dir = '$OUTPUT_DIR'
+              print(f'Downloading tokenizer...')
+              tokenizer = AutoTokenizer.from_pretrained(model_name)
+              tokenizer.save_pretrained(output_dir)
+              print(f'Downloading model...')
+              model = AutoModelForCausalLM.from_pretrained(
+                  model_name,
+                  low_cpu_mem_usage=True
+              )
+              model.save_pretrained(output_dir, safe_serialization=True)
+              print('Download complete!')
+              "
+              echo "Model saved to $OUTPUT_DIR"
+              ls -lh $OUTPUT_DIR/
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: model-registry-credentials
+                  key: huggingface-token
+                  optional: true
+      containers:
+        # Build and push OCI image using Kaniko
+        - name: build-push
+          image: gcr.io/kaniko-project/executor:latest
+          args:
+            - --context=/workspace
+            - --dockerfile=/workspace/Dockerfile
+            - --destination=europe-west2-docker.pkg.dev/PROJECT_ID/llm-models/mistral-7b:v1
+            - --cache=true
+            - --compressed-caching=false
+            - --use-new-run
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: dockerfile
+              mountPath: /workspace/Dockerfile
+              subPath: Dockerfile
+      volumes:
+        - name: workspace
+          emptyDir:
+            sizeLimit: 50Gi  # Large enough for model files
+        - name: dockerfile
+          configMap:
+            name: model-dockerfile
+---
+# ConfigMap with Dockerfile for model OCI images
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-dockerfile
+  namespace: production
+data:
+  Dockerfile: |
+    FROM scratch
+
+    # Copy all model files
+    COPY model/ /models/
+
+    # Metadata
+    LABEL org.opencontainers.image.title="Mistral-7B-Instruct-v0.2"
+    LABEL org.opencontainers.image.version="v1"
+    LABEL org.opencontainers.image.description="Mistral 7B Instruct model"
+    LABEL model.format="safetensors"
+    LABEL model.architecture="mistral"
+    LABEL model.parameters="7B"
+    LABEL model.quantization="none"
+---
+# CronJob to periodically update model images
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-model-images
+  namespace: production
+spec:
+  schedule: 0 2 * * 0  # Weekly on Sunday at 2 AM
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: llm-gateway-sa
+          restartPolicy: OnFailure
+          containers:
+            - name: update
+              image: google/cloud-sdk:alpine
+              command: [ /bin/bash, -c ]
+              args:
+                - |
+                  set -e
+                  echo "Checking for model updates..."
+
+                  # List current model images
+                  gcloud artifacts docker images list \
+                    europe-west2-docker.pkg.dev/PROJECT_ID/llm-models \
+                    --include-tags
+
+                  # Trigger model build job
+                  kubectl create job --from=job/build-model-oci-image \
+                    update-model-$(date +%Y%m%d-%H%M%S) \
+                    -n production
+                  echo "Model update triggered"
+---
+# PodDisruptionBudget for model serving pods
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: llm-serving-pdb
+  namespace: production
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      serving.kserve.io/inferenceservice: llm-with-oci-volume
+---
+# Service for model metrics and health
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-metrics
+  namespace: production
+  labels:
+    app: llm-serving
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+  selector:
+    serving.kserve.io/inferenceservice: llm-with-oci-volume

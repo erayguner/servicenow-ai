@@ -59,7 +59,7 @@ export async function generateTests(
  * Run tests and return results
  */
 export async function runTests(
-  s3Client: S3Client,
+  _s3Client: S3Client,
   dynamoClient: DynamoDBClient,
   options: RunTestsOptions
 ): Promise<TestResults> {
@@ -109,7 +109,7 @@ export async function generateCoverageReport(
   dynamoClient: DynamoDBClient,
   options: CoverageReportOptions
 ): Promise<CoverageReport> {
-  const { testRunId, format, threshold, includeFiles } = options;
+  const { testRunId, format, threshold } = options;
 
   console.log(`Generating coverage report (format: ${format})`);
 
@@ -283,7 +283,7 @@ function generateTestContent(
   };
 }
 
-function generateJestTests(analysis: any, testType: string, testCount: number): string {
+function generateJestTests(analysis: any, testType: string, _testCount: number): string {
   return `import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import * as target from '${analysis.filePath.replace(/\.ts$/, '')}';
 
@@ -317,7 +317,7 @@ describe('${analysis.filePath}', () => {
 `;
 }
 
-function generateMochaTests(analysis: any, testType: string, testCount: number): string {
+function generateMochaTests(analysis: any, testType: string, _testCount: number): string {
   return `const { expect } = require('chai');
 const target = require('${analysis.filePath.replace(/\.ts$/, '')}');
 
@@ -361,7 +361,7 @@ function getLanguageFromPath(filePath: string): string {
   return languageMap[ext || ''] || 'unknown';
 }
 
-async function executeTests(framework: string, options: any): Promise<any> {
+async function executeTests(_framework: string, _options: any): Promise<any> {
   // Mock test execution
   const totalTests = Math.floor(Math.random() * 50) + 10;
   const failed = Math.floor(Math.random() * 3);
@@ -400,8 +400,6 @@ async function storeTestResults(
   const command = new PutItemCommand({
     TableName: process.env.TEST_RESULTS_TABLE || 'test-results',
     Item: marshall({
-      testRunId: results.testRunId,
-      timestamp: results.timestamp,
       ...results
     })
   });
@@ -424,7 +422,7 @@ async function getTestResults(
 }
 
 async function getLatestTestResults(
-  dynamoClient: DynamoDBClient
+  _dynamoClient: DynamoDBClient,
 ): Promise<TestResults | null> {
   // Mock implementation - return latest test run
   return null;
@@ -491,7 +489,7 @@ function extractImports(content: string): string[] {
   return imports;
 }
 
-function parseTestSuites(content: string): any[] {
+function parseTestSuites(_content: string): any[] {
   // Simple parsing - in production, use proper AST parsing
   return [{
     name: 'Main test suite',

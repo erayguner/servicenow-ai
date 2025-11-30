@@ -1,0 +1,760 @@
+---
+# Foundational Models Integration for KServe
+# Supports: OpenAI, Anthropic, Google PaLM/Gemini, AWS Bedrock, Cohere, Mistral AI
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 1️⃣ GOOGLE VERTEX AI - Gemini & PaLM Models (Recommended for GCP)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vertex-ai-config
+  namespace: production
+data:
+  project-id: PROJECT_ID
+  location: europe-west4    # or "us-central1"
+
+  # Available Gemini models
+  gemini-pro: gemini-1.5-pro-001
+  gemini-flash: gemini-1.5-flash-001
+  gemini-ultra: gemini-ultra
+
+  # Available PaLM models
+  palm-text: text-bison@002
+  palm-chat: chat-bison@002
+  palm-code: code-bison@002
+---
+# Deployment for Vertex AI Gateway
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vertex-ai-gateway
+  namespace: production
+  labels:
+    app: vertex-ai-gateway
+    tier: foundational-models
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vertex-ai-gateway
+  template:
+    metadata:
+      labels:
+        app: vertex-ai-gateway
+        tier: foundational-models
+    spec:
+      serviceAccountName: llm-gateway-sa  # Uses Workload Identity
+      containers:
+        - name: gateway
+          image: google/cloud-sdk:alpine
+          command: [ /bin/sh, -c ]
+          args:
+            - |
+              # Install Python and required packages
+              apk add --no-cache python3 py3-pip
+              pip3 install --no-cache-dir \
+                google-cloud-aiplatform \
+                flask \
+                gunicorn \
+                prometheus-client
+
+              # Start gateway server
+              python3 /app/vertex_gateway.py
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9090
+          env:
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: vertex-ai-config
+                  key: project-id
+            - name: LOCATION
+              valueFrom:
+                configMapKeyRef:
+                  name: vertex-ai-config
+                  key: location
+            - name: DEFAULT_MODEL
+              value: gemini-1.5-pro-001
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 500m
+            limits:
+              memory: 2Gi
+              cpu: 2000m
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+      volumes:
+        - name: app-code
+          configMap:
+            name: vertex-gateway-code
+---
+# ConfigMap with gateway application code
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vertex-gateway-code
+  namespace: production
+data:
+  vertex_gateway.py: |
+    #!/usr/bin/env python3
+    """Vertex AI Gateway for Foundational Models"""
+    import os
+    from flask import Flask, request, jsonify
+    from google.cloud import aiplatform
+    from prometheus_client import Counter, Histogram, generate_latest
+    import time
+
+    app = Flask(__name__)
+
+    # Metrics
+    REQUEST_COUNT = Counter('vertex_requests_total', 'Total requests', ['model', 'status'])
+    REQUEST_LATENCY = Histogram('vertex_request_duration_seconds', 'Request latency', ['model'])
+    TOKEN_COUNT = Counter('vertex_tokens_total', 'Total tokens', ['model', 'type'])
+
+    # Initialize Vertex AI
+    PROJECT_ID = os.getenv('PROJECT_ID')
+    LOCATION = os.getenv('LOCATION', 'us-central1')
+    aiplatform.init(project=PROJECT_ID, location=LOCATION)
+
+
+    @app.route('/healthz')
+    def health():
+      return jsonify({"status": "healthy"}), 200
+
+
+    @app.route('/ready')
+    def ready():
+      return jsonify({"status": "ready"}), 200
+
+
+    @app.route('/metrics')
+    def metrics():
+      return generate_latest()
+
+
+    @app.route('/v1/completions', methods=['POST'])
+    def completions():
+      """OpenAI-compatible completions endpoint"""
+      start_time = time.time()
+      try:
+        data = request.json
+        model = data.get('model', os.getenv('DEFAULT_MODEL'))
+        prompt = data.get('prompt', '')
+        max_tokens = data.get('max_tokens', 1024)
+        temperature = data.get('temperature', 0.7)
+
+        # Call Vertex AI
+        if 'gemini' in model.lower():
+          from vertexai.generative_models import GenerativeModel
+          model_instance = GenerativeModel(model)
+          response = model_instance.generate_content(
+            prompt,
+            generation_config={
+              'max_output_tokens': max_tokens,
+              'temperature': temperature,
+            }
+          )
+          completion_text = response.text
+        else:  # PaLM models
+          from vertexai.language_models import TextGenerationModel
+          model_instance = TextGenerationModel.from_pretrained(model)
+          response = model_instance.predict(
+            prompt,
+            max_output_tokens=max_tokens,
+            temperature=temperature,
+          )
+          completion_text = response.text
+
+        # Update metrics
+        duration = time.time() - start_time
+        REQUEST_LATENCY.labels(model=model).observe(duration)
+        REQUEST_COUNT.labels(model=model, status='success').inc()
+        TOKEN_COUNT.labels(model=model, type='input').inc(len(prompt.split()))
+        TOKEN_COUNT.labels(model=model, type='output').inc(len(completion_text.split()))
+
+        # Return OpenAI-compatible response
+        return jsonify({
+          'id': f'vertex-{int(time.time())}',
+          'object': 'text_completion',
+          'created': int(time.time()),
+          'model': model,
+          'choices': [{
+            'text': completion_text,
+            'index': 0,
+            'finish_reason': 'stop'
+          }],
+          'usage': {
+            'prompt_tokens': len(prompt.split()),
+            'completion_tokens': len(completion_text.split()),
+            'total_tokens': len(prompt.split()) + len(completion_text.split())
+          }
+        })
+      except Exception as e:
+        REQUEST_COUNT.labels(model=model, status='error').inc()
+        return jsonify({'error': str(e)}), 500
+
+
+    @app.route('/v1/chat/completions', methods=['POST'])
+    def chat_completions():
+      """OpenAI-compatible chat completions endpoint"""
+      start_time = time.time()
+      try:
+        data = request.json
+        model = data.get('model', os.getenv('DEFAULT_MODEL'))
+        messages = data.get('messages', [])
+        max_tokens = data.get('max_tokens', 1024)
+        temperature = data.get('temperature', 0.7)
+
+        # Convert messages to prompt
+        prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+
+        # Call Vertex AI (similar to completions)
+        if 'gemini' in model.lower():
+          from vertexai.generative_models import GenerativeModel
+          model_instance = GenerativeModel(model)
+          response = model_instance.generate_content(
+            prompt,
+            generation_config={
+              'max_output_tokens': max_tokens,
+              'temperature': temperature,
+            }
+          )
+          completion_text = response.text
+        else:  # PaLM Chat
+          from vertexai.language_models import ChatModel
+          chat_model = ChatModel.from_pretrained(model)
+          chat = chat_model.start_chat()
+          for msg in messages[:-1]:
+            chat.send_message(msg['content'])
+          response = chat.send_message(
+            messages[-1]['content'],
+            max_output_tokens=max_tokens,
+            temperature=temperature,
+          )
+          completion_text = response.text
+
+        # Update metrics
+        duration = time.time() - start_time
+        REQUEST_LATENCY.labels(model=model).observe(duration)
+        REQUEST_COUNT.labels(model=model, status='success').inc()
+
+        # Return OpenAI-compatible response
+        return jsonify({
+          'id': f'vertex-chat-{int(time.time())}',
+          'object': 'chat.completion',
+          'created': int(time.time()),
+          'model': model,
+          'choices': [{
+            'message': {
+              'role': 'assistant',
+              'content': completion_text
+            },
+            'index': 0,
+            'finish_reason': 'stop'
+          }],
+          'usage': {
+            'prompt_tokens': len(prompt.split()),
+            'completion_tokens': len(completion_text.split()),
+            'total_tokens': len(prompt.split()) + len(completion_text.split())
+          }
+        })
+      except Exception as e:
+        REQUEST_COUNT.labels(model=model, status='error').inc()
+        return jsonify({'error': str(e)}), 500
+
+
+    if __name__ == '__main__':
+      from gunicorn.app.base import BaseApplication
+
+
+      class StandaloneApplication(BaseApplication):
+        def __init__(self, app, options=None):
+          self.options = options or {}
+          self.application = app
+          super().__init__()
+
+        def load_config(self):
+          for key, value in self.options.items():
+            self.cfg.set(key.lower(), value)
+
+        def load(self):
+          return self.application
+
+
+      options = {
+        'bind': '0.0.0.0:8080',
+        'workers': 4,
+        'worker_class': 'sync',
+        'timeout': 300,
+      }
+      StandaloneApplication(app, options).run()
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vertex-ai-gateway
+  namespace: production
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: vertex-ai-gateway
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 2️⃣ AWS BEDROCK - Claude, Llama, Titan, Jurassic
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-bedrock-config
+  namespace: production
+data:
+  region: us-east-1
+
+  # Available models
+  claude-3-opus: anthropic.claude-3-opus-20240229-v1:0
+  claude-3-sonnet: anthropic.claude-3-sonnet-20240229-v1:0
+  claude-3-haiku: anthropic.claude-3-haiku-20240307-v1:0
+  llama-2-70b: meta.llama2-70b-chat-v1
+  llama-3-70b: meta.llama3-70b-instruct-v1:0
+  titan-express: amazon.titan-text-express-v1
+  jurassic-ultra: ai21.j2-ultra-v1
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-credentials
+  namespace: production
+type: Opaque
+stringData:
+  aws-access-key-id: REPLACE_WITH_KEY
+  aws-secret-access-key: REPLACE_WITH_SECRET
+  # Note: Better to use IRSA (IAM Roles for Service Accounts) in production
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 3️⃣ OPENAI API - GPT-4, GPT-3.5
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openai-api-key
+  namespace: production
+type: Opaque
+stringData:
+  api-key: sk-REPLACE_WITH_OPENAI_API_KEY
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openai-config
+  namespace: production
+data:
+  api-base: https://api.openai.com/v1
+
+  # Available models
+  gpt-4-turbo: gpt-4-turbo-preview
+  gpt-4: gpt-4
+  gpt-35-turbo: gpt-3.5-turbo
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 4️⃣ ANTHROPIC API - Claude 3 Family
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: Secret
+metadata:
+  name: anthropic-api-key
+  namespace: production
+type: Opaque
+stringData:
+  api-key: sk-ant-REPLACE_WITH_ANTHROPIC_API_KEY
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anthropic-config
+  namespace: production
+data:
+  api-base: https://api.anthropic.com
+
+  # Available models
+  claude-3-opus: claude-3-opus-20240229
+  claude-3-sonnet: claude-3-sonnet-20240229
+  claude-3-haiku: claude-3-haiku-20240307
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 5️⃣ UNIFIED LLM ROUTER - Routes to best model based on requirements
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-router-config
+  namespace: production
+data:
+  routing-strategy: |
+    # Routing rules based on requirements
+
+    # Fast responses (< 1s)
+    fast:
+      - provider: vertex-ai
+        model: gemini-1.5-flash-001
+        max_latency_ms: 500
+      - provider: openai
+        model: gpt-3.5-turbo
+        max_latency_ms: 800
+
+    # High quality responses
+    quality:
+      - provider: vertex-ai
+        model: gemini-1.5-pro-001
+        context_window: 1048576  # 1M tokens
+      - provider: anthropic
+        model: claude-3-opus-20240229
+        context_window: 200000
+      - provider: openai
+        model: gpt-4-turbo-preview
+        context_window: 128000
+
+    # Cost-optimized
+    cost:
+      - provider: vertex-ai
+        model: gemini-1.5-flash-001
+        cost_per_1k_tokens: 0.0001
+      - provider: openai
+        model: gpt-3.5-turbo
+        cost_per_1k_tokens: 0.0005
+
+    # Long context
+    long_context:
+      - provider: vertex-ai
+        model: gemini-1.5-pro-001
+        context_window: 1048576
+      - provider: anthropic
+        model: claude-3-opus-20240229
+        context_window: 200000
+
+    # Code generation
+    code:
+      - provider: vertex-ai
+        model: code-bison@002
+      - provider: openai
+        model: gpt-4-turbo-preview
+
+    # Fallback chain
+    fallback:
+      - vertex-ai
+      - openai
+      - anthropic
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-router
+  namespace: production
+  labels:
+    app: llm-router
+    tier: foundational-models
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: llm-router
+  template:
+    metadata:
+      labels:
+        app: llm-router
+        tier: foundational-models
+    spec:
+      serviceAccountName: llm-gateway-sa
+      containers:
+        - name: router
+          image: python:3.11-slim
+          command: [ /bin/bash, -c ]
+          args:
+            - |
+              pip install --no-cache-dir \
+                litellm \
+                flask \
+                gunicorn \
+                prometheus-client \
+                pyyaml
+              python3 /app/router.py
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9090
+          env:
+            # Vertex AI (via Workload Identity)
+            - name: VERTEX_PROJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: vertex-ai-config
+                  key: project-id
+            - name: VERTEX_LOCATION
+              valueFrom:
+                configMapKeyRef:
+                  name: vertex-ai-config
+                  key: location
+
+            # OpenAI
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-api-key
+                  key: api-key
+
+            # Anthropic
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: anthropic-api-key
+                  key: api-key
+
+            # AWS Bedrock
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: aws-access-key-id
+                  optional: true
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: aws-secret-access-key
+                  optional: true
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 1000m
+            limits:
+              memory: 4Gi
+              cpu: 4000m
+          volumeMounts:
+            - name: router-code
+              mountPath: /app
+            - name: routing-config
+              mountPath: /config
+      volumes:
+        - name: router-code
+          configMap:
+            name: llm-router-code
+        - name: routing-config
+          configMap:
+            name: llm-router-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-router-code
+  namespace: production
+data:
+  router.py: |
+    #!/usr/bin/env python3
+    """Unified LLM Router with automatic fallback and load balancing"""
+    import os
+    import yaml
+    from flask import Flask, request, jsonify
+    from litellm import completion, acompletion
+    from prometheus_client import Counter, Histogram, generate_latest
+    import time
+
+    app = Flask(__name__)
+
+    # Metrics
+    ROUTER_REQUESTS = Counter('router_requests_total', 'Router requests',
+                              ['strategy', 'provider', 'model', 'status'])
+    ROUTER_LATENCY = Histogram('router_latency_seconds', 'Router latency', ['provider', 'model'])
+
+    # Load routing configuration
+    with open('/config/routing-strategy', 'r') as f:
+      ROUTING_CONFIG = yaml.safe_load(f)
+
+
+    def select_model(strategy='quality', **requirements):
+      """Select best model based on strategy and requirements"""
+      candidates = ROUTING_CONFIG.get(strategy, [])
+      for candidate in candidates:
+        provider = candidate['provider']
+        model = candidate['model']
+
+        # Check if model meets requirements
+        if 'max_latency_ms' in requirements:
+          if candidate.get('max_latency_ms', 999999) > requirements['max_latency_ms']:
+            continue
+        if 'min_context_window' in requirements:
+          if candidate.get('context_window', 0) < requirements['min_context_window']:
+            continue
+        return provider, model
+
+      # Fallback to default
+      return 'vertex-ai', 'gemini-1.5-pro-001'
+
+
+    @app.route('/v1/completions', methods=['POST'])
+    @app.route('/v1/chat/completions', methods=['POST'])
+    def proxy_completion():
+      """Universal completion endpoint with intelligent routing"""
+      start_time = time.time()
+      try:
+        data = request.json
+
+        # Extract routing hints
+        strategy = data.pop('routing_strategy', 'quality')
+        requirements = data.pop('requirements', {})
+
+        # Select model
+        provider, model = select_model(strategy, **requirements)
+
+        # Override model if specified
+        if 'model' in data and data['model']:
+          model = data['model']
+        else:
+          data['model'] = model
+
+        # Call LiteLLM (handles all providers)
+        response = completion(**data)
+
+        # Update metrics
+        duration = time.time() - start_time
+        ROUTER_LATENCY.labels(provider=provider, model=model).observe(duration)
+        ROUTER_REQUESTS.labels(
+          strategy=strategy,
+          provider=provider,
+          model=model,
+          status='success'
+        ).inc()
+
+        # Return response
+        return jsonify(response.dict())
+      except Exception as e:
+        ROUTER_REQUESTS.labels(
+          strategy=strategy,
+          provider='unknown',
+          model='unknown',
+          status='error'
+        ).inc()
+
+        # Try fallback chain
+        fallback_providers = ROUTING_CONFIG.get('fallback', [])
+        for fallback_provider in fallback_providers:
+          try:
+            data['model'] = f"{fallback_provider}/{data.get('model', 'default')}"
+            response = completion(**data)
+            ROUTER_REQUESTS.labels(
+              strategy='fallback',
+              provider=fallback_provider,
+              model=data['model'],
+              status='success'
+            ).inc()
+            return jsonify(response.dict())
+          except:
+            continue
+        return jsonify({'error': str(e)}), 500
+
+
+    @app.route('/healthz')
+    def health():
+      return jsonify({"status": "healthy"}), 200
+
+
+    @app.route('/metrics')
+    def metrics():
+      return generate_latest()
+
+
+    if __name__ == '__main__':
+      from gunicorn.app.base import BaseApplication
+
+
+      class StandaloneApplication(BaseApplication):
+        def __init__(self, app, options=None):
+          self.options = options or {}
+          self.application = app
+          super().__init__()
+
+        def load_config(self):
+          for key, value in self.options.items():
+            self.cfg.set(key.lower(), value)
+
+        def load(self):
+          return self.application
+
+
+      options = {
+        'bind': '0.0.0.0:8080',
+        'workers': 4,
+        'worker_class': 'sync',
+        'timeout': 300,
+      }
+      StandaloneApplication(app, options).run()
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-router
+  namespace: production
+  labels:
+    app: llm-router
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: llm-router
+---
+# HorizontalPodAutoscaler for router
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: llm-router
+  namespace: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: llm-router
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 85

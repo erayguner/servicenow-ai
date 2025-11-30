@@ -4,7 +4,7 @@ import { ECSClient } from '@aws-sdk/client-ecs';
 import { EC2Client } from '@aws-sdk/client-ec2';
 import { CloudFormationClient } from '@aws-sdk/client-cloudformation';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { InfrastructureRequest, InfrastructureResponse, InfrastructureAction } from './types';
+import { InfrastructureResponse, InfrastructureAction } from './types';
 import {
   executeTerraformPlan,
   executeTerraformApply,

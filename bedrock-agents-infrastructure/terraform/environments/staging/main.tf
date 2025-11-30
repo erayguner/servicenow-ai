@@ -12,13 +12,15 @@ terraform {
   }
 
   # Backend configuration for state management
-  backend "s3" {
-    bucket       = "servicenow-ai-terraform-state-staging"
-    key          = "bedrock-agents/staging/terraform.tfstate"
-    region       = "eu-west-2"
-    encrypt      = true
-    use_lockfile = true
-  }
+  # Note: S3 backend commented out until bucket is created
+  # Uncomment after creating the S3 bucket for remote state
+  # backend "s3" {
+  #   bucket       = "servicenow-ai-terraform-state-staging"
+  #   key          = "bedrock-agents/staging/terraform.tfstate"
+  #   region       = "eu-west-2"
+  #   encrypt      = true
+  #   use_lockfile = true
+  # }
 }
 
 # Local variables for environment configuration
@@ -685,44 +687,8 @@ module "bedrock_servicenow" {
 }
 
 # ==============================================================================
-# Outputs
+# Outputs (moved to outputs.tf)
 # ==============================================================================
-
-# Bedrock Agent Outputs
-output "agent_id" {
-  description = "Bedrock agent ID"
-  value       = module.bedrock_agent.agent_id
-}
-
-output "agent_arn" {
-  description = "Bedrock agent ARN"
-  value       = module.bedrock_agent.agent_arn
-}
-
-output "agent_alias_id" {
-  description = "Bedrock agent alias ID"
-  value       = module.bedrock_agent.agent_alias_id
-}
-
-output "knowledge_base_id" {
-  description = "Knowledge base ID"
-  value       = module.bedrock_agent.knowledge_base_id
-}
-
-output "orchestrator_endpoint" {
-  description = "Orchestrator API endpoint"
-  value       = module.agent_orchestrator.api_endpoint
-}
-
-output "cloudwatch_log_group" {
-  description = "CloudWatch log group name"
-  value       = module.bedrock_agent.cloudwatch_log_group
-}
-
-output "xray_trace_group" {
-  description = "X-Ray trace group name"
-  value       = module.bedrock_agent.xray_trace_group
-}
 
 # Security Outputs
 output "kms_bedrock_data_key_arn" {

@@ -2,17 +2,11 @@ import {
   AccessAnalyzerClient,
   ListFindingsCommand,
   GetFindingCommand,
-  ArchiveFindingCommand,
-  StartPolicyGenerationCommand,
-  GetGeneratedPolicyCommand,
 } from '@aws-sdk/client-accessanalyzer';
 import {
   IAMClient,
-  GetPolicyCommand,
   GetRoleCommand,
-  SimulatePrincipalPolicyCommand,
   ListAttachedRolePoliciesCommand,
-  GetPolicyVersionCommand,
 } from '@aws-sdk/client-iam';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
@@ -28,7 +22,6 @@ import {
   analyzeIAMPolicy,
   generateLeastPrivilegePolicy,
   detectUnusedPermissions,
-  updatePolicyRecommendation,
   logger,
 } from './utils';
 
@@ -160,7 +153,7 @@ async function analyzeAccessAnalyzerFindings(): Promise<AccessFinding[]> {
         if (!finding) continue;
 
         findings.push({
-          id: finding.id,
+          id: finding.id || 'unknown-id',
           type: 'ACCESS_ANALYZER',
           title: `External access detected: ${finding.resourceType}`,
           description: finding.condition ? JSON.stringify(finding.condition) : 'External access to resource',

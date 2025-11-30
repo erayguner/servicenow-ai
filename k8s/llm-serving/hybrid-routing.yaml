@@ -1,0 +1,1015 @@
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Hybrid Router Configuration
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hybrid-router-config
+  namespace: production
+  labels:
+    app: llm-router
+    component: hybrid-routing
+data:
+  # ────────────────────────────────────────────────────────────────────────
+  # Model Endpoints Configuration
+  # ────────────────────────────────────────────────────────────────────────
+  endpoints.yaml: |
+    # Self-hosted vLLM endpoints (fast and cheap)
+    self_hosted:
+      - name: mistral-7b-instruct
+        endpoint: http://llm-service.production.svc.cluster.local/v1
+        context_window: 32768
+        cost_per_1m_input_tokens: 0.01
+        cost_per_1m_output_tokens: 0.02
+        avg_latency_ms: 300
+        max_throughput_tps: 150
+        supports_function_calling: true
+      - name: mistral-7b-fast
+        endpoint: http://llm-disaggregated-prefill.production.svc.cluster.local/v1
+        context_window: 32768
+        cost_per_1m_input_tokens: 0.01
+        cost_per_1m_output_tokens: 0.02
+        avg_latency_ms: 150
+        max_throughput_tps: 400
+        supports_function_calling: true
+        optimized_for: fast_inference
+      - name: codellama-13b
+        endpoint: http://llm-code.production.svc.cluster.local/v1
+        context_window: 100000
+        cost_per_1m_input_tokens: 0.015
+        cost_per_1m_output_tokens: 0.03
+        avg_latency_ms: 500
+        max_throughput_tps: 80
+        supports_function_calling: false
+        optimized_for: code_generation
+
+    # Cloud foundational models (complex and long-context)
+    cloud:
+      vertex_ai:
+        - name: gemini-1.5-pro
+          endpoint: http://vertex-ai-gateway.production.svc.cluster.local/v1
+          model_id: gemini-1.5-pro-001
+          context_window: 1048576  # 1M tokens!
+          cost_per_1m_input_tokens: 3.50
+          cost_per_1m_output_tokens: 10.50
+          avg_latency_ms: 1500
+          max_throughput_tps: 50
+          supports_function_calling: true
+          supports_multimodal: true
+          optimized_for: long_context
+        - name: gemini-1.5-flash
+          endpoint: http://vertex-ai-gateway.production.svc.cluster.local/v1
+          model_id: gemini-1.5-flash-001
+          context_window: 1048576
+          cost_per_1m_input_tokens: 0.10
+          cost_per_1m_output_tokens: 0.30
+          avg_latency_ms: 800
+          max_throughput_tps: 100
+          supports_function_calling: true
+          supports_multimodal: true
+          optimized_for: fast_cloud
+        - name: gemini-1.0-pro
+          endpoint: http://vertex-ai-gateway.production.svc.cluster.local/v1
+          model_id: gemini-1.0-pro-002
+          context_window: 32768
+          cost_per_1m_input_tokens: 0.50
+          cost_per_1m_output_tokens: 1.50
+          avg_latency_ms: 1000
+          max_throughput_tps: 80
+          supports_function_calling: true
+      openai:
+        - name: gpt-4-turbo
+          endpoint: http://openai-gateway.production.svc.cluster.local/v1
+          model_id: gpt-4-turbo-preview
+          context_window: 128000
+          cost_per_1m_input_tokens: 10.00
+          cost_per_1m_output_tokens: 30.00
+          avg_latency_ms: 2000
+          max_throughput_tps: 40
+          supports_function_calling: true
+        - name: gpt-3.5-turbo
+          endpoint: http://openai-gateway.production.svc.cluster.local/v1
+          model_id: gpt-3.5-turbo
+          context_window: 16385
+          cost_per_1m_input_tokens: 0.50
+          cost_per_1m_output_tokens: 1.50
+          avg_latency_ms: 800
+          max_throughput_tps: 100
+          supports_function_calling: true
+      anthropic:
+        - name: claude-3-opus
+          endpoint: http://anthropic-gateway.production.svc.cluster.local/v1
+          model_id: claude-3-opus-20240229
+          context_window: 200000
+          cost_per_1m_input_tokens: 15.00
+          cost_per_1m_output_tokens: 75.00
+          avg_latency_ms: 2500
+          max_throughput_tps: 30
+          supports_function_calling: true
+          optimized_for: complex_reasoning
+        - name: claude-3-sonnet
+          endpoint: http://anthropic-gateway.production.svc.cluster.local/v1
+          model_id: claude-3-sonnet-20240229
+          context_window: 200000
+          cost_per_1m_input_tokens: 3.00
+          cost_per_1m_output_tokens: 15.00
+          avg_latency_ms: 1800
+          max_throughput_tps: 50
+          supports_function_calling: true
+        - name: claude-3-haiku
+          endpoint: http://anthropic-gateway.production.svc.cluster.local/v1
+          model_id: claude-3-haiku-20240307
+          context_window: 200000
+          cost_per_1m_input_tokens: 0.25
+          cost_per_1m_output_tokens: 1.25
+          avg_latency_ms: 600
+          max_throughput_tps: 120
+          supports_function_calling: true
+          optimized_for: fast_cloud
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Routing Strategies Configuration
+  # ────────────────────────────────────────────────────────────────────────
+  routing-strategies.yaml: |
+    # Hybrid routing strategies with automatic selection
+    strategies:
+      # Strategy 1: Auto (Intelligent hybrid routing - RECOMMENDED)
+      auto:
+        description: "Automatically selects best model based on request characteristics"
+        decision_tree:
+          # Rule 1: Very long context (>100K tokens) → Cloud with 1M context
+          - condition:
+              input_tokens: ">= 100000"
+            action:
+              provider: cloud
+              models:
+                - vertex_ai/gemini-1.5-pro  # 1M context, best for long docs
+                - vertex_ai/gemini-1.5-flash  # 1M context, faster alternative
+                - anthropic/claude-3-sonnet  # 200K context, fallback
+              reason: "Long context requires cloud models with 1M+ token window"
+
+          # Rule 2: Code generation → Self-hosted CodeLlama
+          - condition:
+              task_type: "code"
+              input_tokens: "< 50000"
+            action:
+              provider: self_hosted
+              models:
+                - self_hosted/codellama-13b
+                - vertex_ai/gemini-1.5-flash  # Fallback to cloud
+              reason: "Code generation optimized with CodeLlama"
+
+          # Rule 3: Complex reasoning → Cloud premium models
+          - condition:
+              complexity_score: ">= 0.7"
+              or:
+                - requires_multimodal: true
+                - requires_function_calling: true
+            action:
+              provider: cloud
+              models:
+                - anthropic/claude-3-opus  # Best reasoning
+                - openai/gpt-4-turbo  # Alternative
+                - vertex_ai/gemini-1.5-pro  # Fallback
+              reason: "Complex reasoning requires premium cloud models"
+
+          # Rule 4: Fast response required (<500ms) → Self-hosted disaggregated
+          - condition:
+              max_latency_ms: "< 500"
+              input_tokens: "< 10000"
+            action:
+              provider: self_hosted
+              models:
+                - self_hosted/mistral-7b-fast  # Disaggregated serving
+                - self_hosted/mistral-7b-instruct
+              reason: "Sub-500ms latency requires local self-hosted models"
+
+          # Rule 5: Budget-conscious (default) → Self-hosted
+          - condition:
+              cost_priority: "low"
+              input_tokens: "< 50000"
+            action:
+              provider: self_hosted
+              models:
+                - self_hosted/mistral-7b-instruct
+                - vertex_ai/gemini-1.5-flash  # Cheap cloud fallback
+                - anthropic/claude-3-haiku  # Alternative
+              reason: "Cost optimization with self-hosted models"
+
+          # Rule 6: Moderate context + quality → Cheap cloud
+          - condition:
+              input_tokens: ">= 50000"
+              input_tokens: "< 100000"
+            action:
+              provider: cloud
+              models:
+                - vertex_ai/gemini-1.5-flash  # Best price/performance
+                - anthropic/claude-3-haiku  # Alternative
+                - anthropic/claude-3-sonnet  # Higher quality option
+              reason: "Moderate context with good price/performance ratio"
+
+          # Rule 7: Default fallback → Self-hosted
+          - condition: { }  # Catch-all
+            action:
+              provider: self_hosted
+              models:
+                - self_hosted/mistral-7b-instruct
+                - vertex_ai/gemini-1.5-flash
+              reason: "Default to cost-effective self-hosted model"
+
+      # Strategy 2: Fast (Lowest latency, prefer self-hosted)
+      fast:
+        description: "Minimize latency, prefer self-hosted models"
+        primary:
+          - self_hosted/mistral-7b-fast  # <200ms
+          - self_hosted/mistral-7b-instruct  # <500ms
+        fallback:
+          - anthropic/claude-3-haiku  # ~600ms
+          - vertex_ai/gemini-1.5-flash  # ~800ms
+        max_latency_ms: 1000
+
+      # Strategy 3: Quality (Best accuracy, prefer premium cloud)
+      quality:
+        description: "Maximum quality, premium models"
+        primary:
+          - anthropic/claude-3-opus  # Best reasoning
+          - openai/gpt-4-turbo  # Strong alternative
+          - vertex_ai/gemini-1.5-pro  # Long context + quality
+        fallback:
+          - anthropic/claude-3-sonnet
+          - vertex_ai/gemini-1.5-flash
+        min_quality_score: 0.9
+
+      # Strategy 4: Cost (Cheapest possible)
+      cost:
+        description: "Minimize cost, self-hosted first"
+        primary:
+          - self_hosted/mistral-7b-instruct  # $0.01/1M
+          - self_hosted/mistral-7b-fast  # $0.01/1M
+        fallback:
+          - vertex_ai/gemini-1.5-flash  # $0.10/1M
+          - anthropic/claude-3-haiku  # $0.25/1M
+        max_cost_per_1m_tokens: 0.50
+
+      # Strategy 5: Long Context (>100K tokens)
+      long_context:
+        description: "Handle very long documents, cloud only"
+        primary:
+          - vertex_ai/gemini-1.5-pro  # 1M tokens
+          - vertex_ai/gemini-1.5-flash  # 1M tokens
+        fallback:
+          - anthropic/claude-3-sonnet  # 200K tokens
+          - anthropic/claude-3-opus  # 200K tokens
+        min_context_window: 100000
+
+      # Strategy 6: Balanced (Mix of cost, quality, speed)
+      balanced:
+        description: "Balance cost, quality, and speed"
+        decision_tree:
+          - condition:
+              input_tokens: "< 50000"
+            action:
+              models:
+                - self_hosted/mistral-7b-instruct
+                - vertex_ai/gemini-1.5-flash
+          - condition:
+              input_tokens: ">= 50000"
+            action:
+              models:
+                - vertex_ai/gemini-1.5-flash
+                - anthropic/claude-3-sonnet
+
+      # Strategy 7: Self-Hosted Only (No cloud)
+      self_hosted_only:
+        description: "Use only self-hosted models, no cloud"
+        primary:
+          - self_hosted/mistral-7b-instruct
+          - self_hosted/mistral-7b-fast
+          - self_hosted/codellama-13b
+        fallback: [ ]
+        max_context_window: 100000
+
+      # Strategy 8: Cloud Only (No self-hosted)
+      cloud_only:
+        description: "Use only cloud models, no self-hosted"
+        primary:
+          - vertex_ai/gemini-1.5-pro
+          - anthropic/claude-3-opus
+          - openai/gpt-4-turbo
+        fallback:
+          - vertex_ai/gemini-1.5-flash
+          - anthropic/claude-3-sonnet
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Complexity Detection Configuration
+  # ────────────────────────────────────────────────────────────────────────
+  complexity-detection.yaml: |
+    # Rules for detecting request complexity
+    complexity_rules:
+      # High complexity indicators (score += 0.3)
+      high_complexity:
+        - multi_step_reasoning: true
+        - requires_chain_of_thought: true
+        - contains_code_analysis: true
+        - requires_long_context: true
+        - multimodal_input: true
+        - function_calling_required: true
+
+      # Medium complexity indicators (score += 0.2)
+      medium_complexity:
+        - question_contains_multiple_parts: true
+        - requires_detailed_explanation: true
+        - domain_specific_knowledge: true
+
+      # Low complexity indicators (score += 0.1)
+      low_complexity:
+        - simple_question_answer: true
+        - factual_lookup: true
+        - basic_summarization: true
+
+    # Keywords that indicate complexity
+    complexity_keywords:
+      high:
+        - "analyze in depth"
+        - "comprehensive analysis"
+        - "step by step"
+        - "explain thoroughly"
+        - "compare and contrast"
+        - "evaluate critically"
+      medium:
+        - "explain"
+        - "describe"
+        - "summarize"
+        - "compare"
+      low:
+        - "what is"
+        - "define"
+        - "list"
+        - "when did"
+
+    # Complexity thresholds
+    thresholds:
+      high: 0.7  # Use premium cloud models
+      medium: 0.4  # Use standard cloud or self-hosted
+      low: 0.0  # Use self-hosted
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Fallback Chain Configuration
+  # ────────────────────────────────────────────────────────────────────────
+  fallback-chains.yaml: |
+    # Automatic fallback when primary model fails or is unavailable
+    fallback_chains:
+      # Self-hosted primary → Cloud fallback
+      self_hosted_to_cloud:
+        - self_hosted/mistral-7b-instruct
+        - vertex_ai/gemini-1.5-flash  # Cheap cloud fallback
+        - anthropic/claude-3-haiku  # Alternative
+        - vertex_ai/gemini-1.0-pro  # Final fallback
+
+      # Cloud primary → Self-hosted fallback (if possible)
+      cloud_to_self_hosted:
+        - vertex_ai/gemini-1.5-pro
+        - anthropic/claude-3-opus
+        - self_hosted/mistral-7b-instruct  # Fallback to local (if context fits)
+
+      # Premium cloud with fallbacks
+      premium_cloud:
+        - anthropic/claude-3-opus
+        - openai/gpt-4-turbo
+        - vertex_ai/gemini-1.5-pro
+        - anthropic/claude-3-sonnet
+        - vertex_ai/gemini-1.5-flash
+
+      # Fast with fallbacks
+      fast_chain:
+        - self_hosted/mistral-7b-fast
+        - self_hosted/mistral-7b-instruct
+        - anthropic/claude-3-haiku
+        - vertex_ai/gemini-1.5-flash
+
+    # Retry configuration
+    retry_config:
+      max_retries: 3
+      initial_backoff_ms: 100
+      max_backoff_ms: 5000
+      backoff_multiplier: 2.0
+
+    # Health check configuration
+    health_checks:
+      enabled: true
+      interval_seconds: 30
+      timeout_seconds: 5
+      unhealthy_threshold: 3
+      healthy_threshold: 2
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Cost Optimization Rules
+  # ────────────────────────────────────────────────────────────────────────
+  cost-optimization.yaml: |
+    # Cost optimization rules and budgets
+    cost_rules:
+      # Daily budget limits
+      daily_budgets:
+        self_hosted: 10.00  # $10/day for GPU costs
+        vertex_ai: 100.00  # $100/day for Vertex AI
+        openai: 50.00  # $50/day for OpenAI
+        anthropic: 50.00  # $50/day for Anthropic
+        total: 200.00  # $200/day total
+
+      # Cost-based routing preferences
+      preferences:
+        - name: prefer_self_hosted_when_possible
+          condition:
+            input_tokens: "< 50000"
+            complexity_score: "< 0.7"
+          action: route_to_self_hosted
+          savings_estimate: "~97% vs cloud"
+        - name: prefer_cheap_cloud_for_moderate_context
+          condition:
+            input_tokens: ">= 50000"
+            input_tokens: "< 100000"
+          action: route_to_vertex_ai_flash
+          savings_estimate: "~70% vs premium cloud"
+        - name: use_premium_only_when_necessary
+          condition:
+            complexity_score: ">= 0.8"
+            or:
+              quality_required: true
+          action: allow_premium_models
+
+      # Alert thresholds
+      alerts:
+        - name: daily_budget_80_percent
+          threshold: 0.80
+          action: notify_ops_team
+        - name: daily_budget_100_percent
+          threshold: 1.00
+          action: switch_to_self_hosted_only
+        - name: model_cost_spike
+          condition: "cost_per_request > 2x average"
+          action: investigate_and_alert
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Hybrid Router Deployment
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hybrid-llm-router
+  namespace: production
+  labels:
+    app: llm-router
+    component: hybrid-routing
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: llm-router
+      component: hybrid-routing
+  template:
+    metadata:
+      labels:
+        app: llm-router
+        component: hybrid-routing
+        version: v1
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /metrics
+    spec:
+      serviceAccountName: llm-gateway-sa
+      containers:
+        - name: router
+          image: ghcr.io/berriai/litellm:latest
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          env:
+            # Router configuration
+            - name: ROUTER_CONFIG_PATH
+              value: /config/router-config.yaml
+            - name: LOG_LEVEL
+              value: info
+            - name: ENABLE_METRICS
+              value: 'true'
+            - name: ENABLE_COST_TRACKING
+              value: 'true'
+
+            # Vertex AI (uses Workload Identity - zero keys!)
+            - name: VERTEX_PROJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: vertex-ai-config
+                  key: project-id
+            - name: VERTEX_LOCATION
+              valueFrom:
+                configMapKeyRef:
+                  name: vertex-ai-config
+                  key: location
+
+            # OpenAI API Key (optional)
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-api-key
+                  key: api-key
+                  optional: true
+
+            # Anthropic API Key (optional)
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: anthropic-api-key
+                  key: api-key
+                  optional: true
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: router-config
+              mountPath: /config/router-config.yaml
+              subPath: router-config.yaml
+              readOnly: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+      volumes:
+        - name: config
+          configMap:
+            name: hybrid-router-config
+        - name: router-config
+          configMap:
+            name: hybrid-router-runtime-config
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: llm-router
+                    component: hybrid-routing
+                topologyKey: kubernetes.io/hostname
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# LiteLLM Router Runtime Configuration
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hybrid-router-runtime-config
+  namespace: production
+  labels:
+    app: llm-router
+    component: configuration
+data:
+  router-config.yaml: |
+    # LiteLLM router configuration for hybrid routing
+    model_list:
+      # ──────────────────────────────────────────────────────────────────
+      # Self-Hosted Models (vLLM on Kubernetes)
+      # ──────────────────────────────────────────────────────────────────
+      - model_name: mistral-7b-instruct
+        litellm_params:
+          model: openai/mistralai/Mistral-7B-Instruct-v0.2
+          api_base: http://llm-service.production.svc.cluster.local/v1
+          api_key: dummy  # Not needed for internal service
+          rpm: 1000
+          tpm: 150000
+        model_info:
+          id: self-hosted-mistral-7b
+          mode: chat
+          input_cost_per_token: 0.00000001  # $0.01/1M tokens
+          output_cost_per_token: 0.00000002
+          max_tokens: 32768
+          supports_function_calling: true
+      - model_name: mistral-7b-fast
+        litellm_params:
+          model: openai/mistralai/Mistral-7B-Instruct-v0.2
+          api_base: http://llm-disaggregated-prefill.production.svc.cluster.local/v1
+          api_key: dummy
+          rpm: 2000
+          tpm: 400000
+        model_info:
+          id: self-hosted-mistral-7b-fast
+          mode: chat
+          input_cost_per_token: 0.00000001
+          output_cost_per_token: 0.00000002
+          max_tokens: 32768
+          supports_function_calling: true
+      - model_name: codellama-13b
+        litellm_params:
+          model: openai/codellama/CodeLlama-13b-Instruct-hf
+          api_base: http://llm-code.production.svc.cluster.local/v1
+          api_key: dummy
+          rpm: 500
+          tpm: 80000
+        model_info:
+          id: self-hosted-codellama-13b
+          mode: chat
+          input_cost_per_token: 0.000000015
+          output_cost_per_token: 0.00000003
+          max_tokens: 100000
+          supports_function_calling: false
+
+      # ──────────────────────────────────────────────────────────────────
+      # Vertex AI Models (Cloud - uses Workload Identity)
+      # ──────────────────────────────────────────────────────────────────
+      - model_name: gemini-1.5-pro
+        litellm_params:
+          model: vertex_ai/gemini-1.5-pro-001
+          vertex_project: ${VERTEX_PROJECT}
+          vertex_location: ${VERTEX_LOCATION}
+          rpm: 300
+          tpm: 50000
+        model_info:
+          id: vertex-ai-gemini-pro
+          mode: chat
+          input_cost_per_token: 0.0000035  # $3.50/1M tokens
+          output_cost_per_token: 0.0000105
+          max_tokens: 1048576  # 1M tokens!
+          supports_function_calling: true
+          supports_multimodal: true
+      - model_name: gemini-1.5-flash
+        litellm_params:
+          model: vertex_ai/gemini-1.5-flash-001
+          vertex_project: ${VERTEX_PROJECT}
+          vertex_location: ${VERTEX_LOCATION}
+          rpm: 600
+          tpm: 100000
+        model_info:
+          id: vertex-ai-gemini-flash
+          mode: chat
+          input_cost_per_token: 0.0000001  # $0.10/1M tokens
+          output_cost_per_token: 0.0000003
+          max_tokens: 1048576
+          supports_function_calling: true
+          supports_multimodal: true
+      - model_name: gemini-1.0-pro
+        litellm_params:
+          model: vertex_ai/gemini-1.0-pro-002
+          vertex_project: ${VERTEX_PROJECT}
+          vertex_location: ${VERTEX_LOCATION}
+          rpm: 500
+          tpm: 80000
+        model_info:
+          id: vertex-ai-gemini-1-pro
+          mode: chat
+          input_cost_per_token: 0.0000005
+          output_cost_per_token: 0.0000015
+          max_tokens: 32768
+          supports_function_calling: true
+
+      # ──────────────────────────────────────────────────────────────────
+      # OpenAI Models (Cloud - optional)
+      # ──────────────────────────────────────────────────────────────────
+      - model_name: gpt-4-turbo
+        litellm_params:
+          model: gpt-4-turbo-preview
+          api_key: ${OPENAI_API_KEY}
+          rpm: 200
+          tpm: 40000
+        model_info:
+          id: openai-gpt-4-turbo
+          mode: chat
+          input_cost_per_token: 0.00001
+          output_cost_per_token: 0.00003
+          max_tokens: 128000
+          supports_function_calling: true
+      - model_name: gpt-3.5-turbo
+        litellm_params:
+          model: gpt-3.5-turbo
+          api_key: ${OPENAI_API_KEY}
+          rpm: 500
+          tpm: 100000
+        model_info:
+          id: openai-gpt-3.5-turbo
+          mode: chat
+          input_cost_per_token: 0.0000005
+          output_cost_per_token: 0.0000015
+          max_tokens: 16385
+          supports_function_calling: true
+
+      # ──────────────────────────────────────────────────────────────────
+      # Anthropic Models (Cloud - optional)
+      # ──────────────────────────────────────────────────────────────────
+      - model_name: claude-3-opus
+        litellm_params:
+          model: claude-3-opus-20240229
+          api_key: ${ANTHROPIC_API_KEY}
+          rpm: 150
+          tpm: 30000
+        model_info:
+          id: anthropic-claude-3-opus
+          mode: chat
+          input_cost_per_token: 0.000015
+          output_cost_per_token: 0.000075
+          max_tokens: 200000
+          supports_function_calling: true
+      - model_name: claude-3-sonnet
+        litellm_params:
+          model: claude-3-sonnet-20240229
+          api_key: ${ANTHROPIC_API_KEY}
+          rpm: 300
+          tpm: 50000
+        model_info:
+          id: anthropic-claude-3-sonnet
+          mode: chat
+          input_cost_per_token: 0.000003
+          output_cost_per_token: 0.000015
+          max_tokens: 200000
+          supports_function_calling: true
+      - model_name: claude-3-haiku
+        litellm_params:
+          model: claude-3-haiku-20240307
+          api_key: ${ANTHROPIC_API_KEY}
+          rpm: 600
+          tpm: 120000
+        model_info:
+          id: anthropic-claude-3-haiku
+          mode: chat
+          input_cost_per_token: 0.00000025
+          output_cost_per_token: 0.00000125
+          max_tokens: 200000
+          supports_function_calling: true
+
+    # ────────────────────────────────────────────────────────────────────
+    # Router Settings
+    # ────────────────────────────────────────────────────────────────────
+    router_settings:
+      routing_strategy: usage-based-routing-v2
+      redis_host: redis.production.svc.cluster.local
+      redis_port: 6379
+      enable_pre_call_checks: true
+      allowed_fails: 3
+      cooldown_time: 60
+      num_retries: 3
+      timeout: 60
+
+    # ────────────────────────────────────────────────────────────────────
+    # Fallback Configuration
+    # ────────────────────────────────────────────────────────────────────
+    litellm_settings:
+      # Automatic fallbacks
+      fallbacks:
+        # Self-hosted → Cloud
+        - mistral-7b-instruct:
+            - gemini-1.5-flash
+            - claude-3-haiku
+        - mistral-7b-fast:
+            - mistral-7b-instruct
+            - gemini-1.5-flash
+        - codellama-13b:
+            - gemini-1.5-flash
+            - gpt-3.5-turbo
+
+        # Cloud → Alternative cloud
+        - gemini-1.5-pro:
+            - claude-3-opus
+            - gpt-4-turbo
+            - gemini-1.5-flash
+        - claude-3-opus:
+            - gpt-4-turbo
+            - gemini-1.5-pro
+            - claude-3-sonnet
+
+      # Success callback
+      success_callback: [ "prometheus", "langfuse" ]
+
+      # Cost tracking
+      cost_tracking: true
+
+      # Request/response logging
+      request_timeout: 600
+      drop_params: true
+
+      # Caching
+      cache: true
+      cache_params:
+        type: redis
+        host: redis.production.svc.cluster.local
+        port: 6379
+        ttl: 3600
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Hybrid Router Service
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: v1
+kind: Service
+metadata:
+  name: hybrid-llm-router
+  namespace: production
+  labels:
+    app: llm-router
+    component: hybrid-routing
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app: llm-router
+    component: hybrid-routing
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# HorizontalPodAutoscaler for Router
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hybrid-llm-router
+  namespace: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hybrid-llm-router
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+      selectPolicy: Min
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# PodDisruptionBudget for Router
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hybrid-llm-router
+  namespace: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: llm-router
+      component: hybrid-routing
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ServiceMonitor for Prometheus Metrics
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hybrid-llm-router
+  namespace: production
+  labels:
+    app: llm-router
+    component: hybrid-routing
+spec:
+  selector:
+    matchLabels:
+      app: llm-router
+      component: hybrid-routing
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
+---
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# PrometheusRule for Hybrid Router Alerts
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: hybrid-router-alerts
+  namespace: production
+  labels:
+    app: llm-router
+    component: alerts
+spec:
+  groups:
+    - name: hybrid_router
+      interval: 30s
+      rules:
+        # Cost alerts
+        - alert: DailyBudgetExceeded
+          expr: |
+            sum(rate(litellm_request_total_cost[1h])) * 24 > 200
+          for: 5m
+          labels:
+            severity: warning
+            component: cost
+          annotations:
+            summary: Daily budget exceeded
+            description: Projected daily cost ${{ $value }} exceeds $200 budget
+
+        # Performance alerts
+        - alert: HighRouterLatency
+          expr: |
+            histogram_quantile(0.95,
+              rate(litellm_request_duration_seconds_bucket[5m])
+            ) > 3
+          for: 5m
+          labels:
+            severity: warning
+            component: performance
+          annotations:
+            summary: High router latency
+            description: P95 latency {{ $value }}s exceeds 3s threshold
+
+        # Availability alerts
+        - alert: SelfHostedModelsDown
+          expr: |
+            up{job="llm-service"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            component: availability
+          annotations:
+            summary: Self-hosted models unavailable
+            description: All self-hosted LLM endpoints are down, routing to cloud
+              only
+        - alert: HighFallbackRate
+          expr: |
+            rate(litellm_fallback_total[5m]) /
+            rate(litellm_request_total[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+            component: reliability
+          annotations:
+            summary: High fallback rate
+            description: '{{ $value | humanizePercentage }} of requests falling back'
+
+        # Cost optimization opportunities
+        - alert: CloudOveruseOpportunity
+          expr: |
+            sum(rate(litellm_request_total{model=~"gemini.*|claude.*|gpt.*"}[1h]))
+            /
+            sum(rate(litellm_request_total[1h])) > 0.3
+            and
+            avg(litellm_request_input_tokens) < 50000
+          for: 30m
+          labels:
+            severity: info
+            component: optimization
+          annotations:
+            summary: Cost optimization opportunity
+            description: '{{ $value | humanizePercentage }} of requests using cloud
+              with <50K tokens (could use self-hosted)'

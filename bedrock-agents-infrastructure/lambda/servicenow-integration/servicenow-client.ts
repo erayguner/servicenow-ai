@@ -28,7 +28,6 @@ import {
   OAuthTokenManager,
   RateLimiter,
   withRetry,
-  buildQuery,
   validateRequired,
   logOperation,
 } from './utils';

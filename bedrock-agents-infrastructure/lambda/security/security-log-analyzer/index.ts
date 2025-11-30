@@ -1,18 +1,7 @@
 import {
   CloudTrailClient,
   LookupEventsCommand,
-  GetEventSelectorsCommand,
 } from '@aws-sdk/client-cloudtrail';
-import {
-  CloudWatchLogsClient,
-  FilterLogEventsCommand,
-  DescribeLogGroupsCommand,
-} from '@aws-sdk/client-cloudwatch-logs';
-import {
-  GuardDutyClient,
-  ListFindingsCommand,
-  GetFindingsCommand,
-} from '@aws-sdk/client-guardduty';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import {
   SecurityHubClient,
@@ -27,7 +16,6 @@ import {
   SuspiciousPattern,
 } from './types';
 import {
-  analyzecloudTrailLogs,
   detectSuspiciousAPICalls,
   detectPrivilegeEscalation,
   detectUnauthorizedAccess,
@@ -37,8 +25,6 @@ import {
 } from './utils';
 
 const cloudtrailClient = new CloudTrailClient({});
-const cloudwatchClient = new CloudWatchLogsClient({});
-const guarddutyClient = new GuardDutyClient({});
 const snsClient = new SNSClient({});
 const securityHubClient = new SecurityHubClient({});
 

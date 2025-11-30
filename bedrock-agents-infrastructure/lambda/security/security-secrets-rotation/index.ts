@@ -66,7 +66,7 @@ export const handler: Handler<RotationEvent, RotationResult> = async (event) => 
     // Execute rotation based on type
     switch (rotationType) {
       case 'BEDROCK_API_KEY':
-        await rotateBedrock APIKey(secretArn, rotationId, steps);
+        await rotateBedrockAPIKey(secretArn, rotationId, steps);
         break;
 
       case 'DATABASE_CREDENTIALS':

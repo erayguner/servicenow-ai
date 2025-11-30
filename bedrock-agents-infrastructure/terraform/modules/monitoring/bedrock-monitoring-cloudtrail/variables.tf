@@ -129,7 +129,47 @@ variable "advanced_event_selectors" {
       not_starts_with = optional(list(string))
     }))
   }))
-  default = []
+  default = [
+    {
+      name = "Log Bedrock API calls"
+      field_selectors = [
+        {
+          field = "eventCategory"
+          equals = ["Management"]
+        },
+        {
+          field = "resources.type"
+          equals = ["AWS::Bedrock::Agent", "AWS::Bedrock::KnowledgeBase"]
+        }
+      ]
+    },
+    {
+      name = "Log Lambda function invocations"
+      field_selectors = [
+        {
+          field = "eventCategory"
+          equals = ["Data"]
+        },
+        {
+          field = "resources.type"
+          equals = ["AWS::Lambda::Function"]
+        }
+      ]
+    },
+    {
+      name = "Log S3 object-level API activity"
+      field_selectors = [
+        {
+          field = "eventCategory"
+          equals = ["Data"]
+        },
+        {
+          field = "resources.type"
+          equals = ["AWS::S3::Object"]
+        }
+      ]
+    }
+  ]
 }
 
 variable "use_advanced_event_selectors" {

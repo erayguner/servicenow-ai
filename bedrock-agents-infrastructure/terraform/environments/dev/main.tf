@@ -7,18 +7,19 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.80"
+      version = "~> 6.0"
     }
   }
 
   # Backend configuration for state management
-  backend "s3" {
-    bucket       = "servicenow-ai-terraform-state-dev"
-    key          = "bedrock-agents/dev/terraform.tfstate"
-    region       = "eu-west-2"
-    encrypt      = true
-    use_lockfile = true
-  }
+  # Temporarily commented out - S3 bucket needs to be created first
+  # backend "s3" {
+  #   bucket       = "servicenow-ai-terraform-state-dev"
+  #   key          = "bedrock-agents/dev/terraform.tfstate"
+  #   region       = "eu-west-2"
+  #   encrypt      = true
+  #   use_lockfile = true
+  # }
 }
 
 # Local variables for environment configuration
@@ -104,9 +105,7 @@ module "security_kms" {
   deletion_window_in_days = 7 # Short window for dev
 
   # IAM role ARNs that need KMS access
-  iam_role_arns = [
-    module.bedrock_agent.agent_role_arn
-  ]
+  iam_role_arns = []
 
   # Key admin ARNs
   key_admin_arns = var.kms_key_admin_arns
@@ -239,6 +238,7 @@ module "security_secrets" {
 
   # KMS key for secrets encryption
   kms_key_id = module.security_kms.secrets_key_id
+  kms_key_arn = module.security_kms.secrets_key_arn
 
   # Rotation disabled for dev
   enable_rotation = false
@@ -247,7 +247,9 @@ module "security_secrets" {
   # Recovery window
   recovery_window_in_days = 7
 
-  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+  # CloudWatch configuration
+  sns_topic_arn             = module.monitoring_cloudwatch.sns_topic_arn
+  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
 
   tags = local.common_tags
 }
@@ -300,9 +302,6 @@ module "monitoring_cloudwatch" {
   log_group_names = [
     "/aws/bedrock/agents/${local.project}-${local.environment}"
   ]
-
-  # KMS encryption
-  kms_key_id = module.security_kms.bedrock_data_key_id
 
   tags = local.common_tags
 }
@@ -377,7 +376,8 @@ module "monitoring_eventbridge" {
   environment  = local.environment
 
   # Event patterns for Bedrock
-  enable_bedrock_events = true
+  enable_bedrock_state_change_events = true
+  enable_bedrock_error_events = true
 
   # Targets
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
@@ -454,10 +454,9 @@ module "bedrock_servicenow" {
   alarm_notification_emails  = var.alert_email != "" ? [var.alert_email] : []
 
   # Security - use KMS keys from security module
-  kms_key_id                   = module.security_kms.bedrock_data_key_id
-  enable_encryption_at_rest    = true
-  enable_encryption_in_transit = true
-  sns_kms_master_key_id        = module.security_kms.bedrock_data_key_id
+  kms_key_id                = module.security_kms.bedrock_data_key_id
+  enable_encryption_at_rest = true
+  sns_kms_master_key_id = module.security_kms.bedrock_data_key_id
 
   # Networking - no VPC for dev (cost savings)
   vpc_id             = null

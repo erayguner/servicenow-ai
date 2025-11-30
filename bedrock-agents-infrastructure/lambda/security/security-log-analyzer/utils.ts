@@ -25,10 +25,7 @@ export const logger = {
   },
 };
 
-export async function analyzeCloudTrailLogs(
-  startTime: Date,
-  endTime: Date
-): Promise<SecurityEvent[]> {
+export async function analyzeCloudTrailLogs(): Promise<SecurityEvent[]> {
   // This function would integrate with CloudTrail
   // Implementation provided in index.ts
   return [];

@@ -1,7 +1,7 @@
 import { Handler } from 'aws-lambda';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { TestOperationRequest, TestOperationResponse, TestAction } from './types';
+import { TestOperationResponse, TestAction } from './types';
 import { generateTests, runTests, generateCoverageReport, analyzeTestResults } from './utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });

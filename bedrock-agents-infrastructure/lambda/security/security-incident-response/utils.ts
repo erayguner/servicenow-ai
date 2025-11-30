@@ -10,7 +10,6 @@ import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import {
   BedrockAgentClient,
-  UpdateAgentCommand,
   GetAgentCommand,
 } from '@aws-sdk/client-bedrock-agent';
 import {
@@ -57,7 +56,7 @@ export function assessSeverity(
 
 export async function isolateResource(
   resourceArn: string,
-  findingType: string
+  _findingType: string,
 ): Promise<IsolationResult> {
   try {
     // Determine resource type from ARN

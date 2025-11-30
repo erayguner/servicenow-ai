@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ECSClient, ListServicesCommand, DescribeServicesCommand } from '@aws-sdk/client-ecs';
 import { EC2Client, DescribeInstancesCommand } from '@aws-sdk/client-ec2';
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
@@ -16,7 +16,6 @@ import {
   AWSClients,
   InfrastructureStateOptions,
   InfrastructureState,
-  TerraformResource
 } from './types';
 
 /**
@@ -27,7 +26,14 @@ export async function executeTerraformPlan(
   dynamoClient: DynamoDBClient,
   options: TerraformPlanOptions
 ): Promise<TerraformPlan> {
-  const { workingDir, varFile, variables, target, bucket, environment } = options;
+  const {
+    workingDir,
+    varFile: _varFile,
+    variables,
+    target: _target,
+    bucket,
+    environment,
+  } = options;
 
   console.log(`Executing Terraform plan: ${workingDir} (${environment})`);
 
@@ -85,7 +91,7 @@ export async function executeTerraformApply(
   dynamoClient: DynamoDBClient,
   options: TerraformApplyOptions
 ): Promise<TerraformApply> {
-  const { planId, workingDir, autoApprove, environment, bucket } = options;
+  const { planId, workingDir, autoApprove: _autoApprove, environment, bucket } = options;
 
   console.log(`Applying Terraform changes: ${planId || workingDir} (${environment})`);
 
@@ -135,11 +141,19 @@ export async function executeTerraformApply(
  * Deploy to Kubernetes
  */
 export async function deployToKubernetes(
-  s3Client: S3Client,
-  ecsClient: ECSClient,
+  _s3Client: S3Client,
+  _ecsClient: ECSClient,
   options: KubernetesDeployOptions
 ): Promise<KubernetesDeployment> {
-  const { clusterName, namespace, manifestPath, manifestContent, deploymentType, replicas, image } = options;
+  const {
+    clusterName,
+    namespace,
+    manifestPath: _manifestPath,
+    manifestContent: _manifestContent,
+    deploymentType,
+    replicas,
+    image,
+  } = options;
 
   console.log(`Deploying to Kubernetes: ${clusterName}/${namespace}`);
 
@@ -239,7 +253,7 @@ export async function getInfrastructureState(
   s3Client: S3Client,
   ecsClient: ECSClient,
   ec2Client: EC2Client,
-  cfnClient: CloudFormationClient,
+  _cfnClient: CloudFormationClient,
   dynamoClient: DynamoDBClient,
   options: InfrastructureStateOptions
 ): Promise<InfrastructureState> {
@@ -270,7 +284,7 @@ export async function getInfrastructureState(
 
 // Helper functions
 
-function simulateTerraformPlan(workingDir: string, variables?: Record<string, any>): any {
+function simulateTerraformPlan(_workingDir: string, variables?: Record<string, any>): any {
   return {
     format_version: '1.0',
     terraform_version: '1.5.0',
@@ -309,7 +323,7 @@ function simulateTerraformPlan(workingDir: string, variables?: Record<string, an
   };
 }
 
-function simulateTerraformApply(workingDir: string, plan: TerraformPlan | null): any {
+function simulateTerraformApply(_workingDir: string, plan: TerraformPlan | null): any {
   const created = plan ? plan.changes.create : 2;
   const updated = plan ? plan.changes.update : 0;
   const deleted = plan ? plan.changes.delete : 0;
@@ -391,7 +405,7 @@ async function executeECSOperation(ecsClient: ECSClient, operation: string, para
   }
 }
 
-async function executeS3Operation(s3Client: S3Client, operation: string, parameters: any): Promise<any> {
+async function executeS3Operation(_s3Client: S3Client, operation: string, parameters: any): Promise<any> {
   // S3 operations would be implemented here
   return { success: true, operation, parameters };
 }
@@ -407,12 +421,12 @@ async function executeCFNOperation(cfnClient: CloudFormationClient, operation: s
   }
 }
 
-async function executeDynamoOperation(dynamoClient: DynamoDBClient, operation: string, parameters: any): Promise<any> {
+async function executeDynamoOperation(_dynamoClient: DynamoDBClient, operation: string, parameters: any): Promise<any> {
   // DynamoDB operations would be implemented here
   return { success: true, operation, parameters };
 }
 
-async function getTerraformState(s3Client: S3Client, dynamoClient: DynamoDBClient, environment: string): Promise<any> {
+async function getTerraformState(_s3Client: S3Client, _dynamoClient: DynamoDBClient, environment: string): Promise<any> {
   return {
     version: 4,
     resources: 5,
@@ -426,7 +440,7 @@ async function getTerraformState(s3Client: S3Client, dynamoClient: DynamoDBClien
   };
 }
 
-async function getKubernetesState(ecsClient: ECSClient, includeDetails: boolean): Promise<any> {
+async function getKubernetesState(_ecsClient: ECSClient, _includeDetails: boolean): Promise<any> {
   return {
     clusterName: 'production-cluster',
     namespaces: ['default', 'kube-system', 'production'],
@@ -438,7 +452,7 @@ async function getKubernetesState(ecsClient: ECSClient, includeDetails: boolean)
   };
 }
 
-async function getAWSResourceState(ec2Client: EC2Client, s3Client: S3Client, includeDetails: boolean): Promise<any> {
+async function getAWSResourceState(_ec2Client: EC2Client, _s3Client: S3Client, _includeDetails: boolean): Promise<any> {
   return {
     region: process.env.AWS_REGION || 'us-east-1',
     resources: {

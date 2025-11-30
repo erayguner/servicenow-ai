@@ -61,7 +61,7 @@ export async function handler(
   try {
     logOperation('lambda-invocation', {
       action: event.action,
-      requestId: context.requestId,
+      requestId: context.awsRequestId,
     });
 
     const client = await getServiceNowClient();
@@ -73,7 +73,7 @@ export async function handler(
     logOperation('lambda-success', {
       action: event.action,
       duration,
-      requestId: context.requestId,
+      requestId: context.awsRequestId,
     });
 
     return {
@@ -92,7 +92,7 @@ export async function handler(
         errorCode: error.errorCode,
         statusCode: error.statusCode,
         duration,
-        requestId: context.requestId,
+        requestId: context.awsRequestId,
       }, 'error');
 
       return {
@@ -108,7 +108,7 @@ export async function handler(
       action: event.action,
       error: error instanceof Error ? error.message : 'Unknown error',
       duration,
-      requestId: context.requestId,
+      requestId: context.awsRequestId,
     }, 'error');
 
     return {

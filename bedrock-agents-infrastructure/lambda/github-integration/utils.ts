@@ -400,7 +400,7 @@ async function makeGitHubRequest(
   const response = await fetch(url, options);
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json() as any;
     throw new Error(`GitHub API Error: ${error.message || response.statusText}`);
   }
 

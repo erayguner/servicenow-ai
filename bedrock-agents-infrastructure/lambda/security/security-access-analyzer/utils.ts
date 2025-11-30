@@ -2,26 +2,18 @@ import {
   IAMClient,
   GetPolicyCommand,
   GetPolicyVersionCommand,
-  SimulatePrincipalPolicyCommand,
   GetServiceLastAccessedDetailsCommand,
   GenerateServiceLastAccessedDetailsCommand,
 } from '@aws-sdk/client-iam';
 import {
-  AccessAnalyzerClient,
-  StartPolicyGenerationCommand,
-  GetGeneratedPolicyCommand,
-} from '@aws-sdk/client-accessanalyzer';
-import {
   PolicyAnalysis,
   PolicyRecommendation,
   UnusedPermission,
-  AccessFinding,
   PolicyDocument,
   LoggerContext,
 } from './types';
 
 const iamClient = new IAMClient({});
-const accessAnalyzerClient = new AccessAnalyzerClient({});
 
 export const logger = {
   info: (message: string, context?: LoggerContext) => {
