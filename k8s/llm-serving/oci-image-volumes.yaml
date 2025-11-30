@@ -27,7 +27,7 @@ metadata:
   name: llm-with-oci-volume
   namespace: production
   annotations:
-    serving.kserve.io/enable-oci-image-volumes: 'true'
+    serving.kserve.io/enable-oci-image-volumes: true
     serving.kserve.io/model-format: safetensors
 spec:
   predictor:
@@ -54,13 +54,13 @@ spec:
           readOnly: true
       resources:
         requests:
-          cpu: '6'
+          cpu: 6
           memory: 24Gi
-          nvidia.com/gpu: '1'
+          nvidia.com/gpu: 1
         limits:
-          cpu: '12'
+          cpu: 12
           memory: 48Gi
-          nvidia.com/gpu: '1'
+          nvidia.com/gpu: 1
 ---
 # Alternative: Using Modelcars pattern (for Kubernetes < 1.31)
 # This uses a sidecar container with shareProcessNamespace
@@ -70,7 +70,7 @@ metadata:
   name: llm-with-modelcar
   namespace: production
   annotations:
-    serving.kserve.io/enable-modelcar: 'true'
+    serving.kserve.io/enable-modelcar: true
 spec:
   predictor:
     serviceAccountName: llm-gateway-sa
@@ -103,14 +103,12 @@ spec:
               --tensor-parallel-size=1
         resources:
           requests:
-            nvidia.com/gpu: '1'
+            nvidia.com/gpu: 1
           limits:
-            nvidia.com/gpu: '1'
+            nvidia.com/gpu: 1
     volumes:
       - name: model-storage
         emptyDir: {}
----
-
 ---
 # Job to build and push model OCI images
 apiVersion: batch/v1
@@ -216,7 +214,7 @@ metadata:
   name: update-model-images
   namespace: production
 spec:
-  schedule: 0 2 * * 0 # Weekly on Sunday at 2 AM
+  schedule: '0 2 * * 0' # Weekly on Sunday at 2 AM
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
