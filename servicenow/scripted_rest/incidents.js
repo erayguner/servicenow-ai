@@ -9,7 +9,7 @@
  */
 
 (function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
-  var method = request.method.toUpperCase();
+  var method = (request && request.method) ? request.method.toUpperCase() : 'GET';
   var payload = request.body && request.body.data ? JSON.parse(request.body.data) : {};
   var sysId = request.pathParams && request.pathParams.sys_id;
 
