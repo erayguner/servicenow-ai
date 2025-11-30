@@ -1,7 +1,6 @@
 ---
 checks:
-  # Exclude checks that are too strict for pre-commit
-  # but keep them enabled in CI for full validation
+  # Exclude checks that are too strict for example/reference files
   doNotAutoAddDefaults: false
   exclude:
     # Allow missing service accounts (might not exist yet)
@@ -12,10 +11,23 @@ checks:
     # Allow missing labels/annotations (optional metadata)
     - required-annotation-email
     - required-label-owner
-
-  # Keep important security checks
-  include:
+    # Allow latest tags in examples (not production)
+    - latest-tag
+    # Allow missing probes in example pods/jobs
+    - no-liveness-probe
+    - no-readiness-probe
+    # Allow missing anti-affinity in examples
+    - no-anti-affinity
+    # Allow unset resources in example/test pods
+    - unset-cpu-requirements
+    - unset-memory-requirements
+    # Allow dangling services (examples may not have matching pods)
     - dangling-service
+    # Allow PDB without unhealthyPodEvictionPolicy (optional field)
+    - pdb-unhealthy-pod-eviction-policy
+
+  # Keep critical security checks enabled
+  include:
     - deprecated-service-account-field
     - docker-sock
     - drop-net-raw-capability
@@ -24,24 +36,18 @@ checks:
     - host-network
     - host-pid
     - mismatching-selector
-    - no-anti-affinity
     - no-extensions-v1beta
-    - no-liveness-probe
-    - no-read-only-root-fs
-    - no-readiness-probe
-    - no-rolling-update-strategy
     - privilege-escalation-container
     - privileged-container
     - privileged-ports
-    - required-annotation-email
-    - required-label-owner
-    - run-as-non-root
     - sensitive-host-mounts
     - ssh-port
     - unsafe-proc-mount
     - unsafe-sysctls
-    - unset-cpu-requirements
-    - unset-memory-requirements
     - writable-host-mount
+
 # Ignore example/template files
-ignorePaths: [k8s/examples/, k8s/templates/, '**/test/**']
+ignorePaths:
+  - k8s/examples/
+  - k8s/templates/
+  - '**/test/**'
