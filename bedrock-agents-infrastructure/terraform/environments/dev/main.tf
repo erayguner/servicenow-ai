@@ -518,7 +518,7 @@ output "monitoring_sns_topic_arn" {
 
 output "cloudtrail_log_group" {
   description = "CloudTrail log group name"
-  value       = module.monitoring_cloudtrail.log_group_name
+  value = module.monitoring_cloudtrail.cloudwatch_log_group_name
 }
 
 output "cloudtrail_s3_bucket" {
@@ -529,7 +529,7 @@ output "cloudtrail_s3_bucket" {
 # ServiceNow Module Outputs
 output "servicenow_api_endpoint" {
   description = "API Gateway endpoint for ServiceNow integration"
-  value       = module.bedrock_servicenow.api_gateway_endpoint
+  value = module.bedrock_servicenow.api_gateway_url
 }
 
 output "servicenow_api_id" {
@@ -538,11 +538,11 @@ output "servicenow_api_id" {
 }
 
 output "servicenow_webhook_url" {
-  description = "Webhook URL for ServiceNow callbacks"
-  value       = module.bedrock_servicenow.webhook_url
+  description = "Webhook URLs for ServiceNow callbacks"
+  value       = module.bedrock_servicenow.webhook_endpoints
 }
 
 output "servicenow_dynamodb_table" {
   description = "DynamoDB table for ServiceNow session tracking"
-  value       = module.bedrock_servicenow.dynamodb_table_name
+  value = module.bedrock_servicenow.state_table_name
 }
