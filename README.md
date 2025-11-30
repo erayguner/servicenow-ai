@@ -18,8 +18,18 @@ system using Terraform and Kubernetes.
 ## Overview
 
 This repository contains the complete infrastructure-as-code setup for deploying
-a secure, scalable AI agent system on GCP. The infrastructure is designed with
-zero-trust security, automated releases, and comprehensive CI/CD pipelines.
+a secure, scalable AI agent system on **Google Cloud Platform (GCP)** and **Amazon
+Web Services (AWS)**. The infrastructure is designed with zero-trust security,
+automated releases, and comprehensive CI/CD pipelines.
+
+### Multi-Cloud Architecture
+
+- **GCP Infrastructure** (`terraform/`) - Production-ready GKE-based deployment
+  with Vertex AI
+- **AWS Infrastructure** (`aws-infrastructure/`) - Parallel EKS-based deployment
+  with cost-optimized configurations
+- **AWS Bedrock Agents** (`bedrock-agents-infrastructure/`) - Autonomous
+  multi-agent system using Amazon Bedrock for advanced AI workflows
 
 ### Key Features
 
@@ -110,33 +120,76 @@ zero-trust security, automated releases, and comprehensive CI/CD pipelines.
 
 ```
 .
-├── terraform/
+├── terraform/                   # GCP Infrastructure (Terraform)
 │   ├── environments/
-│   │   ├── dev/          # Development environment
-│   │   ├── staging/      # Staging environment
-│   │   └── prod/         # Production environment
-│   └── modules/
-│       ├── gke/          # GKE cluster module
-│       ├── vpc/          # VPC networking module
-│       ├── cloudsql/     # Cloud SQL database module
-│       ├── kms/          # KMS encryption module
-│       ├── storage/      # Cloud Storage module
-│       ├── pubsub/       # Pub/Sub messaging module
-│       ├── firestore/    # Firestore database module
-│       ├── vertex_ai/    # Vertex AI module
-│       ├── secret_manager/  # Secret Manager module
-│       ├── redis/        # Redis cache module
-│       ├── workload_identity/  # Workload Identity module
-│       └── workload_identity_federation/  # GitHub Actions WIF
-├── k8s/
-│   ├── deployments/      # Kubernetes deployments
-│   ├── service-accounts/ # ServiceAccounts with Workload Identity
-│   ├── network-policies/ # NetworkPolicy resources
-│   └── pod-security/     # Pod Security Standards
+│   │   ├── dev/                 # Development environment
+│   │   ├── staging/             # Staging environment
+│   │   └── prod/                # Production environment
+│   ├── modules/
+│   │   ├── gke/                 # GKE cluster module
+│   │   ├── vpc/                 # VPC networking module
+│   │   ├── cloudsql/            # Cloud SQL database module
+│   │   ├── kms/                 # KMS encryption module
+│   │   ├── storage/             # Cloud Storage module
+│   │   ├── pubsub/              # Pub/Sub messaging module
+│   │   ├── firestore/           # Firestore database module
+│   │   ├── vertex_ai/           # Vertex AI module
+│   │   ├── secret_manager/      # Secret Manager module
+│   │   ├── redis/               # Redis cache module
+│   │   ├── workload_identity/   # Workload Identity module
+│   │   ├── workload_identity_federation/  # GitHub Actions WIF
+│   │   ├── addons/              # GKE addons and extensions
+│   │   ├── cloud_run/           # Cloud Run serverless module
+│   │   └── iap/                 # Identity-Aware Proxy (⚠️ deprecation notice)
+│   ├── shared/
+│   │   └── billing_budget/      # Cost management and budgets
+│   └── docs/                    # Terraform-specific documentation
+├── aws-infrastructure/          # AWS Infrastructure (parallel to GCP)
+│   ├── terraform/
+│   │   ├── modules/             # AWS modules (EKS, RDS, DynamoDB, etc.)
+│   │   └── environments/        # AWS environments (dev/staging/prod)
+│   ├── backend/                 # AWS-specific backend configuration
+│   └── docs/                    # AWS deployment guides
+├── bedrock-agents-infrastructure/  # AWS Bedrock Agents System
+│   ├── agents/                  # Agent definitions and templates
+│   ├── lambda/                  # Lambda functions for agent actions
+│   ├── terraform/               # Bedrock-specific Terraform modules
+│   ├── compliance/              # Security and compliance policies
+│   ├── monitoring/              # CloudWatch dashboards and alerts
+│   └── docs/                    # Bedrock agents documentation
+├── backend/                     # Backend API (Node.js/TypeScript)
+│   └── src/
+│       ├── routes/              # API route handlers
+│       ├── services/            # Business logic services
+│       ├── middleware/          # Express middleware
+│       └── observability/       # OpenTelemetry instrumentation
+├── frontend/                    # Frontend UI (Next.js/React)
+│   ├── app/                     # Next.js app directory
+│   ├── components/              # React components
+│   └── lib/                     # Utility libraries
+├── k8s/                         # Kubernetes manifests
+│   ├── deployments/             # Kubernetes deployments
+│   ├── service-accounts/        # ServiceAccounts with Workload Identity
+│   ├── network-policies/        # NetworkPolicy resources
+│   ├── pod-security/            # Pod Security Standards
+│   ├── observability/           # Prometheus, Grafana, OpenTelemetry
+│   └── llm-serving/             # KServe, vLLM, hybrid routing configs
+├── servicenow/                  # ServiceNow integration code
+│   ├── business_rules/          # ServiceNow business rules
+│   ├── script_includes/         # ServiceNow script includes
+│   └── scripted_rest/           # ServiceNow REST API scripts
 ├── .github/
-│   └── workflows/        # GitHub Actions CI/CD
-├── docs/                 # Additional documentation
-└── scripts/              # Utility scripts
+│   └── workflows/               # GitHub Actions CI/CD
+├── docs/                        # Project documentation
+│   ├── adr/                     # Architecture Decision Records
+│   ├── agents/                  # Agent deployment guides
+│   ├── ai-governance/           # AI governance framework
+│   └── architecture/            # Architecture diagrams and guides
+├── scripts/                     # Utility and automation scripts
+│   └── agents/                  # Agent operational scripts
+├── Makefile                     # Development automation commands
+├── CLAUDE.md                    # Claude Code configuration
+└── CONTRIBUTING.md              # Contribution guidelines
 ```
 
 ---
@@ -694,6 +747,36 @@ terraform fmt -check -recursive
 terraform validate
 ```
 
+### Development Commands (Makefile)
+
+The project includes a comprehensive Makefile for common development tasks:
+
+```bash
+# Setup development environment
+make dev-setup              # Install pre-commit and initialize Terraform
+
+# Pre-commit checks
+make pre-commit             # Run all pre-commit hooks
+make pre-commit-terraform   # Run only Terraform hooks
+make pre-commit-python      # Run only Python hooks
+make pre-commit-k8s         # Run only Kubernetes linting
+make quick-check            # Fast checks (no terraform validate)
+
+# Terraform operations
+make terraform-fmt          # Format all Terraform files
+make terraform-validate     # Validate all modules
+make terraform-test         # Run all module tests
+
+# Full CI simulation
+make ci                     # Run complete CI pipeline locally
+
+# Cleanup
+make clean                  # Clean all caches
+make clean-terraform        # Clean only Terraform cache
+```
+
+Run `make help` to see all available commands.
+
 ### Submitting Changes
 
 1. Create a feature branch
@@ -781,6 +864,30 @@ kubectl port-forward POD_NAME LOCAL_PORT:POD_PORT -n NAMESPACE
 - [SECURITY.md](SECURITY.md) - Security policy and reporting
 - [PRE_COMMIT_QUICKSTART.md](PRE_COMMIT_QUICKSTART.md) - Quick pre-commit
   reference
+- [Makefile](Makefile) - Development automation commands (pre-commit, terraform,
+  testing)
+
+### AWS Infrastructure
+
+- [aws-infrastructure/README.md](aws-infrastructure/README.md) - Complete AWS
+  deployment guide
+- [aws-infrastructure/docs/GCP_TO_AWS_MAPPING.md](aws-infrastructure/docs/GCP_TO_AWS_MAPPING.md) -
+  GCP to AWS service mapping
+- [aws-infrastructure/docs/COST_COMPARISON.md](aws-infrastructure/docs/COST_COMPARISON.md) -
+  Cost analysis and comparison
+
+### Bedrock Agents
+
+- [bedrock-agents-infrastructure/docs/README.md](bedrock-agents-infrastructure/docs/README.md) -
+  Bedrock agents overview
+- [bedrock-agents-infrastructure/docs/DEPLOYMENT.md](bedrock-agents-infrastructure/docs/DEPLOYMENT.md) -
+  Deployment guide
+- [bedrock-agents-infrastructure/docs/AGENTS.md](bedrock-agents-infrastructure/docs/AGENTS.md) -
+  Agent types and configuration
+- [bedrock-agents-infrastructure/docs/ORCHESTRATION.md](bedrock-agents-infrastructure/docs/ORCHESTRATION.md) -
+  Multi-agent orchestration
+- [bedrock-agents-infrastructure/docs/MIGRATION.md](bedrock-agents-infrastructure/docs/MIGRATION.md) -
+  Migration from other platforms
 
 ### Infrastructure Guides
 
@@ -818,6 +925,14 @@ kubectl port-forward POD_NAME LOCAL_PORT:POD_PORT -n NAMESPACE
   Troubleshooting guide
 - [docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md](docs/WORKLOAD_IDENTITY_SECURITY_AUDIT.md) -
   Security audit
+
+### Important Notices
+
+⚠️ **IAP Module Deprecation**: The Identity-Aware Proxy (IAP) module uses Google
+IAP OAuth Admin API which is deprecated as of January 22, 2025, with API shutdown
+scheduled for March 19, 2026. See
+[terraform/modules/iap/README.md](terraform/modules/iap/README.md) for migration
+guidance.
 
 ---
 
