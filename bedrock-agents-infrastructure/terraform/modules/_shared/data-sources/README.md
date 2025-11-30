@@ -54,7 +54,7 @@ When migrating existing modules to use this shared data source:
 1. Add the module block at the top of your `main.tf`
 2. Replace all instances of `data.aws_caller_identity.current.account_id` with
    `module.shared_data.account_id`
-3. Replace all instances of `data.aws_region.current.name` with
+3. Replace all instances of `data.aws_region.current.region` with
    `module.shared_data.region_name`
 4. Remove the local data source declarations
 5. Run `terraform plan` to verify no resource changes

@@ -396,7 +396,8 @@ resource "aws_config_configuration_aggregator" "main" {
 
   account_aggregation_source {
     account_ids = length(var.aggregator_account_ids) > 0 ? var.aggregator_account_ids : [data.aws_caller_identity.current.account_id]
-    regions     = length(var.aggregator_regions) > 0 ? var.aggregator_regions : [data.aws_region.current.name]
+    regions = length(var.aggregator_regions) > 0 ? var.aggregator_regions :
+      [data.aws_region.current.region]
   }
 
   tags = local.common_tags

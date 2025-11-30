@@ -414,7 +414,7 @@ resource "aws_cloudwatch_metric_alarm" "blocked_requests" {
 
   dimensions = {
     WebACL = aws_wafv2_web_acl.main.name
-    Region = var.waf_scope == "REGIONAL" ? data.aws_region.current.name : "global"
+    Region = var.waf_scope == "REGIONAL" ? data.aws_region.current.region : "global"
     Rule   = "ALL"
   }
 
@@ -438,7 +438,7 @@ resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded" {
 
   dimensions = {
     WebACL = aws_wafv2_web_acl.main.name
-    Region = var.waf_scope == "REGIONAL" ? data.aws_region.current.name : "global"
+    Region = var.waf_scope == "REGIONAL" ? data.aws_region.current.region : "global"
     Rule   = "rate-limit-rule"
   }
 
@@ -462,7 +462,7 @@ resource "aws_cloudwatch_metric_alarm" "sql_injection_attempts" {
 
   dimensions = {
     WebACL = aws_wafv2_web_acl.main.name
-    Region = var.waf_scope == "REGIONAL" ? data.aws_region.current.name : "global"
+    Region = var.waf_scope == "REGIONAL" ? data.aws_region.current.region : "global"
     Rule   = "sql-injection-protection"
   }
 

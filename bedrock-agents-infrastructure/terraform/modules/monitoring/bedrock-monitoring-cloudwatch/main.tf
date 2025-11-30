@@ -509,7 +509,7 @@ resource "aws_cloudwatch_dashboard" "main" {
 
   dashboard_name = local.dashboard_name
   dashboard_body = templatefile("${path.module}/templates/dashboard.json.tpl", {
-    region                 = data.aws_region.current.name
+    region = data.aws_region.current.region
     bedrock_agent_id       = var.bedrock_agent_id
     bedrock_agent_alias_id = var.bedrock_agent_alias_id
     lambda_functions       = jsonencode(var.lambda_function_names)

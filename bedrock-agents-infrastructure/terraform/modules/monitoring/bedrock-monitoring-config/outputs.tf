@@ -43,10 +43,10 @@ output "config_aggregator_arn" {
 
 output "compliance_dashboard_url" {
   description = "URL to view Config compliance dashboard in AWS Console"
-  value       = "https://console.aws.amazon.com/config/home?region=${data.aws_region.current.name}#/dashboard"
+  value = "https://console.aws.amazon.com/config/home?region=${data.aws_region.current.region}#/dashboard"
 }
 
 output "rules_dashboard_url" {
   description = "URL to view Config rules in AWS Console"
-  value       = "https://console.aws.amazon.com/config/home?region=${data.aws_region.current.name}#/rules"
+  value = "https://console.aws.amazon.com/config/home?region=${data.aws_region.current.region}#/rules"
 }

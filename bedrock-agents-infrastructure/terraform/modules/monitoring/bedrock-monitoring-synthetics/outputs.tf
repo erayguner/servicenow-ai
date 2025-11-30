@@ -40,6 +40,7 @@ output "canary_console_urls" {
   description = "URLs to view canaries in AWS Console"
   value = {
     for k, v in aws_synthetics_canary.canaries :
-    k => "https://console.aws.amazon.com/cloudwatch/home?region=${data.aws_region.current.name}#synthetics:canary/detail/${v.name}"
+    k =>
+    "https://console.aws.amazon.com/cloudwatch/home?region=${data.aws_region.current.region}#synthetics:canary/detail/${v.name}"
   }
 }

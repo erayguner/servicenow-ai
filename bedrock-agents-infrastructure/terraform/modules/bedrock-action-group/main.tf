@@ -104,7 +104,7 @@ resource "aws_lambda_function" "this" {
   layers = concat(
     var.lambda_layers,
     var.enable_lambda_insights ? [
-      "arn:aws:lambda:${data.aws_region.current.name}:580247275435:layer:LambdaInsightsExtension:21"
+      "arn:aws:lambda:${data.aws_region.current.region}:580247275435:layer:LambdaInsightsExtension:21"
     ] : []
   )
 
@@ -132,7 +132,9 @@ resource "aws_lambda_function" "this" {
     }
   }
 
-  kms_key_arn = var.kms_key_id != null ? "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}" : null
+  kms_key_arn = var.kms_key_id != null ?
+    "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}"
+    : null
 
   tags = merge(
     var.tags,
@@ -161,7 +163,7 @@ resource "aws_lambda_permission" "bedrock_agent" {
   principal     = "bedrock.amazonaws.com"
 
   source_account = data.aws_caller_identity.current.account_id
-  source_arn     = "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:agent/*"
+  source_arn = "arn:aws:bedrock:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:agent/*"
 }
 
 # Read API Schema from file if specified
