@@ -238,9 +238,23 @@ spec:
     spec:
       serviceAccountName: llm-gateway-sa
       restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
         # Download models from Hugging Face
         - name: download-mistral-7b
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: huggingface/transformers-pytorch-gpu:latest
           command: [/bin/bash, -c]
           args:
@@ -264,6 +278,8 @@ spec:
           volumeMounts:
             - name: model-cache
               mountPath: /mnt/models
+            - name: tmp
+              mountPath: /tmp
           env:
             - name: HF_TOKEN
               valueFrom:
@@ -273,6 +289,14 @@ spec:
                   optional: true
       containers:
         - name: verify
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: busybox:latest
           command: [sh, -c]
           args:
@@ -283,10 +307,14 @@ spec:
           volumeMounts:
             - name: model-cache
               mountPath: /mnt/models
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: model-cache
           persistentVolumeClaim:
             claimName: shared-model-cache
+        - name: tmp
+          emptyDir: {}
       nodeSelector:
         workload: ai-inference
       tolerations:

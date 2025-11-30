@@ -167,15 +167,35 @@ spec:
   restartPolicy: OnFailure
   priorityClassName: gpu-workload-medium
   runtimeClassName: nvidia
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
   containers:
     - name: cuda-test
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
       image: nvidia/cuda:12.1.0-base-ubuntu22.04
       command: [nvidia-smi]
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
       resources:
         requests:
           nvidia.com/gpu: 1
         limits:
           nvidia.com/gpu: 1
+  volumes:
+    - name: tmp
+      emptyDir: {}
   nodeSelector:
     cloud.google.com/gke-accelerator: nvidia-tesla-t4
   tolerations:
@@ -206,8 +226,22 @@ spec:
           effect: NoSchedule
       nodeSelector:
         cloud.google.com/gke-accelerator-count: 1 # Only on GPU nodes
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: health-check
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: nvidia/cuda:12.1.0-base-ubuntu22.04
           command: [/bin/bash, -c]
           args:
@@ -217,13 +251,17 @@ spec:
                 nvidia-smi --query-gpu=timestamp,name,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv
                 sleep 60
               done
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               nvidia.com/gpu: 1
             limits:
               nvidia.com/gpu: 1
-          securityContext:
-            privileged: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
 ---
 # ConfigMap for GPU monitoring alerts
 apiVersion: v1

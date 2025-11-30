@@ -485,8 +485,22 @@ spec:
         prometheus.io/path: /metrics
     spec:
       serviceAccountName: llm-gateway-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: router
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: ghcr.io/berriai/litellm:latest
           ports:
             - name: http
@@ -541,6 +555,8 @@ spec:
               mountPath: /config/router-config.yaml
               subPath: router-config.yaml
               readOnly: true
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               cpu: 500m
@@ -571,6 +587,8 @@ spec:
         - name: router-config
           configMap:
             name: hybrid-router-runtime-config
+        - name: tmp
+          emptyDir: {}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -905,6 +923,7 @@ metadata:
   namespace: production
 spec:
   minAvailable: 2
+  unhealthyPodEvictionPolicy: AlwaysAllow
   selector:
     matchLabels:
       app: llm-router
