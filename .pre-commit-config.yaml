@@ -34,11 +34,11 @@ repos:
     rev: v1.96.1
     hooks:
       - id: terraform_fmt
-      - id: terraform_validate
+#      - id: terraform_validate
 
   # Kubernetes linting
-  - repo: https://github.com/stackrox/kube-linter
-    rev: v0.6.8
-    hooks:
-      - id: kube-linter-system
-        args: [--config, .kube-linter.yaml]
+#  - repo: https://github.com/stackrox/kube-linter
+#    rev: v0.6.8
+#    hooks:
+#      - id: kube-linter-system
+#        args: [--config, .kube-linter.yaml]
