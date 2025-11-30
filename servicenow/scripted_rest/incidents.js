@@ -22,8 +22,10 @@
     case 'GET':
       return handleGet(sysId, response);
     default:
-      response.setStatus(405);
-      response.setBody({ error: 'Method not allowed' });
+      if (response) {
+        response.setStatus(405);
+        response.setBody({ error: 'Method not allowed' });
+      }
   }
 })();
 
