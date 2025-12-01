@@ -442,13 +442,16 @@ module "bedrock_servicenow" {
   agent_idle_session_ttl = local.agent_config.idle_session_ttl
 
   # Lambda configuration - cost-optimized
-  lambda_runtime     = "python3.12"
-  lambda_timeout     = var.enable_debug_mode ? 300 : 180                       # 5 minutes when debugging, 3 minutes otherwise
-  lambda_memory_size = var.enable_cost_optimization ? 128 : (var.enable_debug_mode ? 512 : 256) # Adjust based on cost optimization and debug mode
+  lambda_runtime = "python3.12"
+  # 5 minutes when debugging, 3 minutes otherwise
+  lambda_timeout = var.enable_debug_mode ? 300 : 180
+  # Adjust based on cost optimization and debug mode
+  lambda_memory_size = var.enable_cost_optimization ? 128 : (var.enable_debug_mode ? 512 : 256)
 
   # DynamoDB configuration
-  dynamodb_billing_mode           = "PAY_PER_REQUEST"                    # On-demand for dev
-  dynamodb_point_in_time_recovery = var.enable_cost_optimization ? false : true # Enable if not cost-optimizing
+  dynamodb_billing_mode = "PAY_PER_REQUEST" # On-demand for dev
+  # Enable if not cost-optimizing
+  dynamodb_point_in_time_recovery = var.enable_cost_optimization ? false : true
 
   # Monitoring - basic
   enable_enhanced_monitoring = var.enable_debug_mode # Enable when debugging
