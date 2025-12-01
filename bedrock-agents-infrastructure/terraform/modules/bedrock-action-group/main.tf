@@ -132,9 +132,7 @@ resource "aws_lambda_function" "this" {
     }
   }
 
-  kms_key_arn = var.kms_key_id != null ?
-    "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}"
-    : null
+  kms_key_arn = var.kms_key_id != null ? "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}" : null
 
   tags = merge(
     var.tags,
