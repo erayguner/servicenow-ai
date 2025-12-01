@@ -233,8 +233,10 @@ automated releases, and comprehensive CI/CD pipelines.
 
 ## Quick Start
 
-> **📖 For complete end-to-end deployment, see
-> [DEPLOYMENT_RUNBOOK.md](terraform/environments/dev/DEPLOYMENT_RUNBOOK.md)**
+> **📖 Complete Guides:**
+> - **Development Setup**: [docs/DEVELOPMENT_SETUP.md](docs/DEVELOPMENT_SETUP.md)
+> - **Deployment Guide**: [terraform/environments/dev/DEPLOYMENT_RUNBOOK.md](terraform/environments/dev/DEPLOYMENT_RUNBOOK.md)
+> - **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### 1. Clone Repository
 
@@ -243,8 +245,20 @@ git clone https://github.com/erayguner/servicenow-ai.git
 cd servicenow-ai
 ```
 
-### 2. Install Pre-commit Hooks
+### 2. Setup Development Environment
 
+**Quick Setup (Recommended)**:
+```bash
+./scripts/setup-dev-environment.sh
+```
+
+This automated script installs and configures:
+- ✅ Pre-commit hooks for automatic code formatting
+- ✅ Terraform formatting (runs on every commit)
+- ✅ Git hooks for validation
+- ✅ All necessary development tools
+
+**Manual Setup**:
 ```bash
 # Install pre-commit
 brew install pre-commit  # macOS
@@ -258,7 +272,8 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-> See [PRE_COMMIT_QUICKSTART.md](PRE_COMMIT_QUICKSTART.md) for detailed guide
+> **💡 All Terraform files (`.tf`) are automatically formatted on commit!**
+> See [docs/DEVELOPMENT_SETUP.md](docs/DEVELOPMENT_SETUP.md) for detailed instructions.
 
 ### 3. Configure GCP Credentials
 
