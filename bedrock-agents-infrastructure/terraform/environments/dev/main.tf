@@ -34,9 +34,10 @@ locals {
     ManagedBy      = "terraform"
     CostCenter     = "development"
     Owner          = var.owner_email
-    AutoShutdown   = "true"
+    AutoShutdown   = var.auto_shutdown_enabled ? "true" : "false"
     BackupRequired = "false"
     Compliance     = "none"
+    DebugMode      = var.enable_debug_mode ? "enabled" : "disabled"
   }
 
   # Minimal configuration for dev
@@ -100,9 +101,9 @@ module "security_kms" {
   aws_region   = var.aws_region
 
   # Minimal KMS configuration for dev
-  enable_key_rotation     = false # Disabled for cost savings
+  enable_key_rotation     = var.enable_cost_optimization ? false : true # Disabled when optimizing costs
   enable_multi_region     = false
-  deletion_window_in_days = 7 # Short window for dev
+  deletion_window_in_days = var.enable_cost_optimization ? 7 : 30 # Short window when optimizing costs
 
   # IAM role ARNs that need KMS access
   iam_role_arns = []
@@ -241,11 +242,11 @@ module "security_secrets" {
   kms_key_arn = module.security_kms.secrets_key_arn
 
   # Rotation disabled for dev
-  enable_rotation = false
+  enable_rotation = var.enable_cost_optimization ? false : true
   rotation_days   = 90
 
   # Recovery window
-  recovery_window_in_days = 7
+  recovery_window_in_days = var.enable_cost_optimization ? 7 : 30
 
   # CloudWatch configuration
   sns_topic_arn             = module.monitoring_cloudwatch.sns_topic_arn
@@ -290,9 +291,9 @@ module "monitoring_cloudwatch" {
   lambda_duration_threshold            = 30000
   lambda_throttles_threshold           = 10
 
-  # Anomaly detection - disabled for dev
-  enable_anomaly_detection = false
-  enable_composite_alarms  = false
+  # Anomaly detection - controlled by debug mode
+  enable_anomaly_detection = var.enable_debug_mode
+  enable_composite_alarms  = var.enable_debug_mode
 
   # Dashboard
   create_dashboard = true
@@ -337,7 +338,7 @@ module "monitoring_cloudtrail" {
 
   # CloudWatch Logs integration
   create_cloudwatch_logs_group   = true
-  cloudwatch_logs_retention_days = 7
+  cloudwatch_logs_retention_days = var.enable_debug_mode ? 14 : (var.enable_cost_optimization ? 3 : 7)
 
   # Event selectors - basic for dev
   event_selectors = [
@@ -442,15 +443,15 @@ module "bedrock_servicenow" {
 
   # Lambda configuration - cost-optimized
   lambda_runtime     = "python3.12"
-  lambda_timeout     = 180 # 3 minutes
-  lambda_memory_size = 256 # Lower memory for dev
+  lambda_timeout     = var.enable_debug_mode ? 300 : 180                       # 5 minutes when debugging, 3 minutes otherwise
+  lambda_memory_size = var.enable_cost_optimization ? 128 : (var.enable_debug_mode ? 512 : 256) # Adjust based on cost optimization and debug mode
 
   # DynamoDB configuration
-  dynamodb_billing_mode           = "PAY_PER_REQUEST" # On-demand for dev
-  dynamodb_point_in_time_recovery = false             # Disabled for cost savings
+  dynamodb_billing_mode           = "PAY_PER_REQUEST"                    # On-demand for dev
+  dynamodb_point_in_time_recovery = var.enable_cost_optimization ? false : true # Enable if not cost-optimizing
 
   # Monitoring - basic
-  enable_enhanced_monitoring = false # Disabled for cost savings
+  enable_enhanced_monitoring = var.enable_debug_mode # Enable when debugging
   alarm_notification_emails  = var.alert_email != "" ? [var.alert_email] : []
 
   # Security - use KMS keys from security module
