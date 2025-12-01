@@ -229,7 +229,7 @@ spec:
           operator: Exists
           effect: NoSchedule
       nodeSelector:
-        cloud.google.com/gke-accelerator-count: "1" # Only on GPU nodes
+        cloud.google.com/gke-accelerator-count: '1' # Only on GPU nodes
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
