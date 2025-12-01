@@ -161,7 +161,7 @@ resource "aws_lambda_permission" "bedrock_agent" {
   principal     = "bedrock.amazonaws.com"
 
   source_account = data.aws_caller_identity.current.account_id
-  source_arn = "arn:aws:bedrock:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:agent/*"
+  source_arn     = "arn:aws:bedrock:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:agent/*"
 }
 
 # Read API Schema from file if specified

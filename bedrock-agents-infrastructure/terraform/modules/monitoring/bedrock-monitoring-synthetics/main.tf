@@ -271,7 +271,7 @@ resource "aws_synthetics_canary" "canaries" {
   artifact_config {
     s3_encryption {
       encryption_mode = var.kms_key_id != null ? "SSE_KMS" : "SSE_S3"
-      kms_key_arn = var.kms_key_id != null ? "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}" : null
+      kms_key_arn     = var.kms_key_id != null ? "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}" : null
     }
   }
 

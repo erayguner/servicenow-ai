@@ -14,7 +14,7 @@ output "caller_arn" {
 
 output "region_name" {
   description = "The AWS Region name"
-  value = data.aws_region.current.region
+  value       = data.aws_region.current.region
 }
 
 output "region_id" {

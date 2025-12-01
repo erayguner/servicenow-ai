@@ -60,8 +60,8 @@ variable "test_data_enabled" {
 
 variable "dev_team_members" {
   description = "List of dev team member emails for tagging or notifications"
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 variable "data_source_bucket_arn" {
@@ -84,8 +84,8 @@ variable "state_bucket_name" {
 
 variable "bedrock_agent_endpoints" {
   description = "List of Bedrock agent endpoint URLs for synthetic monitoring"
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 # ==============================================================================
@@ -114,7 +114,7 @@ variable "servicenow_instance_url" {
   default     = ""
 
   validation {
-    condition = var.servicenow_instance_url == "" || can(regex("^https://.*\\.service-now\\.com/?$", var.servicenow_instance_url))
+    condition     = var.servicenow_instance_url == "" || can(regex("^https://.*\\.service-now\\.com/?$", var.servicenow_instance_url))
     error_message = "ServiceNow instance URL must be a valid HTTPS URL ending with .service-now.com"
   }
 }

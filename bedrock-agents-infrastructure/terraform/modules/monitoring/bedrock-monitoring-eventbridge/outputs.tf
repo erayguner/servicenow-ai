@@ -44,10 +44,10 @@ output "archive_arn" {
 
 output "event_bus_console_url" {
   description = "URL to view EventBridge in AWS Console"
-  value = "https://console.aws.amazon.com/events/home?region=${data.aws_region.current.region}#/eventbus/${local.event_bus_name}"
+  value       = "https://console.aws.amazon.com/events/home?region=${data.aws_region.current.region}#/eventbus/${local.event_bus_name}"
 }
 
 output "rules_console_url" {
   description = "URL to view EventBridge rules in AWS Console"
-  value = "https://console.aws.amazon.com/events/home?region=${data.aws_region.current.region}#/rules"
+  value       = "https://console.aws.amazon.com/events/home?region=${data.aws_region.current.region}#/rules"
 }

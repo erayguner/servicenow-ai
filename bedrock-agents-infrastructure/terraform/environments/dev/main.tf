@@ -237,7 +237,7 @@ module "security_secrets" {
   environment  = local.environment
 
   # KMS key for secrets encryption
-  kms_key_id = module.security_kms.secrets_key_id
+  kms_key_id  = module.security_kms.secrets_key_id
   kms_key_arn = module.security_kms.secrets_key_arn
 
   # Rotation disabled for dev
@@ -377,7 +377,7 @@ module "monitoring_eventbridge" {
 
   # Event patterns for Bedrock
   enable_bedrock_state_change_events = true
-  enable_bedrock_error_events = true
+  enable_bedrock_error_events        = true
 
   # Targets
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
@@ -456,7 +456,7 @@ module "bedrock_servicenow" {
   # Security - use KMS keys from security module
   kms_key_id                = module.security_kms.bedrock_data_key_id
   enable_encryption_at_rest = true
-  sns_kms_master_key_id = module.security_kms.bedrock_data_key_id
+  sns_kms_master_key_id     = module.security_kms.bedrock_data_key_id
 
   # Networking - no VPC for dev (cost savings)
   vpc_id             = null
@@ -518,7 +518,7 @@ output "monitoring_sns_topic_arn" {
 
 output "cloudtrail_log_group" {
   description = "CloudTrail log group name"
-  value = module.monitoring_cloudtrail.cloudwatch_log_group_name
+  value       = module.monitoring_cloudtrail.cloudwatch_log_group_name
 }
 
 output "cloudtrail_s3_bucket" {
@@ -529,7 +529,7 @@ output "cloudtrail_s3_bucket" {
 # ServiceNow Module Outputs
 output "servicenow_api_endpoint" {
   description = "API Gateway endpoint for ServiceNow integration"
-  value = module.bedrock_servicenow.api_gateway_url
+  value       = module.bedrock_servicenow.api_gateway_url
 }
 
 output "servicenow_api_id" {
@@ -544,5 +544,5 @@ output "servicenow_webhook_url" {
 
 output "servicenow_dynamodb_table" {
   description = "DynamoDB table for ServiceNow session tracking"
-  value = module.bedrock_servicenow.state_table_name
+  value       = module.bedrock_servicenow.state_table_name
 }
