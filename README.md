@@ -485,9 +485,20 @@ make pre-commit-python     # Ruff linting
 make pre-commit-secrets    # Detect secrets
 make pre-commit-k8s        # KubeLinter
 
+# Kubernetes manifest validation
+make kubeconform           # Validate K8s manifests with schema checking
+
 # Quick check (no terraform validate)
 make quick-check
 ```
+
+**Kubernetes Validation:**
+
+- ✅ **KubeLinter** - Security and best practices linting
+- ✅ **kubeconform** - JSON schema validation for Kubernetes resources
+- ✅ **Prettier** - YAML formatting and consistency
+- ✅ **Security hardening** - All containers have securityContext, resource limits, and pod anti-affinity
+- ✅ **CRD support** - Proper handling of InferenceService, ServingRuntime, ServiceMonitor, PrometheusRule
 
 ### Terraform Tests
 
@@ -717,7 +728,7 @@ Packages are versioned independently:
 - KMS Module: v1.0.0
 - Workload Identity Module: v1.0.0
 
-See [RELEASE_MANAGEMENT.md](RELEASE_MANAGEMENT.md) for details.
+See the [Release Process](CONTRIBUTING.md#release-process) section in CONTRIBUTING.md for details.
 
 ---
 
@@ -850,7 +861,7 @@ kubectl port-forward POD_NAME LOCAL_PORT:POD_PORT -n NAMESPACE
 ### Getting Help
 
 - Read the [documentation](docs/)
-- Check [troubleshooting guide](docs/TROUBLESHOOTING.md)
+- Check [troubleshooting guide](terraform/docs/TROUBLESHOOTING.md)
 - Open an [issue](https://github.com/erayguner/servicenow-ai/issues)
 - Contact the team
 
