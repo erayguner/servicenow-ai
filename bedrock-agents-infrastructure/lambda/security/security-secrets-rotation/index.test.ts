@@ -165,7 +165,7 @@ describe('Security Secrets Rotation', () => {
       };
 
       try {
-        await handler(event, {} as any, {} as any);
+        await handler(event);
       } catch (error) {
         expect(error).toBeDefined();
       }
