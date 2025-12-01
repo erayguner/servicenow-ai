@@ -222,8 +222,6 @@ spec:
       labels:
         app: gpu-health-check
     spec:
-      hostPID: true
-      hostIPC: true
       tolerations:
         - key: nvidia.com/gpu
           operator: Exists
