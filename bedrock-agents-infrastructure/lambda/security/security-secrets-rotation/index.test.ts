@@ -181,7 +181,7 @@ describe('Security Secrets Rotation', () => {
         rotationType: 'DATABASE_CREDENTIALS',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.dryRun).toBe(true);
     });
@@ -193,7 +193,7 @@ describe('Security Secrets Rotation', () => {
         SecretId: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:bedrock-api-key-abc123',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.rotationType).toBe('BEDROCK_API_KEY');
     });
@@ -203,7 +203,7 @@ describe('Security Secrets Rotation', () => {
         SecretId: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-db-password',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.rotationType).toBe('DATABASE_CREDENTIALS');
     });
@@ -213,7 +213,7 @@ describe('Security Secrets Rotation', () => {
         SecretId: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:lambda-function-env',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.rotationType).toBe('LAMBDA_ENVIRONMENT');
     });
@@ -226,7 +226,7 @@ describe('Security Secrets Rotation', () => {
         rotationType: 'GENERIC_SECRET',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.status).toBe('SUCCESS');
     });
@@ -237,7 +237,7 @@ describe('Security Secrets Rotation', () => {
       };
 
       try {
-        await handler(event, {} as any, {} as any);
+        await handler(event);
       } catch (error) {
         expect(error).toBeDefined();
       }
