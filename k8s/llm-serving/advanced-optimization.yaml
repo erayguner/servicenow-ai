@@ -158,6 +158,16 @@ spec:
         fsGroup: 2000
         seccompProfile:
           type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - llm-router
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: router
           securityContext:

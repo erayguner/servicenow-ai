@@ -287,6 +287,13 @@ spec:
                   name: model-registry-credentials
                   key: huggingface-token
                   optional: true
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 8Gi
+            limits:
+              cpu: 4000m
+              memory: 16Gi
       containers:
         - name: verify
           securityContext:
@@ -309,6 +316,13 @@ spec:
               mountPath: /mnt/models
             - name: tmp
               mountPath: /tmp
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
       volumes:
         - name: model-cache
           persistentVolumeClaim:
