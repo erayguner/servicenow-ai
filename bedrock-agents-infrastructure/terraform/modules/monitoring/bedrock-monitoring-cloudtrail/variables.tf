@@ -134,11 +134,11 @@ variable "advanced_event_selectors" {
       name = "Log Bedrock API calls"
       field_selectors = [
         {
-          field = "eventCategory"
+          field  = "eventCategory"
           equals = ["Management"]
         },
         {
-          field = "resources.type"
+          field  = "resources.type"
           equals = ["AWS::Bedrock::Agent", "AWS::Bedrock::KnowledgeBase"]
         }
       ]
@@ -147,11 +147,11 @@ variable "advanced_event_selectors" {
       name = "Log Lambda function invocations"
       field_selectors = [
         {
-          field = "eventCategory"
+          field  = "eventCategory"
           equals = ["Data"]
         },
         {
-          field = "resources.type"
+          field  = "resources.type"
           equals = ["AWS::Lambda::Function"]
         }
       ]
@@ -160,11 +160,11 @@ variable "advanced_event_selectors" {
       name = "Log S3 object-level API activity"
       field_selectors = [
         {
-          field = "eventCategory"
+          field  = "eventCategory"
           equals = ["Data"]
         },
         {
-          field = "resources.type"
+          field  = "resources.type"
           equals = ["AWS::S3::Object"]
         }
       ]

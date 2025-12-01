@@ -38,6 +38,23 @@ uphold this code.
 
 ### Setup
 
+#### Quick Setup (Recommended)
+
+Run the automated setup script:
+
+```bash
+./scripts/setup-dev-environment.sh
+```
+
+This installs and configures:
+- Pre-commit hooks
+- Terraform formatting
+- All necessary git hooks
+
+> **📖 For detailed setup instructions, see [docs/DEVELOPMENT_SETUP.md](docs/DEVELOPMENT_SETUP.md)**
+
+#### Manual Setup
+
 1. **Clone the repository**:
 
    ```bash
@@ -172,6 +189,35 @@ FIX: bug in vpc module
 
 ## Development Workflow
 
+### 0. ⚡ Automatic Formatting
+
+**All Terraform files (`.tf`) are automatically formatted before commit.**
+
+#### How It Works:
+
+1. **Local Pre-commit Hook**
+   - Runs `terraform fmt` on staged `.tf` files
+   - Auto-formats before each commit
+   - Commit fails if formatting changes files (stage and re-commit)
+
+2. **GitHub Actions (CI/CD)**
+   - Validates all `.tf` files are properly formatted
+   - **Auto-formats on PRs** - If files aren't formatted, a bot will:
+     - Format all Terraform files
+     - Commit changes back to your PR branch
+     - Add a comment to notify you
+
+3. **Manual Formatting** (optional):
+   ```bash
+   # Format all Terraform files
+   make terraform-fmt
+
+   # Format specific directory
+   terraform fmt -recursive terraform/modules/gke/
+   ```
+
+> **💡 Pro Tip:** Just write code and commit. The tools handle formatting automatically!
+
 ### 1. Create a Feature Branch
 
 ```bash
@@ -185,6 +231,7 @@ git checkout -b fix/bug-description
 - Follow Terraform best practices
 - Add tests for new modules
 - Update documentation
+- **Don't worry about formatting** - pre-commit handles it
 
 ### 3. Test Your Changes
 
@@ -214,13 +261,14 @@ git add .
 # Commit with conventional format (pre-commit runs automatically)
 git commit -m "feat(module-name): add new feature"
 
-# If pre-commit modifies files, stage and commit again
+# If pre-commit formats files, stage and commit again
 git add -u
 git commit -m "feat(module-name): add new feature"
 ```
 
-> **Note**: Pre-commit hooks will run automatically and may auto-fix issues. If
-> files are modified, you'll need to stage and commit again.
+> **Note**: Pre-commit hooks **automatically format** Terraform files. If
+> formatting changes are made, you'll need to stage and commit again. This ensures
+> all code is consistently formatted before reaching CI/CD.
 
 ### 5. Push and Create PR
 

@@ -45,8 +45,32 @@ spec:
         tier: foundational-models
     spec:
       serviceAccountName: llm-gateway-sa # Uses Workload Identity
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - vertex-ai-gateway
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: gateway
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: google/cloud-sdk:alpine
           command: [/bin/sh, -c]
           args:
@@ -101,10 +125,14 @@ spec:
           volumeMounts:
             - name: app-code
               mountPath: /app
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: app-code
           configMap:
             name: vertex-gateway-code
+        - name: tmp
+          emptyDir: {}
 ---
 # ConfigMap with gateway application code
 apiVersion: v1
@@ -489,8 +517,32 @@ spec:
         tier: foundational-models
     spec:
       serviceAccountName: llm-gateway-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - llm-router
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: router
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: python:3.11-slim
           command: [/bin/bash, -c]
           args:
@@ -559,6 +611,8 @@ spec:
               mountPath: /app
             - name: routing-config
               mountPath: /config
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: router-code
           configMap:
@@ -566,6 +620,8 @@ spec:
         - name: routing-config
           configMap:
             name: llm-router-config
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: ConfigMap

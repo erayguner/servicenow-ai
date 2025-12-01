@@ -235,7 +235,7 @@ resource "aws_cloudwatch_event_rule" "custom" {
 # ============================================================================
 
 resource "aws_cloudwatch_event_target" "bedrock_state_change_sns" {
-  count = var.enable_bedrock_state_change_events && var.sns_topic_arn != null ? 1 : 0
+  count = var.enable_bedrock_state_change_events ? 1 : 0
 
   rule           = aws_cloudwatch_event_rule.bedrock_state_change[0].name
   event_bus_name = local.event_bus_name
@@ -247,7 +247,7 @@ resource "aws_cloudwatch_event_target" "bedrock_state_change_sns" {
 }
 
 resource "aws_cloudwatch_event_target" "bedrock_errors_sns" {
-  count = var.enable_bedrock_error_events && var.sns_topic_arn != null ? 1 : 0
+  count = var.enable_bedrock_error_events ? 1 : 0
 
   rule           = aws_cloudwatch_event_rule.bedrock_errors[0].name
   event_bus_name = local.event_bus_name
@@ -259,7 +259,7 @@ resource "aws_cloudwatch_event_target" "bedrock_errors_sns" {
 }
 
 resource "aws_cloudwatch_event_target" "lambda_errors_sns" {
-  count = var.enable_lambda_error_events && var.sns_topic_arn != null ? 1 : 0
+  count = var.enable_lambda_error_events ? 1 : 0
 
   rule           = aws_cloudwatch_event_rule.lambda_errors[0].name
   event_bus_name = local.event_bus_name
@@ -271,7 +271,7 @@ resource "aws_cloudwatch_event_target" "lambda_errors_sns" {
 }
 
 resource "aws_cloudwatch_event_target" "step_functions_sns" {
-  count = var.enable_step_functions_events && var.sns_topic_arn != null ? 1 : 0
+  count = var.enable_step_functions_events ? 1 : 0
 
   rule           = aws_cloudwatch_event_rule.step_functions_state_change[0].name
   event_bus_name = local.event_bus_name
@@ -283,7 +283,7 @@ resource "aws_cloudwatch_event_target" "step_functions_sns" {
 }
 
 resource "aws_cloudwatch_event_target" "config_compliance_sns" {
-  count = var.enable_config_compliance_events && var.sns_topic_arn != null ? 1 : 0
+  count = var.enable_config_compliance_events ? 1 : 0
 
   rule           = aws_cloudwatch_event_rule.config_compliance[0].name
   event_bus_name = local.event_bus_name
@@ -295,7 +295,7 @@ resource "aws_cloudwatch_event_target" "config_compliance_sns" {
 }
 
 resource "aws_cloudwatch_event_target" "cloudtrail_insights_sns" {
-  count = var.enable_cloudtrail_insights_events && var.sns_topic_arn != null ? 1 : 0
+  count = var.enable_cloudtrail_insights_events ? 1 : 0
 
   rule           = aws_cloudwatch_event_rule.cloudtrail_insights[0].name
   event_bus_name = local.event_bus_name
@@ -307,7 +307,7 @@ resource "aws_cloudwatch_event_target" "cloudtrail_insights_sns" {
 }
 
 resource "aws_cloudwatch_event_target" "health_events_sns" {
-  count = var.enable_health_events && var.sns_topic_arn != null ? 1 : 0
+  count = var.enable_health_events ? 1 : 0
 
   rule           = aws_cloudwatch_event_rule.health_events[0].name
   event_bus_name = local.event_bus_name

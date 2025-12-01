@@ -95,7 +95,7 @@ resource "aws_lambda_permission" "bedrock_agent_invoke" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.servicenow_integration.function_name
   principal     = "bedrock.amazonaws.com"
-  source_arn = "arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:agent/*"
+  source_arn    = "arn:aws:bedrock:${module.shared_data.region_name}:${module.shared_data.account_id}:agent/*"
 }
 
 # Lambda permission for API Gateway to invoke

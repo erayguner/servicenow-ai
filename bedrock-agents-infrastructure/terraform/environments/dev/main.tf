@@ -34,9 +34,10 @@ locals {
     ManagedBy      = "terraform"
     CostCenter     = "development"
     Owner          = var.owner_email
-    AutoShutdown   = "true"
+    AutoShutdown   = var.auto_shutdown_enabled ? "true" : "false"
     BackupRequired = "false"
     Compliance     = "none"
+    DebugMode      = var.enable_debug_mode ? "enabled" : "disabled"
   }
 
   # Minimal configuration for dev
@@ -100,9 +101,9 @@ module "security_kms" {
   aws_region   = var.aws_region
 
   # Minimal KMS configuration for dev
-  enable_key_rotation     = false # Disabled for cost savings
+  enable_key_rotation     = var.enable_cost_optimization ? false : true # Disabled when optimizing costs
   enable_multi_region     = false
-  deletion_window_in_days = 7 # Short window for dev
+  deletion_window_in_days = var.enable_cost_optimization ? 7 : 30 # Short window when optimizing costs
 
   # IAM role ARNs that need KMS access
   iam_role_arns = []
@@ -237,15 +238,15 @@ module "security_secrets" {
   environment  = local.environment
 
   # KMS key for secrets encryption
-  kms_key_id = module.security_kms.secrets_key_id
+  kms_key_id  = module.security_kms.secrets_key_id
   kms_key_arn = module.security_kms.secrets_key_arn
 
   # Rotation disabled for dev
-  enable_rotation = false
+  enable_rotation = var.enable_cost_optimization ? false : true
   rotation_days   = 90
 
   # Recovery window
-  recovery_window_in_days = 7
+  recovery_window_in_days = var.enable_cost_optimization ? 7 : 30
 
   # CloudWatch configuration
   sns_topic_arn             = module.monitoring_cloudwatch.sns_topic_arn
@@ -290,9 +291,9 @@ module "monitoring_cloudwatch" {
   lambda_duration_threshold            = 30000
   lambda_throttles_threshold           = 10
 
-  # Anomaly detection - disabled for dev
-  enable_anomaly_detection = false
-  enable_composite_alarms  = false
+  # Anomaly detection - controlled by debug mode
+  enable_anomaly_detection = var.enable_debug_mode
+  enable_composite_alarms  = var.enable_debug_mode
 
   # Dashboard
   create_dashboard = true
@@ -337,7 +338,7 @@ module "monitoring_cloudtrail" {
 
   # CloudWatch Logs integration
   create_cloudwatch_logs_group   = true
-  cloudwatch_logs_retention_days = 7
+  cloudwatch_logs_retention_days = var.enable_debug_mode ? 14 : (var.enable_cost_optimization ? 3 : 7)
 
   # Event selectors - basic for dev
   event_selectors = [
@@ -377,7 +378,7 @@ module "monitoring_eventbridge" {
 
   # Event patterns for Bedrock
   enable_bedrock_state_change_events = true
-  enable_bedrock_error_events = true
+  enable_bedrock_error_events        = true
 
   # Targets
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
@@ -441,22 +442,25 @@ module "bedrock_servicenow" {
   agent_idle_session_ttl = local.agent_config.idle_session_ttl
 
   # Lambda configuration - cost-optimized
-  lambda_runtime     = "python3.12"
-  lambda_timeout     = 180 # 3 minutes
-  lambda_memory_size = 256 # Lower memory for dev
+  lambda_runtime = "python3.12"
+  # 5 minutes when debugging, 3 minutes otherwise
+  lambda_timeout = var.enable_debug_mode ? 300 : 180
+  # Adjust based on cost optimization and debug mode
+  lambda_memory_size = var.enable_cost_optimization ? 128 : (var.enable_debug_mode ? 512 : 256)
 
   # DynamoDB configuration
-  dynamodb_billing_mode           = "PAY_PER_REQUEST" # On-demand for dev
-  dynamodb_point_in_time_recovery = false             # Disabled for cost savings
+  dynamodb_billing_mode = "PAY_PER_REQUEST" # On-demand for dev
+  # Enable if not cost-optimizing
+  dynamodb_point_in_time_recovery = var.enable_cost_optimization ? false : true
 
   # Monitoring - basic
-  enable_enhanced_monitoring = false # Disabled for cost savings
+  enable_enhanced_monitoring = var.enable_debug_mode # Enable when debugging
   alarm_notification_emails  = var.alert_email != "" ? [var.alert_email] : []
 
   # Security - use KMS keys from security module
   kms_key_id                = module.security_kms.bedrock_data_key_id
   enable_encryption_at_rest = true
-  sns_kms_master_key_id = module.security_kms.bedrock_data_key_id
+  sns_kms_master_key_id     = module.security_kms.bedrock_data_key_id
 
   # Networking - no VPC for dev (cost savings)
   vpc_id             = null
@@ -518,7 +522,7 @@ output "monitoring_sns_topic_arn" {
 
 output "cloudtrail_log_group" {
   description = "CloudTrail log group name"
-  value = module.monitoring_cloudtrail.cloudwatch_log_group_name
+  value       = module.monitoring_cloudtrail.cloudwatch_log_group_name
 }
 
 output "cloudtrail_s3_bucket" {
@@ -529,7 +533,7 @@ output "cloudtrail_s3_bucket" {
 # ServiceNow Module Outputs
 output "servicenow_api_endpoint" {
   description = "API Gateway endpoint for ServiceNow integration"
-  value = module.bedrock_servicenow.api_gateway_url
+  value       = module.bedrock_servicenow.api_gateway_url
 }
 
 output "servicenow_api_id" {
@@ -544,5 +548,5 @@ output "servicenow_webhook_url" {
 
 output "servicenow_dynamodb_table" {
   description = "DynamoDB table for ServiceNow session tracking"
-  value = module.bedrock_servicenow.state_table_name
+  value       = module.bedrock_servicenow.state_table_name
 }

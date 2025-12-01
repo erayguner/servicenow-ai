@@ -54,10 +54,10 @@ output "insights_query_ids" {
 
 output "trail_console_url" {
   description = "URL to view CloudTrail in AWS Console"
-  value       = "https://console.aws.amazon.com/cloudtrail/home?region=${data.aws_region.current.name}#/trails/${local.trail_name}"
+  value       = "https://console.aws.amazon.com/cloudtrail/home?region=${data.aws_region.current.region}#/trails/${local.trail_name}"
 }
 
 output "event_history_url" {
   description = "URL to view CloudTrail event history in AWS Console"
-  value       = "https://console.aws.amazon.com/cloudtrail/home?region=${data.aws_region.current.name}#/events"
+  value       = "https://console.aws.amazon.com/cloudtrail/home?region=${data.aws_region.current.region}#/events"
 }

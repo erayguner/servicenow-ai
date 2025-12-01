@@ -42,15 +42,15 @@ output "insights_event_rule_arn" {
 
 output "service_map_url" {
   description = "URL to view X-Ray service map in AWS Console"
-  value       = "https://console.aws.amazon.com/xray/home?region=${data.aws_region.current.name}#/service-map"
+  value       = "https://console.aws.amazon.com/xray/home?region=${data.aws_region.current.region}#/service-map"
 }
 
 output "traces_url" {
   description = "URL to view X-Ray traces in AWS Console"
-  value       = "https://console.aws.amazon.com/xray/home?region=${data.aws_region.current.name}#/traces"
+  value       = "https://console.aws.amazon.com/xray/home?region=${data.aws_region.current.region}#/traces"
 }
 
 output "analytics_url" {
   description = "URL to view X-Ray analytics in AWS Console"
-  value       = "https://console.aws.amazon.com/xray/home?region=${data.aws_region.current.name}#/analytics"
+  value       = "https://console.aws.amazon.com/xray/home?region=${data.aws_region.current.region}#/analytics"
 }

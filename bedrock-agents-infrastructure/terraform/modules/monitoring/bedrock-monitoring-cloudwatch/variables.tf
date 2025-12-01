@@ -20,6 +20,12 @@ variable "bedrock_agent_alias_id" {
   default     = null
 }
 
+variable "enable_bedrock_agent_alarms" {
+  description = "Create Bedrock agent CloudWatch alarms"
+  type        = bool
+  default     = true
+}
+
 variable "lambda_function_names" {
   description = "List of Lambda function names to monitor"
   type        = list(string)

@@ -156,7 +156,7 @@ resource "aws_lambda_function" "secrets_rotation" {
 
   environment {
     variables = {
-      SECRETS_MANAGER_ENDPOINT = "https://secretsmanager.${data.aws_region.current.name}.amazonaws.com"
+      SECRETS_MANAGER_ENDPOINT = "https://secretsmanager.${data.aws_region.current.region}.amazonaws.com"
       PROJECT_NAME             = var.project_name
       ENVIRONMENT              = var.environment
       SNS_TOPIC_ARN            = var.sns_topic_arn

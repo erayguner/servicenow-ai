@@ -37,7 +37,7 @@ resource "aws_securityhub_standards_subscription" "aws_foundational" {
   count = var.enable_aws_foundational_standard ? 1 : 0
 
   depends_on    = [aws_securityhub_account.main]
-  standards_arn = "arn:aws:securityhub:${data.aws_region.current.name}::standards/aws-foundational-security-best-practices/v/1.0.0"
+  standards_arn = "arn:aws:securityhub:${data.aws_region.current.region}::standards/aws-foundational-security-best-practices/v/1.0.0"
 }
 
 # CIS AWS Foundations Benchmark
@@ -53,7 +53,7 @@ resource "aws_securityhub_standards_subscription" "pci_dss" {
   count = var.enable_pci_dss ? 1 : 0
 
   depends_on    = [aws_securityhub_account.main]
-  standards_arn = "arn:aws:securityhub:${data.aws_region.current.name}::standards/pci-dss/v/3.2.1"
+  standards_arn = "arn:aws:securityhub:${data.aws_region.current.region}::standards/pci-dss/v/3.2.1"
 }
 
 # NIST 800-53
@@ -61,7 +61,7 @@ resource "aws_securityhub_standards_subscription" "nist" {
   count = var.enable_nist ? 1 : 0
 
   depends_on    = [aws_securityhub_account.main]
-  standards_arn = "arn:aws:securityhub:${data.aws_region.current.name}::standards/nist-800-53/v/5.0.0"
+  standards_arn = "arn:aws:securityhub:${data.aws_region.current.region}::standards/nist-800-53/v/5.0.0"
 }
 
 # ==============================================================================
@@ -225,7 +225,7 @@ resource "aws_securityhub_product_subscription" "guardduty" {
   count = var.enable_guardduty_integration ? 1 : 0
 
   depends_on  = [aws_securityhub_account.main]
-  product_arn = "arn:aws:securityhub:${data.aws_region.current.name}::product/aws/guardduty"
+  product_arn = "arn:aws:securityhub:${data.aws_region.current.region}::product/aws/guardduty"
 }
 
 # ==============================================================================
@@ -236,7 +236,7 @@ resource "aws_securityhub_product_subscription" "config" {
   count = var.enable_config_integration ? 1 : 0
 
   depends_on  = [aws_securityhub_account.main]
-  product_arn = "arn:aws:securityhub:${data.aws_region.current.name}::product/aws/config"
+  product_arn = "arn:aws:securityhub:${data.aws_region.current.region}::product/aws/config"
 }
 
 # ==============================================================================
@@ -247,7 +247,7 @@ resource "aws_securityhub_product_subscription" "inspector" {
   count = var.enable_inspector_integration ? 1 : 0
 
   depends_on  = [aws_securityhub_account.main]
-  product_arn = "arn:aws:securityhub:${data.aws_region.current.name}::product/aws/inspector"
+  product_arn = "arn:aws:securityhub:${data.aws_region.current.region}::product/aws/inspector"
 }
 
 # ==============================================================================
@@ -258,7 +258,7 @@ resource "aws_securityhub_product_subscription" "access_analyzer" {
   count = var.enable_access_analyzer_integration ? 1 : 0
 
   depends_on  = [aws_securityhub_account.main]
-  product_arn = "arn:aws:securityhub:${data.aws_region.current.name}::product/aws/access-analyzer"
+  product_arn = "arn:aws:securityhub:${data.aws_region.current.region}::product/aws/access-analyzer"
 }
 
 # ==============================================================================

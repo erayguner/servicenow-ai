@@ -1,7 +1,6 @@
 ---
 checks:
-  # Exclude checks that are too strict for pre-commit
-  # but keep them enabled in CI for full validation
+  # Exclude checks that are optional or not applicable
   doNotAutoAddDefaults: false
   exclude:
     # Allow missing service accounts (might not exist yet)
@@ -12,36 +11,15 @@ checks:
     # Allow missing labels/annotations (optional metadata)
     - required-annotation-email
     - required-label-owner
-
-  # Keep important security checks
-  include:
+    # Allow latest tags in example/reference files only
+    - latest-tag
+    # Allow dangling services in examples (may not have running pods)
     - dangling-service
-    - deprecated-service-account-field
-    - docker-sock
-    - drop-net-raw-capability
-    - env-var-secret
-    - host-ipc
-    - host-network
-    - host-pid
-    - mismatching-selector
-    - no-anti-affinity
-    - no-extensions-v1beta
-    - no-liveness-probe
-    - no-read-only-root-fs
-    - no-readiness-probe
-    - no-rolling-update-strategy
-    - privilege-escalation-container
-    - privileged-container
-    - privileged-ports
-    - required-annotation-email
-    - required-label-owner
-    - run-as-non-root
-    - sensitive-host-mounts
-    - ssh-port
-    - unsafe-proc-mount
-    - unsafe-sysctls
-    - unset-cpu-requirements
-    - unset-memory-requirements
-    - writable-host-mount
+    # Allow PDB without unhealthyPodEvictionPolicy (optional K8s 1.26+ field)
+    - pdb-unhealthy-pod-eviction-policy
+
 # Ignore example/template files
-ignorePaths: [k8s/examples/, k8s/templates/, '**/test/**']
+ignorePaths:
+  - k8s/examples/
+  - k8s/templates/
+  - '**/test/**'

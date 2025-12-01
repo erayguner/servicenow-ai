@@ -27,7 +27,7 @@ metadata:
   name: llm-with-oci-volume
   namespace: production
   annotations:
-    serving.kserve.io/enable-oci-image-volumes: 'true'
+    serving.kserve.io/enable-oci-image-volumes: true
     serving.kserve.io/model-format: safetensors
 spec:
   predictor:
@@ -54,13 +54,13 @@ spec:
           readOnly: true
       resources:
         requests:
-          cpu: '6'
+          cpu: 6
           memory: 24Gi
-          nvidia.com/gpu: '1'
+          nvidia.com/gpu: 1
         limits:
-          cpu: '12'
+          cpu: 12
           memory: 48Gi
-          nvidia.com/gpu: '1'
+          nvidia.com/gpu: 1
 ---
 # Alternative: Using Modelcars pattern (for Kubernetes < 1.31)
 # This uses a sidecar container with shareProcessNamespace
@@ -70,25 +70,49 @@ metadata:
   name: llm-with-modelcar
   namespace: production
   annotations:
-    serving.kserve.io/enable-modelcar: 'true'
+    serving.kserve.io/enable-modelcar: true
 spec:
   predictor:
     serviceAccountName: llm-gateway-sa
 
     # Enable process namespace sharing for modelcar
     shareProcessNamespace: true
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      fsGroup: 2000
+      seccompProfile:
+        type: RuntimeDefault
     containers:
       # Sidecar container holding the model in OCI image
       - name: model-sidecar
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         image: europe-west2-docker.pkg.dev/PROJECT_ID/llm-models/mistral-7b:v1
         command: [sleep, infinity]
         volumeMounts:
           - name: model-storage
             mountPath: /models
             readOnly: true
+          - name: tmp
+            mountPath: /tmp
 
       # Main serving container
       - name: kserve-container
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         image: vllm/vllm-openai:latest
         command: [/bin/bash, -c]
         args:
@@ -101,16 +125,19 @@ spec:
               --model=/mnt/models \
               --gpu-memory-utilization=0.90 \
               --tensor-parallel-size=1
+        volumeMounts:
+          - name: tmp
+            mountPath: /tmp
         resources:
           requests:
-            nvidia.com/gpu: '1'
+            nvidia.com/gpu: 1
           limits:
-            nvidia.com/gpu: '1'
+            nvidia.com/gpu: 1
     volumes:
       - name: model-storage
         emptyDir: {}
----
-
+      - name: tmp
+        emptyDir: {}
 ---
 # Job to build and push model OCI images
 apiVersion: batch/v1
@@ -124,9 +151,23 @@ spec:
     spec:
       serviceAccountName: llm-gateway-sa
       restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
         # Download model from Hugging Face
         - name: download-model
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: huggingface/transformers-pytorch-gpu:latest
           command: [/bin/bash, -c]
           args:
@@ -155,6 +196,8 @@ spec:
           volumeMounts:
             - name: workspace
               mountPath: /workspace
+            - name: tmp
+              mountPath: /tmp
           env:
             - name: HF_TOKEN
               valueFrom:
@@ -162,9 +205,24 @@ spec:
                   name: model-registry-credentials
                   key: huggingface-token
                   optional: true
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 8Gi
+            limits:
+              cpu: 4000m
+              memory: 16Gi
       containers:
         # Build and push OCI image using Kaniko
         - name: build-push
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: gcr.io/kaniko-project/executor:latest
           args:
             - --context=/workspace
@@ -179,6 +237,15 @@ spec:
             - name: dockerfile
               mountPath: /workspace/Dockerfile
               subPath: Dockerfile
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 4Gi
+            limits:
+              cpu: 4000m
+              memory: 8Gi
       volumes:
         - name: workspace
           emptyDir:
@@ -186,6 +253,8 @@ spec:
         - name: dockerfile
           configMap:
             name: model-dockerfile
+        - name: tmp
+          emptyDir: {}
 ---
 # ConfigMap with Dockerfile for model OCI images
 apiVersion: v1
@@ -216,7 +285,7 @@ metadata:
   name: update-model-images
   namespace: production
 spec:
-  schedule: 0 2 * * 0 # Weekly on Sunday at 2 AM
+  schedule: '0 2 * * 0' # Weekly on Sunday at 2 AM
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
@@ -225,8 +294,22 @@ spec:
         spec:
           serviceAccountName: llm-gateway-sa
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 2000
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: update
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               image: google/cloud-sdk:alpine
               command: [/bin/bash, -c]
               args:
@@ -244,6 +327,19 @@ spec:
                     update-model-$(date +%Y%m%d-%H%M%S) \
                     -n production
                   echo "Model update triggered"
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+          volumes:
+            - name: tmp
+              emptyDir: {}
 ---
 # PodDisruptionBudget for model serving pods
 apiVersion: policy/v1
@@ -253,6 +349,7 @@ metadata:
   namespace: production
 spec:
   minAvailable: 1
+  unhealthyPodEvictionPolicy: AlwaysAllow
   selector:
     matchLabels:
       serving.kserve.io/inferenceservice: llm-with-oci-volume

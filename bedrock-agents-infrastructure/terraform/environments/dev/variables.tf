@@ -22,15 +22,29 @@ variable "agent_instruction" {
   EOT
 }
 
-# Note: Knowledge bases and action groups are not currently configured
-# in this environment. Add these variables back when implementing:
-# - data_source_bucket_arn: For S3 bucket containing knowledge base data
-# - action_lambda_arn: For Lambda function ARN for agent actions
-
 variable "alert_email" {
   description = "Email address for alerts (optional in dev)"
   type        = string
   default     = ""
+}
+
+# Optional dev-only toggles and metadata
+variable "enable_cost_optimization" {
+  description = "Enable cost optimization features in dev (reduces KMS rotation, shorter retention, lower Lambda memory)"
+  type        = bool
+  default     = false
+}
+
+variable "auto_shutdown_enabled" {
+  description = "Toggle auto-shutdown behaviour for dev resources (sets AutoShutdown tag)"
+  type        = bool
+  default     = false
+}
+
+variable "enable_debug_mode" {
+  description = "Enable verbose/debug behaviours in dev (enhanced monitoring, anomaly detection, longer retention)"
+  type        = bool
+  default     = false
 }
 
 # ==============================================================================
@@ -54,12 +68,12 @@ variable "lambda_function_names" {
 # ==============================================================================
 
 variable "servicenow_instance_url" {
-  description = "ServiceNow instance URL (e.g., https://your-instance.service-now.com)"
+  description = "ServiceNow instance URL (e.g., https://your-instance.service-now.com/)"
   type        = string
   default     = ""
 
   validation {
-    condition     = var.servicenow_instance_url == "" || can(regex("^https://.*\\.service-now\\.com$", var.servicenow_instance_url))
+    condition     = var.servicenow_instance_url == "" || can(regex("^https://.*\\.service-now\\.com/?$", var.servicenow_instance_url))
     error_message = "ServiceNow instance URL must be a valid HTTPS URL ending with .service-now.com"
   }
 }

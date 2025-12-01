@@ -226,6 +226,7 @@ metadata:
   namespace: production
 spec:
   minAvailable: 2
+  unhealthyPodEvictionPolicy: AlwaysAllow
   selector:
     matchLabels:
       app: conversation-manager

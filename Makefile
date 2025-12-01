@@ -38,6 +38,17 @@ pre-commit-k8s: ## Run only Kubernetes linting
 	@echo "☸️  Running Kubernetes linting..."
 	pre-commit run kube-linter-system --all-files
 
+kubeconform: ## Validate Kubernetes manifests with kubeconform
+	@echo "☸️  Validating Kubernetes manifests..."
+	@if command -v kubeconform >/dev/null 2>&1; then \
+		kubeconform -strict -summary -skip InferenceService,ServingRuntime,ServiceMonitor,PrometheusRule k8s; \
+	elif [ -f "$$HOME/go/bin/kubeconform" ]; then \
+		$$HOME/go/bin/kubeconform -strict -summary -skip InferenceService,ServingRuntime,ServiceMonitor,PrometheusRule k8s; \
+	else \
+		echo "❌ kubeconform not found. Install with: go install github.com/yannh/kubeconform/cmd/kubeconform@latest"; \
+		exit 1; \
+	fi
+
 pre-commit-fix: ## Run hooks that auto-fix issues
 	@echo "🔧 Running auto-fix hooks..."
 	pre-commit run trailing-whitespace --all-files
