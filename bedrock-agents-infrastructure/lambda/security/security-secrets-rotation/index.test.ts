@@ -156,7 +156,7 @@ describe('Security Secrets Rotation', () => {
         rotationType: 'BEDROCK_API_KEY',
       };
 
-      await expect(handler(event, {} as any, {} as any)).rejects.toThrow();
+      await expect(handler(event)).rejects.toThrow();
     });
 
     it('should add ERROR step on failure', async () => {
