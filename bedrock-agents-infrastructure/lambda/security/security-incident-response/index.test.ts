@@ -25,7 +25,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.incidentId).toMatch(/^incident-\d+$/);
@@ -41,7 +41,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.status).toBe('NO_ACTION_REQUIRED');
       expect(result.actionsToken).toBe(0);
@@ -54,7 +54,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.actionsToken).toBeGreaterThan(0);
     });
@@ -66,7 +66,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.responseTime).toBeGreaterThan(0);
       expect(typeof result.responseTime).toBe('number');
@@ -85,7 +85,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const isolationActions = result.findings.filter((f) => f.resourceArn.includes('instance'));
       expect(isolationActions).toBeDefined();
@@ -98,7 +98,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -112,7 +112,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -126,7 +126,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.actionsToken).toBeGreaterThan(0);
     });
@@ -138,7 +138,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.incidentId).toBeDefined();
     });
@@ -152,7 +152,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -164,7 +164,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.findings).toBeDefined();
       expect(Array.isArray(result.findings)).toBe(true);
@@ -179,7 +179,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.incidentId).toBeDefined();
     });
@@ -191,7 +191,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.findings.forEach((finding) => {
         expect(finding.severity).toMatch(/^(CRITICAL|HIGH|MEDIUM|LOW)$/);
@@ -207,7 +207,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      await expect(handler(event, {} as any, {} as any)).rejects.toThrow();
+      await expect(handler(event)).rejects.toThrow();
     });
 
     it('should send error notification on failure', async () => {
@@ -218,7 +218,7 @@ describe('Security Incident Response', () => {
       };
 
       try {
-        await handler(event, {} as any, {} as any);
+        await handler(event);
       } catch (error) {
         expect(error).toBeDefined();
       }
@@ -235,7 +235,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.dryRun).toBe(true);
     });
@@ -250,7 +250,7 @@ describe('Security Incident Response', () => {
         source: 'guardduty',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.actionsToken).toBeGreaterThanOrEqual(0);
     });

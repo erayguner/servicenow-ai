@@ -26,7 +26,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['bedrock', 'iam', 'secrets', 'encryption'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.checkId).toMatch(/^compliance-check-\d+$/);
@@ -38,7 +38,7 @@ describe('Security Compliance Checker', () => {
     it('should handle empty event gracefully', async () => {
       const event: ComplianceCheckEvent = {};
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.totalFindings).toBeGreaterThanOrEqual(0);
@@ -49,7 +49,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['bedrock', 'iam'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.criticalFindings).toBeGreaterThanOrEqual(0);
       expect(result.highFindings).toBeGreaterThanOrEqual(0);
@@ -65,7 +65,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['iam'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       if (result.criticalFindings > 0) {
         expect(result.complianceStatus).toBe('FAILED');
@@ -77,7 +77,7 @@ describe('Security Compliance Checker', () => {
         targetRoles: ['invalid-arn'],
       };
 
-      await expect(handler(event, {} as any, {} as any)).rejects.toThrow();
+      await expect(handler(event)).rejects.toThrow();
     });
   });
 
@@ -87,7 +87,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['bedrock'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const encryptionFindings = result.findings.filter((f) =>
         f.title.includes('customer-managed encryption')
@@ -103,7 +103,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['iam'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const wildcardFindings = result.findings.filter((f) => f.title.includes('wildcard'));
       expect(wildcardFindings).toBeDefined();
@@ -115,7 +115,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['iam'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const overPrivilegedFindings = result.findings.filter((f) =>
         f.title.includes('overly permissive')
@@ -130,7 +130,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['secrets'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.findings).toBeDefined();
     });
@@ -140,7 +140,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['secrets'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const rotationFindings = result.findings.filter((f) => f.title.includes('rotation'));
       expect(rotationFindings).toBeDefined();
@@ -154,7 +154,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['encryption'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.findings).toBeDefined();
     });
@@ -165,7 +165,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['encryption'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -177,7 +177,7 @@ describe('Security Compliance Checker', () => {
         checkTypes: ['bedrock', 'iam', 'secrets', 'encryption'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.findings.forEach((finding) => {
         expect(finding.id).toBeDefined();

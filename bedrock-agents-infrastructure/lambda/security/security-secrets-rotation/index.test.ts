@@ -22,7 +22,7 @@ describe('Security Secrets Rotation', () => {
         ClientRequestToken: 'test-token-123',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.rotationId).toMatch(/^rotation-\d+$/);
@@ -38,7 +38,7 @@ describe('Security Secrets Rotation', () => {
         ClientRequestToken: 'test-token-456',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.rotationType).toBe('DATABASE_CREDENTIALS');
@@ -52,7 +52,7 @@ describe('Security Secrets Rotation', () => {
         lambdaFunctions: ['function-1', 'function-2'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.rotationType).toBe('LAMBDA_ENVIRONMENT');
@@ -64,7 +64,7 @@ describe('Security Secrets Rotation', () => {
         rotationType: 'GENERIC_SECRET',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.rotationType).toBe('GENERIC_SECRET');
@@ -73,7 +73,7 @@ describe('Security Secrets Rotation', () => {
     it('should handle missing SecretId', async () => {
       const event: RotationEvent = {};
 
-      await expect(handler(event, {} as any, {} as any)).rejects.toThrow(
+      await expect(handler(event)).rejects.toThrow(
         'SecretId or secretArn is required'
       );
     });
@@ -84,7 +84,7 @@ describe('Security Secrets Rotation', () => {
         rotationType: 'GENERIC_SECRET',
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.duration).toBeGreaterThan(0);
       expect(typeof result.duration).toBe('number');
