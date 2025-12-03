@@ -84,7 +84,7 @@ describe('Security Log Analyzer', () => {
         detectSuspiciousAPI: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.suspiciousPatterns).toBeDefined();
     });
@@ -95,7 +95,7 @@ describe('Security Log Analyzer', () => {
         suspiciousActions: ['CustomAction1', 'CustomAction2'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -107,7 +107,7 @@ describe('Security Log Analyzer', () => {
         detectPrivilegeEscalation: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const escalations = result.anomalies.filter((a) => a.type === 'PRIVILEGE_ESCALATION');
       expect(escalations).toBeDefined();
@@ -118,7 +118,7 @@ describe('Security Log Analyzer', () => {
         detectPrivilegeEscalation: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -130,7 +130,7 @@ describe('Security Log Analyzer', () => {
         detectUnauthorizedAccess: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const unauthorized = result.anomalies.filter((a) => a.type === 'UNAUTHORIZED_ACCESS');
       expect(unauthorized).toBeDefined();
@@ -141,7 +141,7 @@ describe('Security Log Analyzer', () => {
         detectUnauthorizedAccess: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -156,7 +156,7 @@ describe('Security Log Analyzer', () => {
         },
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.anomalies).toBeDefined();
     });
@@ -169,7 +169,7 @@ describe('Security Log Analyzer', () => {
         },
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -179,7 +179,7 @@ describe('Security Log Analyzer', () => {
         detectAnomalies: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.anomalies).toBeDefined();
     });
@@ -193,7 +193,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.anomalies.forEach((anomaly) => {
         expect(anomaly.severity).toBe('CRITICAL');
@@ -207,7 +207,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.anomalies.forEach((anomaly) => {
         expect(['CRITICAL', 'HIGH']).toContain(anomaly.severity);
@@ -223,7 +223,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -235,7 +235,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -247,7 +247,7 @@ describe('Security Log Analyzer', () => {
         detectPrivilegeEscalation: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.alertsSent).toBeGreaterThanOrEqual(0);
     });
@@ -257,7 +257,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(typeof result.alertsSent).toBe('number');
     });
@@ -270,7 +270,7 @@ describe('Security Log Analyzer', () => {
         lookbackHours: 48,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.timeRange.hours).toBe(48);
     });
@@ -280,7 +280,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.timeRange.hours).toBe(24);
     });
@@ -292,7 +292,7 @@ describe('Security Log Analyzer', () => {
         analyzeCloudTrail: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.duration).toBeGreaterThan(0);
       expect(typeof result.duration).toBe('number');
@@ -305,7 +305,7 @@ describe('Security Log Analyzer', () => {
         detectPrivilegeEscalation: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.anomalies.forEach((anomaly) => {
         expect(anomaly.evidence).toBeDefined();
@@ -318,7 +318,7 @@ describe('Security Log Analyzer', () => {
         detectUnauthorizedAccess: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.anomalies.forEach((anomaly) => {
         expect(anomaly.indicators).toBeDefined();
@@ -331,7 +331,7 @@ describe('Security Log Analyzer', () => {
     it('should handle errors gracefully', async () => {
       const event: LogAnalysisEvent = {};
 
-      await expect(handler(event, {} as any, {} as any)).rejects.toThrow();
+      await expect(handler(event)).rejects.toThrow();
     });
   });
 });

@@ -24,7 +24,7 @@ describe('Security Access Analyzer', () => {
         analyzeFindings: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.analysisId).toMatch(/^analysis-\d+$/);
@@ -37,7 +37,7 @@ describe('Security Access Analyzer', () => {
         analyzeFindings: false,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
       expect(result.duration).toBeGreaterThan(0);
@@ -49,7 +49,7 @@ describe('Security Access Analyzer', () => {
         generateRecommendations: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.recommendations).toBeDefined();
       expect(Array.isArray(result.recommendations)).toBe(true);
@@ -60,7 +60,7 @@ describe('Security Access Analyzer', () => {
         analyzeFindings: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.criticalFindings).toBeGreaterThanOrEqual(0);
       expect(result.highFindings).toBeGreaterThanOrEqual(0);
@@ -78,7 +78,7 @@ describe('Security Access Analyzer', () => {
         analyzeFindings: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -90,7 +90,7 @@ describe('Security Access Analyzer', () => {
         analyzeFindings: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.totalFindings).toBe(0);
     });
@@ -103,7 +103,7 @@ describe('Security Access Analyzer', () => {
         checkOverpermissive: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const overprivilegedFindings = result.findings.filter((f) => f.type === 'OVERPRIVILEGED');
       expect(overprivilegedFindings).toBeDefined();
@@ -114,7 +114,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['arn:aws:iam::123456789012:role/WildcardRole'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const wildcardFindings = result.findings.filter((f) => f.type === 'WILDCARD_PRINCIPAL');
       expect(wildcardFindings).toBeDefined();
@@ -125,7 +125,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['arn:aws:iam::123456789012:role/CrossAccountRole'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       const externalIdFindings = result.findings.filter((f) => f.type === 'MISSING_EXTERNAL_ID');
       expect(externalIdFindings).toBeDefined();
@@ -138,7 +138,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['arn:aws:iam::123456789012:role/TestRole'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.unusedPermissions).toBeDefined();
       expect(Array.isArray(result.unusedPermissions)).toBe(true);
@@ -149,7 +149,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['arn:aws:iam::123456789012:role/TestRole'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.unusedPermissions.forEach((perm) => {
         if (!perm.neverUsed) {
@@ -166,7 +166,7 @@ describe('Security Access Analyzer', () => {
         generateRecommendations: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.recommendations.forEach((rec) => {
         expect(rec.currentPolicy).toBeDefined();
@@ -185,7 +185,7 @@ describe('Security Access Analyzer', () => {
         generateRecommendations: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       result.recommendations.forEach((rec) => {
         expect(rec.riskReduction).toBeGreaterThanOrEqual(0);
@@ -203,7 +203,7 @@ describe('Security Access Analyzer', () => {
         generateRecommendations: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.policiesQueued).toBeGreaterThanOrEqual(0);
     });
@@ -217,7 +217,7 @@ describe('Security Access Analyzer', () => {
         generateRecommendations: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.dryRun).toBe(true);
     });
@@ -229,7 +229,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['arn:aws:iam::123456789012:role/CriticalRole'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result).toBeDefined();
     });
@@ -241,7 +241,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['invalid-arn'],
       };
 
-      await expect(handler(event, {} as any, {} as any)).rejects.toThrow();
+      await expect(handler(event)).rejects.toThrow();
     });
 
     it('should handle non-existent role gracefully', async () => {
@@ -249,7 +249,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['arn:aws:iam::123456789012:role/NonExistentRole'],
       };
 
-      await expect(handler(event, {} as any, {} as any)).rejects.toThrow();
+      await expect(handler(event)).rejects.toThrow();
     });
   });
 
@@ -262,7 +262,7 @@ describe('Security Access Analyzer', () => {
         generateRecommendations: true,
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.dryRun).toBe(true);
     });
@@ -274,7 +274,7 @@ describe('Security Access Analyzer', () => {
         roleArns: ['arn:aws:iam::123456789012:role/TestRole'],
       };
 
-      const result = await handler(event, {} as any, {} as any);
+      const result = await handler(event);
 
       expect(result.duration).toBeGreaterThan(0);
       expect(typeof result.duration).toBe('number');
