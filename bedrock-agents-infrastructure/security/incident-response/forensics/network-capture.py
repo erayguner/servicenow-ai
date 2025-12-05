@@ -67,9 +67,6 @@ class NetworkCaptureManager:
 
             # Execute via SSM Session Manager
             try:
-                response = self.ssm.start_session(
-                    Target=instance_id, Document="AWS-StartInteractiveCommand"
-                )
 
                 # Note: This would require interactive terminal in production
                 # Here we use Systems Manager to run the command
