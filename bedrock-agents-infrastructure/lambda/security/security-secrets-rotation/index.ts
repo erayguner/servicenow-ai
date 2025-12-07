@@ -20,7 +20,6 @@ import {
   RotationResult,
   SecretRotationStep,
   RotationType,
-  VerificationResult,
 } from './types';
 import {
   generateNewSecret,
