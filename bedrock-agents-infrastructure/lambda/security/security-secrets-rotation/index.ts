@@ -32,7 +32,6 @@ import {
 } from './utils';
 
 const secretsClient = new SecretsManagerClient({});
-const lambdaClient = new LambdaClient({});
 
 const NOTIFICATION_TOPIC = process.env.NOTIFICATION_TOPIC_ARN || '';
 const DRY_RUN = process.env.DRY_RUN === 'true';
