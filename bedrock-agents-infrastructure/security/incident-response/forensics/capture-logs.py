@@ -84,8 +84,10 @@ class LogCaptureManager:
                             event["CloudTrailEvent"] = json.loads(
                                 event["CloudTrailEvent"]
                             )
-                        except json.JSONDecodeError:
-                            pass
+                        except json.JSONDecodeError as json_err:
+                            logger.warning(
+                                f"Failed to decode CloudTrailEvent JSON: {json_err}. Event snippet: {event.get('CloudTrailEvent')[:200]}"  # Only output first 200 chars for brevity
+                            )
                     events.append(event)
 
             # Save to file
