@@ -1124,3 +1124,10 @@ The following instructions are only to be applied when performing a code review.
 - [ ] Encourage the use of `tools`, but it's not required.
 - [ ] Strongly encourage the use of `model` to specify the model that the chat
       mode is optimised for.
+
+## Versioning Policy (Terraform & Providers)
+
+- Always use the latest stable Terraform and provider versions.
+- Follow constraints and upgrade steps defined in `terraform.agent.md`.
+- Prefer compatible ranges that auto-adopt patch/minor updates; validate major
+  bumps in `dev` before wider rollout.

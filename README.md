@@ -743,7 +743,7 @@ Packages are versioned independently:
 - KMS Module: v1.0.0
 - Workload Identity Module: v1.0.0
 
-See the [Release Process](CONTRIBUTING.md#release-process) section in CONTRIBUTING.md for details.
+See the Release Process section in CONTRIBUTING.md for details.
 
 ---
 
@@ -757,6 +757,17 @@ for details on:
 - Pull request process
 - Testing requirements
 - Code style guidelines
+
+## Development Guides
+
+This project uses split assistant guides for coding and architecture standards:
+
+- Terraform guide: `terraform.agent.md`
+- Kubernetes guide: `kubernetes.agent.md`
+- Meta instructions: `.github/copilot-instructions.md`
+
+Refer to these guides before making infrastructure or Kubernetes changes to
+ensure consistency with security, environment, and CI/CD requirements.
 
 ### Development Setup
 
@@ -1025,7 +1036,7 @@ This project is proprietary and confidential.
 ### LLM Serving Documentation
 
 | Document                                                                             | Description                   | Use Case                      |
-| ------------------------------------------------------------------------------------ | ----------------------------- | ----------------------------- |
+|--------------------------------------------------------------------------------------|-------------------------------|-------------------------------|
 | [**docs/HYBRID_ROUTING_GUIDE.md**](docs/HYBRID_ROUTING_GUIDE.md)                     | Complete hybrid routing guide | Main deployment (recommended) |
 | [**docs/FOUNDATIONAL_MODELS_QUICKSTART.md**](docs/FOUNDATIONAL_MODELS_QUICKSTART.md) | 3-step quick start            | Fast setup                    |
 | [**docs/LLM_DEPLOYMENT_GUIDE.md**](docs/LLM_DEPLOYMENT_GUIDE.md)                     | Complete LLM infrastructure   | Deep dive                     |
