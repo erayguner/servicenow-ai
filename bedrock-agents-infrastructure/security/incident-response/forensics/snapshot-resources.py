@@ -279,8 +279,10 @@ class ResourceSnapshotManager:
                         self.s3.put_bucket_versioning(
                             Bucket=bucket, VersioningConfiguration={"Status": "Enabled"}
                         )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(
+                            f"Failed to enable versioning on bucket {bucket}: {e}"
+                        )
 
                     # Tag bucket for forensics
                     try:
