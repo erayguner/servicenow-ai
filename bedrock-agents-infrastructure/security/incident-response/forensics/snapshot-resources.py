@@ -280,7 +280,9 @@ class ResourceSnapshotManager:
                             Bucket=bucket, VersioningConfiguration={"Status": "Enabled"}
                         )
                     except Exception as e:
-                        logger.warning(f"Failed to enable versioning on bucket {bucket}: {e}")
+                        logger.warning(
+                            f"Failed to enable versioning on bucket {bucket}: {e}"
+                        )
 
                     # Tag bucket for forensics
                     try:
