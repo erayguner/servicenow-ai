@@ -13,7 +13,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import { RDSClient, ModifyDBInstanceCommand } from '@aws-sdk/client-rds';
 import { BedrockClient } from '@aws-sdk/client-bedrock';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+
 import { Handler } from 'aws-lambda';
 import {
   RotationEvent,
