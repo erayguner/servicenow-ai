@@ -281,7 +281,7 @@ module "security_iam" {
 
   project_name = "my-bedrock-project"
   environment  = "prod"
-  aws_region   = "us-east-1"
+  aws_region   = "eu-west-2"
 
   enable_permission_boundary = true
   enable_step_functions      = true
@@ -298,7 +298,7 @@ module "security_kms" {
 
   project_name = "my-bedrock-project"
   environment  = "prod"
-  aws_region   = "us-east-1"
+  aws_region   = "eu-west-2"
 
   enable_key_rotation  = true
   enable_multi_region  = true

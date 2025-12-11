@@ -140,7 +140,7 @@ Create a `terraform.tfvars` file in the environment directory:
 # If in dev:
 cd terraform/environments/dev
 cat > terraform.tfvars <<EOF
-region                  = "us-east-1"
+region                  = "eu-west-2"
 eks_public_access_cidrs = ["YOUR_IP/32"]
 db_master_password      = "CHANGE_ME_USE_SECRETS_MANAGER"
 redis_auth_token        = "CHANGE_ME_STRONG_PASSWORD"

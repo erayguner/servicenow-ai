@@ -175,7 +175,7 @@
         "managed_dashboards": 5,
         "sns_topics": 4,
         "supported_regions": [
-          "us-east-1",
+          "eu-west-2",
           "us-west-2",
           "eu-west-1"
         ]

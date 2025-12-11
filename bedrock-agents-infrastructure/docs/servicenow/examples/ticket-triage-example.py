@@ -23,7 +23,7 @@ import base64
 class TicketTriageSystem:
     """System for batch triaging tickets using Bedrock"""
 
-    def __init__(self, servicenow_config: Dict, aws_region: str = "us-east-1"):
+    def __init__(self, servicenow_config: Dict, aws_region: str = "eu-west-2"):
         """
         Initialize the triage system
 

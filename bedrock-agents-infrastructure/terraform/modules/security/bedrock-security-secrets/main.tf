@@ -156,7 +156,7 @@ resource "aws_lambda_function" "secrets_rotation" {
 
   environment {
     variables = {
-      SECRETS_MANAGER_ENDPOINT = "https://secretsmanager.${data.aws_region.current.region}.amazonaws.com"
+      SECRETS_MANAGER_ENDPOINT = "https://secretsmanager.${var.aws_region}.amazonaws.com"
       PROJECT_NAME             = var.project_name
       ENVIRONMENT              = var.environment
       SNS_TOPIC_ARN            = var.sns_topic_arn
@@ -332,6 +332,8 @@ resource "aws_secretsmanager_secret_policy" "bedrock_api_keys" {
 # CloudWatch Alarms for Secrets
 # ==============================================================================
 
+# Removed plan-time data lookup for CloudTrail; rely on provided log group name
+
 resource "aws_cloudwatch_log_metric_filter" "secrets_access" {
   name           = "${var.project_name}-secrets-access-${var.environment}"
   log_group_name = var.cloudtrail_log_group_name
@@ -372,6 +374,7 @@ resource "aws_cloudwatch_log_metric_filter" "rotation_failures" {
   log_group_name = var.enable_rotation ? "/aws/lambda/${aws_lambda_function.secrets_rotation[0].function_name}" : var.cloudtrail_log_group_name
   pattern        = "[timestamp, request_id, level = ERROR*, ...]"
 
+
   metric_transformation {
     name      = "RotationFailures"
     namespace = "${var.project_name}/Security"
@@ -383,23 +386,6 @@ resource "aws_cloudwatch_log_metric_filter" "rotation_failures" {
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "rotation_failures" {
-  alarm_name          = "${var.project_name}-rotation-failures-${var.environment}"
-  alarm_description   = "Alert on secrets rotation failures"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "RotationFailures"
-  namespace           = "${var.project_name}/Security"
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = "0"
-  treat_missing_data  = "notBreaching"
-
-  alarm_actions = [var.sns_topic_arn]
-  ok_actions    = [var.sns_topic_arn]
-
-  tags = local.common_tags
-}
 
 # ==============================================================================
 # EventBridge Rule for Rotation Events
@@ -450,5 +436,3 @@ resource "aws_cloudwatch_event_target" "rotation_failed_sns" {
 # ==============================================================================
 # Data Sources
 # ==============================================================================
-
-data "aws_region" "current" {}

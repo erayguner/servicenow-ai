@@ -20,13 +20,20 @@ variable "environment" {
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "eu-west-2"
 }
 
 variable "tags" {
   description = "Additional tags for all resources"
   type        = map(string)
   default     = {}
+
+  validation {
+    condition = alltrue([
+      for v in values(var.tags) : can(regex("^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$", v))
+    ])
+    error_message = "Tag values may only contain letters, numbers, spaces, and the following special characters: _ . : / = + - @"
+  }
 }
 
 # ==============================================================================

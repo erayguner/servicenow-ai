@@ -88,7 +88,7 @@ aws configure
 ```bash
 export AWS_ACCESS_KEY_ID="your_access_key"
 export AWS_SECRET_ACCESS_KEY="your_secret_key"
-export AWS_DEFAULT_REGION="us-east-1"
+export AWS_DEFAULT_REGION="eu-west-2"
 ```
 
 ### Option C: IAM Role (For EC2/Lambda)
@@ -102,7 +102,7 @@ Create S3 bucket for Terraform state (do this once per AWS account):
 ```bash
 # Variables
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-REGION="us-east-1"
+REGION="eu-west-2"
 BUCKET_NAME="servicenow-ai-terraform-state-${ACCOUNT_ID}"
 
 # Create S3 bucket
@@ -151,7 +151,7 @@ terraform {
   backend "s3" {
     bucket         = "servicenow-ai-terraform-state-ACCOUNT_ID"
     key            = "bedrock-agents/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "eu-west-2"
     encrypt        = true
     dynamodb_table = "servicenow-ai-terraform-lock"
   }
@@ -168,7 +168,7 @@ cp terraform/environments/dev.tfvars.example terraform/environments/dev.tfvars
 
 # Edit with your values
 cat > terraform/environments/dev.tfvars << EOF
-aws_region            = "us-east-1"
+aws_region            = "eu-west-2"
 environment           = "dev"
 project_name          = "servicenow-ai"
 bedrock_model_id      = "anthropic.claude-3-sonnet-20240229-v1:0"

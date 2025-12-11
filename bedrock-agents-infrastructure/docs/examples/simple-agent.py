@@ -11,8 +11,8 @@ import uuid
 from typing import Dict, Any
 
 # Initialize Bedrock clients
-bedrock_agent = boto3.client("bedrock-agent", region_name="us-east-1")
-bedrock_runtime = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
+bedrock_agent = boto3.client("bedrock-agent", region_name="eu-west-2")
+bedrock_runtime = boto3.client("bedrock-agent-runtime", region_name="eu-west-2")
 
 
 def create_simple_agent() -> str:

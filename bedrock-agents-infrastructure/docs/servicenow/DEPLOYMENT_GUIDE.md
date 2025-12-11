@@ -428,7 +428,7 @@ aws secretsmanager create-secret \
     "agent_id": "YOUR_AGENT_ID",
     "agent_alias_id": "PROD",
     "model_id": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    "bedrock_region": "us-east-1"
+    "bedrock_region": "eu-west-2"
   }'
 
 # Secret 3: API Gateway Key
@@ -825,7 +825,7 @@ aws cloudwatch put-dashboard \
           ],
           "period": 300,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Lambda Metrics"
         }
       }

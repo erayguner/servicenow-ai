@@ -20,7 +20,15 @@ variable "environment" {
 variable "tags" {
   description = "Additional tags for all resources"
   type        = map(string)
-  default     = {}
+
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for v in values(var.tags) : can(regex("^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$", v))
+    ])
+    error_message = "Tag values may only contain letters, numbers, spaces, and the following special characters: _ . : / = + - @"
+  }
 }
 
 # ==============================================================================
@@ -201,4 +209,10 @@ variable "secrets_access_threshold" {
   description = "Threshold for secrets access alarm"
   type        = number
   default     = 100
+}
+
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "eu-west-2"
 }

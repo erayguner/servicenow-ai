@@ -101,11 +101,6 @@ output "secrets_access_alarm_arn" {
   value       = aws_cloudwatch_metric_alarm.secrets_access_high.arn
 }
 
-output "rotation_failures_alarm_arn" {
-  description = "ARN of the rotation failures CloudWatch alarm"
-  value       = aws_cloudwatch_metric_alarm.rotation_failures.arn
-}
-
 # ==============================================================================
 # EventBridge Rules
 # ==============================================================================

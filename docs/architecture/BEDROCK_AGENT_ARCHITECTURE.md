@@ -1881,7 +1881,7 @@ def publish_agent_metrics(agent_id, metrics):
         ],
         "period": 300,
         "stat": "Average",
-        "region": "us-east-1",
+        "region": "eu-west-2",
         "title": "Agent Task Duration"
       }
     },
@@ -1891,7 +1891,7 @@ def publish_agent_metrics(agent_id, metrics):
         "metrics": [["BedrockAgents", "TokensUsed", { "stat": "Sum" }]],
         "period": 3600,
         "stat": "Sum",
-        "region": "us-east-1",
+        "region": "eu-west-2",
         "title": "Total Tokens Used (Hourly)"
       }
     }

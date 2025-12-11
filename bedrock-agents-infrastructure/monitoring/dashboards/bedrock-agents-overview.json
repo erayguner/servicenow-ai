@@ -37,7 +37,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Agent Invocation Metrics",
           "yAxis": {
             "left": {
@@ -80,7 +80,7 @@
           ],
           "period": 60,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Success/Error Rates"
         }
       },
@@ -118,7 +118,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Token Usage & Costs"
         }
       },
@@ -166,7 +166,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Lambda Function Performance"
         }
       },
@@ -205,7 +205,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Step Functions Execution"
         }
       },
@@ -264,7 +264,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "API Gateway Metrics"
         }
       },
@@ -303,7 +303,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Knowledge Base Performance"
         }
       },
@@ -315,7 +315,7 @@
         "height": 6,
         "properties": {
           "query": "fields @timestamp, @message, agent_id, status, latency\n| stats count() as request_count, avg(latency) as avg_latency by agent_id, status\n| sort request_count desc",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Agent Activity Summary",
           "queryId": "agent-activity-summary"
         }

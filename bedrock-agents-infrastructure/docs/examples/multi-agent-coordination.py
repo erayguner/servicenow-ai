@@ -15,8 +15,8 @@ from dataclasses import dataclass
 from enum import Enum
 
 # Initialize clients
-bedrock_runtime = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
-stepfunctions = boto3.client("stepfunctions", region_name="us-east-1")
+bedrock_runtime = boto3.client("bedrock-agent-runtime", region_name="eu-west-2")
+stepfunctions = boto3.client("stepfunctions", region_name="eu-west-2")
 
 
 @dataclass

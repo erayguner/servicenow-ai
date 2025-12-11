@@ -265,7 +265,7 @@ terraform output operational_dashboards
 ### Required Variables (All Environments)
 
 ```hcl
-aws_region             = "us-east-1"
+aws_region             = "eu-west-2"
 owner_email            = "your-email@example.com"
 data_source_bucket_arn = "arn:aws:s3:::your-data-bucket"
 action_lambda_arn      = "arn:aws:lambda:us-east-1:123456789012:function:your-function"
