@@ -83,9 +83,6 @@ module "bedrock_agent" {
   # Tags
   tags = local.common_tags
 
-  depends_on = [
-    module.security_kms
-  ]
 }
 
 # ==============================================================================

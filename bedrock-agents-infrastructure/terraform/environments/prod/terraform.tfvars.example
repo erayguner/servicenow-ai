@@ -5,7 +5,7 @@
 # ============================================================================
 # AWS REGIONS
 # ============================================================================
-aws_region       = "us-east-1"
+aws_region       = "eu-west-2"
 secondary_region = "us-west-2"
 dr_region        = "eu-west-1"
 
@@ -442,13 +442,13 @@ synthetics_subnet_ids = []     # Private subnet IDs for canaries
 # ==============================================================================
 # COST ESTIMATE - PRODUCTION WITH FULL SECURITY & MONITORING
 # ==============================================================================
-# 
+#
 # AGENT INFRASTRUCTURE (Multi-Region HA):
 # - Bedrock Agents (8 instances, provisioned): ~$800-1200/month
 # - OpenSearch Provisioned: ~$400-600/month
 # - Lambda (provisioned capacity): ~$150-250/month
 # - Step Functions: ~$50-100/month
-# 
+#
 # SECURITY MODULES:
 # - GuardDuty (full protections, multi-region): ~$150-250/month
 # - Security Hub (all standards): ~$50-80/month
@@ -456,7 +456,7 @@ synthetics_subnet_ids = []     # Private subnet IDs for canaries
 # - Shield Advanced (optional): ~$3000/month
 # - KMS (multi-region, rotation): ~$10-15/month
 # - Secrets Manager (rotation, replicas): ~$10-20/month
-# 
+#
 # MONITORING MODULES:
 # - CloudWatch (comprehensive, multi-region): ~$200-300/month
 # - X-Ray (100% sampling): ~$100-150/month
@@ -464,16 +464,16 @@ synthetics_subnet_ids = []     # Private subnet IDs for canaries
 # - Config (all rules, aggregator): ~$30-50/month
 # - EventBridge (cross-region): ~$20-30/month
 # - Synthetics (multi-location, frequent): ~$50-75/month
-# 
+#
 # STORAGE & TRANSFER:
 # - S3 (versioning, replication): ~$100-200/month
 # - Data transfer (multi-region): ~$100-300/month
 # - Backup storage: ~$50-100/month
-# 
+#
 # TOTAL ESTIMATED COST:
 # - Without Shield Advanced: ~$2,420-3,945/month (~$29,000-47,000/year)
 # - With Shield Advanced: ~$5,420-6,945/month (~$65,000-83,000/year)
-# 
+#
 # NOTE: Costs vary based on:
 # - Request volume and data processing
 # - Multi-region data transfer
@@ -481,7 +481,7 @@ synthetics_subnet_ids = []     # Private subnet IDs for canaries
 # - CloudWatch log ingestion
 # - X-Ray trace sampling rate
 # - Synthetics test frequency
-# 
+#
 # COST OPTIMIZATION RECOMMENDATIONS:
 # - Use Savings Plans for predictable workloads
 # - Enable S3 Intelligent-Tiering

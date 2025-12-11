@@ -186,7 +186,7 @@ class ServiceNowClient:
 class BedrockIncidentAnalyzer:
     """Analyzer for incidents using Amazon Bedrock"""
 
-    def __init__(self, region: str = "us-east-1"):
+    def __init__(self, region: str = "eu-west-2"):
         """
         Initialize Bedrock client
 

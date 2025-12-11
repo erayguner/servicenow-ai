@@ -3,7 +3,7 @@
 variable "aws_region" {
   description = "Primary AWS region for Bedrock resources"
   type        = string
-  default     = "us-east-1"
+  default     = "eu-west-2"
 }
 
 variable "secondary_region" {

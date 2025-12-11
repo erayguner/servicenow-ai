@@ -407,7 +407,14 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_latency" {
 
 # Bedrock Invocation Anomaly Detector
 resource "aws_cloudwatch_metric_alarm" "bedrock_invocation_anomaly" {
-  count = var.enable_anomaly_detection && var.bedrock_agent_id != null ? 1 : 0
+  count = var.enable_anomaly_detection ? 1 : 0
+
+  lifecycle {
+    precondition {
+      condition     = var.bedrock_agent_id != null && var.bedrock_agent_alias_id != null
+      error_message = "Anomaly detection requires bedrock_agent_id and bedrock_agent_alias_id to be set."
+    }
+  }
 
   alarm_name          = "${var.project_name}-${var.environment}-bedrock-invocation-anomaly"
   alarm_description   = "Anomaly detected in Bedrock agent invocations"
@@ -449,7 +456,14 @@ resource "aws_cloudwatch_metric_alarm" "bedrock_invocation_anomaly" {
 
 # Critical Bedrock Agent Health Composite Alarm
 resource "aws_cloudwatch_composite_alarm" "bedrock_critical_health" {
-  count = var.enable_composite_alarms && var.bedrock_agent_id != null ? 1 : 0
+  count = var.enable_composite_alarms ? 1 : 0
+
+  lifecycle {
+    precondition {
+      condition     = var.bedrock_agent_id != null
+      error_message = "Composite Bedrock critical health alarm requires bedrock_agent_id to be set."
+    }
+  }
 
   alarm_name        = "${var.project_name}-${var.environment}-bedrock-critical-health"
   alarm_description = "Critical health issues detected with Bedrock agent"
@@ -509,7 +523,7 @@ resource "aws_cloudwatch_dashboard" "main" {
 
   dashboard_name = local.dashboard_name
   dashboard_body = templatefile("${path.module}/templates/dashboard.json.tpl", {
-    region                 = data.aws_region.current.region
+    region                 = var.aws_region
     bedrock_agent_id       = var.bedrock_agent_id
     bedrock_agent_alias_id = var.bedrock_agent_alias_id
     lambda_functions       = jsonencode(var.lambda_function_names)
@@ -522,5 +536,3 @@ resource "aws_cloudwatch_dashboard" "main" {
 # ============================================================================
 # Data Sources
 # ============================================================================
-
-data "aws_region" "current" {}

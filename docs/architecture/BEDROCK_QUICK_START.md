@@ -39,7 +39,7 @@ cd bedrock-agents/terraform/environments/dev
 
 # Create terraform.tfvars
 cat > terraform.tfvars <<TFVARS
-region             = "us-east-1"
+region             = "eu-west-2"
 environment        = "dev"
 project_name       = "ai-agents"
 agent_models = {

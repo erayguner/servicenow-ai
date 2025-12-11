@@ -94,7 +94,7 @@ provider "aws" {
 # Provider for state bucket management (central region)
 provider "aws" {
   alias  = "state"
-  region = "us-east-1"
+  region = "eu-west-2"
 
   default_tags {
     tags = {
@@ -108,7 +108,7 @@ provider "aws" {
 # Provider for global resources (CloudFront, Route53, IAM)
 provider "aws" {
   alias  = "global"
-  region = "us-east-1"
+  region = "eu-west-2"
 
   default_tags {
     tags = {

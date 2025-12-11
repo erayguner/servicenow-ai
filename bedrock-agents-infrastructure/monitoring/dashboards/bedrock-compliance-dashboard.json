@@ -29,7 +29,7 @@
           ],
           "period": 300,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Overall Compliance Health"
         }
       },
@@ -66,7 +66,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "AWS Config Rule Compliance"
         }
       },
@@ -97,7 +97,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Data Encryption Coverage"
         }
       },
@@ -136,7 +136,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Backup Compliance"
         }
       },
@@ -173,7 +173,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Patch Compliance"
         }
       },
@@ -212,7 +212,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Audit Logging"
         }
       },
@@ -243,7 +243,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Infrastructure as Code Drift"
         }
       },
@@ -280,7 +280,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Access Compliance"
         }
       },
@@ -311,7 +311,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Network Security Policy"
         }
       },
@@ -323,7 +323,7 @@
         "height": 6,
         "properties": {
           "query": "fields @timestamp, complianceCheckId, complianceStatus, resourceType, resourceId\n| stats count() as total_checks, sum(case when complianceStatus = 'COMPLIANT' then 1 else 0 end) as compliant_checks by resourceType\n| fields resourceType, compliant_checks, total_checks",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Compliance Check Summary",
           "queryId": "compliance-summary"
         }

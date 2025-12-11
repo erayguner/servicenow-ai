@@ -113,7 +113,7 @@ EOF
 
   aws cloudwatch put-dashboard \
     --dashboard-name "${api_dashboard_name}" \
-    --dashboard-body '{"widgets":[{"type":"metric","properties":{"metrics":[["AWS/ApiGateway","Count"],[".",\"4XXError\"],[".","5XXError"],[".",\"Latency"]],"period":300,"stat":"Sum","region":"us-east-1","title":"API Gateway Metrics"}}]}' \
+    --dashboard-body '{"widgets":[{"type":"metric","properties":{"metrics":[["AWS/ApiGateway","Count"],[".",\"4XXError\"],[".","5XXError"],[".",\"Latency"]],"period":300,"stat":"Sum","region":"eu-west-2","title":"API Gateway Metrics"}}]}' \
     --region us-east-1 || {
     log_error "Failed to create API Gateway dashboard"
     return 1
@@ -127,7 +127,7 @@ EOF
 
   aws cloudwatch put-dashboard \
     --dashboard-name "${agents_dashboard_name}" \
-    --dashboard-body '{"widgets":[{"type":"metric","properties":{"metrics":[["AWS/BedrockAgents","InvocationCount"],[".",\"InvocationErrors"],[".",\"AverageLatency"]],"period":300,"stat":"Average","region":"us-east-1","title":"Agent Performance"}}]}' \
+    --dashboard-body '{"widgets":[{"type":"metric","properties":{"metrics":[["AWS/BedrockAgents","InvocationCount"],[".",\"InvocationErrors"],[".",\"AverageLatency"]],"period":300,"stat":"Average","region":"eu-west-2","title":"Agent Performance"}}]}' \
     --region us-east-1 || {
     log_error "Failed to create Agents dashboard"
     return 1

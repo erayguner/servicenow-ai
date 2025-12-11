@@ -1,7 +1,7 @@
 # AWS Development Environment Variables
 # Copy this file to terraform.tfvars and update with your values
 
-region = "us-east-1"
+region = "eu-west-2"
 
 # Restrict access to your IP for security
 eks_public_access_cidrs = ["YOUR_IP/32"]

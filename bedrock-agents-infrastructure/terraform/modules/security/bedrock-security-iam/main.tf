@@ -504,6 +504,8 @@ data "aws_iam_policy_document" "permission_boundary" {
 # CloudWatch Alarms for IAM Activity
 # ==============================================================================
 
+# Removed plan-time data lookup for CloudTrail; assume provided name exists or let users disable via flags
+
 resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls" {
   name           = "${var.project_name}-unauthorized-api-calls-${var.environment}"
   log_group_name = var.cloudtrail_log_group_name
@@ -542,6 +544,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam_policy_changes" {
   name           = "${var.project_name}-iam-policy-changes-${var.environment}"
   log_group_name = var.cloudtrail_log_group_name
   pattern        = "{ ($.eventName = DeleteGroupPolicy) || ($.eventName = DeleteRolePolicy) || ($.eventName = DeleteUserPolicy) || ($.eventName = PutGroupPolicy) || ($.eventName = PutRolePolicy) || ($.eventName = PutUserPolicy) || ($.eventName = CreatePolicy) || ($.eventName = DeletePolicy) || ($.eventName = CreatePolicyVersion) || ($.eventName = DeletePolicyVersion) || ($.eventName = AttachRolePolicy) || ($.eventName = DetachRolePolicy) || ($.eventName = AttachUserPolicy) || ($.eventName = DetachUserPolicy) || ($.eventName = AttachGroupPolicy) || ($.eventName = DetachGroupPolicy) }"
+
 
   metric_transformation {
     name      = "IAMPolicyChanges"

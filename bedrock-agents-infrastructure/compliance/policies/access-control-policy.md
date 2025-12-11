@@ -584,7 +584,7 @@ resource "aws_organizations_policy" "bedrock_scp" {
         Resource = "*"
         Condition = {
           StringNotEquals = {
-            "aws:RequestedRegion" = ["us-east-1", "us-west-2", "eu-west-1"]
+            "aws:RequestedRegion" = ["eu-west-2", "us-west-2", "eu-west-1"]
           }
         }
       },

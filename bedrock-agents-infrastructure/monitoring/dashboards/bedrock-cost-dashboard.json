@@ -40,7 +40,7 @@
           ],
           "period": 86400,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Daily Service Costs"
         }
       },
@@ -78,7 +78,7 @@
           ],
           "period": 86400,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Bedrock Token Costs"
         }
       },
@@ -109,7 +109,7 @@
           ],
           "period": 86400,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Lambda Cost Breakdown"
         }
       },
@@ -140,7 +140,7 @@
           ],
           "period": 86400,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Data Transfer Costs"
         }
       },
@@ -171,7 +171,7 @@
           ],
           "period": 86400,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Storage Costs"
         }
       },
@@ -227,7 +227,7 @@
           ],
           "period": 86400,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Cost by Agent Type"
         }
       },
@@ -296,7 +296,7 @@
           ],
           "period": 86400,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Projected Monthly Spend"
         }
       },
@@ -327,7 +327,7 @@
           ],
           "period": 86400,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Unit Economics"
         }
       },
@@ -339,7 +339,7 @@
         "height": 6,
         "properties": {
           "query": "fields @timestamp, agent_id, inputTokens, outputTokens, cost\n| stats sum(cost) as total_cost, sum(inputTokens) as total_input_tokens, sum(outputTokens) as total_output_tokens by agent_id\n| sort total_cost desc",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Cost Analysis by Agent",
           "queryId": "cost-by-agent"
         }

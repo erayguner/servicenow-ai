@@ -98,7 +98,7 @@ locals {
 
   # Multi-region configuration
   regions = {
-    primary   = "us-east-1"
+    primary   = "eu-west-2"
     secondary = "us-west-2"
     dr        = "eu-west-1"
   }
@@ -869,7 +869,7 @@ module "monitoring_synthetics" {
   # Multi-location testing
   enable_multi_location = true
   test_locations = [
-    "us-east-1",
+    "eu-west-2",
     "us-west-2",
     "eu-west-1"
   ]

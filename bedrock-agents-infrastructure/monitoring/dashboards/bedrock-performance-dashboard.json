@@ -44,7 +44,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Lambda Execution Time Distribution"
         }
       },
@@ -81,7 +81,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Lambda Concurrency & Throttling"
         }
       },
@@ -120,7 +120,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Step Functions Execution Duration"
         }
       },
@@ -168,7 +168,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "API Gateway Latency"
         }
       },
@@ -216,7 +216,7 @@
           ],
           "period": 60,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "DynamoDB Capacity & Errors"
         }
       },
@@ -253,7 +253,7 @@
           ],
           "period": 60,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "DynamoDB Throttling Events"
         }
       },
@@ -292,7 +292,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "OpenSearch Query Performance"
         }
       },
@@ -331,7 +331,7 @@
           ],
           "period": 60,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "OpenSearch Resource Utilization"
         }
       },
@@ -343,7 +343,7 @@
         "height": 6,
         "properties": {
           "query": "fields @duration, @memoryUsed, @maxMemoryUsed, @billedDuration\n| stats avg(@duration) as avg_duration, max(@duration) as max_duration, avg(@memoryUsed) as avg_memory by bin(5m)",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Lambda Performance Metrics Over Time",
           "queryId": "lambda-performance-metrics"
         }

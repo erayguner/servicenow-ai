@@ -32,7 +32,7 @@
           ],
           "period": 300,
           "stat": "Average",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Security Posture Overview"
         }
       },
@@ -80,7 +80,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "GuardDuty Findings by Severity"
         }
       },
@@ -111,7 +111,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Authentication Metrics"
         }
       },
@@ -150,7 +150,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Configuration Changes"
         }
       },
@@ -181,7 +181,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Secrets Manager Access"
         }
       },
@@ -229,7 +229,7 @@
           ],
           "period": 60,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "WAF Request Metrics"
         }
       },
@@ -276,7 +276,7 @@
           ],
           "period": 300,
           "stat": "Sum",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "KMS Encryption Operations"
         }
       },
@@ -288,7 +288,7 @@
         "height": 6,
         "properties": {
           "query": "fields @timestamp, eventName, sourceIPAddress, userAgent, errorCode\n| filter eventName like /DeleteTrail|StopLogging|PutTrailEventSelectors/\n| stats count() as suspicious_events by sourceIPAddress, eventName",
-          "region": "us-east-1",
+          "region": "eu-west-2",
           "title": "Suspicious Security Events",
           "queryId": "suspicious-security-events"
         }

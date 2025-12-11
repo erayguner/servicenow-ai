@@ -43,7 +43,7 @@ provider "aws" {
 # Provider for state bucket region (if different)
 provider "aws" {
   alias  = "state"
-  region = "us-east-1"
+  region = "eu-west-2"
 
   default_tags {
     tags = {

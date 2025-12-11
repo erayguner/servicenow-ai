@@ -14,7 +14,7 @@ from pathlib import Path
 class KnowledgeBaseClient:
     """Client for Bedrock Knowledge Base operations."""
 
-    def __init__(self, knowledge_base_id: str, region: str = "us-east-1"):
+    def __init__(self, knowledge_base_id: str, region: str = "eu-west-2"):
         """
         Initialize knowledge base client.
 

@@ -407,7 +407,7 @@ module "config_compliance" {
 
   # Multi-region aggregation
   enable_aggregator    = true
-  aggregator_regions   = ["us-east-1", "us-west-2"]
+  aggregator_regions   = ["eu-west-2", "us-west-2"]
 
   sns_topic_arn = aws_sns_topic.monitoring.arn
   kms_key_id    = aws_kms_key.main.id

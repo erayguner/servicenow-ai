@@ -28,7 +28,7 @@ Generate and analyze Terraform execution plans.
   "environment": "dev",
   "variables": {
     "instance_type": "t3.micro",
-    "region": "us-east-1"
+    "region": "eu-west-2"
   },
   "bucket": "my-terraform-states"
 }
@@ -255,7 +255,7 @@ Get comprehensive infrastructure state and health.
     "version": "v1.27.0"
   },
   "aws": {
-    "region": "us-east-1",
+    "region": "eu-west-2",
     "resources": {
       "ec2Instances": 10,
       "s3Buckets": 5,

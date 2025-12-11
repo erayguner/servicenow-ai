@@ -45,7 +45,7 @@ class KnowledgeBaseSynchronizer:
         servicenow_url: str,
         username: str,
         api_token: str,
-        aws_region: str = "us-east-1",
+        aws_region: str = "eu-west-2",
     ):
         """
         Initialize KB synchronizer

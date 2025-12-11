@@ -184,10 +184,23 @@ variable "tags" {
   description = "Tags to apply to all resources"
   type        = map(string)
   default     = {}
+
+  validation {
+    condition = alltrue([
+      for v in values(var.tags) : can(regex("^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$", v))
+    ])
+    error_message = "Tag values may only contain letters, numbers, spaces, and the following special characters: _ . : / = + - @"
+  }
 }
 
 variable "kms_key_id" {
   description = "KMS key ID for encrypting CloudWatch Logs"
   type        = string
   default     = null
+}
+
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "eu-west-2"
 }

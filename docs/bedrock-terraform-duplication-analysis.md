@@ -223,7 +223,7 @@ terraform {
   backend "s3" {
     bucket         = "servicenow-ai-terraform-state-dev"
     key            = "bedrock-agents/dev/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "eu-west-2"
     encrypt        = true
     dynamodb_table = "servicenow-ai-terraform-locks-dev"
     kms_key_id     = "alias/terraform-state-key-dev"
@@ -244,7 +244,7 @@ terraform {
   backend "s3" {
     bucket         = "servicenow-ai-terraform-state-staging"  # Only difference
     key            = "bedrock-agents/staging/terraform.tfstate"  # Only difference
-    region         = "us-east-1"
+    region         = "eu-west-2"
     encrypt        = true
     dynamodb_table = "servicenow-ai-terraform-locks-staging"  # Only difference
     kms_key_id     = "alias/terraform-state-key-staging"  # Only difference
@@ -312,7 +312,7 @@ terraform {
     bucket         = "servicenow-ai-terraform-state-${terraform.workspace}"
     key            = "bedrock-agents/terraform.tfstate"
     workspace_key_prefix = "env"
-    region         = "us-east-1"
+    region         = "eu-west-2"
     encrypt        = true
     dynamodb_table = "servicenow-ai-terraform-locks-${terraform.workspace}"
     kms_key_id     = "alias/terraform-state-key-${terraform.workspace}"
