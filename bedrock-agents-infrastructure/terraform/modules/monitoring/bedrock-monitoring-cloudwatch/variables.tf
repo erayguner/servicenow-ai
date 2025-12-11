@@ -186,7 +186,7 @@ variable "tags" {
   default     = {}
 
   validation {
-    condition     = alltrue([
+    condition = alltrue([
       for v in values(var.tags) : can(regex("^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$", v))
     ])
     error_message = "Tag values may only contain letters, numbers, spaces, and the following special characters: _ . : / = + - @"
