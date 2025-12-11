@@ -296,8 +296,10 @@ class ResourceSnapshotManager:
                                 ]
                             },
                         )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(
+                            f"Failed to tag bucket {bucket} for forensics: {e}"
+                        )
 
                     # Get object count for reference
                     paginator = self.s3.get_paginator("list_objects_v2")
