@@ -12,7 +12,6 @@ import {
   GetFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 import { RDSClient, ModifyDBInstanceCommand } from '@aws-sdk/client-rds';
-import { BedrockClient } from '@aws-sdk/client-bedrock';
 
 import { Handler } from 'aws-lambda';
 import {
