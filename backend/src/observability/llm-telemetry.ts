@@ -5,7 +5,7 @@
  * Tracks tokens, costs, latency, and errors for all LLM calls.
  */
 
-import { trace, metrics, context, SpanStatusCode, Span } from '@opentelemetry/api';
+import { trace, metrics, SpanStatusCode, Span } from '@opentelemetry/api';
 
 // Initialize tracer and meter
 const tracer = trace.getTracer('llm-gateway', '1.0.0');
