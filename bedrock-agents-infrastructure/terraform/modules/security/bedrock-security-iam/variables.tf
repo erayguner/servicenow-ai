@@ -140,6 +140,13 @@ variable "external_id" {
 variable "cloudtrail_log_group_name" {
   description = "CloudTrail log group name for metric filters"
   type        = string
+  default     = ""
+}
+
+variable "enable_cloudtrail_metrics" {
+  description = "Enable CloudWatch metric filters based on CloudTrail log group. Set to false to avoid circular dependencies when CloudTrail depends on this IAM module."
+  type        = bool
+  default     = true
 }
 
 variable "sns_topic_arn" {
@@ -161,4 +168,44 @@ variable "enable_abac" {
   description = "Enable Attribute-Based Access Control (ABAC)"
   type        = bool
   default     = true
+}
+
+# ==============================================================================
+# AgentCore Configuration
+# ==============================================================================
+
+variable "enable_agentcore" {
+  description = "Enable AgentCore IAM roles and policies"
+  type        = bool
+  default     = false
+}
+
+variable "agentcore_runtime_arns" {
+  description = "List of AgentCore Runtime ARNs for permissions"
+  type        = list(string)
+  default     = []
+}
+
+variable "agentcore_gateway_arns" {
+  description = "List of AgentCore Gateway ARNs for permissions"
+  type        = list(string)
+  default     = []
+}
+
+variable "agentcore_memory_arns" {
+  description = "List of AgentCore Memory ARNs for permissions"
+  type        = list(string)
+  default     = []
+}
+
+variable "agentcore_code_interpreter_arns" {
+  description = "List of AgentCore Code Interpreter ARNs for permissions"
+  type        = list(string)
+  default     = []
+}
+
+variable "agentcore_lambda_function_arns" {
+  description = "List of Lambda function ARNs for AgentCore gateway targets"
+  type        = list(string)
+  default     = []
 }

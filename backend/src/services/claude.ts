@@ -31,7 +31,7 @@ export async function chat(
   messages: ChatMessage[],
   model: string = config.defaultModel,
   systemPrompt?: string,
-  stream: boolean = false
+  _stream: boolean = false
 ): Promise<ChatResponse> {
   try {
     const client = await getAnthropicClient();

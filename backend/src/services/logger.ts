@@ -59,7 +59,7 @@ export const logger = {
       severity: 'INFO',
     };
     const logEntry = log.entry(metadata, { message, ...entry });
-    log.write(logEntry);
+    void log.write(logEntry);
 
     // Also log to console in development (with sanitization)
     if (config.nodeEnv === 'development') {
@@ -73,7 +73,7 @@ export const logger = {
       severity: 'ERROR',
     };
     const logEntry = log.entry(metadata, { message, ...entry });
-    log.write(logEntry);
+    void log.write(logEntry);
 
     if (config.nodeEnv === 'development') {
       console.error('[ERROR]', message, sanitizeForConsole(entry));
@@ -86,7 +86,7 @@ export const logger = {
       severity: 'WARNING',
     };
     const logEntry = log.entry(metadata, { message, ...entry });
-    log.write(logEntry);
+    void log.write(logEntry);
 
     if (config.nodeEnv === 'development') {
       console.warn('[WARN]', message, sanitizeForConsole(entry));
@@ -100,7 +100,7 @@ export const logger = {
         severity: 'DEBUG',
       };
       const logEntry = log.entry(metadata, { message, ...entry });
-      log.write(logEntry);
+      void log.write(logEntry);
 
       if (config.nodeEnv === 'development') {
         console.debug('[DEBUG]', message, sanitizeForConsole(entry));

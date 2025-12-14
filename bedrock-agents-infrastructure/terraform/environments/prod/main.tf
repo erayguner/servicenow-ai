@@ -674,7 +674,7 @@ module "monitoring_cloudwatch" {
 
   # Comprehensive log groups
   log_group_names = [
-    "/aws/bedrock/agents/${local.project}-${local.environment}",
+    module.bedrock_agent.log_group_name,
     "/aws/lambda/${local.project}-*",
     "/aws/apigateway/${local.project}-*",
     "/aws/states/${local.project}-*"

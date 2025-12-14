@@ -3,7 +3,7 @@
 ## Overview
 
 This repository now includes comprehensive Terraform native test files
-(tftest.hcl) for all 16 modules using Terraform 1.6+ testing framework.
+(tftest.hcl) for all 17 modules using Terraform 1.6+ testing framework.
 
 ## Test Structure
 
@@ -14,14 +14,15 @@ Each module includes 4 comprehensive test files:
 3. **integration.tftest.hcl** - Tests module interactions and integrations
 4. **validation.tftest.hcl** - Tests output validation and data integrity
 
-## Modules with Tests (16 total)
+## Modules with Tests (17 total)
 
-### Core Bedrock Modules (4)
+### Core Bedrock Modules (5)
 
 - ✅ bedrock-agent (4 test files)
 - ✅ bedrock-knowledge-base (4 test files)
 - ✅ bedrock-action-group (4 test files)
 - ✅ bedrock-orchestration (4 test files)
+- ⏳ bedrock-agentcore (tests pending - uses AWSCC provider)
 
 ### Security Modules (6)
 
@@ -42,6 +43,10 @@ Each module includes 4 comprehensive test files:
 - ✅ monitoring/bedrock-monitoring-xray (4 test files)
 
 ## Total Test Files Created: 64
+
+> **Note:** The bedrock-agentcore module uses the AWSCC provider which has
+> different testing requirements. Tests for this module will be added once
+> AWSCC provider testing support is fully established.
 
 ## Running Tests
 

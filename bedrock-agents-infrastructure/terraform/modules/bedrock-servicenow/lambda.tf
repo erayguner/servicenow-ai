@@ -3,26 +3,225 @@
 
 # Lambda execution role is defined in iam.tf
 
+# ==============================================================================
+# S3 Bucket for Lambda Artifacts
+# ==============================================================================
+
+resource "aws_s3_bucket" "lambda_artifacts" {
+  bucket        = "${local.name_prefix}-lambda-artifacts-${module.shared_data.account_id}-${local.resource_id}"
+  force_destroy = var.environment != "prod"
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name = "${local.name_prefix}-lambda-artifacts"
+    }
+  )
+}
+
+resource "aws_s3_bucket_versioning" "lambda_artifacts" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "lambda_artifacts" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = local.kms_key_id_normalized != null ? "aws:kms" : "AES256"
+      kms_master_key_id = local.kms_key_id_normalized
+    }
+    bucket_key_enabled = local.kms_key_id_normalized != null
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "lambda_artifacts" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "lambda_artifacts" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+
+  rule {
+    id     = "cleanup-old-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+}
+
+# ==============================================================================
+# Lambda Code Archives - Placeholder Python Code
+# ==============================================================================
+
+# Note: These use the archive_file data source to create ZIP files dynamically.
+# The actual Lambda code should be managed in a separate CI/CD process.
+# These placeholders allow terraform apply to succeed.
+
+data "archive_file" "servicenow_integration" {
+  type        = "zip"
+  output_path = "${path.module}/lambda/servicenow-integration.zip"
+
+  source {
+    content  = <<-PYTHON
+import json
+import os
+import boto3
+from datetime import datetime
+
+def lambda_handler(event, context):
+    """ServiceNow integration Lambda handler - placeholder"""
+    print(f"Event: {json.dumps(event)}")
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps({
+            'message': 'ServiceNow integration placeholder',
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    }
+PYTHON
+    filename = "index.py"
+  }
+}
+
+data "archive_file" "webhook_processor" {
+  type        = "zip"
+  output_path = "${path.module}/lambda/webhook-processor.zip"
+
+  source {
+    content  = <<-PYTHON
+import json
+import os
+import boto3
+
+def lambda_handler(event, context):
+    """Webhook processor Lambda handler - placeholder"""
+    print(f"Webhook Event: {json.dumps(event)}")
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps({'message': 'Webhook received'})
+    }
+PYTHON
+    filename = "index.py"
+  }
+}
+
+data "archive_file" "knowledge_sync" {
+  type        = "zip"
+  output_path = "${path.module}/lambda/knowledge-sync.zip"
+
+  source {
+    content  = <<-PYTHON
+import json
+import os
+import boto3
+
+def lambda_handler(event, context):
+    """Knowledge sync Lambda handler - placeholder"""
+    print(f"Sync Event: {json.dumps(event)}")
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps({'message': 'Knowledge sync completed'})
+    }
+PYTHON
+    filename = "index.py"
+  }
+}
+
+data "archive_file" "dependencies_layer" {
+  type        = "zip"
+  output_path = "${path.module}/lambda/layers/servicenow-dependencies.zip"
+
+  source {
+    content  = "# Placeholder for dependencies layer"
+    filename = "python/lib/python3.12/site-packages/__init__.py"
+  }
+}
+
+# ==============================================================================
+# S3 Objects for Lambda Code (with MD5 hash for change detection)
+# ==============================================================================
+
+resource "aws_s3_object" "servicenow_integration" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+  key    = "lambda/servicenow-integration.zip"
+  source = data.archive_file.servicenow_integration.output_path
+
+  # MD5 hash for change detection
+  etag = data.archive_file.servicenow_integration.output_md5
+}
+
+resource "aws_s3_object" "webhook_processor" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+  key    = "lambda/webhook-processor.zip"
+  source = data.archive_file.webhook_processor.output_path
+
+  # MD5 hash for change detection
+  etag = data.archive_file.webhook_processor.output_md5
+}
+
+resource "aws_s3_object" "knowledge_sync" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+  key    = "lambda/knowledge-sync.zip"
+  source = data.archive_file.knowledge_sync.output_path
+
+  # MD5 hash for change detection
+  etag = data.archive_file.knowledge_sync.output_md5
+}
+
+resource "aws_s3_object" "dependencies_layer" {
+  bucket = aws_s3_bucket.lambda_artifacts.id
+  key    = "layers/servicenow-dependencies.zip"
+  source = data.archive_file.dependencies_layer.output_path
+
+  # MD5 hash for change detection
+  etag = data.archive_file.dependencies_layer.output_md5
+}
+
+# ==============================================================================
 # Lambda Layer for dependencies (boto3, requests, etc.)
+# ==============================================================================
+
 resource "aws_lambda_layer_version" "servicenow_dependencies" {
-  filename            = "${path.module}/lambda/layers/servicenow-dependencies.zip"
-  layer_name          = "${local.name_prefix}-dependencies"
-  description         = "Dependencies for ServiceNow integration Lambda"
+  s3_bucket   = aws_s3_bucket.lambda_artifacts.id
+  s3_key      = aws_s3_object.dependencies_layer.key
+  layer_name  = "${local.name_prefix}-dependencies"
+  description = "Dependencies for ServiceNow integration Lambda"
+
   compatible_runtimes = [var.lambda_runtime]
+
+  # Use MD5 hash for change detection
+  source_code_hash = data.archive_file.dependencies_layer.output_base64sha256
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [filename]
   }
+
+  depends_on = [aws_s3_object.dependencies_layer]
 }
 
 # Main ServiceNow integration Lambda function
 resource "aws_lambda_function" "servicenow_integration" {
-  filename         = "${path.module}/lambda/servicenow-integration.zip"
+  s3_bucket        = aws_s3_bucket.lambda_artifacts.id
+  s3_key           = aws_s3_object.servicenow_integration.key
   function_name    = "${local.name_prefix}-integration-${local.resource_id}"
   role             = aws_iam_role.lambda_execution.arn
   handler          = "index.lambda_handler"
-  source_code_hash = fileexists("${path.module}/lambda/servicenow-integration.zip") ? filebase64sha256("${path.module}/lambda/servicenow-integration.zip") : null
+  source_code_hash = data.archive_file.servicenow_integration.output_base64sha256
   runtime          = var.lambda_runtime
   timeout          = var.lambda_timeout
   memory_size      = var.lambda_memory_size
@@ -63,13 +262,10 @@ resource "aws_lambda_function" "servicenow_integration" {
     }
   )
 
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
-
   depends_on = [
     aws_iam_role_policy_attachment.lambda_execution,
-    aws_cloudwatch_log_group.lambda_integration
+    aws_cloudwatch_log_group.lambda_integration,
+    aws_s3_object.servicenow_integration
   ]
 }
 
@@ -77,7 +273,7 @@ resource "aws_lambda_function" "servicenow_integration" {
 resource "aws_cloudwatch_log_group" "lambda_integration" {
   name              = "/aws/lambda/${local.name_prefix}-integration-${local.resource_id}"
   retention_in_days = 30
-  kms_key_id        = var.kms_key_id
+  kms_key_id        = local.kms_key_id_normalized
 
   tags = merge(
     local.common_tags,
@@ -109,11 +305,12 @@ resource "aws_lambda_permission" "api_gateway_invoke" {
 
 # Webhook processor Lambda for incoming ServiceNow events
 resource "aws_lambda_function" "webhook_processor" {
-  filename         = "${path.module}/lambda/webhook-processor.zip"
+  s3_bucket        = aws_s3_bucket.lambda_artifacts.id
+  s3_key           = aws_s3_object.webhook_processor.key
   function_name    = "${local.name_prefix}-webhook-${local.resource_id}"
   role             = aws_iam_role.lambda_execution.arn
   handler          = "index.lambda_handler"
-  source_code_hash = fileexists("${path.module}/lambda/webhook-processor.zip") ? filebase64sha256("${path.module}/lambda/webhook-processor.zip") : null
+  source_code_hash = data.archive_file.webhook_processor.output_base64sha256
   runtime          = var.lambda_runtime
   timeout          = 60
   memory_size      = 256
@@ -147,13 +344,10 @@ resource "aws_lambda_function" "webhook_processor" {
     }
   )
 
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
-
   depends_on = [
     aws_iam_role_policy_attachment.lambda_execution,
-    aws_cloudwatch_log_group.lambda_webhook
+    aws_cloudwatch_log_group.lambda_webhook,
+    aws_s3_object.webhook_processor
   ]
 }
 
@@ -161,7 +355,7 @@ resource "aws_lambda_function" "webhook_processor" {
 resource "aws_cloudwatch_log_group" "lambda_webhook" {
   name              = "/aws/lambda/${local.name_prefix}-webhook-${local.resource_id}"
   retention_in_days = 30
-  kms_key_id        = var.kms_key_id
+  kms_key_id        = local.kms_key_id_normalized
 
   tags = merge(
     local.common_tags,
@@ -175,11 +369,12 @@ resource "aws_cloudwatch_log_group" "lambda_webhook" {
 resource "aws_lambda_function" "knowledge_sync" {
   count = var.enable_knowledge_sync ? 1 : 0
 
-  filename         = "${path.module}/lambda/knowledge-sync.zip"
+  s3_bucket        = aws_s3_bucket.lambda_artifacts.id
+  s3_key           = aws_s3_object.knowledge_sync.key
   function_name    = "${local.name_prefix}-knowledge-sync-${local.resource_id}"
   role             = aws_iam_role.lambda_execution.arn
   handler          = "index.lambda_handler"
-  source_code_hash = fileexists("${path.module}/lambda/knowledge-sync.zip") ? filebase64sha256("${path.module}/lambda/knowledge-sync.zip") : null
+  source_code_hash = data.archive_file.knowledge_sync.output_base64sha256
   runtime          = var.lambda_runtime
   timeout          = 900 # 15 minutes for sync operations
   memory_size      = 1024
@@ -216,13 +411,10 @@ resource "aws_lambda_function" "knowledge_sync" {
     }
   )
 
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
-
   depends_on = [
     aws_iam_role_policy_attachment.lambda_execution,
-    aws_cloudwatch_log_group.lambda_knowledge_sync
+    aws_cloudwatch_log_group.lambda_knowledge_sync,
+    aws_s3_object.knowledge_sync
   ]
 }
 
@@ -232,7 +424,7 @@ resource "aws_cloudwatch_log_group" "lambda_knowledge_sync" {
 
   name              = "/aws/lambda/${local.name_prefix}-knowledge-sync-${local.resource_id}"
   retention_in_days = 30
-  kms_key_id        = var.kms_key_id
+  kms_key_id        = local.kms_key_id_normalized
 
   tags = merge(
     local.common_tags,
@@ -242,97 +434,8 @@ resource "aws_cloudwatch_log_group" "lambda_knowledge_sync" {
   )
 }
 
-# Create placeholder Lambda deployment packages if they don't exist
-resource "null_resource" "create_lambda_packages" {
-  provisioner "local-exec" {
-    command = <<-EOT
-      mkdir -p ${path.module}/lambda/layers
-
-      # Create servicenow-integration.zip if it doesn't exist
-      if [ ! -f ${path.module}/lambda/servicenow-integration.zip ]; then
-        echo 'Creating placeholder servicenow-integration.zip'
-        mkdir -p /tmp/servicenow-integration
-        cat > /tmp/servicenow-integration/index.py << 'EOF'
-import json
-import os
-import boto3
-from datetime import datetime
-
-def lambda_handler(event, context):
-    """ServiceNow integration Lambda handler"""
-    print(f"Event: {json.dumps(event)}")
-
-    # This is a placeholder - implement actual ServiceNow API integration
-    return {
-        'statusCode': 200,
-        'body': json.dumps({
-            'message': 'ServiceNow integration placeholder',
-            'timestamp': datetime.utcnow().isoformat()
-        })
-    }
-EOF
-        cd /tmp/servicenow-integration && zip -r ${path.module}/lambda/servicenow-integration.zip .
-        rm -rf /tmp/servicenow-integration
-      fi
-
-      # Create webhook-processor.zip if it doesn't exist
-      if [ ! -f ${path.module}/lambda/webhook-processor.zip ]; then
-        echo 'Creating placeholder webhook-processor.zip'
-        mkdir -p /tmp/webhook-processor
-        cat > /tmp/webhook-processor/index.py << 'EOF'
-import json
-import os
-import boto3
-
-def lambda_handler(event, context):
-    """Webhook processor Lambda handler"""
-    print(f"Webhook Event: {json.dumps(event)}")
-
-    # This is a placeholder - implement actual webhook processing
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'message': 'Webhook received'})
-    }
-EOF
-        cd /tmp/webhook-processor && zip -r ${path.module}/lambda/webhook-processor.zip .
-        rm -rf /tmp/webhook-processor
-      fi
-
-      # Create knowledge-sync.zip if it doesn't exist
-      if [ ! -f ${path.module}/lambda/knowledge-sync.zip ]; then
-        echo 'Creating placeholder knowledge-sync.zip'
-        mkdir -p /tmp/knowledge-sync
-        cat > /tmp/knowledge-sync/index.py << 'EOF'
-import json
-import os
-import boto3
-
-def lambda_handler(event, context):
-    """Knowledge sync Lambda handler"""
-    print(f"Sync Event: {json.dumps(event)}")
-
-    # This is a placeholder - implement actual knowledge sync
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'message': 'Knowledge sync completed'})
-    }
-EOF
-        cd /tmp/knowledge-sync && zip -r ${path.module}/lambda/knowledge-sync.zip .
-        rm -rf /tmp/knowledge-sync
-      fi
-
-      # Create dependencies layer if it doesn't exist
-      if [ ! -f ${path.module}/lambda/layers/servicenow-dependencies.zip ]; then
-        echo 'Creating placeholder dependencies layer'
-        mkdir -p /tmp/python/lib/python3.12/site-packages
-        touch /tmp/python/lib/python3.12/site-packages/__init__.py
-        cd /tmp && zip -r ${path.module}/lambda/layers/servicenow-dependencies.zip python
-        rm -rf /tmp/python
-      fi
-    EOT
-  }
-
-  triggers = {
-    always_run = timestamp()
-  }
-}
+# Note: The null_resource.create_lambda_packages has been replaced with:
+# - archive_file data sources for creating ZIP files dynamically
+# - S3 bucket for storing Lambda artifacts
+# - S3 objects with MD5 hash (etag) for change detection
+# This approach eliminates the need for local file management and shell scripts.

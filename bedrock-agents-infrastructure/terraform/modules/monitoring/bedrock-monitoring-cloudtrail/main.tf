@@ -5,6 +5,11 @@ locals {
   trail_name     = var.trail_name != null ? var.trail_name : "${var.project_name}-${var.environment}-trail"
   bucket_name    = var.create_s3_bucket ? "${var.project_name}-${var.environment}-cloudtrail-${data.aws_caller_identity.current.account_id}" : var.s3_bucket_name
   log_group_name = var.create_cloudwatch_logs_group ? "/aws/cloudtrail/${var.project_name}-${var.environment}" : var.cloudwatch_logs_group_name
+  kms_key_id_normalized = var.kms_key_id == null ? null : (
+    can(regex("^arn:", var.kms_key_id)) || can(regex("^alias/", var.kms_key_id))
+    ? var.kms_key_id
+    : "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/${var.kms_key_id}"
+  )
 
   common_tags = merge(
     var.tags,
@@ -55,7 +60,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail" {
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
-      kms_master_key_id = var.kms_key_id
+      kms_master_key_id = local.kms_key_id_normalized
     }
     bucket_key_enabled = var.kms_key_id != null
   }
@@ -152,7 +157,7 @@ resource "aws_cloudwatch_log_group" "cloudtrail" {
 
   name              = local.log_group_name
   retention_in_days = var.cloudwatch_logs_retention_days
-  kms_key_id        = var.kms_key_id
+  kms_key_id        = local.kms_key_id_normalized
 
   tags = local.common_tags
 }
@@ -209,7 +214,7 @@ resource "aws_sns_topic" "cloudtrail" {
 
   name              = var.sns_topic_name
   display_name      = "CloudTrail Notifications"
-  kms_master_key_id = var.kms_key_id
+  kms_master_key_id = local.kms_key_id_normalized
 
   tags = local.common_tags
 }
@@ -248,7 +253,7 @@ resource "aws_cloudtrail" "main" {
   include_global_service_events = var.include_global_service_events
   is_multi_region_trail         = var.is_multi_region_trail
   enable_log_file_validation    = var.enable_log_file_validation
-  kms_key_id                    = var.kms_key_id
+  kms_key_id                    = local.kms_key_id_normalized
   sns_topic_name                = try(aws_sns_topic.cloudtrail[0].name, null)
 
   cloud_watch_logs_group_arn = var.create_cloudwatch_logs_group ? "${aws_cloudwatch_log_group.cloudtrail[0].arn}:*" : null

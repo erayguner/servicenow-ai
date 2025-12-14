@@ -448,7 +448,7 @@ module "monitoring_cloudwatch" {
 
   # Log groups
   log_group_names = [
-    "/aws/bedrock/agents/${local.project}-${local.environment}",
+    module.bedrock_agent.log_group_name,
     "/aws/lambda/${local.project}-*"
   ]
 

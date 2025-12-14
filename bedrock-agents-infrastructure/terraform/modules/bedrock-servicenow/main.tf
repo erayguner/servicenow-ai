@@ -18,6 +18,11 @@ resource "random_id" "suffix" {
 locals {
   name_prefix = "${var.name_prefix}-${var.environment}"
   resource_id = random_id.suffix.hex
+  kms_key_id_normalized = var.kms_key_id == null ? null : (
+    can(regex("^arn:", var.kms_key_id)) || can(regex("^alias/", var.kms_key_id))
+    ? var.kms_key_id
+    : "arn:aws:kms:${module.shared_data.region_name}:${module.shared_data.account_id}:key/${var.kms_key_id}"
+  )
 
   common_tags = merge(
     var.tags,
@@ -142,7 +147,7 @@ resource "aws_secretsmanager_secret" "servicenow_credentials" {
 
   name_prefix             = "${local.name_prefix}-credentials-"
   description             = "ServiceNow API credentials for ${var.servicenow_instance_url}"
-  kms_key_id              = var.kms_key_id
+  kms_key_id              = local.kms_key_id_normalized
   recovery_window_in_days = 7
 
   tags = merge(
@@ -225,7 +230,7 @@ resource "aws_dynamodb_table" "servicenow_state" {
 
   server_side_encryption {
     enabled     = var.enable_encryption_at_rest
-    kms_key_arn = var.kms_key_id
+    kms_key_arn = local.kms_key_id_normalized
   }
 
   ttl {
@@ -245,7 +250,7 @@ resource "aws_dynamodb_table" "servicenow_state" {
 resource "aws_cloudwatch_log_group" "api_gateway" {
   name              = "/aws/apigateway/${local.name_prefix}"
   retention_in_days = 30
-  kms_key_id        = var.kms_key_id
+  kms_key_id        = local.kms_key_id_normalized
 
   tags = merge(
     local.common_tags,
@@ -258,7 +263,7 @@ resource "aws_cloudwatch_log_group" "api_gateway" {
 resource "aws_cloudwatch_log_group" "step_functions" {
   name              = "/aws/states/${local.name_prefix}"
   retention_in_days = 30
-  kms_key_id        = var.kms_key_id
+  kms_key_id        = local.kms_key_id_normalized
 
   tags = merge(
     local.common_tags,

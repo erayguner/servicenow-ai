@@ -92,7 +92,9 @@ process.on('SIGTERM', () => {
 });
 
 // Start the SDK
-sdk.start();
+void sdk.start().catch((error) =>
+  console.error('OpenTelemetry failed to start', error)
+);
 console.log(`OpenTelemetry initialized for ${SERVICE_NAME} (${ENVIRONMENT})`);
 console.log(`Exporting to: ${OTEL_COLLECTOR_URL}`);
 
