@@ -23,7 +23,7 @@ variables {
   create_daily_budget    = true
 
   tags = {
-    Team    = "platform"
+    Team       = "platform"
     CostCenter = "engineering"
   }
 }
