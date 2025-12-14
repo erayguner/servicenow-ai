@@ -12,7 +12,7 @@ locals {
       Module        = "bedrock-security-kms"
       ManagedBy     = "terraform"
       SecurityLevel = "critical"
-      Compliance    = "SOC2,HIPAA,PCI-DSS"
+      Compliance    = "SOC2-HIPAA-PCI-DSS"
     }
   )
 }
@@ -145,55 +145,108 @@ data "aws_iam_policy_document" "bedrock_data_key_policy" {
     }
   }
 
-  # IAM role access
+  # CloudTrail service access for encryption
   statement {
-    sid    = "AllowIAMRoleAccess"
+    sid    = "AllowCloudTrailServiceAccess"
     effect = "Allow"
 
     principals {
-      type        = "AWS"
-      identifiers = var.iam_role_arns
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
     }
 
     actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey",
-      "kms:Encrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*"
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
     ]
 
     resources = ["*"]
+
+    condition {
+      test     = "StringLike"
+      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+    }
   }
 
-  # Key administrators
+  # CloudTrail decrypt access for log reading
   statement {
-    sid    = "AllowKeyAdministration"
+    sid    = "AllowCloudTrailDecrypt"
     effect = "Allow"
 
     principals {
-      type        = "AWS"
-      identifiers = var.key_admin_arns
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
     }
 
     actions = [
-      "kms:Create*",
-      "kms:Describe*",
-      "kms:Enable*",
-      "kms:List*",
-      "kms:Put*",
-      "kms:Update*",
-      "kms:Revoke*",
-      "kms:Disable*",
-      "kms:Get*",
-      "kms:Delete*",
-      "kms:TagResource",
-      "kms:UntagResource",
-      "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:Decrypt"
     ]
 
     resources = ["*"]
+
+    condition {
+      test     = "Null"
+      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+      values   = ["false"]
+    }
+  }
+
+  # IAM role access - only include if iam_role_arns is not empty
+  dynamic "statement" {
+    for_each = length(var.iam_role_arns) > 0 ? [1] : []
+    content {
+      sid    = "AllowIAMRoleAccess"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.iam_role_arns
+      }
+
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+      ]
+
+      resources = ["*"]
+    }
+  }
+
+  # Key administrators - only include if key_admin_arns is not empty
+  dynamic "statement" {
+    for_each = length(var.key_admin_arns) > 0 ? [1] : []
+    content {
+      sid    = "AllowKeyAdministration"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.key_admin_arns
+      }
+
+      actions = [
+        "kms:Create*",
+        "kms:Describe*",
+        "kms:Enable*",
+        "kms:List*",
+        "kms:Put*",
+        "kms:Update*",
+        "kms:Revoke*",
+        "kms:Disable*",
+        "kms:Get*",
+        "kms:Delete*",
+        "kms:TagResource",
+        "kms:UntagResource",
+        "kms:ScheduleKeyDeletion",
+        "kms:CancelKeyDeletion"
+      ]
+
+      resources = ["*"]
+    }
   }
 }
 
@@ -264,22 +317,25 @@ data "aws_iam_policy_document" "secrets_key_policy" {
     resources = ["*"]
   }
 
-  # IAM role access
-  statement {
-    sid    = "AllowIAMRoleAccess"
-    effect = "Allow"
+  # IAM role access - only include if iam_role_arns is not empty
+  dynamic "statement" {
+    for_each = length(var.iam_role_arns) > 0 ? [1] : []
+    content {
+      sid    = "AllowIAMRoleAccess"
+      effect = "Allow"
 
-    principals {
-      type        = "AWS"
-      identifiers = var.iam_role_arns
+      principals {
+        type        = "AWS"
+        identifiers = var.iam_role_arns
+      }
+
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+      ]
+
+      resources = ["*"]
     }
-
-    actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey"
-    ]
-
-    resources = ["*"]
   }
 }
 
@@ -352,25 +408,75 @@ data "aws_iam_policy_document" "s3_key_policy" {
     }
   }
 
-  # IAM role access
+  # CloudTrail service access for encryption
   statement {
-    sid    = "AllowIAMRoleAccess"
+    sid    = "AllowCloudTrailServiceAccess"
     effect = "Allow"
 
     principals {
-      type        = "AWS"
-      identifiers = var.iam_role_arns
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
     }
 
     actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey",
-      "kms:Encrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*"
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
     ]
 
     resources = ["*"]
+
+    condition {
+      test     = "StringLike"
+      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+    }
+  }
+
+  # CloudTrail decrypt access for log reading
+  statement {
+    sid    = "AllowCloudTrailDecrypt"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions = [
+      "kms:Decrypt"
+    ]
+
+    resources = ["*"]
+
+    condition {
+      test     = "Null"
+      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+      values   = ["false"]
+    }
+  }
+
+  # IAM role access - only include if iam_role_arns is not empty
+  dynamic "statement" {
+    for_each = length(var.iam_role_arns) > 0 ? [1] : []
+    content {
+      sid    = "AllowIAMRoleAccess"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.iam_role_arns
+      }
+
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+      ]
+
+      resources = ["*"]
+    }
   }
 }
 
@@ -465,6 +571,8 @@ resource "aws_cloudwatch_metric_alarm" "kms_api_errors" {
 # ==============================================================================
 
 resource "aws_cloudwatch_log_metric_filter" "kms_key_deletion" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   name           = "${var.project_name}-kms-key-deletion-${var.environment}"
   log_group_name = var.cloudtrail_log_group_name
   pattern        = "{ ($.eventName = DisableKey) || ($.eventName = ScheduleKeyDeletion) }"
@@ -481,6 +589,8 @@ resource "aws_cloudwatch_log_metric_filter" "kms_key_deletion" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "kms_key_deletion" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   alarm_name          = "${var.project_name}-kms-key-deletion-${var.environment}"
   alarm_description   = "Alert on KMS key deletion or disablement"
   comparison_operator = "GreaterThanThreshold"

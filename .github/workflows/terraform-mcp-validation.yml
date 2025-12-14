@@ -1,0 +1,248 @@
+name: Terraform MCP Validation
+
+on:
+  pull_request:
+    paths:
+      - '**.tf'
+      - '.github/workflows/terraform-mcp-validation.yml'
+      - 'scripts/validate_terraform_mcp.py'
+  workflow_dispatch:
+    inputs:
+      terraform_directory:
+        description: 'Directory containing Terraform files to validate'
+        required: false
+        default: 'bedrock-agents-infrastructure/terraform/modules'
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+  models: read
+
+env:
+  TERRAFORM_VERSION: '1.11.0'
+
+jobs:
+  mcp-validate:
+    name: Validate with MCP Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Start Terraform MCP Server
+        id: mcp-server
+        shell: bash
+        run: |
+          echo "Starting HashiCorp Terraform MCP Server..."
+
+          # Check if Docker is available
+          if ! command -v docker &> /dev/null; then
+            echo "Warning: Docker not available, skipping MCP server startup"
+            echo "mcp_available=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Pull the latest MCP server image
+          echo "Pulling HashiCorp Terraform MCP Server image..."
+          if ! docker pull hashicorp/terraform-mcp-server:latest; then
+            echo "Warning: Failed to pull MCP server image, continuing without MCP validation"
+            echo "mcp_available=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Test JSON-RPC stdio mode
+          echo "Testing MCP server JSON-RPC stdio mode..."
+          if echo '{"jsonrpc": "2.0", "id": "test", "method": "initialize", "params": {"protocolVersion": "2024-11-05", "clientInfo": {"name": "test", "version": "1.0.0"}}}' | timeout 15 docker run --rm -i hashicorp/terraform-mcp-server:latest 2>/dev/null | grep -q '"result"'; then
+            echo "MCP server JSON-RPC stdio mode is working"
+            echo "mcp_available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Warning: MCP server stdio mode test failed, continuing without MCP validation"
+            echo "mcp_available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Discover Terraform Modules
+        id: discover
+        run: |
+          echo "Discovering Terraform modules..."
+
+          # Find directories with Terraform files (safe for spaces)
+          MODULES=$(find . -type f -name "*.tf" -print0 | xargs -0 -I{} dirname "{}" | sort -u | grep -v ".terraform" | head -20)
+
+          # Create JSON array of modules (single grouped redirection)
+          {
+            echo "modules<<EOF"
+            echo "$MODULES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Found modules:"
+          echo "$MODULES"
+
+      - name: Terraform Init and Validate (Standard)
+        run: |
+          echo "Running standard Terraform validation..."
+
+          FAILED=()
+          PASSED=()
+
+          # Validate key modules
+          for dir in \
+            "bedrock-agents-infrastructure/terraform/modules/bedrock-servicenow" \
+            "bedrock-agents-infrastructure/terraform/modules/bedrock-agentcore" \
+            "bedrock-agents-infrastructure/terraform/modules/_shared/data-sources" \
+            "terraform/modules/vpc" \
+            "terraform/modules/gke"; do
+
+            if [ -d "$dir" ]; then
+              echo ""
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              echo "Validating: $dir"
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+              cd "$dir"
+
+              if terraform init -backend=false > /dev/null 2>&1; then
+                if terraform validate; then
+                  echo "✅ $dir validated successfully"
+                  PASSED+=("$dir")
+                else
+                  echo "❌ $dir validation failed"
+                  FAILED+=("$dir")
+                fi
+              else
+                echo "❌ $dir init failed"
+                FAILED+=("$dir")
+              fi
+
+              cd "$GITHUB_WORKSPACE"
+            fi
+          done
+
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Standard Validation Summary"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Passed: ${#PASSED[@]}"
+          echo "Failed: ${#FAILED[@]}"
+
+          if [ ${#FAILED[@]} -gt 0 ]; then
+            echo "Failed modules:"
+            printf '  - %s\n' "${FAILED[@]}"
+            exit 1
+          fi
+
+      - name: Setup Python
+        if: steps.mcp-server.outputs.mcp_available == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install MCP Client Dependencies
+        if: steps.mcp-server.outputs.mcp_available == 'true'
+        run: |
+          pip install mcp requests
+
+      - name: Validate with MCP Server
+        if: steps.mcp-server.outputs.mcp_available == 'true'
+        env:
+          MCP_AVAILABLE: ${{ steps.mcp-server.outputs.mcp_available }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/validate_terraform_mcp.py
+
+      - name: Generate MCP Validation Report
+        if: steps.mcp-server.outputs.mcp_available == 'true'
+        id: report
+        run: |
+          if [ -f "mcp_validation_report.md" ]; then
+            echo "report_exists=true" >> "$GITHUB_OUTPUT"
+            cat mcp_validation_report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "report_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && steps.mcp-server.outputs.mcp_available == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let mcpReport = '';
+            try {
+              mcpReport = fs.readFileSync('mcp_validation_report.md', 'utf8');
+            } catch (error) {
+              mcpReport = 'MCP validation report was not generated.';
+            }
+
+            let aiAnalysis = '';
+            try {
+              aiAnalysis = fs.readFileSync('ai_analysis.txt', 'utf8');
+            } catch (error) {
+              aiAnalysis = 'AI analysis was not available for this run.';
+            }
+
+            const comment = `## 🔍 Terraform MCP Validation Results
+
+            ${mcpReport}
+
+            ### 🤖 AI Analysis
+
+            ${aiAnalysis}
+
+            ---
+            *Powered by HashiCorp Terraform MCP Server*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Upload MCP Validation Artifacts
+        if: always() && steps.mcp-server.outputs.mcp_available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-validation-results
+          path: |
+            mcp_validation_report.md
+            ai_analysis.txt
+            provider_versions.json
+          retention-days: 7
+
+  mcp-fallback:
+    name: Fallback Validation (No MCP)
+    runs-on: ubuntu-latest
+    needs: mcp-validate
+    if: failure() || cancelled()
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Run Standard Validation
+        run: |
+          echo "Running fallback standard Terraform validation..."
+
+          for dir in bedrock-agents-infrastructure/terraform/modules/*/; do
+            if [ -d "$dir" ]; then
+              echo "Validating: $dir"
+              cd "$dir"
+              terraform init -backend=false > /dev/null 2>&1 || true
+              terraform validate || echo "Warning: $dir validation issues"
+              cd "$GITHUB_WORKSPACE"
+            fi
+          done
+
+          echo "Fallback validation complete"

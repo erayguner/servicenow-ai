@@ -1,407 +1,238 @@
-# Claude Code Configuration - SPARC Development Environment
-
-## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
-
-**ABSOLUTE RULES**:
-
-1. ALL operations MUST be concurrent/parallel in a single message
-2. **NEVER save working files, text/mds and tests to the root folder**
-3. ALWAYS organize files in appropriate subdirectories
-4. **USE CLAUDE CODE'S TASK TOOL** for spawning agents concurrently, not just
-   MCP
-
-### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
-
-**MANDATORY PATTERNS:**
-
-- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
-- **Task tool (Claude Code)**: ALWAYS spawn ALL agents in ONE message with full
-  instructions
-- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
-- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
-- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
-
-### 🎯 CRITICAL: Claude Code Task Tool for Agent Execution
-
-**Claude Code's Task tool is the PRIMARY way to spawn agents:**
-
-```javascript
-// ✅ CORRECT: Use Claude Code's Task tool for parallel agent execution
-[Single Message]:
-  Task("Research agent", "Analyze requirements and patterns...", "researcher")
-  Task("Coder agent", "Implement core features...", "coder")
-  Task("Tester agent", "Create comprehensive tests...", "tester")
-  Task("Reviewer agent", "Review code quality...", "reviewer")
-  Task("Architect agent", "Design system architecture...", "system-architect")
-```
-
-**MCP tools are ONLY for coordination setup:**
-
-- `mcp__claude-flow__swarm_init` - Initialize coordination topology
-- `mcp__claude-flow__agent_spawn` - Define agent types for coordination
-- `mcp__claude-flow__task_orchestrate` - Orchestrate high-level workflows
-
-### 📁 File Organization Rules
-
-**NEVER save to root folder. Use these directories:**
-
-- `/src` - Source code files
-- `/tests` - Test files
-- `/docs` - Documentation and markdown files
-- `/config` - Configuration files
-- `/scripts` - Utility scripts
-- `/examples` - Example code
+# ServiceNow AI Infrastructure - Claude Code Configuration
 
 ## Project Overview
 
-This project uses SPARC (Specification, Pseudocode, Architecture, Refinement,
-Completion) methodology with Claude-Flow orchestration for systematic
-Test-Driven Development.
+Multi-cloud infrastructure-as-code repository for deploying a production-ready
+ServiceNow AI Agent system on **Google Cloud Platform (GCP)** and **Amazon Web
+Services (AWS)**.
 
-## SPARC Commands
+## Project Structure
 
-### Core Commands
+```
+servicenow-ai/
+├── terraform/                    # GCP Infrastructure (Terraform)
+├── aws-infrastructure/           # AWS Infrastructure (Terraform)
+├── bedrock-agents-infrastructure/ # AWS Bedrock AI Agents
+├── backend/                      # Node.js/TypeScript API
+├── frontend/                     # Next.js React Application
+├── k8s/                          # Kubernetes Manifests
+├── servicenow/                   # ServiceNow Integration
+├── scripts/                      # Utility Scripts
+└── docs/                         # Documentation
+```
 
-- `npx claude-flow sparc modes` - List available modes
-- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
-- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
-- `npx claude-flow sparc info <mode>` - Get mode details
+## Technology Stack
 
-### Batchtools Commands
+- **Infrastructure**: Terraform 1.11.0+, Kubernetes 1.33+
+- **Cloud Providers**: GCP (primary), AWS (secondary)
+- **Backend**: Node.js, TypeScript, Express
+- **Frontend**: Next.js, React, TailwindCSS
+- **AI/ML**: Vertex AI, AWS Bedrock, vLLM, KServe
+- **Database**: PostgreSQL (Cloud SQL/RDS), Firestore, DynamoDB
+- **Caching**: Redis (Memorystore/ElastiCache)
 
-- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
-- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
-- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task
-  processing
+## Development Commands
 
-### Build Commands
-
-- `npm run build` - Build project
-- `npm run test` - Run tests
-- `npm run lint` - Linting
-- `npm run typecheck` - Type checking
-
-## SPARC Workflow Phases
-
-1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
-2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
-3. **Architecture** - System design (`sparc run architect`)
-4. **Refinement** - TDD implementation (`sparc tdd`)
-5. **Completion** - Integration (`sparc run integration`)
-
-## Code Style & Best Practices
-
-- **Modular Design**: Files under 500 lines
-- **Environment Safety**: Never hardcode secrets
-- **Test-First**: Write tests before implementation
-- **Clean Architecture**: Separate concerns
-- **Documentation**: Keep updated
-
-## 🚀 Available Agents (54 Total)
-
-### Core Development
-
-`coder`, `reviewer`, `tester`, `planner`, `researcher`
-
-### Swarm Coordination
-
-`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`,
-`collective-intelligence-coordinator`, `swarm-memory-manager`
-
-### Consensus & Distributed
-
-`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`,
-`consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
-
-### Performance & Optimization
-
-`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`,
-`memory-coordinator`, `smart-agent`
-
-### GitHub & Repository
-
-`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`,
-`release-manager`, `workflow-automation`, `project-board-sync`,
-`repo-architect`, `multi-repo-swarm`
-
-### SPARC Methodology
-
-`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`,
-`refinement`
-
-### Specialized Development
-
-`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`,
-`system-architect`, `code-analyzer`, `base-template-generator`
-
-### Testing & Validation
-
-`tdd-london-swarm`, `production-validator`
-
-### Migration & Planning
-
-`migration-planner`, `swarm-init`
-
-## 🎯 Claude Code vs MCP Tools
-
-### Claude Code Handles ALL EXECUTION:
-
-- **Task tool**: Spawn and run agents concurrently for actual work
-- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
-- Code generation and programming
-- Bash commands and system operations
-- Implementation work
-- Project navigation and analysis
-- TodoWrite and task management
-- Git operations
-- Package management
-- Testing and debugging
-
-### MCP Tools ONLY COORDINATE:
-
-- Swarm initialization (topology setup)
-- Agent type definitions (coordination patterns)
-- Task orchestration (high-level planning)
-- Memory management
-- Neural features
-- Performance tracking
-- GitHub integration
-
-**KEY**: MCP coordinates the strategy, Claude Code's Task tool executes with
-real agents.
-
-## 🚀 Quick Setup
+### Terraform
 
 ```bash
-# Add MCP servers (Claude Flow required, others optional)
-claude mcp add claude-flow npx claude-flow@alpha mcp start
-claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional: Enhanced coordination
-claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional: Cloud features
+# Initialize and validate
+cd terraform/environments/dev
+terraform init
+terraform validate
+terraform plan
+
+# Apply changes
+terraform apply
+
+# Run tests
+cd terraform/tests
+terraform test
 ```
 
-## MCP Tool Categories
-
-### Coordination
-
-`swarm_init`, `agent_spawn`, `task_orchestrate`
-
-### Monitoring
-
-`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
-
-### Memory & Neural
-
-`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
-
-### GitHub Integration
-
-`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
-
-### System
-
-`benchmark_run`, `features_detect`, `swarm_monitor`
-
-### Flow-Nexus MCP Tools (Optional Advanced Features)
-
-Flow-Nexus extends MCP capabilities with 70+ cloud-based orchestration tools:
-
-**Key MCP Tool Categories:**
-
-- **Swarm & Agents**: `swarm_init`, `swarm_scale`, `agent_spawn`,
-  `task_orchestrate`
-- **Sandboxes**: `sandbox_create`, `sandbox_execute`, `sandbox_upload` (cloud
-  execution)
-- **Templates**: `template_list`, `template_deploy` (pre-built project
-  templates)
-- **Neural AI**: `neural_train`, `neural_patterns`, `seraphina_chat` (AI
-  assistant)
-- **GitHub**: `github_repo_analyze`, `github_pr_manage` (repository management)
-- **Real-time**: `execution_stream_subscribe`, `realtime_subscribe` (live
-  monitoring)
-- **Storage**: `storage_upload`, `storage_list` (cloud file management)
-
-**Authentication Required:**
-
-- Register: `mcp__flow-nexus__user_register` or `npx flow-nexus@latest register`
-- Login: `mcp__flow-nexus__user_login` or `npx flow-nexus@latest login`
-- Access 70+ specialized MCP tools for advanced orchestration
-
-## 🚀 Agent Execution Flow with Claude Code
-
-### The Correct Pattern:
-
-1. **Optional**: Use MCP tools to set up coordination topology
-2. **REQUIRED**: Use Claude Code's Task tool to spawn agents that do actual work
-3. **REQUIRED**: Each agent runs hooks for coordination
-4. **REQUIRED**: Batch all operations in single messages
-
-### Example Full-Stack Development:
-
-```javascript
-// Single message with all agent spawning via Claude Code's Task tool
-[Parallel Agent Execution]:
-  Task("Backend Developer", "Build REST API with Express. Use hooks for coordination.", "backend-dev")
-  Task("Frontend Developer", "Create React UI. Coordinate with backend via memory.", "coder")
-  Task("Database Architect", "Design PostgreSQL schema. Store schema in memory.", "code-analyzer")
-  Task("Test Engineer", "Write Jest tests. Check memory for API contracts.", "tester")
-  Task("DevOps Engineer", "Setup Docker and CI/CD. Document in memory.", "cicd-engineer")
-  Task("Security Auditor", "Review authentication. Report findings via hooks.", "reviewer")
-
-  // All todos batched together
-  TodoWrite { todos: [...8-10 todos...] }
-
-  // All file operations together
-  Write "backend/server.js"
-  Write "frontend/App.jsx"
-  Write "database/schema.sql"
-```
-
-## 📋 Agent Coordination Protocol
-
-### Every Agent Spawned via Task Tool MUST:
-
-**1️⃣ BEFORE Work:**
+### Backend (Node.js)
 
 ```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
+cd backend
+npm install
+npm run dev      # Development server
+npm run build    # Build for production
+npm run test     # Run tests
+npm run lint     # Lint code
 ```
 
-**2️⃣ DURING Work:**
+### Frontend (Next.js)
 
 ```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[what was done]"
+cd frontend
+npm install
+npm run dev      # Development server (localhost:3000)
+npm run build    # Production build
+npm run lint     # Lint code
 ```
 
-**3️⃣ AFTER Work:**
+### Pre-commit Hooks
 
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
+# Install hooks
+pre-commit install
+
+# Run all checks
+pre-commit run --all-files
+
+# Run specific hook
+pre-commit run terraform_fmt --all-files
 ```
 
-## 🎯 Concurrent Execution Examples
+### Make Commands
 
-### ✅ CORRECT WORKFLOW: MCP Coordinates, Claude Code Executes
-
-```javascript
-// Step 1: MCP tools set up coordination (optional, for complex tasks)
-[Single Message - Coordination Setup]:
-  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
-  mcp__claude-flow__agent_spawn { type: "researcher" }
-  mcp__claude-flow__agent_spawn { type: "coder" }
-  mcp__claude-flow__agent_spawn { type: "tester" }
-
-// Step 2: Claude Code Task tool spawns ACTUAL agents that do the work
-[Single Message - Parallel Agent Execution]:
-  // Claude Code's Task tool spawns real agents concurrently
-  Task("Research agent", "Analyze API requirements and best practices. Check memory for prior decisions.", "researcher")
-  Task("Coder agent", "Implement REST endpoints with authentication. Coordinate via hooks.", "coder")
-  Task("Database agent", "Design and implement database schema. Store decisions in memory.", "code-analyzer")
-  Task("Tester agent", "Create comprehensive test suite with 90% coverage.", "tester")
-  Task("Reviewer agent", "Review code quality and security. Document findings.", "reviewer")
-
-  // Batch ALL todos in ONE call
-  TodoWrite { todos: [
-    {id: "1", content: "Research API patterns", status: "in_progress", priority: "high"},
-    {id: "2", content: "Design database schema", status: "in_progress", priority: "high"},
-    {id: "3", content: "Implement authentication", status: "pending", priority: "high"},
-    {id: "4", content: "Build REST endpoints", status: "pending", priority: "high"},
-    {id: "5", content: "Write unit tests", status: "pending", priority: "medium"},
-    {id: "6", content: "Integration tests", status: "pending", priority: "medium"},
-    {id: "7", content: "API documentation", status: "pending", priority: "low"},
-    {id: "8", content: "Performance optimization", status: "pending", priority: "low"}
-  ]}
-
-  // Parallel file operations
-  Bash "mkdir -p app/{src,tests,docs,config}"
-  Write "app/package.json"
-  Write "app/src/server.js"
-  Write "app/tests/server.test.js"
-  Write "app/docs/API.md"
+```bash
+make init        # Initialize all components
+make validate    # Run all validations
+make test        # Run all tests
+make lint        # Run linters
+make security    # Security checks
 ```
 
-### ❌ WRONG (Multiple Messages):
+## Code Style Guidelines
 
-```javascript
-Message 1: mcp__claude-flow__swarm_init
-Message 2: Task("agent 1")
-Message 3: TodoWrite { todos: [single todo] }
-Message 4: Write "file.js"
-// This breaks parallel coordination!
+### Terraform
+
+- Use snake_case for resource names
+- Prefix resources with environment: `${var.environment}-resource-name`
+- Always define variables in `variables.tf` with descriptions
+- Output sensitive values with `sensitive = true`
+- Use modules for reusable components
+- Maximum file size: 500 lines
+
+### TypeScript/JavaScript
+
+- Use ESLint configuration in `.eslintrc.js`
+- Prettier for formatting (`.prettierrc.json`)
+- Strict TypeScript mode enabled
+- Use async/await over promises
+
+### Kubernetes
+
+- Use kube-linter for manifest validation (`.kube-linter.yaml`)
+- Apply resource limits on all containers
+- Use NetworkPolicies for pod isolation
+- Prefer Deployments over bare Pods
+
+## Security Guidelines
+
+- Never hardcode secrets - use Secret Manager / Secrets Manager
+- Use Workload Identity for GCP, IAM Roles for AWS
+- Enable encryption at rest (KMS/CMEK)
+- Follow least-privilege principle for IAM
+- Run `pre-commit run --all-files` before committing
+
+## Environment Configuration
+
+### GCP Environments
+
+- `terraform/environments/dev/` - Development
+- `terraform/environments/staging/` - Staging
+- `terraform/environments/prod/` - Production
+
+### AWS Environments
+
+- `aws-infrastructure/terraform/environments/dev/` - Development
+- `aws-infrastructure/terraform/environments/prod/` - Production
+
+### Bedrock Agents
+
+- `bedrock-agents-infrastructure/terraform/environments/dev/`
+- `bedrock-agents-infrastructure/terraform/environments/staging/`
+- `bedrock-agents-infrastructure/terraform/environments/prod/`
+
+## CI/CD Workflows
+
+Located in `.github/workflows/`:
+
+- `lint.yml` - Code linting and formatting
+- `parallel-tests.yml` - Terraform and unit tests
+- `security-check.yml` - Security scanning
+- `deploy.yml` - Deployment pipeline
+- `release-please.yml` - Automated releases
+
+## MCP Tools Available
+
+This project has access to specialized MCP tools for infrastructure work:
+
+### Terraform Tools
+
+- `mcp__MCP_DOCKER__ExecuteTerraformCommand` - Run terraform commands
+- `mcp__MCP_DOCKER__RunCheckovScan` - Security scanning
+- `mcp__MCP_DOCKER__SearchAwsProviderDocs` - AWS provider documentation
+
+### AWS Tools
+
+- `mcp__MCP_DOCKER__get_cost_and_usage` - Cost analysis
+- `mcp__MCP_DOCKER__get_cost_forecast` - Cost forecasting
+
+### Diagram Tools
+
+- `mcp__MCP_DOCKER__generate_diagram` - Architecture diagrams
+
+## Working with Infrastructure
+
+### Adding a New Terraform Module
+
+1. Create module directory: `terraform/modules/<module-name>/`
+2. Add required files: `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`
+3. Reference in environment: `module "<name>" { source = "../../modules/<name>" }`
+4. Run `terraform init` and `terraform validate`
+
+### Adding AWS Bedrock Agent
+
+1. Update `bedrock-agents-infrastructure/terraform/modules/`
+2. Define action groups in `bedrock-action-group/`
+3. Configure knowledge bases in `bedrock-knowledge-base/`
+4. Test with `terraform plan` before applying
+
+## File Organization Rules
+
+- Infrastructure code goes in respective `terraform/` directories
+- Application code in `backend/` or `frontend/`
+- Kubernetes manifests in `k8s/`
+- Documentation in `docs/`
+- Scripts in `scripts/`
+- Never save working files to root directory
+
+## Testing
+
+### Terraform Tests
+
+```bash
+# Run all module tests
+cd terraform/tests
+terraform test
+
+# Test specific module
+terraform test -filter=tests/vpc_test.tftest.hcl
 ```
 
-## Performance Benefits
+### Backend Tests
 
-- **84.8% SWE-Bench solve rate**
-- **32.3% token reduction**
-- **2.8-4.4x speed improvement**
-- **27+ neural models**
+```bash
+cd backend
+npm test
+npm run test:coverage
+```
 
-## Hooks Integration
+## Troubleshooting
 
-### Pre-Operation
+### Common Issues
 
-- Auto-assign agents by file type
-- Validate commands for safety
-- Prepare resources automatically
-- Optimize topology by complexity
-- Cache searches
+1. **Terraform state lock**: Wait or run `terraform force-unlock <LOCK_ID>`
+2. **Pre-commit fails**: Run `pre-commit run --all-files` to see details
+3. **GCP auth issues**: Run `gcloud auth application-default login`
+4. **AWS auth issues**: Configure `~/.aws/credentials` or use SSO
 
-### Post-Operation
+## Resources
 
-- Auto-format code
-- Train neural patterns
-- Update memory
-- Analyze performance
-- Track token usage
-
-### Session Management
-
-- Generate summaries
-- Persist state
-- Track metrics
-- Restore context
-- Export workflows
-
-## Advanced Features (v2.0.0)
-
-- 🚀 Automatic Topology Selection
-- ⚡ Parallel Execution (2.8-4.4x speed)
-- 🧠 Neural Training
-- 📊 Bottleneck Analysis
-- 🤖 Smart Auto-Spawning
-- 🛡️ Self-Healing Workflows
-- 💾 Cross-Session Memory
-- 🔗 GitHub Integration
-
-## Integration Tips
-
-1. Start with basic swarm init
-2. Scale agents gradually
-3. Use memory for context
-4. Monitor progress regularly
-5. Train patterns from success
-6. Enable hooks automation
-7. Use GitHub tools first
-
-## Support
-
-- Documentation: https://github.com/ruvnet/claude-flow
-- Issues: https://github.com/ruvnet/claude-flow/issues
-- Flow-Nexus Platform: https://flow-nexus.ruv.io (registration required for
-  cloud features)
-
----
-
-Remember: **Claude Flow coordinates, Claude Code creates!**
-
-# important-instruction-reminders
-
-Do what has been asked; nothing more, nothing less. NEVER create files unless
-they're absolutely necessary for achieving your goal. ALWAYS prefer editing an
-existing file to creating a new one. NEVER proactively create documentation
-files (\*.md) or README files. Only create documentation files if explicitly
-requested by the User. Never save working files, text/mds and tests to the root
-folder.
+- [GCP Terraform Provider](https://registry.terraform.io/providers/hashicorp/google/latest)
+- [AWS Terraform Provider](https://registry.terraform.io/providers/hashicorp/aws/latest)
+- [AWS Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
+- [Kubernetes Documentation](https://kubernetes.io/docs/)

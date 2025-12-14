@@ -4,6 +4,10 @@
 locals {
   dashboard_name = var.dashboard_name != null ? var.dashboard_name : "${var.project_name}-${var.environment}-bedrock-monitoring"
   sns_topic_name = "${var.project_name}-${var.environment}-bedrock-alarms"
+  metric_filter_log_groups = [
+    for name in var.log_group_names : name
+    if length(regexall("\\*", name)) == 0
+  ]
 
   common_tags = merge(
     var.tags,
@@ -484,7 +488,7 @@ resource "aws_cloudwatch_composite_alarm" "bedrock_critical_health" {
 
 # Bedrock Agent Error Pattern
 resource "aws_cloudwatch_log_metric_filter" "bedrock_errors" {
-  for_each = toset(var.log_group_names)
+  for_each = toset(local.metric_filter_log_groups)
 
   name           = "${var.project_name}-${var.environment}-bedrock-errors"
   log_group_name = each.value
@@ -500,11 +504,11 @@ resource "aws_cloudwatch_log_metric_filter" "bedrock_errors" {
 
 # Bedrock Agent Timeout Pattern
 resource "aws_cloudwatch_log_metric_filter" "bedrock_timeouts" {
-  for_each = toset(var.log_group_names)
+  for_each = toset(local.metric_filter_log_groups)
 
   name           = "${var.project_name}-${var.environment}-bedrock-timeouts"
   log_group_name = each.value
-  pattern        = "[time, request_id, level, msg = *timeout* || msg = *timed?out*]"
+  pattern        = "timeout"
 
   metric_transformation {
     name          = "BedrockTimeoutCount"

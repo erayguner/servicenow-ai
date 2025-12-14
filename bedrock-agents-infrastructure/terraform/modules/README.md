@@ -13,6 +13,8 @@ This collection provides production-ready Terraform modules for:
   Embeddings V2
 - **Action Groups** - Lambda-backed custom actions with API schemas
 - **Orchestration** - Step Functions workflows for multi-agent coordination
+- **AgentCore** - Advanced agent capabilities with Runtime, Gateway, Memory, and
+  Code Interpreter
 
 ## Modules
 
@@ -384,13 +386,127 @@ module "customer_workflow" {
 - `dynamodb_table_name` - State storage table
 - `sns_topic_arn` - Notification topic
 
+### 5. bedrock-agentcore
+
+Creates advanced Bedrock AgentCore resources including Runtime, Gateway, Memory,
+and Code Interpreter using the AWSCC provider (AWS Cloud Control API).
+
+**Features:**
+
+- AgentCore Runtime (container or code-based artifacts)
+- Gateway with MCP (Model Context Protocol) support
+- Memory with semantic, summary, user preference, and custom strategies
+- Code Interpreter with sandbox or VPC execution modes
+- Cognito User Pool for JWT authentication
+- Granular IAM permission outputs for external consumers
+- CloudWatch logging for all components
+- KMS encryption support
+
+**Example Usage:**
+
+```hcl
+module "agentcore" {
+  source = "./modules/bedrock-agentcore"
+
+  project_name = "servicenow-ai"
+  environment  = "dev"
+
+  # Runtime Configuration
+  create_runtime        = true
+  runtime_name          = "servicenow-runtime"
+  runtime_description   = "ServiceNow AI agent runtime"
+  runtime_artifact_type = "container"
+  runtime_container_uri = "123456789012.dkr.ecr.eu-west-2.amazonaws.com/agent:latest"
+  runtime_network_mode  = "PUBLIC"
+
+  # Gateway Configuration
+  create_gateway           = true
+  gateway_name             = "servicenow-gateway"
+  gateway_description      = "MCP Gateway for ServiceNow integrations"
+  gateway_protocol_type    = "MCP"
+  gateway_authorizer_type  = "CUSTOM_JWT"
+  gateway_mcp_configuration = {
+    instructions       = "Process ServiceNow API requests"
+    search_type        = "SEMANTIC"
+    supported_versions = ["2024-11-05"]
+  }
+  gateway_lambda_function_arns = [
+    module.servicenow_lambda.function_arn
+  ]
+
+  # Memory Configuration
+  create_memory     = true
+  memory_name       = "servicenow-memory"
+  memory_description = "Conversation memory for ServiceNow context"
+  memory_strategies = [
+    {
+      semantic_memory_strategy = {
+        name        = "servicenow_semantic_memory"
+        description = "Semantic memory for ServiceNow context"
+        namespaces  = ["servicenow"]
+        model_id    = "anthropic.claude-3-haiku-20240307-v1:0"
+      }
+      summary_memory_strategy         = null
+      user_preference_memory_strategy = null
+      custom_memory_strategy          = null
+    }
+  ]
+
+  # Code Interpreter Configuration
+  create_code_interpreter     = true
+  code_interpreter_name       = "servicenow-interpreter"
+  code_interpreter_description = "Code interpreter for data analysis"
+  code_interpreter_executor    = "SANDBOX"
+
+  # Cognito for JWT Authentication
+  create_cognito       = true
+  cognito_domain_prefix = "servicenow-ai-dev"
+
+  # Logging
+  log_retention_days = 30
+
+  tags = {
+    Project     = "ServiceNowAI"
+    Environment = "dev"
+    ManagedBy   = "Terraform"
+  }
+}
+```
+
+**Memory Strategies:**
+
+1. **Semantic** - Vector-based semantic search across conversation history
+2. **Summary** - Compressed summaries of past interactions
+3. **User Preference** - Track and recall user preferences
+4. **Custom** - Custom memory strategy with your own implementation
+
+**Code Interpreter Executors:**
+
+1. **SANDBOX** - Isolated sandbox environment (default)
+2. **VPC** - Execute within your VPC with network access
+
+**Key Outputs:**
+
+- `runtime_id` - Runtime identifier
+- `runtime_arn` - Runtime ARN
+- `gateway_id` - Gateway identifier
+- `gateway_url` - Gateway endpoint URL
+- `memory_id` - Memory identifier
+- `memory_arn` - Memory ARN
+- `code_interpreter_id` - Code Interpreter identifier
+- `cognito_user_pool_id` - Cognito User Pool ID
+- `cognito_discovery_url` - OIDC Discovery URL
+- `memory_stm_read_policy_json` - IAM policy for STM read access
+- `memory_ltm_write_policy_json` - IAM policy for LTM write access
+
 ## Requirements
 
 - **Terraform**: >= 1.11.0
 - **AWS Provider**: ~> 5.80
+- **AWSCC Provider**: >= 1.66.0 (for bedrock-agentcore module)
 - **AWS CLI**: Configured with appropriate credentials
 - **Permissions**: IAM permissions for Bedrock, Lambda, S3, OpenSearch, Step
-  Functions, DynamoDB, EventBridge, SNS
+  Functions, DynamoDB, EventBridge, SNS, Cognito
 
 ## Complete Example
 
@@ -599,10 +715,19 @@ output "agent_ids" {
    - Verify DynamoDB table access
    - Review state machine logs
 
+5. **AgentCore Issues**
+   - Verify AWSCC provider version >= 1.66.0
+   - Memory strategy names must match pattern `^[a-zA-Z][a-zA-Z0-9_]{0,47}$` (no hyphens)
+   - Gateway targets are not yet supported in AWSCC provider
+   - Check Cognito User Pool configuration for JWT auth
+   - Verify container image URI format for runtime
+
 ## Additional Resources
 
 - [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
 - [Bedrock Agents Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html)
+- [Bedrock AgentCore Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/agentcore.html)
+- [AWS-IA AgentCore Module](https://github.com/aws-ia/terraform-aws-agentcore)
 - [Step Functions Developer Guide](https://docs.aws.amazon.com/step-functions/)
 - [OpenSearch Serverless](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless.html)
 

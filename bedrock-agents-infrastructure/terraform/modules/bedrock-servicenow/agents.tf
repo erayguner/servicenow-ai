@@ -339,8 +339,8 @@ module "bedrock_agents" {
     }
   }
 
-  kms_key_id                  = var.kms_key_id
-  customer_encryption_key_arn = var.kms_key_id
+  kms_key_id                  = local.kms_key_id_normalized
+  customer_encryption_key_arn = local.kms_key_id_normalized
 
   tags = merge(
     local.common_tags,

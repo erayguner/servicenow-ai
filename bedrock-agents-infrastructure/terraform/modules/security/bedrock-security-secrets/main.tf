@@ -12,7 +12,7 @@ locals {
       Module        = "bedrock-security-secrets"
       ManagedBy     = "terraform"
       SecurityLevel = "critical"
-      Compliance    = "SOC2,HIPAA,PCI-DSS"
+      Compliance    = "SOC2-HIPAA-PCI-DSS"
     }
   )
 }
@@ -294,7 +294,10 @@ resource "aws_secretsmanager_secret_rotation" "database_credentials" {
 # Resource Policy for Secrets Access
 # ==============================================================================
 
+# Only create resource policy if there are IAM roles to grant access
 resource "aws_secretsmanager_secret_policy" "bedrock_api_keys" {
+  count = length(var.iam_role_arns) > 0 ? 1 : 0
+
   secret_arn = aws_secretsmanager_secret.bedrock_api_keys.arn
 
   policy = jsonencode({
@@ -335,6 +338,8 @@ resource "aws_secretsmanager_secret_policy" "bedrock_api_keys" {
 # Removed plan-time data lookup for CloudTrail; rely on provided log group name
 
 resource "aws_cloudwatch_log_metric_filter" "secrets_access" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   name           = "${var.project_name}-secrets-access-${var.environment}"
   log_group_name = var.cloudtrail_log_group_name
   pattern        = "{ ($.eventName = GetSecretValue) && ($.requestParameters.secretId = \"${var.project_name}/*\") }"
@@ -352,6 +357,8 @@ resource "aws_cloudwatch_log_metric_filter" "secrets_access" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "secrets_access_high" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   alarm_name          = "${var.project_name}-secrets-access-high-${var.environment}"
   alarm_description   = "Alert on high number of secrets access attempts"
   comparison_operator = "GreaterThanThreshold"
@@ -370,6 +377,8 @@ resource "aws_cloudwatch_metric_alarm" "secrets_access_high" {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "rotation_failures" {
+  count = var.enable_rotation || (var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "") ? 1 : 0
+
   name           = "${var.project_name}-rotation-failures-${var.environment}"
   log_group_name = var.enable_rotation ? "/aws/lambda/${aws_lambda_function.secrets_rotation[0].function_name}" : var.cloudtrail_log_group_name
   pattern        = "[timestamp, request_id, level = ERROR*, ...]"

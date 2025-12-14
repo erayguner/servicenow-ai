@@ -6,6 +6,14 @@ module "shared_data" {
   source = "../_shared/data-sources"
 }
 
+locals {
+  kms_key_id_normalized = var.kms_key_id == null ? null : (
+    can(regex("^arn:", var.kms_key_id)) || can(regex("^alias/", var.kms_key_id))
+    ? var.kms_key_id
+    : "arn:aws:kms:${module.shared_data.region_name}:${module.shared_data.account_id}:key/${var.kms_key_id}"
+  )
+}
+
 # ==============================================================================
 # IAM Resources
 # ==============================================================================
@@ -235,7 +243,7 @@ resource "aws_bedrockagent_agent_alias" "this" {
 resource "aws_cloudwatch_log_group" "agent" {
   name              = "/aws/bedrock/agents/${var.agent_name}"
   retention_in_days = 30
-  kms_key_id        = var.kms_key_id
+  kms_key_id        = local.kms_key_id_normalized
 
   tags = merge(
     var.tags,

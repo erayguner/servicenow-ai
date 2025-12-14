@@ -125,7 +125,7 @@ output "kms_api_errors_alarm_arns" {
 
 output "kms_key_deletion_alarm_arn" {
   description = "ARN of the KMS key deletion alarm"
-  value       = aws_cloudwatch_metric_alarm.kms_key_deletion.arn
+  value       = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? aws_cloudwatch_metric_alarm.kms_key_deletion[0].arn : null
 }
 
 # ==============================================================================

@@ -94,3 +94,49 @@ variable "servicenow_credentials_secret_arn" {
   type        = string
   default     = null
 }
+
+# ==============================================================================
+# AgentCore Module Variables
+# ==============================================================================
+
+variable "enable_agentcore" {
+  description = "Enable AWS Bedrock AgentCore module (runtime, gateway, memory, code interpreter)"
+  type        = bool
+  default     = false
+}
+
+variable "enable_agentcore_runtime" {
+  description = "Enable AgentCore Runtime"
+  type        = bool
+  default     = false
+}
+
+variable "enable_agentcore_gateway" {
+  description = "Enable AgentCore Gateway with MCP protocol support"
+  type        = bool
+  default     = false
+}
+
+variable "enable_agentcore_memory" {
+  description = "Enable AgentCore Memory (STM/LTM)"
+  type        = bool
+  default     = false
+}
+
+variable "enable_agentcore_code_interpreter" {
+  description = "Enable AgentCore Code Interpreter"
+  type        = bool
+  default     = false
+}
+
+variable "agentcore_runtime_container_uri" {
+  description = "Container image URI for AgentCore runtime (required if runtime is enabled with container artifact type)"
+  type        = string
+  default     = ""
+}
+
+variable "agentcore_gateway_lambda_arns" {
+  description = "List of Lambda function ARNs for AgentCore gateway targets"
+  type        = list(string)
+  default     = []
+}

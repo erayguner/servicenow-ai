@@ -97,6 +97,13 @@ variable "sns_topic_arn" {
 variable "cloudtrail_log_group_name" {
   description = "CloudTrail log group name for metric filters"
   type        = string
+  default     = ""
+}
+
+variable "enable_cloudtrail_metrics" {
+  description = "Enable CloudWatch metric filters based on CloudTrail log group. Set to false to avoid circular dependencies when CloudTrail depends on this KMS module."
+  type        = bool
+  default     = true
 }
 
 variable "kms_error_threshold" {

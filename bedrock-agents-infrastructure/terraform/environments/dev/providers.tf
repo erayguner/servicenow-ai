@@ -24,6 +24,11 @@ provider "aws" {
   # }
 }
 
+# AWSCC Provider for AgentCore resources
+provider "awscc" {
+  region = var.aws_region
+}
+
 # Additional provider for multi-region resources (if needed)
 provider "aws" {
   alias  = "secondary"

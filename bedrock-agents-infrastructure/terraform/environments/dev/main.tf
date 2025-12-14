@@ -9,6 +9,18 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
+    awscc = {
+      source  = "hashicorp/awscc"
+      version = ">= 1.29.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3.6.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.12.0"
+    }
   }
 
   # Backend configuration for state management
@@ -83,6 +95,8 @@ module "bedrock_agent" {
   # Tags
   tags = local.common_tags
 
+  # Explicit dependency to ensure KMS key exists before creating log groups
+  depends_on = [module.security_kms]
 }
 
 # ==============================================================================
@@ -111,8 +125,9 @@ module "security_kms" {
   # Grant role ARNs
   grant_role_arns = []
 
-  # CloudTrail log group (will be created by CloudTrail module)
-  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
+  # CloudTrail metrics disabled to avoid circular dependency (CloudTrail depends on KMS)
+  enable_cloudtrail_metrics = false
+  cloudtrail_log_group_name = ""
 
   # SNS topic for alerts (will use monitoring SNS topic)
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
@@ -157,13 +172,26 @@ module "security_iam" {
   # Cross-account access - disabled for dev
   enable_cross_account_access = false
 
-  # CloudTrail log group
-  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
+  # CloudTrail metrics disabled to avoid circular dependency (CloudTrail depends on KMS which depends on IAM outputs)
+  enable_cloudtrail_metrics = false
+  cloudtrail_log_group_name = ""
 
   # SNS topic
   sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
 
   unauthorized_calls_threshold = 10
+
+  # AgentCore IAM roles and policies
+  enable_agentcore = var.enable_agentcore
+
+  # AgentCore resource ARNs (populated after agentcore module creates resources)
+  # These are set to empty since we're using count-based module instantiation
+  # The actual ARNs can be passed in a second apply or via data sources
+  agentcore_runtime_arns          = []
+  agentcore_gateway_arns          = []
+  agentcore_memory_arns           = []
+  agentcore_code_interpreter_arns = []
+  agentcore_lambda_function_arns  = var.agentcore_gateway_lambda_arns
 
   tags = local.common_tags
 }
@@ -246,8 +274,11 @@ module "security_secrets" {
   recovery_window_in_days = var.enable_cost_optimization ? 7 : 30
 
   # CloudWatch configuration
-  sns_topic_arn             = module.monitoring_cloudwatch.sns_topic_arn
-  cloudtrail_log_group_name = "/aws/cloudtrail/${local.project}-${local.environment}"
+  sns_topic_arn = module.monitoring_cloudwatch.sns_topic_arn
+
+  # CloudTrail metrics disabled to avoid circular dependency (CloudTrail depends on KMS)
+  enable_cloudtrail_metrics = false
+  cloudtrail_log_group_name = ""
 
   tags = local.common_tags
 }
@@ -298,7 +329,7 @@ module "monitoring_cloudwatch" {
 
   # Log groups
   log_group_names = [
-    "/aws/bedrock/agents/${local.project}-${local.environment}"
+    module.bedrock_agent.log_group_name
   ]
 
   tags = local.common_tags
@@ -347,6 +378,9 @@ module "monitoring_cloudtrail" {
   ]
 
   tags = local.common_tags
+
+  # Explicit dependency to ensure KMS key exists before creating log groups
+  depends_on = [module.security_kms]
 }
 
 # Config Module - Disabled for dev
@@ -482,6 +516,93 @@ module "bedrock_servicenow" {
 }
 
 # ==============================================================================
+# AgentCore Module - Advanced AI Agent Capabilities
+# ==============================================================================
+# Provides MCP gateway, memory (STM/LTM), and code interpreter support
+# following AWS AgentCore patterns from terraform-aws-agentcore
+
+module "bedrock_agentcore" {
+  source = "../../modules/bedrock-agentcore"
+  count  = var.enable_agentcore ? 1 : 0
+
+  # Environment configuration
+  project_name = local.project
+  environment  = local.environment
+
+  # Component toggles (module uses create_* not enable_*)
+  create_runtime          = var.enable_agentcore_runtime
+  create_gateway          = var.enable_agentcore_gateway
+  create_memory           = var.enable_agentcore_memory
+  create_code_interpreter = var.enable_agentcore_code_interpreter
+
+  # Runtime configuration (container-based)
+  runtime_name          = "servicenow-ai-runtime"
+  runtime_description   = "AgentCore Runtime for ServiceNow AI agents"
+  runtime_artifact_type = "container"
+  runtime_container_uri = var.agentcore_runtime_container_uri
+  runtime_network_mode  = "PUBLIC"
+  runtime_allowed_model_arns = [
+    "arn:aws:bedrock:${var.aws_region}::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0",
+    "arn:aws:bedrock:${var.aws_region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0"
+  ]
+
+  # Gateway configuration (MCP protocol)
+  gateway_name                 = "servicenow-mcp-gateway"
+  gateway_description          = "MCP Gateway for ServiceNow AI tools and integrations"
+  gateway_protocol_type        = "MCP"
+  gateway_authorizer_type      = "AWS_IAM" # Use IAM for dev, CUSTOM_JWT for prod
+  gateway_lambda_function_arns = var.agentcore_gateway_lambda_arns
+  gateway_mcp_configuration = {
+    instructions       = "ServiceNow AI MCP Gateway for development. Provides tools for incident management, ticket triage, and ServiceNow API integration."
+    search_type        = "SEMANTIC"
+    supported_versions = ["2024-11-05"]
+  }
+
+  # Memory configuration (semantic strategy for dev)
+  memory_name                  = "servicenow-ai-memory"
+  memory_description           = "Memory store for ServiceNow AI agent context and user preferences"
+  memory_event_expiry_duration = 7 # 7 days for dev (module expects days, not seconds)
+  memory_strategies = [
+    {
+      semantic_memory_strategy = {
+        name        = "servicenow_semantic_memory"
+        description = "Semantic memory for ServiceNow context"
+        namespaces  = ["servicenow"]
+        model_id    = "anthropic.claude-3-haiku-20240307-v1:0"
+      }
+      summary_memory_strategy         = null
+      user_preference_memory_strategy = null
+      custom_memory_strategy          = null
+    }
+  ]
+
+  # Code Interpreter configuration (SANDBOX for dev)
+  code_interpreter_name         = "servicenow-code-interpreter"
+  code_interpreter_description  = "Code interpreter for data analysis and scripting tasks"
+  code_interpreter_network_mode = "SANDBOX"
+
+  # Encryption (use KMS key from security module)
+  runtime_kms_key_arn          = module.security_kms.bedrock_data_key_arn
+  gateway_kms_key_arn          = module.security_kms.bedrock_data_key_arn
+  memory_kms_key_arn           = module.security_kms.bedrock_data_key_arn
+  code_interpreter_kms_key_arn = module.security_kms.bedrock_data_key_arn
+
+  # Cognito - disabled for dev (using IAM auth)
+  create_cognito = false
+
+  # Logging
+  log_retention_days = var.enable_debug_mode ? 14 : (var.enable_cost_optimization ? 3 : 7)
+
+  tags = local.common_tags
+
+  # Dependencies
+  depends_on = [
+    module.security_kms,
+    module.security_iam
+  ]
+}
+
+# ==============================================================================
 # Outputs
 # ==============================================================================
 
@@ -546,4 +667,41 @@ output "servicenow_webhook_url" {
 output "servicenow_dynamodb_table" {
   description = "DynamoDB table for ServiceNow session tracking"
   value       = module.bedrock_servicenow.state_table_name
+}
+
+# AgentCore Module Outputs
+output "agentcore_enabled" {
+  description = "Whether AgentCore module is enabled"
+  value       = var.enable_agentcore
+}
+
+output "agentcore_runtime_arn" {
+  description = "ARN of the AgentCore Runtime"
+  value       = var.enable_agentcore ? try(module.bedrock_agentcore[0].runtime_arn, null) : null
+}
+
+output "agentcore_gateway_arn" {
+  description = "ARN of the AgentCore Gateway"
+  value       = var.enable_agentcore ? try(module.bedrock_agentcore[0].gateway_arn, null) : null
+}
+
+output "agentcore_gateway_endpoint" {
+  description = "Endpoint URL of the AgentCore Gateway"
+  value       = var.enable_agentcore ? try(module.bedrock_agentcore[0].gateway_endpoint, null) : null
+}
+
+output "agentcore_memory_arn" {
+  description = "ARN of the AgentCore Memory"
+  value       = var.enable_agentcore ? try(module.bedrock_agentcore[0].memory_arn, null) : null
+}
+
+output "agentcore_code_interpreter_arn" {
+  description = "ARN of the AgentCore Code Interpreter"
+  value       = var.enable_agentcore ? try(module.bedrock_agentcore[0].code_interpreter_arn, null) : null
+}
+
+output "agentcore_memory_policy_json" {
+  description = "JSON policy for AgentCore memory full access (for downstream consumers)"
+  value       = var.enable_agentcore ? try(module.bedrock_agentcore[0].memory_full_access_policy_json, null) : null
+  sensitive   = false
 }

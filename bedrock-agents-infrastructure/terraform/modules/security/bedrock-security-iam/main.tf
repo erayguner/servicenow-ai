@@ -12,7 +12,7 @@ locals {
       Module        = "bedrock-security-iam"
       ManagedBy     = "terraform"
       SecurityLevel = "critical"
-      Compliance    = "SOC2,HIPAA,PCI-DSS"
+      Compliance    = "SOC2-HIPAA-PCI-DSS"
     }
   )
 }
@@ -93,16 +93,19 @@ data "aws_iam_policy_document" "bedrock_agent_base" {
   }
 
   # Knowledge base access
-  statement {
-    sid    = "BedrockKnowledgeBase"
-    effect = "Allow"
+  dynamic "statement" {
+    for_each = length(var.knowledge_base_arns) > 0 ? [1] : []
+    content {
+      sid    = "BedrockKnowledgeBase"
+      effect = "Allow"
 
-    actions = [
-      "bedrock:Retrieve",
-      "bedrock:RetrieveAndGenerate"
-    ]
+      actions = [
+        "bedrock:Retrieve",
+        "bedrock:RetrieveAndGenerate"
+      ]
 
-    resources = var.knowledge_base_arns
+      resources = var.knowledge_base_arns
+    }
   }
 
   # CloudWatch Logs
@@ -207,24 +210,27 @@ data "aws_iam_policy_document" "lambda_bedrock_access" {
   }
 
   # DynamoDB access with ABAC
-  statement {
-    sid    = "DynamoDBAccess"
-    effect = "Allow"
+  dynamic "statement" {
+    for_each = length(var.dynamodb_table_arns) > 0 ? [1] : []
+    content {
+      sid    = "DynamoDBAccess"
+      effect = "Allow"
 
-    actions = [
-      "dynamodb:GetItem",
-      "dynamodb:PutItem",
-      "dynamodb:UpdateItem",
-      "dynamodb:Query",
-      "dynamodb:Scan"
-    ]
+      actions = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+      ]
 
-    resources = var.dynamodb_table_arns
+      resources = var.dynamodb_table_arns
 
-    condition {
-      test     = "StringEquals"
-      variable = "dynamodb:ResourceTag/Environment"
-      values   = [var.environment]
+      condition {
+        test     = "StringEquals"
+        variable = "dynamodb:ResourceTag/Environment"
+        values   = [var.environment]
+      }
     }
   }
 
@@ -249,17 +255,20 @@ data "aws_iam_policy_document" "lambda_bedrock_access" {
     }
   }
 
-  # KMS decryption
-  statement {
-    sid    = "KMSDecrypt"
-    effect = "Allow"
+  # KMS decryption - only include if kms_key_arns is not empty
+  dynamic "statement" {
+    for_each = length(var.kms_key_arns) > 0 ? [1] : []
+    content {
+      sid    = "KMSDecrypt"
+      effect = "Allow"
 
-    actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey"
-    ]
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+      ]
 
-    resources = var.kms_key_arns
+      resources = var.kms_key_arns
+    }
   }
 }
 
@@ -507,6 +516,8 @@ data "aws_iam_policy_document" "permission_boundary" {
 # Removed plan-time data lookup for CloudTrail; assume provided name exists or let users disable via flags
 
 resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   name           = "${var.project_name}-unauthorized-api-calls-${var.environment}"
   log_group_name = var.cloudtrail_log_group_name
   pattern        = "{ ($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\") }"
@@ -523,6 +534,8 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "unauthorized_api_calls" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   alarm_name          = "${var.project_name}-unauthorized-api-calls-${var.environment}"
   alarm_description   = "Alert on unauthorized API calls"
   comparison_operator = "GreaterThanThreshold"
@@ -541,6 +554,8 @@ resource "aws_cloudwatch_metric_alarm" "unauthorized_api_calls" {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "iam_policy_changes" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   name           = "${var.project_name}-iam-policy-changes-${var.environment}"
   log_group_name = var.cloudtrail_log_group_name
   pattern        = "{ ($.eventName = DeleteGroupPolicy) || ($.eventName = DeleteRolePolicy) || ($.eventName = DeleteUserPolicy) || ($.eventName = PutGroupPolicy) || ($.eventName = PutRolePolicy) || ($.eventName = PutUserPolicy) || ($.eventName = CreatePolicy) || ($.eventName = DeletePolicy) || ($.eventName = CreatePolicyVersion) || ($.eventName = DeletePolicyVersion) || ($.eventName = AttachRolePolicy) || ($.eventName = DetachRolePolicy) || ($.eventName = AttachUserPolicy) || ($.eventName = DetachUserPolicy) || ($.eventName = AttachGroupPolicy) || ($.eventName = DetachGroupPolicy) }"
@@ -558,6 +573,8 @@ resource "aws_cloudwatch_log_metric_filter" "iam_policy_changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "iam_policy_changes" {
+  count = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? 1 : 0
+
   alarm_name          = "${var.project_name}-iam-policy-changes-${var.environment}"
   alarm_description   = "Alert on IAM policy changes"
   comparison_operator = "GreaterThanThreshold"
@@ -580,3 +597,332 @@ resource "aws_cloudwatch_metric_alarm" "iam_policy_changes" {
 # ==============================================================================
 
 data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+
+# ==============================================================================
+# AgentCore Consumer Role
+# ==============================================================================
+# This role is for applications that need to interact with AgentCore resources
+
+resource "aws_iam_role" "agentcore_consumer" {
+  count = var.enable_agentcore ? 1 : 0
+
+  name               = "${var.project_name}-agentcore-consumer-${var.environment}"
+  assume_role_policy = data.aws_iam_policy_document.agentcore_consumer_assume[0].json
+  description        = "Consumer role for interacting with Bedrock AgentCore resources"
+
+  permissions_boundary = var.enable_permission_boundary ? aws_iam_policy.permission_boundary[0].arn : null
+  max_session_duration = var.max_session_duration
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name    = "${var.project_name}-agentcore-consumer-${var.environment}"
+      Purpose = "agentcore-consumer"
+    }
+  )
+}
+
+data "aws_iam_policy_document" "agentcore_consumer_assume" {
+  count = var.enable_agentcore ? 1 : 0
+
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com", "states.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role_policy" "agentcore_consumer" {
+  count = var.enable_agentcore ? 1 : 0
+
+  name   = "agentcore-consumer-policy"
+  role   = aws_iam_role.agentcore_consumer[0].id
+  policy = data.aws_iam_policy_document.agentcore_consumer[0].json
+}
+
+data "aws_iam_policy_document" "agentcore_consumer" {
+  count = var.enable_agentcore ? 1 : 0
+
+  # Runtime invocation
+  dynamic "statement" {
+    for_each = length(var.agentcore_runtime_arns) > 0 ? [1] : []
+    content {
+      sid    = "AgentCoreRuntimeInvoke"
+      effect = "Allow"
+
+      actions = [
+        "bedrock-agentcore:InvokeRuntime",
+        "bedrock-agentcore:InvokeRuntimeWithResponseStream"
+      ]
+
+      resources = var.agentcore_runtime_arns
+    }
+  }
+
+  # Gateway invocation
+  dynamic "statement" {
+    for_each = length(var.agentcore_gateway_arns) > 0 ? [1] : []
+    content {
+      sid    = "AgentCoreGatewayInvoke"
+      effect = "Allow"
+
+      actions = [
+        "bedrock-agentcore:InvokeGateway",
+        "bedrock-agentcore:ListGatewayTargets"
+      ]
+
+      resources = var.agentcore_gateway_arns
+    }
+  }
+
+  # Memory operations - Short-Term Memory (STM)
+  dynamic "statement" {
+    for_each = length(var.agentcore_memory_arns) > 0 ? [1] : []
+    content {
+      sid    = "AgentCoreMemorySTM"
+      effect = "Allow"
+
+      actions = [
+        "bedrock-agentcore:CreateEvent",
+        "bedrock-agentcore:GetEvent",
+        "bedrock-agentcore:ListEvents",
+        "bedrock-agentcore:ListEventsPaginated",
+        "bedrock-agentcore:DeleteEvents",
+        "bedrock-agentcore:DeleteSession"
+      ]
+
+      resources = var.agentcore_memory_arns
+    }
+  }
+
+  # Memory operations - Long-Term Memory (LTM)
+  dynamic "statement" {
+    for_each = length(var.agentcore_memory_arns) > 0 ? [1] : []
+    content {
+      sid    = "AgentCoreMemoryLTM"
+      effect = "Allow"
+
+      actions = [
+        "bedrock-agentcore:CreateMemoryRecord",
+        "bedrock-agentcore:GetMemoryRecord",
+        "bedrock-agentcore:RetrieveMemoryRecords",
+        "bedrock-agentcore:ListMemoryRecords",
+        "bedrock-agentcore:UpdateMemoryRecord",
+        "bedrock-agentcore:DeleteMemoryRecord"
+      ]
+
+      resources = var.agentcore_memory_arns
+    }
+  }
+
+  # Code Interpreter invocation
+  dynamic "statement" {
+    for_each = length(var.agentcore_code_interpreter_arns) > 0 ? [1] : []
+    content {
+      sid    = "AgentCoreCodeInterpreter"
+      effect = "Allow"
+
+      actions = [
+        "bedrock-agentcore:InvokeCodeInterpreter"
+      ]
+
+      resources = var.agentcore_code_interpreter_arns
+    }
+  }
+
+  # Lambda invocation for gateway targets
+  dynamic "statement" {
+    for_each = length(var.agentcore_lambda_function_arns) > 0 ? [1] : []
+    content {
+      sid    = "LambdaInvocationForGateway"
+      effect = "Allow"
+
+      actions = [
+        "lambda:InvokeFunction"
+      ]
+
+      resources = var.agentcore_lambda_function_arns
+    }
+  }
+
+  # Bedrock model invocation (for agents using AgentCore)
+  statement {
+    sid    = "BedrockModelInvocation"
+    effect = "Allow"
+
+    actions = [
+      "bedrock:InvokeModel",
+      "bedrock:InvokeModelWithResponseStream"
+    ]
+
+    resources = var.allowed_bedrock_models
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestedRegion"
+      values   = var.allowed_regions
+    }
+  }
+
+  # CloudWatch Logs
+  statement {
+    sid    = "CloudWatchLogs"
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/bedrock-agentcore/*"
+    ]
+  }
+
+  # X-Ray tracing
+  statement {
+    sid    = "XRayTracing"
+    effect = "Allow"
+
+    actions = [
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+# ==============================================================================
+# AgentCore Admin Role
+# ==============================================================================
+# This role is for administrators who need to manage AgentCore resources
+
+resource "aws_iam_role" "agentcore_admin" {
+  count = var.enable_agentcore ? 1 : 0
+
+  name               = "${var.project_name}-agentcore-admin-${var.environment}"
+  assume_role_policy = data.aws_iam_policy_document.agentcore_admin_assume[0].json
+  description        = "Admin role for managing Bedrock AgentCore resources"
+
+  permissions_boundary = var.enable_permission_boundary ? aws_iam_policy.permission_boundary[0].arn : null
+  max_session_duration = var.max_session_duration
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name    = "${var.project_name}-agentcore-admin-${var.environment}"
+      Purpose = "agentcore-admin"
+    }
+  )
+}
+
+data "aws_iam_policy_document" "agentcore_admin_assume" {
+  count = var.enable_agentcore ? 1 : 0
+
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+
+    actions = ["sts:AssumeRole"]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values   = ["true"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "agentcore_admin" {
+  count = var.enable_agentcore ? 1 : 0
+
+  name   = "agentcore-admin-policy"
+  role   = aws_iam_role.agentcore_admin[0].id
+  policy = data.aws_iam_policy_document.agentcore_admin[0].json
+}
+
+data "aws_iam_policy_document" "agentcore_admin" {
+  count = var.enable_agentcore ? 1 : 0
+
+  # Full AgentCore management
+  statement {
+    sid    = "AgentCoreFullAccess"
+    effect = "Allow"
+
+    actions = [
+      "bedrock-agentcore:*"
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:bedrock-agentcore:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*"
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestedRegion"
+      values   = var.allowed_regions
+    }
+  }
+
+  # IAM PassRole for AgentCore
+  statement {
+    sid    = "IAMPassRole"
+    effect = "Allow"
+
+    actions = [
+      "iam:PassRole"
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-agentcore-*"
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["bedrock-agentcore.amazonaws.com"]
+    }
+  }
+
+  # Bedrock model listing
+  statement {
+    sid    = "BedrockModelListing"
+    effect = "Allow"
+
+    actions = [
+      "bedrock:ListFoundationModels",
+      "bedrock:GetFoundationModel"
+    ]
+
+    resources = ["*"]
+  }
+
+  # CloudWatch Logs for debugging
+  statement {
+    sid    = "CloudWatchLogsRead"
+    effect = "Allow"
+
+    actions = [
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:GetLogEvents",
+      "logs:FilterLogEvents"
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/bedrock-agentcore/*"
+    ]
+  }
+}

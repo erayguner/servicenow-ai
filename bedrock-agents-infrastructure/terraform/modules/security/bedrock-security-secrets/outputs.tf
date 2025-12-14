@@ -98,7 +98,7 @@ output "rotation_lambda_role_arn" {
 
 output "secrets_access_alarm_arn" {
   description = "ARN of the secrets access CloudWatch alarm"
-  value       = aws_cloudwatch_metric_alarm.secrets_access_high.arn
+  value       = var.enable_cloudtrail_metrics && var.cloudtrail_log_group_name != "" ? aws_cloudwatch_metric_alarm.secrets_access_high[0].arn : null
 }
 
 # ==============================================================================

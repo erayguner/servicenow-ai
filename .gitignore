@@ -451,3 +451,10 @@ coordination/orchestration/*
 claude-flow
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔧 TERRAFORM: Generated Lambda Files
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Generated Lambda ZIP files from archive_file data source
+**/lambda/.generated/

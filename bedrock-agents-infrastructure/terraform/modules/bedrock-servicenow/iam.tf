@@ -81,7 +81,7 @@ resource "aws_iam_role_policy" "lambda_execution" {
           "kms:Decrypt",
           "kms:GenerateDataKey"
         ]
-        Resource = var.kms_key_id != null ? [var.kms_key_id] : ["*"]
+        Resource = var.kms_key_id != null ? [local.kms_key_id_normalized] : ["*"]
         Condition = var.kms_key_id != null ? {
           StringEquals = {
             "kms:ViaService" = [
