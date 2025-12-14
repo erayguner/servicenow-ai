@@ -39,7 +39,6 @@ locals {
 
   # Sanitized names for AWSCC resources (underscore instead of hyphen)
   sanitized_runtime_name          = replace(var.runtime_name, "-", "_")
-  sanitized_gateway_name          = replace(var.gateway_name, "-", "_")
   sanitized_memory_name           = replace(var.memory_name, "-", "_")
   sanitized_code_interpreter_name = replace(var.code_interpreter_name, "-", "_")
 

@@ -189,42 +189,6 @@ variable "gateway_mcp_configuration" {
   }
 }
 
-variable "create_gateway_targets" {
-  description = "Whether to create gateway targets"
-  type        = bool
-  default     = false
-}
-
-variable "gateway_lambda_targets" {
-  description = "List of Lambda gateway targets"
-  type = list(object({
-    name        = string
-    description = optional(string, "")
-    lambda_arn  = string
-    tool_schema = optional(object({
-      name          = string
-      description   = optional(string, "")
-      input_schema  = any
-      output_schema = optional(any)
-    }))
-    s3_tool_schema = optional(object({
-      bucket = string
-      key    = string
-    }))
-  }))
-  default = []
-}
-
-variable "gateway_mcp_server_targets" {
-  description = "List of MCP server gateway targets"
-  type = list(object({
-    name        = string
-    description = optional(string, "")
-    lambda_arn  = string
-  }))
-  default = []
-}
-
 # JWT Authentication (for CUSTOM_JWT)
 variable "cognito_user_pool_discovery_url" {
   description = "Cognito User Pool discovery URL (if not creating new pool)"
