@@ -71,7 +71,7 @@ jobs:
       # Upload SARIF file as artifact for debugging
       - name: Upload SARIF as Artifact
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: codeql-sarif-${{ matrix.language }}
           path: sarif-results/${{ matrix.language }}.sarif
