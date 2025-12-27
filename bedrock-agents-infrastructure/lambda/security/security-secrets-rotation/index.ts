@@ -11,7 +11,6 @@ import {
   UpdateFunctionConfigurationCommand,
   GetFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
-import { RDSClient, ModifyDBInstanceCommand } from '@aws-sdk/client-rds';
 
 import { Handler } from 'aws-lambda';
 import {
