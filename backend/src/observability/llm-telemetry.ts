@@ -118,8 +118,6 @@ export async function traceLLMOperation<T>(
   attributes: LLMOperationAttributes,
   fn: (span: Span) => Promise<{ data: T; metrics: LLMResponseMetrics }>
 ): Promise<T> {
-  const startTime = Date.now();
-
   return tracer.startActiveSpan(
     `llm.${attributes.operation}`,
     {
