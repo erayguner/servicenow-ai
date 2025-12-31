@@ -1,5 +1,5 @@
 import { handler } from './index';
-import { RotationEvent, RotationResult } from './types';
+import { RotationEvent } from './types';
 
 // Mock AWS SDK clients
 jest.mock('@aws-sdk/client-secrets-manager');

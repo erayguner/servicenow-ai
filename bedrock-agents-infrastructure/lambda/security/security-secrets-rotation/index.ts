@@ -2,15 +2,8 @@ import {
   SecretsManagerClient,
   GetSecretValueCommand,
   PutSecretValueCommand,
-  RotateSecretCommand,
   DescribeSecretCommand,
-  UpdateSecretCommand,
 } from '@aws-sdk/client-secrets-manager';
-import {
-  LambdaClient,
-  UpdateFunctionConfigurationCommand,
-  GetFunctionConfigurationCommand,
-} from '@aws-sdk/client-lambda';
 
 import { Handler } from 'aws-lambda';
 import {

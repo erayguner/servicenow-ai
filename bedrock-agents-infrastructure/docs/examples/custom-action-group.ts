@@ -8,7 +8,6 @@
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import * as crypto from 'crypto';
 
 // Initialize AWS SDK clients
 const dynamodb = new AWS.DynamoDB.DocumentClient();

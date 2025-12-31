@@ -1,5 +1,5 @@
 import { handler } from './index';
-import { IncidentEvent, IncidentResponse } from './types';
+import { IncidentEvent } from './types';
 
 // Mock AWS SDK clients
 jest.mock('@aws-sdk/client-guardduty');
