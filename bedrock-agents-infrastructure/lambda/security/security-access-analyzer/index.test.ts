@@ -1,5 +1,5 @@
 import { handler } from './index';
-import { AccessAnalysisEvent, AccessAnalysisResult } from './types';
+import { AccessAnalysisEvent } from './types';
 
 // Mock AWS SDK clients
 jest.mock('@aws-sdk/client-accessanalyzer');

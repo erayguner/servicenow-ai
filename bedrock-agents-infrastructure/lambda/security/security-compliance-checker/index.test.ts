@@ -1,5 +1,5 @@
 import { handler } from './index';
-import { ComplianceCheckEvent, ComplianceCheckResult } from './types';
+import { ComplianceCheckEvent } from './types';
 
 // Mock AWS SDK clients
 jest.mock('@aws-sdk/client-bedrock-agent');

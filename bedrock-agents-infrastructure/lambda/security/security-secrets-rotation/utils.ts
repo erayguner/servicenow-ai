@@ -2,7 +2,6 @@ import * as crypto from 'crypto';
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
-  TestSecretCommand,
 } from '@aws-sdk/client-secrets-manager';
 import {
   LambdaClient,
@@ -48,7 +47,6 @@ export function generateNewSecret(type: 'api_key' | 'password' | 'generic'): str
       ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
       : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-  const randomBytes = crypto.randomBytes(length);
   let result = '';
 
   let i = 0;

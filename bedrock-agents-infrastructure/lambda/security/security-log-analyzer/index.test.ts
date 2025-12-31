@@ -1,5 +1,5 @@
 import { handler } from './index';
-import { LogAnalysisEvent, LogAnalysisResult } from './types';
+import { LogAnalysisEvent } from './types';
 
 // Mock AWS SDK clients
 jest.mock('@aws-sdk/client-cloudtrail');
