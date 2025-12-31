@@ -165,7 +165,7 @@ export async function verifyRotation(
 }
 
 async function verifyRotationType(
-  secretArn: string,
+  _secretArn: string,
   rotationType: RotationType,
   secretValue: string
 ): Promise<VerificationCheck> {
