@@ -1,8 +1,10 @@
-resource "kubernetes_namespace" "istio_system" {
-  metadata { name = "istio-system" }
+resource "kubernetes_namespace_v1" "istio_system" {
+  metadata {
+    name = "istio-system"
+  }
 }
 
-resource "kubernetes_namespace" "cert_manager" {
+resource "kubernetes_namespace_v1" "cert_manager" {
   metadata { name = "cert-manager" }
 }
 
@@ -10,14 +12,14 @@ resource "helm_release" "istio_base" {
   name       = "istio-base"
   repository = "https://istio-release.storage.googleapis.com/charts"
   chart      = "base"
-  namespace  = kubernetes_namespace.istio_system.metadata[0].name
+  namespace = kubernetes_namespace_v1.istio_system.metadata[0].name
 }
 
 resource "helm_release" "istiod" {
   name       = "istiod"
   repository = "https://istio-release.storage.googleapis.com/charts"
   chart      = "istiod"
-  namespace  = kubernetes_namespace.istio_system.metadata[0].name
+  namespace = kubernetes_namespace_v1.istio_system.metadata[0].name
   depends_on = [helm_release.istio_base]
 }
 
@@ -25,12 +27,36 @@ resource "helm_release" "cert_manager" {
   name             = "cert-manager"
   repository       = "https://charts.jetstack.io"
   chart            = "cert-manager"
-  namespace        = kubernetes_namespace.cert_manager.metadata[0].name
+  version   = "v1.13.4"
+  namespace = kubernetes_namespace_v1.istio_system.metadata[0].name
   create_namespace = false
-  set {
-    name  = "installCRDs"
-    value = "true"
-  }
+
+  set = [
+    {
+      name  = "installCRDs"
+      value = "true"
+    },
+    {
+      name  = "extraArgs[0]"
+      value = "--feature-gates=Experimental=true"
+    }
+  ]
+
+  # Replaces: set_sensitive { ... }
+  set_sensitive = [
+    {
+      name  = "webhook.tls.secret"
+      value = "redacted-secret"
+    }
+  ]
+
+  # Replaces: set_list { ... }
+  set_list = [
+    {
+      name = "tolerations"
+      value = ["nvidia.com/gpu"]
+    }
+  ]
 }
 
 # Example Ingress annotated with Cloud Armor policy and cert-manager issuer
