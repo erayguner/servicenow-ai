@@ -12,14 +12,14 @@ resource "helm_release" "istio_base" {
   name       = "istio-base"
   repository = "https://istio-release.storage.googleapis.com/charts"
   chart      = "base"
-  namespace = kubernetes_namespace_v1.istio_system.metadata[0].name
+  namespace  = kubernetes_namespace_v1.istio_system.metadata[0].name
 }
 
 resource "helm_release" "istiod" {
   name       = "istiod"
   repository = "https://istio-release.storage.googleapis.com/charts"
   chart      = "istiod"
-  namespace = kubernetes_namespace_v1.istio_system.metadata[0].name
+  namespace  = kubernetes_namespace_v1.istio_system.metadata[0].name
   depends_on = [helm_release.istio_base]
 }
 
@@ -27,8 +27,8 @@ resource "helm_release" "cert_manager" {
   name             = "cert-manager"
   repository       = "https://charts.jetstack.io"
   chart            = "cert-manager"
-  version   = "v1.13.4"
-  namespace = kubernetes_namespace_v1.istio_system.metadata[0].name
+  version          = "v1.13.4"
+  namespace        = kubernetes_namespace_v1.istio_system.metadata[0].name
   create_namespace = false
 
   set = [
@@ -53,7 +53,7 @@ resource "helm_release" "cert_manager" {
   # Replaces: set_list { ... }
   set_list = [
     {
-      name = "tolerations"
+      name  = "tolerations"
       value = ["nvidia.com/gpu"]
     }
   ]
