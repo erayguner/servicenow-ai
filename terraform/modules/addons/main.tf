@@ -60,16 +60,16 @@ resource "helm_release" "cert_manager" {
 }
 
 # Example Ingress annotated with Cloud Armor policy and cert-manager issuer
-resource "kubernetes_namespace" "internal_ui" {
+resource "kubernetes_namespace_v1" "internal_ui" {
   count = var.create_example_ingress ? 1 : 0
   metadata { name = "internal-ui" }
 }
 
-resource "kubernetes_service" "internal_ui_svc" {
+resource "kubernetes_service_v1" "internal_ui_svc" {
   count = var.create_example_ingress ? 1 : 0
   metadata {
     name      = "internal-ui-svc"
-    namespace = kubernetes_namespace.internal_ui[0].metadata[0].name
+    namespace = kubernetes_namespace_v1.internal_ui[0].metadata[0].name
     labels    = { app = "internal-ui" }
   }
   spec {
@@ -86,7 +86,7 @@ resource "kubernetes_ingress_v1" "internal_ui_ingress" {
   count = var.create_example_ingress ? 1 : 0
   metadata {
     name      = "internal-ui-ingress"
-    namespace = kubernetes_namespace.internal_ui[0].metadata[0].name
+    namespace = kubernetes_namespace_v1.internal_ui[0].metadata[0].name
     annotations = {
       "kubernetes.io/ingress.class"       = "gce"
       "networking.gke.io/security-policy" = var.security_policy_name
@@ -110,7 +110,7 @@ resource "kubernetes_ingress_v1" "internal_ui_ingress" {
           path = "/"
           backend {
             service {
-              name = kubernetes_service.internal_ui_svc[0].metadata[0].name
+              name = kubernetes_service_v1.internal_ui_svc[0].metadata[0].name
               port { number = 80 }
             }
           }

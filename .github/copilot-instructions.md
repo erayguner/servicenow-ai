@@ -54,7 +54,7 @@ strategies, and hybrid LLM serving capabilities.
 
 ### Core Technologies
 
-- **IaC Tool:** Terraform 1.5+ (HCL2 syntax)
+- **IaC Tool:** Terraform 1.11+ (HCL2 syntax)
 - **Cloud Provider:** Google Cloud Platform (GCP)
 - **State Management:** GCS backend with state locking
 - **CI/CD:** GitHub Actions / Cloud Build for automated deployments
@@ -983,7 +983,7 @@ terraform {
 ```hcl
 # versions.tf - Version constraints and provider configuration
 terraform {
-  required_version = ">= 1.5.0"
+  required_version = ">= 1.11.0"
 
   required_providers {
     google = {
