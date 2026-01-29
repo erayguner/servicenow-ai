@@ -17,19 +17,19 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 7.10"
+      version = "~> 7.15.0"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = "~> 7.10"
+      version = "~> 7.15.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.24.0"
+      version = "~> 3.0.1"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = ">= 2.11.0, < 3.0.0"
+      version = "~> 3.1.1"
     }
   }
 }
@@ -46,7 +46,7 @@ provider "kubernetes" {
 
 provider "helm" {
   alias = "this"
-  kubernetes {
+  kubernetes = {
     host                   = "https://${module.gke.cluster_endpoint}"
     cluster_ca_certificate = base64decode(module.gke.cluster_ca_certificate)
     token                  = data.google_client_config.default.access_token
