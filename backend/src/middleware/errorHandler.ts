@@ -27,11 +27,12 @@ export function errorHandler(
     'Request error'
   );
 
+  const isDev = process.env.NODE_ENV === 'development' && !process.env.K_SERVICE;
   res.status(statusCode).json({
     error: message,
-    ...(process.env.NODE_ENV === 'development' && {
+    ...(isDev && {
       stack: err.stack,
-      details: err.details,
+      details: typeof err.details === 'string' ? err.details : undefined,
     }),
   });
 }
