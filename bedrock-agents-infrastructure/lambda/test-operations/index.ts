@@ -12,7 +12,7 @@ const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION || 'us-
  * Supports: generate-tests, run-tests, coverage-report
  */
 export const handler: Handler = async (event: any): Promise<TestOperationResponse> => {
-  console.log('Test Operations Event:', JSON.stringify(event, null, 2));
+  console.log('Test Operations Event:', JSON.stringify({ actionGroup: event.actionGroup, apiPath: event.apiPath, httpMethod: event.httpMethod }));
 
   try {
     const actionGroup = event.actionGroup;

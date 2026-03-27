@@ -25,6 +25,12 @@ export async function authMiddleware(
 
     // For local development, allow bypassing IAP
     if (process.env.NODE_ENV === 'development' && !iapEmail) {
+      if (process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT) {
+        logger.error({}, 'Development auth bypass attempted in cloud environment - blocking');
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      logger.warn({}, 'Auth bypassed in development mode - do not use in production');
       req.user = {
         email: 'dev@example.com',
         id: 'dev-user-id',
@@ -34,7 +40,7 @@ export async function authMiddleware(
     }
 
     if (!iapEmail || !iapId) {
-      logger.warn({ headers: req.headers }, 'Missing IAP headers');
+      logger.warn({ method: req.method, path: req.path, ip: req.ip }, 'Missing IAP headers');
       res.status(401).json({ error: 'Unauthorized: Missing authentication headers' });
       return;
     }

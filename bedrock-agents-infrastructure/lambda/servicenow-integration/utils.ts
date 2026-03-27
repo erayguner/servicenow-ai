@@ -44,7 +44,7 @@ export async function getServiceNowCredentials(secretName: string): Promise<Serv
 
     return credentials;
   } catch (error) {
-    console.error('Failed to retrieve ServiceNow credentials:', error);
+    console.error('Failed to retrieve ServiceNow credentials:', sanitizeError(error));
     throw new ServiceNowError(
       'Failed to retrieve credentials from Secrets Manager',
       500,
@@ -113,9 +113,9 @@ export class OAuthTokenManager {
       this.refreshToken = response.data.refresh_token;
       this.tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000; // Subtract 60s buffer
 
-      console.log('OAuth authentication successful');
+      logOperation('oauth_authenticate', { status: 'success' });
     } catch (error) {
-      console.error('OAuth authentication failed:', error);
+      logOperation('oauth_authenticate', { status: 'failed', error: sanitizeError(error) }, 'error');
       throw new ServiceNowError('OAuth authentication failed', 401, 'AUTH_ERROR', error);
     }
   }
@@ -141,9 +141,9 @@ export class OAuthTokenManager {
       this.refreshToken = response.data.refresh_token;
       this.tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
 
-      console.log('Access token refreshed successfully');
+      logOperation('oauth_refresh', { status: 'success' });
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      logOperation('oauth_refresh', { status: 'failed', error: sanitizeError(error) }, 'error');
       // If refresh fails, try full authentication
       await this.authenticate();
     }
@@ -260,11 +260,11 @@ export function createHttpClient(
   // Add request interceptor for logging
   client.interceptors.request.use(
     (config) => {
-      console.log(`ServiceNow API Request: ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(`ServiceNow API Request: ${config.method?.toUpperCase()} ${config.url?.split('?')[0]}`);
       return config;
     },
     (error) => {
-      console.error('Request interceptor error:', error);
+      console.error('Request interceptor error:', sanitizeError(error));
       return Promise.reject(error);
     }
   );
@@ -280,7 +280,7 @@ export function createHttpClient(
         const statusCode = error.response.status;
         const errorData = error.response.data as any;
 
-        console.error(`ServiceNow API Error: ${statusCode}`, errorData);
+        console.error(`ServiceNow API Error: ${statusCode}`);
 
         throw new ServiceNowError(
           errorData?.error?.message || error.message,
@@ -353,6 +353,19 @@ export function validateRequired(params: Record<string, any>, required: string[]
  */
 export function sanitizeInput(input: string): string {
   return input.replace(/[^\w\s\-@.]/gi, '');
+}
+
+/**
+ * Sanitize an error for logging - strip potentially sensitive details
+ */
+function sanitizeError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'Unknown error';
 }
 
 /**
