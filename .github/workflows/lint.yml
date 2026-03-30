@@ -93,7 +93,7 @@ jobs:
       # ---------------- Terraform ----------------
       - name: Set up Terraform
         if: ${{ steps.detect.outputs.terraform == 'true' }}
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.11.0
       - name: Check Terraform formatting
@@ -143,7 +143,7 @@ jobs:
 
       # ---------------- GitHub Actions ----------------
       - name: actionlint
-        uses: rhysd/actionlint@v1.7.10
+        uses: rhysd/actionlint@v1.7.12
       - name: Summary
         run: |-
           echo "Lint summary:"
