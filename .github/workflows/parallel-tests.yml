@@ -389,7 +389,7 @@ jobs:
           name: workspace
 
       - name: Setup kubectl
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
         with:
           version: 'v1.28.0'
 
@@ -666,7 +666,7 @@ jobs:
 
       - name: Upload combined coverage
         if: hashFiles('coverage/combined/lcov.info') != ''
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           directory: coverage/combined
           flags: combined
