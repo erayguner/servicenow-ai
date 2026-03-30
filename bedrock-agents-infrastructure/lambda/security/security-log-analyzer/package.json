@@ -12,11 +12,11 @@
     "format": "prettier --write \"**/*.ts\""
   },
   "dependencies": {
-    "@aws-sdk/client-cloudtrail": "^3.621.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.621.0",
-    "@aws-sdk/client-guardduty": "^3.621.0",
-    "@aws-sdk/client-securityhub": "^3.621.0",
-    "@aws-sdk/client-sns": "^3.621.0"
+    "@aws-sdk/client-cloudtrail": "^3.1019.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.1019.0",
+    "@aws-sdk/client-guardduty": "^3.1019.0",
+    "@aws-sdk/client-securityhub": "^3.1019.0",
+    "@aws-sdk/client-sns": "^3.1019.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
