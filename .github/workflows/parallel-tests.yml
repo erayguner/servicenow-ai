@@ -77,7 +77,7 @@ jobs:
           echo "image-tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Upload workspace
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: workspace
           path: |
@@ -123,7 +123,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.11.0
 
@@ -183,7 +183,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.11.0
 
@@ -197,7 +197,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: terraform-test-results-${{ matrix.module }}
           path: terraform/modules/${{ matrix.module }}/.terraform/tests/
@@ -218,7 +218,7 @@ jobs:
 
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: workspace
 
@@ -261,7 +261,7 @@ jobs:
           SHARD_TOTAL: ${{ matrix.shardTotal }}
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-unit-${{ matrix.shardIndex }}
           path: frontend/coverage-${{ matrix.shardIndex }}/
@@ -269,7 +269,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-unit-${{ matrix.shardIndex }}
           path: frontend/test-results/
@@ -320,7 +320,7 @@ jobs:
 
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: workspace
 
@@ -364,7 +364,7 @@ jobs:
           REDIS_URL: redis://localhost:6379
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-integration-${{ matrix.service }}
           path: frontend/coverage-integration-${{ matrix.service }}/
@@ -384,18 +384,18 @@ jobs:
 
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: workspace
 
       - name: Setup kubectl
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
         with:
           version: 'v1.28.0'
 
       - name: Setup kind (Kubernetes in Docker)
         id: kind
-        uses: helm/kind-action@v1.13.0
+        uses: helm/kind-action@v1.14.0
         with:
           cluster_name: test-cluster-${{ matrix.shardIndex }}
 
@@ -476,7 +476,7 @@ jobs:
 
       - name: Upload pod logs
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: pod-logs-shard-${{ matrix.shardIndex }}
           path: logs/
@@ -505,7 +505,7 @@ jobs:
 
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: workspace
 
@@ -559,7 +559,7 @@ jobs:
 
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: workspace
 
@@ -591,7 +591,7 @@ jobs:
           TARGET_ENDPOINT: ${{ matrix.endpoint }}
 
       - name: Upload performance results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: performance-results-${{ matrix.endpoint }}
           path: |
@@ -620,7 +620,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: artifacts/
 
@@ -666,7 +666,7 @@ jobs:
 
       - name: Upload combined coverage
         if: hashFiles('coverage/combined/lcov.info') != ''
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           directory: coverage/combined
           flags: combined
@@ -735,7 +735,7 @@ jobs:
             });
 
       - name: Upload test summary
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-summary
           path: |

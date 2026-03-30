@@ -24,7 +24,7 @@ const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION || 'us-
  * Supports: terraform-plan, terraform-apply, kubernetes-deploy, aws-operations
  */
 export const handler: Handler = async (event: any): Promise<InfrastructureResponse> => {
-  console.log('Infrastructure Event:', JSON.stringify(event, null, 2));
+  console.log('Infrastructure Event:', JSON.stringify({ actionGroup: event.actionGroup, apiPath: event.apiPath, httpMethod: event.httpMethod }));
 
   try {
     const actionGroup = event.actionGroup;

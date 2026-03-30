@@ -10,7 +10,7 @@ const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' })
  * Supports: read-file, write-file, search-code, git-operations
  */
 export const handler: Handler = async (event: any): Promise<CodeOperationResponse> => {
-  console.log('Code Operations Event:', JSON.stringify(event, null, 2));
+  console.log('Code Operations Event:', JSON.stringify({ actionGroup: event.actionGroup, apiPath: event.apiPath, httpMethod: event.httpMethod }));
 
   try {
     // Parse the Bedrock agent event
