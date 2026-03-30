@@ -11,7 +11,7 @@ resource "google_billing_budget" "monthly" {
     specified_amount {
       currency_code = "USD"
       units         = tostring(floor(var.amount_monthly))
-      nanos         = floor((var.amount_monthly - floor(var.amount_monthly)) * 1e9)
+      nanos         = floor((var.amount_monthly - floor(var.amount_monthly)) * 1000000000)
     }
   }
 
