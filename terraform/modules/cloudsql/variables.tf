@@ -3,7 +3,7 @@ variable "region" { type = string }
 variable "instance_name" { type = string }
 variable "database_version" {
   type    = string
-  default = "POSTGRES_17"
+  default = "POSTGRES_18"
 }
 variable "tier" {
   type    = string
