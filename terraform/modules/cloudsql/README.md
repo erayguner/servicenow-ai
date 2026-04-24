@@ -27,7 +27,7 @@ module "cloudsql" {
   instance_name = "my-postgres-instance"
 
   # Database configuration
-  database_version = "POSTGRES_17"
+  database_version = "POSTGRES_18"
   tier             = "db-custom-2-7680"  # 2 vCPU, 7.5GB RAM
   disk_size        = 10
   disk_autoresize  = true
@@ -61,7 +61,7 @@ module "cloudsql_prod" {
   instance_name = "prod-postgres"
 
   # Production-grade configuration
-  database_version = "POSTGRES_17"
+  database_version = "POSTGRES_18"
   tier             = "db-custom-8-32768"  # 8 vCPU, 32GB RAM
   disk_size        = 500
   disk_autoresize  = true
@@ -114,7 +114,7 @@ module "cloudsql_dev" {
   instance_name = "dev-postgres"
 
   # Minimal configuration for dev
-  database_version = "POSTGRES_17"
+  database_version = "POSTGRES_18"
   tier             = "db-custom-1-3840"  # 1 vCPU, 3.75GB RAM
   disk_size        = 10
   disk_autoresize  = true
@@ -147,7 +147,7 @@ module "cloudsql_dev" {
 | `project_id` | GCP project ID | `string` | - | yes |
 | `region` | GCP region | `string` | - | yes |
 | `instance_name` | CloudSQL instance name | `string` | - | yes |
-| `database_version` | PostgreSQL version | `string` | `"POSTGRES_17"` | no |
+| `database_version` | PostgreSQL version | `string` | `"POSTGRES_18"` | no |
 | `tier` | Machine tier (e.g., db-custom-4-16384) | `string` | `"db-custom-4-16384"` | no |
 | `disk_size` | Disk size in GB | `number` | `100` | no |
 | `disk_autoresize` | Enable automatic disk resize | `bool` | `true` | no |
@@ -364,7 +364,7 @@ resource "google_sql_database_instance" "read_replica" {
   name                 = "replica-1"
   master_instance_name = module.cloudsql.instance_name
   region               = "europe-west2"
-  database_version     = "POSTGRES_17"
+  database_version     = "POSTGRES_18"
 
   settings {
     tier = "db-custom-4-16384"
