@@ -9,11 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "16.2.3",
+    "next": "16.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^9.0.1",
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0"
   },
@@ -25,7 +25,7 @@
     "eslint": "^9.18.0",
     "eslint-config-next": "15.4.7",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
+    "postcss": "^8.5.10",
     "tailwindcss": "^4.1.17"
   },
   "engines": {
