@@ -1,18 +1,18 @@
 {
-  "name": "bedrock-agents-infrastructure-scripts",
-  "version": "1.0.0",
-  "description": "Deployment and operational scripts for Bedrock agents infrastructure",
-  "main": "index.js",
-  "scripts": {
-    "deploy": "./deploy.sh",
-    "setup-kb": "./setup-knowledge-base.sh",
-    "invoke": "./invoke-agent.sh",
-    "orchestrate": "./orchestrate-workflow.sh",
-    "cleanup": "./cleanup.sh",
-    "setup-monitoring": "./monitoring/setup-dashboards.sh",
-    "export-metrics": "./monitoring/export-metrics.sh",
-    "cost-analysis": "./monitoring/cost-analysis.sh"
+  "author": "Bedrock Agents Team",
+  "bugs": {
+    "url": "https://github.com/yourusername/bedrock-agents-infrastructure/issues"
   },
+  "description": "Deployment and operational scripts for Bedrock agents infrastructure",
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "shellcheck": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "homepage": "https://github.com/yourusername/bedrock-agents-infrastructure#readme",
   "keywords": [
     "bedrock",
     "agents",
@@ -20,26 +20,22 @@
     "aws",
     "deployment"
   ],
-  "author": "Bedrock Agents Team",
   "license": "MIT",
-  "dependencies": {
-    "aws-sdk": "^2.1400.0",
-    "aws-cli": "^1.27.0"
-  },
-  "devDependencies": {
-    "shellcheck": "^1.1.0",
-    "prettier": "^3.0.0"
-  },
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
-  },
+  "main": "index.js",
+  "name": "bedrock-agents-infrastructure-scripts",
   "repository": {
     "type": "git",
     "url": "https://github.com/yourusername/bedrock-agents-infrastructure.git"
   },
-  "bugs": {
-    "url": "https://github.com/yourusername/bedrock-agents-infrastructure/issues"
+  "scripts": {
+    "cleanup": "./cleanup.sh",
+    "cost-analysis": "./monitoring/cost-analysis.sh",
+    "deploy": "./deploy.sh",
+    "export-metrics": "./monitoring/export-metrics.sh",
+    "invoke": "./invoke-agent.sh",
+    "orchestrate": "./orchestrate-workflow.sh",
+    "setup-kb": "./setup-knowledge-base.sh",
+    "setup-monitoring": "./monitoring/setup-dashboards.sh"
   },
-  "homepage": "https://github.com/yourusername/bedrock-agents-infrastructure#readme"
+  "version": "1.0.0"
 }
